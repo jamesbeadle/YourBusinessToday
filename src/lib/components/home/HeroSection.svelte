@@ -15,18 +15,11 @@
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
-				href="/map"
+				href="/project"
 				class="rounded-full bg-tfl-blue px-6 py-3 font-display text-sm tracking-wide text-white
 					transition hover:bg-tfl-red"
 			>
-				Explore the demo map
-			</a>
-			<a
-				href="/chat"
-				class="rounded-full border-2 border-tfl-blue px-6 py-3 font-display text-sm tracking-wide
-					text-tfl-blue transition hover:border-tfl-red hover:text-tfl-red"
-			>
-				Start the conversation
+				Open the demo project
 			</a>
 		</div>
 		<GoogleSignInButton />

@@ -5,8 +5,9 @@ every task a station, drawn in the style of the London Underground map.
 
 ## Status
 
-Demo preview. The landing page, Workflow Map view, and chat interface are real;
-Google sign-in, credits, and the Claude-powered agent are not wired up yet.
+Demo preview. The landing page and the demo project workspace are real — the Workflow
+Map with the agent chat alongside it, where selecting a station sets the conversation
+context. Google sign-in, credits, and the Claude-powered agent are not wired up yet.
 
 ## Running locally
 

@@ -3,8 +3,7 @@
 
 	const navigationLinks = [
 		{ href: '/', label: 'Home' },
-		{ href: '/map', label: 'Workflow Map' },
-		{ href: '/chat', label: 'The Agent' }
+		{ href: '/project', label: 'Demo Project' }
 	];
 </script>
 

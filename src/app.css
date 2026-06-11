@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@theme {
+	--font-sans: 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', ui-sans-serif, sans-serif;
+	--font-display: 'Hammersmith One', 'Gill Sans', 'Trebuchet MS', sans-serif;
+
+	--color-tfl-blue: #0019a8;
+	--color-tfl-red: #dc241f;
+	--color-map-paper: #ffffff;
+	--color-map-ink: #1c1c1b;
+	--color-map-grid: #e9e9e6;
+
+	--color-tube-central: #dc241f;
+	--color-tube-bakerloo: #b36305;
+	--color-tube-district: #007d32;
+	--color-tube-piccadilly: #0019a8;
+	--color-tube-victoria: #0098d8;
+	--color-tube-circle: #ffd329;
+	--color-tube-jubilee: #a1a5a7;
+	--color-tube-metropolitan: #9b0058;
+}
+
+body {
+	background-color: var(--color-map-paper);
+	color: var(--color-map-ink);
+	font-family: var(--font-sans);
+}

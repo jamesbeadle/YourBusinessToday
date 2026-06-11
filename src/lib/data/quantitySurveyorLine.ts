@@ -39,7 +39,7 @@ export const quantitySurveyorLine: RoleLine = {
 			{
 				isInterchange: true,
 				connectingRoles: ['Project Manager'],
-				labelOffset: { x: 14, y: -12 },
+				labelOffset: { x: 14, y: -16 },
 				labelAnchor: 'start'
 			}
 		),
@@ -51,7 +51,7 @@ export const quantitySurveyorLine: RoleLine = {
 			{
 				isInterchange: true,
 				connectingRoles: ['Site Manager'],
-				labelOffset: { x: 18, y: 8 },
+				labelOffset: { x: 18, y: -10 },
 				labelAnchor: 'start'
 			}
 		),

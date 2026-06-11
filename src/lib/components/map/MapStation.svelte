@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RoleLine, Station } from '$lib/data/types';
+	import { labelBaseline, labelLineHeight, stationLabelLines } from './stationLabel';
 
 	let {
 		line,
@@ -10,6 +11,9 @@
 
 	const x = $derived(station.position.x);
 	const y = $derived(station.position.y);
+	const labelLines = $derived(stationLabelLines(station.name));
+	const labelX = $derived(x + station.labelOffset.x);
+	const firstLineBaseline = $derived(labelBaseline(y, station.labelOffset.y, labelLines.length));
 
 	function selectOnEnter(event: KeyboardEvent) {
 		if (event.key !== 'Enter') return;
@@ -66,13 +70,13 @@
 		/>
 	{/if}
 	<text
-		x={x + station.labelOffset.x}
-		y={y + station.labelOffset.y}
 		text-anchor={station.labelAnchor}
 		font-size="12"
 		fill="var(--color-map-ink)"
 		class="font-display select-none"
 	>
-		{station.name}
+		{#each labelLines as labelLine, lineIndex}
+			<tspan x={labelX} y={firstLineBaseline + lineIndex * labelLineHeight}>{labelLine}</tspan>
+		{/each}
 	</text>
 </g>

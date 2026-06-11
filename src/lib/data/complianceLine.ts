@@ -45,7 +45,7 @@ export const complianceLine: RoleLine = {
 				inputs: ['Verified compliance record'],
 				outputs: ['Renewal chasers', 'Compliance alerts']
 			},
-			{ tickAngle: -135, labelOffset: { x: -16, y: -4 }, labelAnchor: 'end' }
+			{ tickAngle: 45, labelOffset: { x: -12, y: 18 }, labelAnchor: 'end' }
 		)
 	]
 };

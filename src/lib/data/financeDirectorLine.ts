@@ -17,7 +17,7 @@ export const financeDirectorLine: RoleLine = {
 		station(
 			'cost-capture',
 			'Cost Capture',
-			{ x: 380, y: 500 },
+			{ x: 420, y: 500 },
 			{
 				summary: 'Capture every cost — supplier invoices, timesheets, CIS — against its cost code.',
 				inputs: ['Supplier invoices', 'Timesheets', 'Work orders'],
@@ -49,13 +49,13 @@ export const financeDirectorLine: RoleLine = {
 		station(
 			'retention-release',
 			'Retention Release',
-			{ x: 790, y: 450 },
+			{ x: 760, y: 480 },
 			{
 				summary: 'Track retention through the defects period and release it on time.',
 				inputs: ['Settlement record', 'Defects status'],
 				outputs: ['Retention release']
 			},
-			{ tickAngle: -45, labelOffset: { x: 16, y: 12 }, labelAnchor: 'start' }
+			{ tickAngle: -45, labelOffset: { x: 16, y: 16 }, labelAnchor: 'start' }
 		)
 	]
 };

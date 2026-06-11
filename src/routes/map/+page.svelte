@@ -21,11 +21,13 @@
 <div class="mx-auto max-w-6xl px-6 py-10">
 	<header class="flex flex-col gap-2">
 		<p class="font-display text-sm tracking-widest text-tfl-red uppercase">Demo</p>
-		<h1 class="font-display text-3xl">The Workflow Map</h1>
+		<h1 class="font-display text-3xl">The Workflow Map — Jewel Bespoke Build</h1>
 		<p class="max-w-prose text-map-ink/80">
-			A sample business, mapped. Each line is a role, each station is a task with defined inputs
-			and outputs, and each interchange is a handover between roles. Click a station to inspect
-			it.
+			A real business, mapped: a Surrey super-prime residential builder. Six roles run in
+			parallel; their lines branch and cross where one workflow feeds another — the compliance
+			gate before any work order, the H&S gate before a site opens, site progress feeding the
+			QS valuation. The yellow rings mark the outputs the whole system exists to produce. Click
+			any station to inspect its task.
 		</p>
 	</header>
 	<div class="mt-6">

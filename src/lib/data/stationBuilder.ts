@@ -1,7 +1,10 @@
 import type { Point, Station, StationTask } from './types';
 
 type StationOverrides = Partial<
-	Pick<Station, 'isInterchange' | 'connectingRoles' | 'tickAngle' | 'labelOffset' | 'labelAnchor'>
+	Pick<
+		Station,
+		'isInterchange' | 'connectingRoles' | 'producesOutput' | 'tickAngle' | 'labelOffset' | 'labelAnchor'
+	>
 >;
 
 const defaultLabelOffset: Point = { x: 0, y: 32 };

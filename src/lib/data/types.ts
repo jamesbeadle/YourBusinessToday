@@ -12,6 +12,7 @@ export type Station = {
 	position: Point;
 	isInterchange: boolean;
 	connectingRoles: string[];
+	producesOutput?: string;
 	tickAngle: number;
 	labelOffset: Point;
 	labelAnchor: 'start' | 'middle' | 'end';
@@ -22,6 +23,6 @@ export type RoleLine = {
 	id: string;
 	role: string;
 	colour: string;
-	route: Point[];
+	routes: Point[][];
 	stations: Station[];
 };

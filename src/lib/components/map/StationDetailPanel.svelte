@@ -24,6 +24,14 @@
 			</p>
 			<h2 class="font-display text-2xl">{selection.station.name}</h2>
 		</div>
+		{#if selection.station.producesOutput}
+			<p
+				class="self-start rounded-full border-2 border-tube-circle px-3 py-1 font-display text-xs
+					tracking-wide"
+			>
+				Business output — {selection.station.producesOutput}
+			</p>
+		{/if}
 		<p class="text-map-ink/80">{selection.station.task.summary}</p>
 		<TaskFlowList title="Inputs" items={selection.station.task.inputs} />
 		<TaskFlowList title="Outputs" items={selection.station.task.outputs} />

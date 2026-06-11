@@ -25,7 +25,17 @@
 	onclick={onSelect}
 	onkeydown={selectOnEnter}
 >
-	{#if station.isInterchange}
+	{#if station.producesOutput}
+		<circle cx={x} cy={y} r="16" fill="var(--color-tube-circle)" />
+		<circle
+			cx={x}
+			cy={y}
+			r="9"
+			fill="var(--color-map-paper)"
+			stroke="var(--color-map-ink)"
+			stroke-width="4"
+		/>
+	{:else if station.isInterchange}
 		<circle
 			cx={x}
 			cy={y}

@@ -4,6 +4,7 @@
 	import ProjectHeader from '$lib/components/project/ProjectHeader.svelte';
 	import StationDetailPanel from '$lib/components/map/StationDetailPanel.svelte';
 	import TubeMap from '$lib/components/map/TubeMap.svelte';
+	import { mapViewBox, workflowLines } from '$lib/data/workflowMap';
 	import type { StationSelection } from '$lib/components/map/stationSelection';
 	import type { RoleLine, Station } from '$lib/data/types';
 
@@ -23,10 +24,15 @@
 <div class="mx-auto max-w-6xl px-6 py-10">
 	<ProjectHeader />
 	<div class="mt-6">
-		<LineLegend />
+		<LineLegend lines={workflowLines} />
 	</div>
 	<div class="mt-6 grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-		<TubeMap {selectedStationId} onSelectStation={selectStation} />
+		<TubeMap
+			lines={workflowLines}
+			viewBox={mapViewBox}
+			{selectedStationId}
+			onSelectStation={selectStation}
+		/>
 		<StationDetailPanel {selection} />
 	</div>
 </div>

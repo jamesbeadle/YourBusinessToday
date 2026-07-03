@@ -13,18 +13,18 @@
 </script>
 
 <header class="flex flex-col gap-3">
-	<p class="font-display text-sm tracking-widest text-tfl-red uppercase">Projects · Demo</p>
+	<p class="font-display text-sm tracking-widest text-signal uppercase">Projects · Demo</p>
 	<div class="flex flex-wrap items-center gap-4">
-		<h1 class="font-display text-3xl">Jewel Bespoke Build</h1>
+		<h1 class="font-display text-3xl font-medium">Jewel Bespoke Build</h1>
 		<ul class="flex flex-wrap gap-2">
 			{#each projectFacts as projectFact}
-				<li class="rounded-full border border-map-grid px-3 py-1 text-xs text-map-ink/70">
+				<li class="rounded-full border border-hairline px-3 py-1 text-xs text-chalk/70">
 					{projectFact}
 				</li>
 			{/each}
 		</ul>
 	</div>
-	<p class="max-w-prose text-map-ink/80">
+	<p class="max-w-prose text-chalk/70">
 		Surrey super-prime residential construction. The map below is everything the agent has learned
 		about this business so far — keep talking and it keeps growing. Select a station to inspect
 		its task and bring it into the conversation.

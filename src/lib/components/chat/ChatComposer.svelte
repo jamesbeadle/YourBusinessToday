@@ -17,14 +17,14 @@
 		bind:value={draft}
 		placeholder="Tell the agent about your business…"
 		aria-label="Your message to the agent"
-		class="flex-1 rounded-full border border-map-ink/20 bg-map-paper px-5 py-3 outline-none
-			focus:border-tfl-blue"
+		class="flex-1 rounded-full border border-hairline bg-night px-5 py-3 text-chalk outline-none
+			placeholder:text-chalk/40 focus:border-signal"
 	/>
 	<button
 		type="submit"
 		disabled={isDisabled}
-		class="rounded-full bg-tfl-blue px-6 py-3 font-display text-sm tracking-wide text-white
-			transition hover:bg-tfl-red disabled:opacity-40"
+		class="rounded-full bg-signal px-6 py-3 font-display text-sm font-medium text-night
+			transition hover:brightness-110 disabled:opacity-40"
 	>
 		Send
 	</button>

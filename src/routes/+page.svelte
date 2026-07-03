@@ -8,7 +8,7 @@
 	<title>Your Business Today — every role, every workflow, one map</title>
 	<meta
 		name="description"
-		content="Talk to an AI agent about your business and get back an Underground-style map of every role, workflow and handover."
+		content="Talk to an AI agent about your business and get back a transit-style map of every role, workflow and handover."
 	/>
 </svelte:head>
 

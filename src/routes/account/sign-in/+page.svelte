@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import OAuthSignInButtons from '$lib/components/account/OAuthSignInButtons.svelte';
 
 	let { form } = $props();
 </script>
@@ -12,8 +13,14 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Sign in</h1>
 		<p class="text-chalk/70">
-			New here? Use the same form and choose “Create account” — you start with three free credits.
+			New here? Use the same form and choose “Create account” — you start with 300 free credits.
 		</p>
+	</div>
+	<OAuthSignInButtons />
+	<div class="flex items-center gap-4 text-xs tracking-widest text-chalk/40 uppercase">
+		<span class="h-px flex-1 bg-hairline"></span>
+		or with email
+		<span class="h-px flex-1 bg-hairline"></span>
 	</div>
 	<form method="POST" action="?/signIn" use:enhance class="flex flex-col gap-4">
 		<label class="flex flex-col gap-1.5">
@@ -38,7 +45,10 @@
 			/>
 		</label>
 		{#if form?.message}
-			<p class="rounded-xl border border-caution/50 bg-caution/10 px-4 py-3 text-sm text-caution">
+			<p
+				class={`rounded-xl border px-4 py-3 text-sm
+					${form.isSuccess ? 'border-go/50 bg-go/10 text-go' : 'border-caution/50 bg-caution/10 text-caution'}`}
+			>
 				{form.message}
 			</p>
 		{/if}
@@ -60,4 +70,16 @@
 			</button>
 		</div>
 	</form>
+	{#if form?.unverifiedEmail}
+		<form method="POST" action="?/resendVerification" use:enhance>
+			<input type="hidden" name="email" value={form.unverifiedEmail} />
+			<button
+				type="submit"
+				class="font-display text-sm text-signal underline underline-offset-4 transition
+					hover:brightness-110"
+			>
+				Resend the verification email
+			</button>
+		</form>
+	{/if}
 </div>

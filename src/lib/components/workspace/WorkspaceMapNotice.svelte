@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { creditsPerReply } from '$lib/data/creditPricing';
+
 	let { creditBalance }: { creditBalance: number | null } = $props();
 </script>
 
@@ -37,6 +39,6 @@
 	</p>
 	<p class="border-t border-hairline pt-3 text-sm text-chalk/50">
 		{creditBalance ?? 0}
-		{creditBalance === 1 ? 'credit' : 'credits'} remaining · 1 credit = 10 agent replies
+		{creditBalance === 1 ? 'credit' : 'credits'} remaining · each reply costs {creditsPerReply}
 	</p>
 </aside>

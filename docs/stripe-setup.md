@@ -1,45 +1,42 @@
 # Stripe Setup Guide
 
-How to replace the placeholder checkout with live Stripe payments, and the unit economics
-that make the credit model profitable.
+How the implemented checkout works, the keys it needs, and the unit economics that make
+the credit model profitable.
 
-## Where the placeholder lives
+## How checkout works
 
-One server action and one SQL function:
-
-- `src/routes/account/credits/+page.server.ts` — the `buy` action currently calls the
-  `purchase_credit_pack` RPC directly, which credits the ledger immediately.
-- `purchase_credit_pack` in Postgres — inserts the purchase with a fake
-  `cs_test_placeholder_…` checkout session id and status `placeholder_paid`.
-
-Everything else (packs, ledger, balance, purchase history) is already real and does not
-change when Stripe goes live.
+- `src/routes/account/credits/+page.server.ts` — the `buy` action creates a Stripe
+  Checkout session (`createCheckoutSession`) with the pack priced inline from
+  `credit_packs`, `client_reference_id` set to the user id, and the pack id in metadata.
+  The browser is redirected to Stripe and back to `/account/credits?checkout=…`.
+- `src/routes/api/stripe-webhook/+server.ts` — verifies the webhook signature and, on
+  `checkout.session.completed`, calls the `complete_stripe_purchase` SQL function through
+  the service-role client. The function is idempotent on the checkout session id and only
+  executable by the service role. Credits are only ever granted from the webhook, never
+  from the success redirect.
+- **Fallback**: when `STRIPE_SECRET_KEY` is missing, the `buy` action uses the old
+  placeholder RPC (`purchase_credit_pack`) so local development works without Stripe.
 
 ## Going live, step by step
 
 1. **Create the Stripe account** at dashboard.stripe.com — a UK Stripe account, GBP as the
    default currency. Complete business verification early; payouts are blocked until done.
-2. **Create one Product per credit pack** (Starter, Growth, Scale) with a one-off Price
-   matching `credit_packs` in Postgres: 900p, 3900p, 7900p. Put the pack id (`starter`,
-   `growth`, `scale`) in each Price's metadata so the webhook can map back.
-3. **Install the SDK**: `npm install stripe`.
-4. **Add the real keys to `.env`** (and your host's environment): `STRIPE_SECRET_KEY`
-   (starts `sk_live_` / `sk_test_`) and `STRIPE_WEBHOOK_SECRET` (from step 6).
-5. **Swap the `buy` action for Checkout**: create a `stripe.checkout.sessions.create` call
-   with the pack's Price, `mode: 'payment'`, `client_reference_id` set to the user id, and
-   success/cancel URLs back to `/account/credits`. Redirect the browser to `session.url`.
-   The action stops calling `purchase_credit_pack`.
-6. **Add the webhook endpoint** `src/routes/api/stripe-webhook/+server.ts`: verify the
-   signature with `STRIPE_WEBHOOK_SECRET`, handle `checkout.session.completed`, and call a
-   new `complete_stripe_purchase(user_id, pack_id, checkout_session_id)` SQL function —
-   same body as today's `purchase_credit_pack`, but keyed on the real session id and
-   idempotent (ignore a session id it has already processed). Credits must only ever be
-   granted from the webhook, never from the success redirect.
-7. **Test locally** with the Stripe CLI: `stripe listen --forward-to
-   localhost:5173/api/stripe-webhook`, then pay with card `4242 4242 4242 4242`.
-8. **Flip to live keys** once test-mode purchases credit the ledger correctly.
+2. **Set the keys** in `.env` (and your host's environment): `STRIPE_SECRET_KEY`
+   (starts `sk_live_` / `sk_test_`), `STRIPE_WEBHOOK_SECRET` (from step 3), and
+   `SUPABASE_SECRET_KEY` (Supabase dashboard → Settings → API keys → secret key), which
+   the webhook uses to credit the ledger.
+3. **Register the webhook** in the Stripe dashboard: endpoint
+   `https://<production-domain>/api/stripe-webhook`, event `checkout.session.completed`.
+   Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
+4. **Test locally** with the Stripe CLI: `stripe listen --forward-to
+   localhost:5173/api/stripe-webhook` (use the CLI's signing secret), then pay with card
+   `4242 4242 4242 4242`.
+5. **Flip to live keys** once test-mode purchases credit the ledger correctly.
 
-## Unit economics — why 1 credit = 10 replies is profitable
+No Stripe Products need to be created — packs are priced inline from the database, so
+`credit_packs` stays the single source of truth.
+
+## Unit economics — why 10 credits per reply is profitable
 
 Cost side, per agent reply (Claude Sonnet, current API pricing ~$3/M input, $15/M output):
 
@@ -49,16 +46,26 @@ Cost side, per agent reply (Claude Sonnet, current API pricing ~$3/M input, $15/
 | Reply + full map model out | ~1,500 | ~$0.023 |
 | **Total per reply** | | **~$0.035 (~3p)** |
 
-Revenue side, per reply, at 10 replies per credit:
+Revenue side, per reply, at 10 credits per reply:
 
-| Pack | Price | Per credit | Per reply | Margin per reply |
+| Pack | Price | Credits | Per reply | Margin per reply |
 | --- | --- | --- | --- | --- |
-| Starter (10) | £9.00 | 90.0p | 9.0p | ~6p (67%) |
-| Growth (50) | £39.00 | 78.0p | 7.8p | ~4.8p (62%) |
-| Scale (120) | £79.00 | 65.8p | 6.6p | ~3.6p (55%) |
+| Starter (500) | £2.99 | 500 | 6.0p | ~3p (50%) |
+| Growth (1,200) | £5.99 | 1,200 | 5.0p | ~2p (40%) |
+| Scale (3,000) | £12.99 | 3,000 | 4.3p | ~1.3p (31%) |
 
-Stripe fees (1.5% + 20p UK cards) cost 34p on a Starter pack — about 3.7% of revenue.
-Welcome credits give away 30 free replies (~£1 of API cost) per signup.
+Stripe fees (1.5% + 20p UK cards) cost 24.5p on a Starter pack — about 8.2% of revenue.
+The fixed 20p is why packs never go below ~£3: at £1.99 the fee share is 11.6%. Welcome
+credits give away 30 free replies (~£1 of API cost) per signup.
+
+Two cost reductions are planned before launch, and the Scale pack's thinner margin
+assumes at least one lands:
+
+- **Emit map diffs, not the full map** — output is 65% of the cost because the whole map
+  model is re-emitted every reply. Diffs cut cost per reply to roughly half.
+- **Prompt caching** — the system prompt and transcript are identical prefixes each turn;
+  cached input reads cost ~10% of fresh input. Together these take a reply from ~3p to
+  ~1p, lifting every margin above 75%.
 
 The margin's biggest sensitivity is conversation length: the whole transcript is resent
 each reply, so input cost grows with long conversations. If margins tighten, cap the

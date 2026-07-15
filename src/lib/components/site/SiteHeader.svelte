@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BrandMark from './BrandMark.svelte';
+	import BrandWordmark from './BrandWordmark.svelte';
 	import CreditBalancePill from './CreditBalancePill.svelte';
 
 	let {
@@ -21,9 +21,8 @@
 
 <header class="border-b border-hairline bg-night/95 backdrop-blur">
 	<div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
-		<a href="/" class="flex items-center gap-3">
-			<BrandMark />
-			<span class="font-display text-lg font-medium tracking-tight">Your Business Today</span>
+		<a href="/" class="flex items-center">
+			<BrandWordmark fontSize={26} />
 		</a>
 		<nav class="flex flex-wrap items-center gap-x-6 gap-y-2">
 			{#each navigationLinks as navigationLink}

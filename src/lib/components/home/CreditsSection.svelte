@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { repliesPerCredit, welcomeCreditCount } from '$lib/data/creditPricing';
+	import { creditsPerReply, welcomeCreditCount } from '$lib/data/creditPricing';
 </script>
 
 <section class="mx-auto max-w-6xl px-6 py-16">
@@ -7,12 +7,13 @@
 		<div class="flex flex-col gap-4">
 			<h2 class="font-display text-3xl font-medium">Pay as you go</h2>
 			<p class="max-w-prose text-chalk/70">
-				No subscriptions. Buy credits, then spend them when you talk to the agent or redraw your
-				Workflow Map. Top up whenever you are running low — your map stays yours either way.
+				No subscriptions. Buy credits once and spend them across any tool in the ecosystem —
+				today that's conversations with the mapping agent; tomorrow it's transition plans,
+				agents on shift, and new clients in your pipeline.
 			</p>
 			<p class="max-w-prose text-chalk/70">
-				Create a company, invite your team, and let everyone describe their own line. The map gets
-				better with every conversation.
+				Top up whenever you're running low. Everything you've built — your profile, your map —
+				stays yours either way.
 			</p>
 			<a
 				href="/account/credits"
@@ -27,7 +28,7 @@
 			<dl class="mt-4 flex flex-col gap-3">
 				<div class="flex items-baseline justify-between gap-4">
 					<dt class="text-chalk/80">Agent replies</dt>
-					<dd class="font-display">{repliesPerCredit} per credit</dd>
+					<dd class="font-display">{creditsPerReply} credits each</dd>
 				</div>
 				<div class="flex items-baseline justify-between gap-4">
 					<dt class="text-chalk/80">Live Workflow Map updates</dt>

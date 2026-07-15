@@ -7,10 +7,13 @@ every task a station, drawn in the visual language of a transit map.
 
 Early access. Accounts, credits, the agent, and the live map are all working:
 
-- Sign up with email and password (Supabase Auth) — three welcome credits included.
-- Buy credit packs at `/account/credits` — checkout is a Stripe **placeholder** for now;
-  [docs/stripe-setup.md](./docs/stripe-setup.md) covers going live and the unit economics.
-- Talk to the agent at `/workspace` — 1 credit buys 10 agent replies, and the Workflow Map
+- Sign in with Google, Microsoft, or email + password with verification — 300 welcome
+  credits arrive once the email is verified; [docs/auth-setup.md](./docs/auth-setup.md)
+  covers the provider configuration.
+- Buy credit packs at `/account/credits` — live Stripe Checkout with webhook fulfilment
+  when keys are set, a placeholder otherwise; [docs/stripe-setup.md](./docs/stripe-setup.md)
+  covers the keys and the unit economics.
+- Talk to the agent at `/workspace` — each agent reply costs 10 credits, and the Workflow Map
   redraws in real time as you answer. Every reply returns both conversation and structure.
 - Share your map read-only by adding someone's email in the workspace; it appears in their
   "Shared with me" once they sign in with that address.
@@ -36,7 +39,9 @@ npm run dev
 | `PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key |
 | `ANTHROPIC_API_KEY` | Claude API key — optional, scripted agent without it |
-| `STRIPE_SECRET_KEY` | Placeholder until live Stripe Checkout lands |
+| `STRIPE_SECRET_KEY` | Stripe secret key — optional, placeholder checkout without it |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret for `/api/stripe-webhook` |
+| `SUPABASE_SECRET_KEY` | Supabase secret key — used only by the Stripe webhook |
 
 ## Architecture
 

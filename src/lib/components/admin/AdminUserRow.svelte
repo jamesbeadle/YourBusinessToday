@@ -28,8 +28,8 @@
 				name="creditAmount"
 				type="number"
 				min="1"
-				max="1000"
-				value="10"
+				max="100000"
+				value="1000"
 				aria-label={`Credits to grant ${user.email}`}
 				class="w-20 rounded-full border border-hairline bg-night px-3 py-1.5 text-sm text-chalk
 					outline-none focus:border-go"

@@ -30,7 +30,7 @@ single source of truth, and it is the contract between every agent below.
 
 ## Stage 1 — today: the Interviewer (shipped)
 
-One agent, one conversation, one credit per session.
+One agent, one conversation, ten credits per reply.
 
 ```
 Browser ── /api/agent-chat ── gates (auth → credits → validation)
@@ -42,13 +42,13 @@ Browser ── /api/agent-chat ── gates (auth → credits → validation)
 
 The Interviewer runs on a single system prompt: ask one question at a time, hunt for roles,
 tasks, inputs, outputs, and handovers. Every turn is persisted, so the transcript is already
-the raw material for stage 2. Credits gate the session, not the message — the expensive
-thing is opening a line of enquiry, and metering per message punishes exactly the behaviour
-we want (long, detailed answers).
+the raw material for stage 2. Credits meter the reply on a fine-grained scale — 10 credits
+per reply, so the 300-credit welcome balance is a full first interview, and every future
+agent prices its actions in the same currency without a schema change.
 
 ## Stage 2 — the Cartographer: transcript → map
 
-A second agent, run asynchronously after each session (or on demand for a 2-credit redraw):
+A second agent, run asynchronously after each session (or on demand for a 200-credit redraw):
 
 ```
 agent_messages ──► Cartographer ──► workflow_map (versioned JSON) ──► TubeMap renderer
@@ -91,8 +91,8 @@ guess:
 
 | Action | Credits |
 | --- | --- |
-| Interview session | 1 |
-| Map redraw (Cartographer on demand) | 2 |
+| Agent reply (Interviewer) | 10 |
+| Map redraw (Cartographer on demand) | 200 |
 | Automation run (Operator journey) | priced per journey when stage 4 lands |
 
 All spending stays in `credit_ledger` — one table, signed deltas, balance is the sum. New

@@ -45,14 +45,16 @@
 		looks like for every one of them, because the map already says so.
 	</p>
 	<p class="text-chalk/80">
-		That's the route we're building on top of the profile. The Autopilot reads your map and
-		shows which parts of your business can run themselves — the tools that could take each
-		task on, and the order to hand them over. The Workforce is those agents on shift: doing
-		the work, escalating to a human when they should, reporting in live on the very map you
-		drew. And because a business that runs itself still needs feeding, The Prospector reads
-		the same profile to find your next clients — businesses that look like your best ones,
-		scored, contactable, and ready to export or work right here. Understand the business,
-		plan the handover, watch it run, keep it growing.
+		That's the route we're building on top of the profile. The Workflow Map captures what
+		your business does; the Second Brain captures what it knows — every document your company
+		files, read and remembered, so any question about a client, a supplier, or a project gets
+		an answer grounded in your own records. The Workforce runs what you hand over: it reads
+		the map to see which tasks can run themselves, plans the order, and puts agents on shift —
+		doing the work, escalating to a human when they should, reporting in live on the very map
+		you drew. And because a business that runs itself still needs feeding, the Prospector
+		finds who you serve next — businesses that look like your best clients, scored,
+		contactable, and ready to export or work right here. What it does, what it knows, what it
+		runs, who it serves next.
 	</p>
 	<h2 class="font-display text-2xl font-medium">The deal we're offering</h2>
 	<p class="text-chalk/80">

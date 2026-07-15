@@ -8,9 +8,10 @@
 		<div class="flex flex-col gap-2">
 			<h2 class="font-display text-3xl font-medium">The ecosystem</h2>
 			<p class="max-w-prose text-chalk/70">
-				Four products, one route: understand how your business runs, plan the handover to AI,
-				watch it work — and keep new clients coming. The first is live today, and each gets
-				sharper as your business profile grows.
+				Four products, one idea: the Workflow Map captures what your business does, the Second
+				Brain captures what it knows, the Workforce runs what it hands over, and the Prospector
+				finds who it serves next. The first is live today, and each gets sharper as your
+				business profile grows.
 			</p>
 		</div>
 		<div class="mt-10 grid gap-6 md:grid-cols-2">

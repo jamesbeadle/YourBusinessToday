@@ -12,9 +12,9 @@
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
 			Tell YBT about your business once, and every tool in the ecosystem works from that
-			understanding — the Workflow Map shows how you run today, the Autopilot plans the
-			handover to AI, the Workforce puts your agents on shift, and the Prospector keeps
-			new clients coming.
+			understanding — the Workflow Map captures what your business does, the Second Brain
+			captures what it knows, the Workforce runs what you hand over, and the Prospector
+			finds who you serve next.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a

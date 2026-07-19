@@ -27,6 +27,9 @@
 	"dependencies": {
 		"@supabase/ssr": "^0.12.0",
 		"@supabase/supabase-js": "^2.110.0",
+		"isomorphic-dompurify": "^3.19.0",
+		"mammoth": "^1.12.0",
+		"marked": "^18.0.6",
 		"stripe": "^22.3.0"
 	}
 }

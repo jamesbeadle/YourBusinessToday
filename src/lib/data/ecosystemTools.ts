@@ -22,8 +22,9 @@ export const ecosystemTools: EcosystemTool[] = [
 		name: 'The Second Brain',
 		tagline: 'Captures what your business knows',
 		description:
-			'Reads everything your company files — clients, suppliers, projects, history — into a living knowledge base that connects to where your documents already live, so you can simply ask and get answers grounded in your own records.',
-		isLive: false
+			'Reads everything your company files — clients, suppliers, projects, history — into a living wiki maintained by a librarian agent, so you can simply ask and get answers grounded in your own records.',
+		isLive: true,
+		href: '/brain'
 	},
 	{
 		id: 'workforce',

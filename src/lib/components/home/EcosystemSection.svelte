@@ -10,7 +10,7 @@
 			<p class="max-w-prose text-chalk/70">
 				Four products, one idea: the Workflow Map captures what your business does, the Second
 				Brain captures what it knows, the Workforce runs what it hands over, and the Prospector
-				finds who it serves next. The first is live today, and each gets sharper as your
+				finds who it serves next. The first two are live today, and each gets sharper as your
 				business profile grows.
 			</p>
 		</div>

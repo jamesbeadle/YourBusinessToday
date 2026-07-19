@@ -14,6 +14,7 @@
 		{ href: '/', label: 'Home' },
 		{ href: '/project', label: 'Demo map' },
 		{ href: '/workspace', label: 'Workspace' },
+		{ href: '/brain', label: 'Second Brain' },
 		...(isSignedIn ? [{ href: '/shared', label: 'Shared with me' }] : []),
 		...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : [])
 	]);

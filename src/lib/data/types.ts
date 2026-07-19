@@ -1,9 +1,15 @@
 export type Point = { x: number; y: number };
 
+export type StationHandover = {
+	toRole: string;
+	failureNote?: string;
+};
+
 export type StationTask = {
 	summary: string;
 	inputs: string[];
 	outputs: string[];
+	handovers?: StationHandover[];
 };
 
 export type Station = {

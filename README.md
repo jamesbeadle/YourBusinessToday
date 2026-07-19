@@ -1,11 +1,14 @@
 # Your Business Today (YBT)
 
-Talk to an AI agent about your business; get back a Workflow Map — every role a line,
-every task a station, drawn in the visual language of a transit map.
+AI tools that actually know your business. Two of the four ecosystem products are live:
+the Workflow Map (talk to an agent; watch your business drawn as a transit map — every
+role a line, every task a station) and the Second Brain (upload the documents your company
+files; a librarian agent keeps a wiki you can question, with every answer grounded in your
+own records).
 
 ## Status
 
-Early access. Accounts, credits, the agent, and the live map are all working:
+Early access. Accounts, credits, both live products, and sharing are all working:
 
 - Sign in with Google, Microsoft, or email + password with verification — 300 welcome
   credits arrive once the email is verified; [docs/auth-setup.md](./docs/auth-setup.md)
@@ -15,6 +18,13 @@ Early access. Accounts, credits, the agent, and the live map are all working:
   covers the keys and the unit economics.
 - Talk to the agent at `/workspace` — each agent reply costs 10 credits, and the Workflow Map
   redraws in real time as you answer. Every reply returns both conversation and structure.
+  The interview is driven by an engine that derives what the map is missing (phases, gaps,
+  journeys) on every turn; [docs/interview-architecture.md](./docs/interview-architecture.md)
+  is the design, `src/lib/server/agent/interview/` is the implementation.
+- Build your Second Brain at `/brain` — upload PDFs, Word documents, text, or images
+  (50 credits an ingest), browse the wiki the librarian maintains, and ask questions
+  (10 credits) answered only from your own pages, with citations;
+  [docs/second-brain-architecture.md](./docs/second-brain-architecture.md) covers the design.
 - Share your map read-only by adding someone's email in the workspace; it appears in their
   "Shared with me" once they sign in with that address.
 - Admins (`/admin`) can grant promotional credits and restrict accounts. The first admin is

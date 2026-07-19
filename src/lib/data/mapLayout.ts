@@ -43,16 +43,21 @@ function asRoleLine(role: WorkflowRole, roleIndex: number): RoleLine {
 function asStation(role: WorkflowRole, task: WorkflowTask, taskIndex: number, y: number): Station {
 	const spacing = stationSpacing(role.tasks.length);
 	const position = { x: lineStartX + taskIndex * spacing, y };
-	const isHandover = task.handoverRoles.length > 0;
+	const isHandover = task.handovers.length > 0;
 	const shouldLabelAbove = taskIndex % 2 === 1;
 	return station(
 		`${slugify(role.name)}-${slugify(task.name)}`,
 		task.name,
 		position,
-		{ summary: task.summary, inputs: task.inputs, outputs: task.outputs },
+		{
+			summary: task.summary,
+			inputs: task.inputs,
+			outputs: task.outputs,
+			handovers: task.handovers
+		},
 		{
 			isInterchange: isHandover,
-			connectingRoles: task.handoverRoles,
+			connectingRoles: task.handovers.map((handover) => handover.toRole),
 			producesOutput: task.businessOutput,
 			...(shouldLabelAbove ? labelAbove : {})
 		}

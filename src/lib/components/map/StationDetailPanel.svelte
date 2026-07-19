@@ -36,10 +36,19 @@
 		<TaskFlowList title="Inputs" items={selection.station.task.inputs} />
 		<TaskFlowList title="Outputs" items={selection.station.task.outputs} />
 		{#if selection.station.isInterchange}
-			<p class="border-t border-hairline pt-3 text-sm text-chalk/60">
-				Interchange — this stop connects with the {selection.station.connectingRoles.join(' and ')}
-				line.
-			</p>
+			<div class="flex flex-col gap-2 border-t border-hairline pt-3 text-sm text-chalk/60">
+				<p>
+					Interchange — this stop connects with the
+					{selection.station.connectingRoles.join(' and ')} line.
+				</p>
+				{#each selection.station.task.handovers ?? [] as handover (handover.toRole)}
+					{#if handover.failureNote}
+						<p class="text-caution/90">
+							Handover to {handover.toRole} — {handover.failureNote}
+						</p>
+					{/if}
+				{/each}
+			</div>
 		{/if}
 	</aside>
 {/if}

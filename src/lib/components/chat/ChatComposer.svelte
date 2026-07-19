@@ -1,5 +1,9 @@
 <script lang="ts">
-	let { onSend, isDisabled }: { onSend: (text: string) => void; isDisabled: boolean } = $props();
+	let {
+		onSend,
+		isDisabled,
+		placeholder = 'Tell the agent about your business…'
+	}: { onSend: (text: string) => void; isDisabled: boolean; placeholder?: string } = $props();
 
 	let draft = $state('');
 
@@ -15,8 +19,8 @@
 <form onsubmit={sendDraft} class="flex gap-3">
 	<input
 		bind:value={draft}
-		placeholder="Tell the agent about your business…"
-		aria-label="Your message to the agent"
+		{placeholder}
+		aria-label={placeholder}
 		class="flex-1 rounded-full border border-hairline bg-night px-5 py-3 text-chalk outline-none
 			placeholder:text-chalk/40 focus:border-signal"
 	/>

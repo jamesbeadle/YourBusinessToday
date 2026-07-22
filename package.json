@@ -17,6 +17,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.1.0",
 		"@types/node": "^24.0.0",
+		"@types/three": "^0.185.0",
 		"jiti": "^2.4.0",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
@@ -30,6 +31,7 @@
 		"isomorphic-dompurify": "^3.19.0",
 		"mammoth": "^1.12.0",
 		"marked": "^18.0.6",
-		"stripe": "^22.3.0"
+		"stripe": "^22.3.0",
+		"three": "^0.185.0"
 	}
 }

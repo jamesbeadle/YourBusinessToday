@@ -5,17 +5,18 @@ import { createGlyphTexture } from './glyphTextures';
 
 export type GlyphPlacement = () => { x: number; y: number; z: number };
 
-const GLYPH_CHARACTERS = ['{', '0', '>'];
+const DEFAULT_GLYPH_CHARACTERS = ['{', '0', '>'];
 
 export function createGlyphField(
 	pointsPerCharacter: number,
 	pointSize: number,
 	colourCss: string,
 	opacity: number,
-	placeGlyph: GlyphPlacement
+	placeGlyph: GlyphPlacement,
+	characters: string[] = DEFAULT_GLYPH_CHARACTERS
 ): Group {
 	const group = new Group();
-	for (const character of GLYPH_CHARACTERS) {
+	for (const character of characters) {
 		const positions = new Float32Array(pointsPerCharacter * 3);
 		for (let index = 0; index < pointsPerCharacter; index += 1) {
 			const place = placeGlyph();

@@ -1,4 +1,4 @@
-export const FACE_CAMERA_DISTANCE = 5.0;
+export const FACE_CAMERA_DISTANCE = 6.0;
 export const DIVE_SECONDS = 2.1;
 export const EMERGE_SECONDS = 0.9;
 export const RETURN_SECONDS = 0.7;

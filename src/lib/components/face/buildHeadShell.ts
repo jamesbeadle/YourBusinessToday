@@ -1,7 +1,9 @@
 import { FacePalette } from './facePalette';
 import type { ParticleCollection, ParticlePoint } from './particleCollection';
 
-const SHELL_POINT_COUNT = 4600;
+const NODE_COUNT = 620;
+const UNDER_CLOUD_COUNT = 1700;
+const ACCENT_SHARE = 0.09;
 const SKULL_WIDTH = 0.95;
 const SKULL_HEIGHT = 1.25;
 const SKULL_DEPTH = 1.05;
@@ -52,13 +54,22 @@ function jawWeightFor(point: ParticlePoint): number {
 	return Math.min(1, (-0.45 - point.y) / 0.6) * 0.8;
 }
 
-export function buildHeadShell(collection: ParticleCollection): void {
-	let added = 0;
-	while (added < SHELL_POINT_COUNT) {
+export function buildHeadShell(collection: ParticleCollection): ParticlePoint[] {
+	const nodes: ParticlePoint[] = [];
+	while (nodes.length < NODE_COUNT) {
 		const point = sculptSkull(randomDirection());
 		if (isInsideFeatureOpening(point)) continue;
-		const size = 0.6 + Math.random() * 0.55;
-		collection.add(point, FacePalette.shell, size, { jaw: jawWeightFor(point) });
+		nodes.push(point);
+		const isAccent = Math.random() < ACCENT_SHARE;
+		const colour = isAccent ? FacePalette.ember : FacePalette.nodeGlow;
+		collection.add(point, colour, isAccent ? 2.1 : 1.1, {});
+	}
+	let added = 0;
+	while (added < UNDER_CLOUD_COUNT) {
+		const point = sculptSkull(randomDirection());
+		if (isInsideFeatureOpening(point)) continue;
+		collection.add(point, FacePalette.shell, 0.5, { jaw: jawWeightFor(point) });
 		added += 1;
 	}
+	return nodes;
 }

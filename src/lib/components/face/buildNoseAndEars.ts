@@ -50,8 +50,8 @@ function buildEars(collection: ParticleCollection): void {
 					y: EAR_CENTRE.y + Math.cos(angle) * EAR_HEIGHT_RADIUS,
 					z: EAR_CENTRE.z + Math.sin(angle) * EAR_DEPTH_RADIUS
 				},
-				FacePalette.shell,
-				1.1,
+				FacePalette.wire,
+				1.0,
 				{}
 			);
 		}

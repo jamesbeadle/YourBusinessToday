@@ -4,11 +4,11 @@ import type { ParticleCollection } from './particleCollection';
 export const mouthCentre = { x: 0, y: -0.55, z: 0.92 };
 
 const OUTER_LIP_POINTS = 44;
-const OUTER_HALF_WIDTH = 0.3;
-const OUTER_HALF_HEIGHT = 0.085;
-const INNER_LIP_POINTS = 28;
-const INNER_HALF_WIDTH = 0.2;
-const INNER_HALF_HEIGHT = 0.045;
+const OUTER_HALF_WIDTH = 0.34;
+const OUTER_HALF_HEIGHT = 0.045;
+const INNER_LIP_POINTS = 26;
+const INNER_HALF_WIDTH = 0.24;
+const INNER_HALF_HEIGHT = 0.014;
 const CORNER_START = 0.55;
 
 function cornerAmount(acrossMouth: number): number {
@@ -34,7 +34,7 @@ function buildLipLoop(
 				y: mouthCentre.y + Math.sin(angle) * halfHeight,
 				z: mouthCentre.z + (1 - Math.abs(acrossMouth)) * 0.03
 			},
-			FacePalette.signal,
+			FacePalette.chalk,
 			size,
 			{
 				lipUpper: isUpper ? 1 : 0,
@@ -46,6 +46,6 @@ function buildLipLoop(
 }
 
 export function buildMouth(collection: ParticleCollection): void {
-	buildLipLoop(collection, OUTER_LIP_POINTS, OUTER_HALF_WIDTH, OUTER_HALF_HEIGHT, 1.7);
-	buildLipLoop(collection, INNER_LIP_POINTS, INNER_HALF_WIDTH, INNER_HALF_HEIGHT, 1.3);
+	buildLipLoop(collection, OUTER_LIP_POINTS, OUTER_HALF_WIDTH, OUTER_HALF_HEIGHT, 1.5);
+	buildLipLoop(collection, INNER_LIP_POINTS, INNER_HALF_WIDTH, INNER_HALF_HEIGHT, 1.15);
 }

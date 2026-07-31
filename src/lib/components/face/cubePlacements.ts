@@ -1,6 +1,7 @@
 import { reliefSampleAt, type ReliefSample } from './faceRelief';
 import { noiseAt } from './gridNoise';
 import { HEAD_CHIN, HEAD_CROWN, headHalfWidthAt } from './headSilhouette';
+import { collectMouthInteriorPlacements } from './mouthInterior';
 import { CUBE_PITCH } from './reliefPalette';
 import { fadeBetween, mixTowards } from './reliefShapes';
 import { loosenedShade, shadeFor } from './reliefShade';
@@ -57,7 +58,7 @@ function shadeForCube(
 }
 
 export function collectCubePlacements(): CubePlacement[] {
-	const placements: CubePlacement[] = [];
+	const placements: CubePlacement[] = collectMouthInteriorPlacements();
 	const lowestRow = Math.floor(HEAD_CHIN / CUBE_PITCH);
 	const highestRow = Math.ceil(HEAD_CROWN / CUBE_PITCH);
 	for (let row = lowestRow; row <= highestRow; row += 1) {

@@ -9,19 +9,33 @@ const APERTURE_HALF_WIDTH = 0.17;
 const APERTURE_HALF_HEIGHT = 0.085;
 const APERTURE_OPENS_AT = 0.3;
 const APERTURE_FULLY_OPEN_AT = 0.62;
-const SCLERA_SHADE = 0.3;
-const IRIS_SHADE = 0.1;
+const LID_CLOSED_FLOOR = 0.18;
+const LID_DROP = 0.03;
+const LID_HIDES_BELOW = 0;
+const LID_FULLY_SHOWS_AT = 0.35;
+const SCLERA_SHADE = 0.42;
+const IRIS_SHADE = 0.12;
 const PUPIL_SHADE = 0.02;
-const IRIS_RADIUS = 0.09;
-const PUPIL_RADIUS = 0.036;
+const IRIS_RADIUS = 0.1;
+const PUPIL_RADIUS = 0.045;
 const GAZE_REACH = 0.042;
 
-function apertureAt(across: number, up: number, centre: (typeof eyeCentres)[number]): number {
-	return bumpAt(across, up, centre, APERTURE_HALF_WIDTH, APERTURE_HALF_HEIGHT);
+function apertureAt(
+	across: number,
+	up: number,
+	centre: (typeof eyeCentres)[number],
+	look: EyeLook
+): number {
+	const lidScale = LID_CLOSED_FLOOR + (1 - LID_CLOSED_FLOOR) * look.openness;
+	const lidded = up + (1 - Math.min(1, look.openness)) * LID_DROP;
+	return bumpAt(across, lidded, centre, APERTURE_HALF_WIDTH, APERTURE_HALF_HEIGHT * lidScale);
 }
 
-function eyeAperturesAt(across: number, up: number): number {
-	return Math.max(apertureAt(across, up, eyeCentres[0]), apertureAt(across, up, eyeCentres[1]));
+function eyeAperturesAt(across: number, up: number, look: EyeLook): number {
+	return Math.max(
+		apertureAt(across, up, eyeCentres[0], look),
+		apertureAt(across, up, eyeCentres[1], look)
+	);
 }
 
 function shadeWithinEye(across: number, up: number, look: EyeLook): number {
@@ -38,9 +52,9 @@ function shadeWithinEye(across: number, up: number, look: EyeLook): number {
 }
 
 export function eyeShadeAt(across: number, up: number, base: number, look: EyeLook): number {
-	const aperture = eyeAperturesAt(across, up);
-	const strength =
-		fadeBetween(APERTURE_OPENS_AT, APERTURE_FULLY_OPEN_AT, aperture) * look.openness;
+	const aperture = eyeAperturesAt(across, up, look);
+	const lidReveal = fadeBetween(LID_HIDES_BELOW, LID_FULLY_SHOWS_AT, look.openness);
+	const strength = fadeBetween(APERTURE_OPENS_AT, APERTURE_FULLY_OPEN_AT, aperture) * lidReveal;
 	if (strength <= 0) return base;
 	return mixTowards(base, shadeWithinEye(across, up, look), strength);
 }

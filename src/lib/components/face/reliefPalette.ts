@@ -6,5 +6,5 @@ export const ReliefPalette = {
 	highlight: 0xf8fbfc
 } as const;
 
-export const CUBE_PITCH = 0.026;
+export const CUBE_PITCH = 0.022;
 export const CUBE_FILL = 0.95;

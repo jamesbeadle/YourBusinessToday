@@ -8,7 +8,7 @@ export const expressionLibrary: Record<ExpressionName, FaceRigParameters> = {
 		browRaise: 0.25,
 		eyeOpenness: 0.8,
 		mouthCurve: 0.9,
-		jawOpen: 0.14,
+		jawOpen: 0.24,
 		mouthWidth: 0.5,
 		lipRound: 0
 	},
@@ -21,12 +21,12 @@ export const expressionLibrary: Record<ExpressionName, FaceRigParameters> = {
 		lipRound: 0.3
 	},
 	surprised: {
-		browRaise: 0.95,
-		eyeOpenness: 1,
+		browRaise: 0.85,
+		eyeOpenness: 1.15,
 		mouthCurve: 0,
-		jawOpen: 0.8,
-		mouthWidth: -0.2,
-		lipRound: 0.6
+		jawOpen: 0.62,
+		mouthWidth: -0.15,
+		lipRound: 0.45
 	},
 	focused: {
 		browRaise: -0.55,

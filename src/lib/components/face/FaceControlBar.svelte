@@ -24,9 +24,8 @@
 		{#each expressionNames as expressionName}
 			<button
 				onclick={() => onExpression(expressionName)}
-				class="rounded-full border border-hairline bg-carriage/80 px-4 py-1.5 font-display
-					text-xs text-chalk/80 capitalize backdrop-blur transition hover:border-chalk/40
-					hover:text-chalk"
+				class="border-etch bg-platform/75 text-slate hover:border-slate/45 rounded-full border px-4
+					py-1.5 font-display text-xs capitalize backdrop-blur transition hover:bg-platform"
 			>
 				{expressionName}
 			</button>
@@ -36,20 +35,20 @@
 		<input
 			bind:value={sentence}
 			aria-label="Sentence for the face to speak"
-			class="w-full rounded-full border border-hairline bg-carriage/80 px-4 py-2 text-sm
-				text-chalk backdrop-blur outline-none placeholder:text-chalk/40 focus:border-chalk/40"
+			class="border-etch bg-platform/75 text-slate placeholder:text-slate/45 focus:border-slate/45
+				w-full rounded-full border px-4 py-2 text-sm backdrop-blur outline-none"
 		/>
 		<button
 			type="submit"
-			class="rounded-full border border-go/60 px-5 py-2 font-display text-sm text-go
-				transition hover:bg-go/10"
+			class="border-slate/40 text-slate hover:bg-slate/10 rounded-full border px-5 py-2
+				font-display text-sm transition"
 		>
 			Speak
 		</button>
 	</form>
 	<button
 		onclick={onDive}
-		class="rounded-full bg-signal px-7 py-2.5 font-display text-sm font-medium text-night
+		class="rounded-full bg-signal px-7 py-2.5 font-display text-sm font-medium text-chalk
 			transition hover:brightness-110"
 	>
 		Dive inside ↓

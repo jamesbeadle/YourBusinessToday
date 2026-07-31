@@ -30,14 +30,11 @@
 
 <svelte:window onkeydown={keyPressed} />
 
-<div bind:this={containerElement} class="relative h-full w-full overflow-hidden bg-night">
+<div bind:this={containerElement} class="bg-daylight relative h-full w-full overflow-hidden">
 	<canvas bind:this={canvasElement} class="block h-full w-full cursor-pointer"></canvas>
-	<div
-		class="pointer-events-none absolute inset-0 bg-night"
-		style="opacity: {fadeOpacity}"
-	></div>
+	<div class="bg-night pointer-events-none absolute inset-0" style="opacity: {fadeOpacity}"></div>
 	{#if mode === 'face'}
-		<p class="absolute top-5 left-6 font-display text-xs tracking-widest text-chalk/50 uppercase">
+		<p class="text-slate/55 absolute top-5 left-6 font-display text-xs tracking-widest uppercase">
 			Tesseract · interactive code face — click the face to dive in
 		</p>
 		<div class="absolute inset-x-0 bottom-6 flex justify-center px-6">

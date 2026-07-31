@@ -20,14 +20,10 @@ function clusteredTowardsHead(spread: number, sample: number): number {
 	return Math.sign(signed) * Math.pow(Math.abs(signed), HEAD_PULL) * spread;
 }
 
-export type SpeckleField = {
-	mesh: InstancedMesh;
-	material: MeshLambertMaterial;
-	drift: (time: number) => void;
-};
+export type SpeckleField = { mesh: InstancedMesh; drift: (time: number) => void };
 
 export function createSpeckleField(): SpeckleField {
-	const material = new MeshLambertMaterial({ transparent: true });
+	const material = new MeshLambertMaterial();
 	const geometry = new BoxGeometry(CUBE_PITCH, CUBE_PITCH, CUBE_PITCH);
 	const mesh = new InstancedMesh(geometry, material, SPECKLE_COUNT);
 	const matrix = new Matrix4();
@@ -47,7 +43,7 @@ export function createSpeckleField(): SpeckleField {
 	}
 	mesh.instanceMatrix.needsUpdate = true;
 	mesh.frustumCulled = false;
-	return { mesh, material, drift: (time: number) => driftSpeckles(mesh, restingHeights, time) };
+	return { mesh, drift: (time: number) => driftSpeckles(mesh, restingHeights, time) };
 }
 
 const driftMatrix = new Matrix4();

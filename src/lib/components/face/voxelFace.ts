@@ -6,17 +6,13 @@ import { eyeShadeAt, restingLook } from './eyeShading';
 import { CUBE_FILL, CUBE_PITCH } from './reliefPalette';
 import { colourForShade } from './reliefShade';
 
-export type VoxelFace = {
-	mesh: InstancedMesh;
-	material: MeshLambertMaterial;
-	placements: CubePlacement[];
-};
+export type VoxelFace = { mesh: InstancedMesh; placements: CubePlacement[] };
 
 export function buildVoxelFace(): VoxelFace {
 	const placements = collectCubePlacements();
 	const side = CUBE_PITCH * CUBE_FILL;
-	const material = new MeshLambertMaterial({ transparent: true });
-	const mesh = new InstancedMesh(new BoxGeometry(side, side, side), material, placements.length);
+	const geometry = new BoxGeometry(side, side, side);
+	const mesh = new InstancedMesh(geometry, new MeshLambertMaterial(), placements.length);
 	const matrix = new Matrix4();
 	const colour = new Color();
 	placements.forEach((placement, index) => {
@@ -30,5 +26,5 @@ export function buildVoxelFace(): VoxelFace {
 	mesh.instanceMatrix.needsUpdate = true;
 	mesh.instanceColor?.setUsage(DynamicDrawUsage);
 	mesh.frustumCulled = false;
-	return { mesh, material, placements };
+	return { mesh, placements };
 }

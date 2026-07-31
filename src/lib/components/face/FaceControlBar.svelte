@@ -3,15 +3,13 @@
 
 	let {
 		onExpression,
-		onSpeak,
-		onDive
+		onSpeak
 	}: {
 		onExpression: (name: ExpressionName) => void;
 		onSpeak: (sentence: string) => void;
-		onDive: () => void;
 	} = $props();
 
-	let sentence = $state('Hello. I am the Tesseract. Dive inside my mind.');
+	let sentence = $state('Hello. I am the Tesseract.');
 
 	function submitSpeech(event: SubmitEvent) {
 		event.preventDefault();
@@ -46,11 +44,4 @@
 			Speak
 		</button>
 	</form>
-	<button
-		onclick={onDive}
-		class="rounded-full bg-signal px-7 py-2.5 font-display text-sm font-medium text-chalk
-			transition hover:brightness-110"
-	>
-		Dive inside ↓
-	</button>
 </div>

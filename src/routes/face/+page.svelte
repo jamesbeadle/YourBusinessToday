@@ -6,7 +6,7 @@
 	<title>Tesseract — the YBT code face</title>
 	<meta
 		name="description"
-		content="Meet the Tesseract: an interactive 3D code face you can talk to — and dive inside to explore the maze of our second brain."
+		content="Meet the Tesseract: an interactive 3D code face you can talk to, built from thousands of cubes."
 	/>
 </svelte:head>
 

@@ -1,5 +1,4 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three';
-import { FacePalette } from './facePalette';
 
 const FIELD_OF_VIEW_DEGREES = 42;
 const NEAR_PLANE = 0.1;
@@ -16,7 +15,6 @@ export type Stage = {
 export function createStage(canvas: HTMLCanvasElement): Stage {
 	const renderer = new WebGLRenderer({ canvas, antialias: true });
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, PIXEL_RATIO_LIMIT));
-	renderer.setClearColor(FacePalette.night);
 
 	const camera = new PerspectiveCamera(FIELD_OF_VIEW_DEGREES, 1, NEAR_PLANE, FAR_PLANE);
 

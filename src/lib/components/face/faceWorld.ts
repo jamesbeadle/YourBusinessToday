@@ -8,7 +8,7 @@ import { createReliefBackdrop } from './reliefBackdrop';
 import { createReliefLighting } from './reliefLighting';
 import { SpeakPerformance } from './speakPerformance';
 import { createSpeckleField, type SpeckleField } from './speckleField';
-import { buildVoxelFace, type VoxelFace } from './voxelFace';
+import { buildVoxelFace } from './voxelFace';
 import { VoxelRig } from './voxelRig';
 
 const PARAMETER_BLEND_RATE = 9;
@@ -20,7 +20,6 @@ const FACE_LIFT = 0.06;
 export class FaceWorld {
 	scene = new Scene();
 	private faceGroup = new Group();
-	private face: VoxelFace;
 	private rig: VoxelRig;
 	private speckles: SpeckleField;
 	private currentParameters: FaceRigParameters = copyParameters(neutralParameters);
@@ -31,10 +30,10 @@ export class FaceWorld {
 
 	constructor() {
 		this.scene.background = createReliefBackdrop();
-		this.face = buildVoxelFace();
-		this.rig = new VoxelRig(this.face.mesh, this.face.placements);
+		const face = buildVoxelFace();
+		this.rig = new VoxelRig(face.mesh, face.placements);
 		this.speckles = createSpeckleField();
-		this.faceGroup.add(this.face.mesh);
+		this.faceGroup.add(face.mesh);
 		this.scene.add(this.faceGroup, this.speckles.mesh, createReliefLighting());
 	}
 
@@ -51,15 +50,6 @@ export class FaceWorld {
 
 	setPointer(across: number, up: number): void {
 		this.pointer.set(across, up);
-	}
-
-	setOpacity(opacity: number): void {
-		this.face.material.opacity = opacity;
-		this.speckles.material.opacity = opacity;
-	}
-
-	setSpread(scale: number): void {
-		this.faceGroup.scale.setScalar(scale);
 	}
 
 	update(deltaSeconds: number, timeSeconds: number): void {

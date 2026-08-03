@@ -10,6 +10,7 @@ const MOVES_ABOVE = 0.01;
 const RECOLOURS_ABOVE = 0.04;
 const CAVITY_SHADE = 0.03;
 const CAVITY_SPREAD = 1.6;
+const SETTLED_TOLERANCE = 0.001;
 
 function canMove(placement: CubePlacement): boolean {
 	const weights = placement.weights;
@@ -31,6 +32,7 @@ export class VoxelRig {
 	private placements: CubePlacement[];
 	private movers: number[] = [];
 	private recolourers: number[] = [];
+	private appliedParameters: FaceRigParameters | undefined;
 	private matrix = new Matrix4();
 	private colour = new Color();
 
@@ -41,6 +43,14 @@ export class VoxelRig {
 			if (canMove(placement)) this.movers.push(index);
 			if (canRecolour(placement)) this.recolourers.push(index);
 		});
+	}
+
+	private haveParametersSettled(parameters: FaceRigParameters): boolean {
+		const applied = this.appliedParameters;
+		if (applied === undefined) return false;
+		return (Object.keys(parameters) as (keyof FaceRigParameters)[]).every(
+			(key) => Math.abs(parameters[key] - applied[key]) < SETTLED_TOLERANCE
+		);
 	}
 
 	private moveCube(index: number, parameters: FaceRigParameters): void {
@@ -65,9 +75,12 @@ export class VoxelRig {
 	}
 
 	applyParameters(parameters: FaceRigParameters, look: EyeLook): void {
-		for (const index of this.movers) this.moveCube(index, parameters);
+		if (!this.haveParametersSettled(parameters)) {
+			for (const index of this.movers) this.moveCube(index, parameters);
+			this.mesh.instanceMatrix.needsUpdate = true;
+			this.appliedParameters = { ...parameters };
+		}
 		for (const index of this.recolourers) this.recolourCube(index, parameters, look);
-		this.mesh.instanceMatrix.needsUpdate = true;
 		if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
 	}
 }

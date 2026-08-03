@@ -1,6 +1,7 @@
+import type { FaceExpressionName } from '$lib/data/faceChatTypes';
 import { neutralParameters, type FaceRigParameters } from './faceRigParameters';
 
-export type ExpressionName = 'neutral' | 'happy' | 'curious' | 'surprised' | 'focused';
+export type ExpressionName = FaceExpressionName;
 
 export const expressionLibrary: Record<ExpressionName, FaceRigParameters> = {
 	neutral: neutralParameters,

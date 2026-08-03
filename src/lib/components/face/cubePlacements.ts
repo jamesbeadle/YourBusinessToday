@@ -13,7 +13,7 @@ const EDGE_DRIFT = 0.2;
 const EDGE_SHADE = 0.72;
 const EDGE_SHRINK = 0.45;
 const CROWN_BITE = 2.6;
-const LONGEST_STACK = 5;
+const LONGEST_STACK = 8;
 const GRAIN = 0.07;
 
 export type CubePlacement = {

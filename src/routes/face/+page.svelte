@@ -3,10 +3,10 @@
 </script>
 
 <svelte:head>
-	<title>Tesseract — the YBT code face</title>
+	<title>Tesseract — talk to your Domain Brain</title>
 	<meta
 		name="description"
-		content="Meet the Tesseract: an interactive 3D code face you can talk to, built from thousands of cubes."
+		content="Meet the Tesseract: the talking 3D code face of your Domain Brain, built from thousands of cubes."
 	/>
 </svelte:head>
 

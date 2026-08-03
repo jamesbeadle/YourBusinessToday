@@ -2,6 +2,7 @@ import { startAnimationLoop } from './animationLoop';
 import { createStage, fitStageTo, type Stage } from './createStage';
 import type { ExpressionName } from './expressionLibrary';
 import { FaceWorld } from './faceWorld';
+import type { FaceMood } from './presenceDirector';
 
 const CAMERA_DISTANCE = 4.4;
 const CAMERA_HEIGHT = 0.06;
@@ -29,8 +30,16 @@ export class FaceExperience {
 		this.faceWorld.setExpression(name);
 	}
 
+	setMood(mood: FaceMood): void {
+		this.faceWorld.setMood(mood);
+	}
+
 	speak(sentence: string): void {
 		this.faceWorld.speak(sentence);
+	}
+
+	get isSpeaking(): boolean {
+		return this.faceWorld.isSpeaking;
 	}
 
 	handlePointer(across: number, up: number): void {

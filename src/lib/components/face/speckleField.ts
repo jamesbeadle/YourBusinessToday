@@ -3,7 +3,7 @@ import { noiseAt } from './gridNoise';
 import { CUBE_PITCH } from './reliefPalette';
 import { colourForShade } from './reliefShade';
 
-const SPECKLE_COUNT = 7000;
+const SPECKLE_COUNT = 12000;
 const SPREAD_ACROSS = 4.6;
 const SPREAD_UP = 3.4;
 const NEAREST_DEPTH = -0.45;
@@ -13,12 +13,16 @@ const SMALLEST_SIZE = 0.35;
 const LARGEST_SIZE = 0.85;
 const DIMMEST_SHADE = 0.46;
 const BRIGHTEST_SHADE = 0.96;
-const DRIFT_RATE = 0.035;
+const RISE_RATE = 0.035;
+const SIDLE_RATE = 0.021;
+const SIDLE_REACH = 1.6;
 
 function clusteredTowardsHead(spread: number, sample: number): number {
 	const signed = sample * 2 - 1;
 	return Math.sign(signed) * Math.pow(Math.abs(signed), HEAD_PULL) * spread;
 }
+
+type SpeckleRest = { across: number; up: number };
 
 export type SpeckleField = { mesh: InstancedMesh; drift: (time: number) => void };
 
@@ -28,7 +32,7 @@ export function createSpeckleField(): SpeckleField {
 	const mesh = new InstancedMesh(geometry, material, SPECKLE_COUNT);
 	const matrix = new Matrix4();
 	const colour = new Color();
-	const restingHeights: number[] = [];
+	const restingPlaces: SpeckleRest[] = [];
 	for (let index = 0; index < SPECKLE_COUNT; index += 1) {
 		const across = clusteredTowardsHead(SPREAD_ACROSS, noiseAt(index, 1, 11));
 		const up = clusteredTowardsHead(SPREAD_UP, noiseAt(index, 2, 13));
@@ -39,19 +43,22 @@ export function createSpeckleField(): SpeckleField {
 		matrix.setPosition(across, up, depth);
 		mesh.setMatrixAt(index, matrix);
 		mesh.setColorAt(index, colourForShade(shade, colour));
-		restingHeights.push(up);
+		restingPlaces.push({ across, up });
 	}
 	mesh.instanceMatrix.needsUpdate = true;
 	mesh.frustumCulled = false;
-	return { mesh, drift: (time: number) => driftSpeckles(mesh, restingHeights, time) };
+	return { mesh, drift: (time: number) => driftSpeckles(mesh, restingPlaces, time) };
 }
 
 const driftMatrix = new Matrix4();
 
-function driftSpeckles(mesh: InstancedMesh, restingHeights: number[], time: number): void {
-	restingHeights.forEach((restingHeight, index) => {
+function driftSpeckles(mesh: InstancedMesh, restingPlaces: SpeckleRest[], time: number): void {
+	restingPlaces.forEach((restingPlace, index) => {
 		mesh.getMatrixAt(index, driftMatrix);
-		driftMatrix.elements[13] = restingHeight + Math.sin(time * DRIFT_RATE + index) * CUBE_PITCH;
+		driftMatrix.elements[12] =
+			restingPlace.across + Math.sin(time * SIDLE_RATE + index * SIDLE_REACH) * CUBE_PITCH;
+		driftMatrix.elements[13] =
+			restingPlace.up + Math.sin(time * RISE_RATE + index) * CUBE_PITCH;
 		mesh.setMatrixAt(index, driftMatrix);
 	});
 	mesh.instanceMatrix.needsUpdate = true;

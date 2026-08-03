@@ -3,6 +3,7 @@ import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { grantCredits } from '$lib/server/admin/grantCredits';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
 import { setAccountRestriction } from '$lib/server/admin/setAccountRestriction';
+import { setStaffAccess } from '$lib/server/admin/setStaffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -32,5 +33,15 @@ export const actions: Actions = {
 		await setAccountRestriction(locals.supabase, targetEmail, shouldRestrict);
 		const restrictionState = shouldRestrict ? 'restricted' : 'unrestricted';
 		return { message: `${targetEmail} is now ${restrictionState}.` };
+	},
+	setStaff: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const targetEmail = String(formData.get('targetEmail') ?? '');
+		const shouldBeStaff = String(formData.get('shouldBeStaff')) === 'true';
+		if (targetEmail === '') return fail(400, { message: 'A user is required.' });
+		await setStaffAccess(locals.supabase, targetEmail, shouldBeStaff);
+		const staffState = shouldBeStaff ? 'now staff' : 'no longer staff';
+		return { message: `${targetEmail} is ${staffState}.` };
 	}
 };

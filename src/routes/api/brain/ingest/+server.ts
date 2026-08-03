@@ -9,7 +9,7 @@ export const config = { maxDuration: 300 };
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to build your Second Brain');
+	if (user === null) error(401, 'Sign in to build your Domain Brain');
 
 	const sourceId = await readSourceId(request);
 	const source = await findBrainSource(locals.supabase, sourceId);

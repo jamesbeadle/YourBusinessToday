@@ -18,13 +18,13 @@ export const ecosystemTools: EcosystemTool[] = [
 		href: '/workspace'
 	},
 	{
-		id: 'second-brain',
-		name: 'The Second Brain',
-		tagline: 'Captures what your business knows',
+		id: 'domain-brain',
+		name: 'The Domain Brain',
+		tagline: 'Models what your business knows',
 		description:
-			'Reads everything your company files — clients, suppliers, projects, history — into a living wiki maintained by a librarian agent, so you can simply ask and get answers grounded in your own records.',
+			'Reads everything your company files into a domain model maintained by a modeller agent — bounded contexts, the things you track, the language you speak — so you can simply ask and get answers grounded in your own records. Yours to export as Markdown any time.',
 		isLive: true,
-		href: '/brain'
+		href: '/domain-brain'
 	},
 	{
 		id: 'workforce',

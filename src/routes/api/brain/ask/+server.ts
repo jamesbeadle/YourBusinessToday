@@ -1,5 +1,6 @@
 import { error, json } from '@sveltejs/kit';
-import { askLibrarian } from '$lib/server/brain/askLibrarian';
+import { askModeller } from '$lib/server/brain/askModeller';
+import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
@@ -7,15 +8,16 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to ask your Second Brain');
+	if (user === null) error(401, 'Sign in to ask your Domain Brain');
 
 	const question = await readQuestion(request);
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
+	const contexts = await getBrainContexts(locals.supabase);
 	const index = await getBrainPageIndex(locals.supabase);
-	const answer = await askLibrarian(locals.supabase, index, question);
+	const answer = await askModeller(locals.supabase, contexts, index, question);
 	await recordBrainEvent(locals.supabase, {
 		kind: 'question_answered',
 		detail: { question, answerMarkdown: answer.answerMarkdown, citedSlugs: answer.citedSlugs }

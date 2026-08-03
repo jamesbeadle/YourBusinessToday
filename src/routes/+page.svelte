@@ -10,7 +10,7 @@
 	<title>Your Business Today — AI tools that know your business</title>
 	<meta
 		name="description"
-		content="One living profile of your business — the Workflow Map captures what your business does, the Second Brain captures what it knows, the Workforce runs what you hand over, and the Prospector finds who you serve next."
+		content="One living profile of your business — the Workflow Map captures what your business does, the Domain Brain models what it knows, the Workforce runs what you hand over, and the Prospector finds who you serve next."
 	/>
 </svelte:head>
 

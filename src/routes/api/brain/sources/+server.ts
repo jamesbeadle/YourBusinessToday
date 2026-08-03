@@ -5,7 +5,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to add documents to your Second Brain');
+	if (user === null) error(401, 'Sign in to add documents to your Domain Brain');
 
 	const upload = await readUploadRequest(request);
 	if (!isAcceptedUpload(upload.mimeType, upload.byteCount)) {

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
 </script>
 
 <svelte:head>
@@ -25,6 +26,10 @@
 			</button>
 		</form>
 	</div>
+	{#if form?.message}
+		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
+	{/if}
+	<DisplayNameForm displayName={data.displayName} />
 	<div class="flex items-center justify-between rounded-2xl border border-hairline bg-carriage p-6">
 		<div>
 			<p class="font-display text-sm tracking-widest text-chalk/50 uppercase">Credit balance</p>

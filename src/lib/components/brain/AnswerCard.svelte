@@ -21,7 +21,7 @@
 			<span class="font-display text-xs tracking-widest text-chalk/50 uppercase">Grounded in</span>
 			{#each answer.citedSlugs as slug (slug)}
 				<a
-					href={`/brain/${slug}`}
+					href={`/domain-brain/${slug}`}
 					class="rounded-full border border-hairline px-3 py-1 font-display text-xs text-chalk/80
 						transition hover:border-chalk/40 hover:text-chalk"
 				>

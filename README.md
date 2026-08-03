@@ -2,9 +2,10 @@
 
 AI tools that actually know your business. Two of the four ecosystem products are live:
 the Workflow Map (talk to an agent; watch your business drawn as a transit map — every
-role a line, every task a station) and the Second Brain (upload the documents your company
-files; a librarian agent keeps a wiki you can question, with every answer grounded in your
-own records).
+role a line, every task a station) and the Domain Brain (upload the documents your company
+files; a modeller agent keeps a domain model of your business — bounded contexts, entities,
+your own vocabulary — that you can question, with every answer grounded in your own
+records, and export as Markdown whenever you like).
 
 ## Status
 
@@ -21,10 +22,12 @@ Early access. Accounts, credits, both live products, and sharing are all working
   The interview is driven by an engine that derives what the map is missing (phases, gaps,
   journeys) on every turn; [docs/interview-architecture.md](./docs/interview-architecture.md)
   is the design, `src/lib/server/agent/interview/` is the implementation.
-- Build your Second Brain at `/brain` — upload PDFs, Word documents, text, or images
-  (50 credits an ingest), browse the wiki the librarian maintains, and ask questions
-  (10 credits) answered only from your own pages, with citations;
-  [docs/second-brain-architecture.md](./docs/second-brain-architecture.md) covers the design.
+- Build your Domain Brain at `/domain-brain` — upload PDFs, Word documents, text, or
+  images (50 credits an ingest), browse the domain model the modeller maintains (bounded
+  contexts of entities, value objects, aggregates, services, events, and a glossary of
+  your own language), ask questions (10 credits) answered only from your own pages with
+  citations, and export the whole model as a zip of Markdown files, free;
+  [docs/domain-brain-architecture.md](./docs/domain-brain-architecture.md) covers the design.
 - Share your map read-only by adding someone's email in the workspace; it appears in their
   "Shared with me" once they sign in with that address.
 - Admins (`/admin`) can grant promotional credits and restrict accounts. The first admin is

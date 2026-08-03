@@ -5,8 +5,11 @@
 
 	function describe(event: BrainEvent): string {
 		if (event.kind === 'source_ingested') return String(event.detail.logLine ?? 'Source read');
+		if (event.kind === 'context_created') return `New context: ${String(event.detail.contextSlug ?? '')}`;
+		if (event.kind === 'context_updated') return `Reshaped context: ${String(event.detail.contextSlug ?? '')}`;
 		if (event.kind === 'page_created') return `Created ${event.pageSlug}`;
 		if (event.kind === 'page_updated') return `Updated ${event.pageSlug}`;
+		if (event.kind === 'brain_exported') return 'Exported the brain as Markdown';
 		return `Answered: ${String(event.detail.question ?? '')}`;
 	}
 
@@ -21,7 +24,7 @@
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
 	<div>
 		<h2 class="font-display text-xl font-medium">The log</h2>
-		<p class="text-sm text-chalk/60">Everything the librarian has done, newest first.</p>
+		<p class="text-sm text-chalk/60">Everything the modeller has done, newest first.</p>
 	</div>
 	{#if events.length === 0}
 		<p class="text-sm text-chalk/50">Nothing yet.</p>
@@ -31,7 +34,10 @@
 				<li class="flex items-baseline gap-3 text-sm">
 					<span class="shrink-0 font-display text-xs text-chalk/40">{dayOf(event)}</span>
 					{#if event.pageSlug !== null}
-						<a href={`/brain/${event.pageSlug}`} class="text-chalk/80 transition hover:text-chalk">
+						<a
+							href={`/domain-brain/${event.pageSlug}`}
+							class="text-chalk/80 transition hover:text-chalk"
+						>
 							{describe(event)}
 						</a>
 					{:else}

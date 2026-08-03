@@ -12,6 +12,9 @@
 			{#if user.isAdmin}
 				<span class="ml-2 rounded-full bg-signal/15 px-2 py-0.5 text-xs text-signal">admin</span>
 			{/if}
+			{#if user.isStaff}
+				<span class="ml-2 rounded-full bg-go/15 px-2 py-0.5 text-xs text-go">staff</span>
+			{/if}
 			{#if user.isRestricted}
 				<span class="ml-2 rounded-full bg-caution/15 px-2 py-0.5 text-xs text-caution">
 					restricted
@@ -40,6 +43,17 @@
 					transition hover:bg-go hover:text-night"
 			>
 				Grant
+			</button>
+		</form>
+		<form method="POST" action="?/setStaff" use:enhance>
+			<input type="hidden" name="targetEmail" value={user.email} />
+			<input type="hidden" name="shouldBeStaff" value={user.isStaff ? 'false' : 'true'} />
+			<button
+				type="submit"
+				class="rounded-full border border-hairline px-4 py-1.5 font-display text-sm text-chalk/70
+					transition hover:border-go hover:text-go"
+			>
+				{user.isStaff ? 'Remove staff' : 'Make staff'}
 			</button>
 		</form>
 		<form method="POST" action="?/setRestriction" use:enhance>

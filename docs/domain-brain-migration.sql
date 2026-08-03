@@ -1,0 +1,3 @@
+-- Moved: this migration now lives at migrations/0001_domain_brain.sql, run via
+-- scripts/run-migration.sh. This copy is kept only so old links resolve — safe
+-- to delete this file.

@@ -13,7 +13,7 @@
 	<div>
 		<h2 class="font-display text-xl font-medium">Source documents</h2>
 		<p class="text-sm text-chalk/60">
-			The raw material — every document is read once and remembered in the wiki.
+			The raw material — every document is read once and remembered in the model.
 		</p>
 	</div>
 	<SourceUploadPanel {onOutOfCredits} />

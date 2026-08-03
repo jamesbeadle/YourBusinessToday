@@ -5,10 +5,17 @@
 	let {
 		userEmail,
 		creditBalance,
-		isAdmin
-	}: { userEmail: string | null; creditBalance: number | null; isAdmin: boolean } = $props();
+		isAdmin,
+		isStaff
+	}: {
+		userEmail: string | null;
+		creditBalance: number | null;
+		isAdmin: boolean;
+		isStaff: boolean;
+	} = $props();
 
 	const isSignedIn = $derived(userEmail !== null);
+	const isProjectManager = $derived(isStaff || isAdmin);
 
 	const navigationLinks = $derived([
 		{ href: '/', label: 'Home' },
@@ -16,6 +23,7 @@
 		{ href: '/workspace', label: 'Workspace' },
 		{ href: '/brain', label: 'Second Brain' },
 		...(isSignedIn ? [{ href: '/shared', label: 'Shared with me' }] : []),
+		...(isProjectManager ? [{ href: '/projects', label: 'Projects' }] : []),
 		...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : [])
 	]);
 </script>

@@ -7,7 +7,12 @@
 </script>
 
 <div class="flex min-h-screen flex-col">
-	<SiteHeader userEmail={data.userEmail} creditBalance={data.creditBalance} isAdmin={data.isAdmin} />
+	<SiteHeader
+		userEmail={data.userEmail}
+		creditBalance={data.creditBalance}
+		isAdmin={data.isAdmin}
+		isStaff={data.isStaff}
+	/>
 	<main class="flex-1">
 		{@render children()}
 	</main>

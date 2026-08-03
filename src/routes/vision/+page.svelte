@@ -46,9 +46,10 @@
 	</p>
 	<p class="text-chalk/80">
 		That's the route we're building on top of the profile. The Workflow Map captures what
-		your business does; the Second Brain captures what it knows — every document your company
-		files, read and remembered, so any question about a client, a supplier, or a project gets
-		an answer grounded in your own records. The Workforce runs what you hand over: it reads
+		your business does; the Domain Brain models what it knows — every document your company
+		files, read into a structured model of your business, so any question about a client, a
+		supplier, or a project gets an answer grounded in your own records, and the whole model
+		is yours to export as Markdown whenever you want it elsewhere. The Workforce runs what you hand over: it reads
 		the map to see which tasks can run themselves, plans the order, and puts agents on shift —
 		doing the work, escalating to a human when they should, reporting in live on the very map
 		you drew. And because a business that runs itself still needs feeding, the Prospector

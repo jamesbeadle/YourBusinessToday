@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.12.0",
+		"fflate": "^0.8.2",
 		"@supabase/supabase-js": "^2.110.0",
 		"isomorphic-dompurify": "^3.19.0",
 		"mammoth": "^1.12.0",

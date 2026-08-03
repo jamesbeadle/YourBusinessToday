@@ -10,11 +10,28 @@ export type BrainSource = {
 	createdAt: string;
 };
 
+export type DomainBlockKind =
+	| 'entity'
+	| 'value_object'
+	| 'aggregate'
+	| 'domain_service'
+	| 'domain_event'
+	| 'glossary'
+	| 'context_map';
+
+export type BrainContext = {
+	slug: string;
+	name: string;
+	summary: string;
+	isCoreDomain: boolean;
+};
+
 export type BrainPageSummary = {
 	slug: string;
 	title: string;
 	summary: string;
-	category: string;
+	kind: DomainBlockKind;
+	contextSlug: string | null;
 };
 
 export type BrainPage = BrainPageSummary & {
@@ -24,9 +41,12 @@ export type BrainPage = BrainPageSummary & {
 
 export type BrainEventKind =
 	| 'source_ingested'
+	| 'context_created'
+	| 'context_updated'
 	| 'page_created'
 	| 'page_updated'
-	| 'question_answered';
+	| 'question_answered'
+	| 'brain_exported';
 
 export type BrainEvent = {
 	id: number;

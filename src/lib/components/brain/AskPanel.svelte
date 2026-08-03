@@ -55,7 +55,7 @@
 	<div>
 		<h2 class="font-display text-xl font-medium">Ask your brain</h2>
 		<p class="text-sm text-chalk/60">
-			Answers come only from your own records — {creditsPerBrainQuestion} credits a question.
+			Answers come only from your own model — {creditsPerBrainQuestion} credits a question.
 		</p>
 	</div>
 	<ChatComposer
@@ -64,7 +64,7 @@
 		placeholder="Ask about a client, a supplier, a project…"
 	/>
 	{#if isThinking}
-		<p class="text-sm text-chalk/50">Reading the wiki…</p>
+		<p class="text-sm text-chalk/50">Reading the model…</p>
 	{/if}
 	{#if hasFailed}
 		<p class="text-sm text-caution">That question went wrong — please try again.</p>

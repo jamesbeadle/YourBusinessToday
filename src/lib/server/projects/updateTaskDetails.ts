@@ -6,7 +6,14 @@ export type TaskDetailsUpdate = {
 	details: string;
 	status: TaskStatus;
 	dueDate: string | null;
-	assigneeId: string | null;
+	phaseId: string | null;
+	sprintId: string | null;
+	storyPoints: number;
+	completionPercent: number;
+	isUserStory: boolean;
+	storyRole: string;
+	storyWant: string;
+	storyBenefit: string;
 };
 
 export async function updateTaskDetails(
@@ -21,8 +28,20 @@ export async function updateTaskDetails(
 			details: update.details,
 			status: update.status,
 			due_date: update.dueDate,
-			assignee_id: update.assigneeId
+			phase_id: update.phaseId,
+			sprint_id: update.sprintId,
+			story_points: update.storyPoints,
+			completion_percent: completionPercentFor(update),
+			is_user_story: update.isUserStory,
+			story_role: update.storyRole,
+			story_want: update.storyWant,
+			story_benefit: update.storyBenefit
 		})
 		.eq('id', taskId);
 	if (error) throw error;
+}
+
+function completionPercentFor(update: TaskDetailsUpdate): number {
+	if (update.status === 'done') return 100;
+	return update.completionPercent;
 }

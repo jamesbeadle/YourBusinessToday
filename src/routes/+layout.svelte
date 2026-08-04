@@ -12,6 +12,7 @@
 		creditBalance={data.creditBalance}
 		isAdmin={data.isAdmin}
 		isStaff={data.isStaff}
+		unreadNotificationCount={data.unreadNotificationCount}
 	/>
 	<main class="flex-1">
 		{@render children()}

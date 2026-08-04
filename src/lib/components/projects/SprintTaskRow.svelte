@@ -1,34 +1,18 @@
 <script lang="ts">
-	import TaskDueDate from './TaskDueDate.svelte';
 	import TaskMetaBadges from './TaskMetaBadges.svelte';
-	import TaskPriorityControls from './TaskPriorityControls.svelte';
 	import TaskStatusButton from './TaskStatusButton.svelte';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
 	let {
 		task,
 		positionNumber,
-		isFirst,
-		isLast,
-		assigneeNames,
 		phaseName
-	}: {
-		task: ProjectTask;
-		positionNumber: number;
-		isFirst: boolean;
-		isLast: boolean;
-		assigneeNames: string[];
-		phaseName: string | null;
-	} = $props();
+	}: { task: ProjectTask; positionNumber: number; phaseName: string | null } = $props();
 
 	const isDone = $derived(task.status === 'done');
-	const rowSubtitle = $derived(
-		[phaseName, assigneeNames.join(', ')].filter((part) => part).join(' · ')
-	);
 </script>
 
 <li class="flex items-center gap-4 px-5 py-4" class:opacity-50={isDone}>
-	<TaskPriorityControls taskId={task.id} {isFirst} {isLast} />
 	<span class="w-6 text-right font-display text-sm text-chalk/40">{positionNumber}</span>
 	<div class="min-w-0 flex-1">
 		<a
@@ -38,13 +22,10 @@
 			{#if task.isUserStory}<span title="User story" class="text-caution">◆</span>{/if}
 			{task.title}
 		</a>
-		{#if rowSubtitle !== ''}
-			<p class="truncate text-xs text-chalk/50">{rowSubtitle}</p>
+		{#if phaseName !== null}
+			<p class="truncate text-xs text-chalk/50">{phaseName}</p>
 		{/if}
 	</div>
 	<TaskMetaBadges {task} />
-	{#if task.dueDate !== null}
-		<TaskDueDate dueDate={task.dueDate} {isDone} />
-	{/if}
 	<TaskStatusButton taskId={task.id} status={task.status} />
 </li>

@@ -1,39 +1,37 @@
 import { error, fail, redirect } from '@sveltejs/kit';
+import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
 import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
 import { deleteTask } from '$lib/server/projects/deleteTask';
-import { getProject } from '$lib/server/projects/getProject';
-import { getStaffDirectory, type StaffMember } from '$lib/server/projects/getStaffDirectory';
-import { getTask } from '$lib/server/projects/getTask';
-import { getTaskComments, type TaskComment } from '$lib/server/projects/getTaskComments';
-import { parseTaskStatus } from '$lib/data/taskStatus';
+import { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
+import { parseTaskDetailsForm } from '$lib/server/projects/parseTaskDetailsForm';
 import { requireStaff } from '$lib/server/auth/requireStaff';
+import { setCriterionMet } from '$lib/server/projects/setCriterionMet';
+import { setTaskAssignees } from '$lib/server/projects/setTaskAssignees';
+import { setTaskRoles } from '$lib/server/projects/setTaskRoles';
 import { updateTaskDetails } from '$lib/server/projects/updateTaskDetails';
+import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+import type { TaskComment } from '$lib/server/projects/getTaskComments';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireStaff(locals);
-	const task = await getTask(locals.supabase, params.taskId);
-	if (task === null) error(404, 'Task not found');
-	const project = await getProject(locals.supabase, params.projectId);
-	if (project === null) error(404, 'Project not found');
-	const staffMembers = await getStaffDirectory(locals.supabase);
-	const comments = await getTaskComments(locals.supabase, params.taskId);
-	return { task, project, staffMembers, comments: withAuthorNames(comments, staffMembers) };
+	const workspace = await loadTaskWorkspace(locals.supabase, params.projectId, params.taskId);
+	if (workspace === null) error(404, 'Task not found');
+	return {
+		...workspace,
+		comments: withAuthorNames(workspace.comments, workspace.staffMembers)
+	};
 };
 
 export const actions: Actions = {
 	saveTask: async ({ locals, params, request }) => {
 		await requireStaff(locals);
-		const formData = await request.formData();
-		const title = String(formData.get('title') ?? '').trim();
-		if (title === '') return fail(400, { message: 'A task title is required.' });
-		await updateTaskDetails(locals.supabase, params.taskId, {
-			title,
-			details: String(formData.get('details') ?? '').trim(),
-			status: parseTaskStatus(formData.get('status')),
-			dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
-			assigneeId: emptyAsNull(String(formData.get('assigneeId') ?? ''))
-		});
+		const submission = parseTaskDetailsForm(await request.formData());
+		if (submission === null) return fail(400, { message: 'A task title is required.' });
+		await updateTaskDetails(locals.supabase, params.taskId, submission);
+		await setTaskAssignees(locals.supabase, params.taskId, submission.assigneeIds);
+		await setTaskRoles(locals.supabase, params.taskId, submission.roles);
 		return { message: 'Task saved.' };
 	},
 	addComment: async ({ locals, params, request }) => {
@@ -44,17 +42,36 @@ export const actions: Actions = {
 		await addTaskComment(locals.supabase, params.taskId, user.id, body);
 		return {};
 	},
+	addCriterion: async ({ locals, params, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const description = String(formData.get('description') ?? '').trim();
+		if (description === '') return fail(400, { message: 'A criterion needs a description.' });
+		await addAcceptanceCriterion(locals.supabase, params.taskId, description);
+		return {};
+	},
+	setCriterionMet: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const criterionId = String(formData.get('criterionId') ?? '');
+		if (criterionId === '') return fail(400, { message: 'A criterion is required.' });
+		await setCriterionMet(locals.supabase, criterionId, formData.get('isMet') === 'true');
+		return {};
+	},
+	deleteCriterion: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const criterionId = String(formData.get('criterionId') ?? '');
+		if (criterionId === '') return fail(400, { message: 'A criterion is required.' });
+		await deleteAcceptanceCriterion(locals.supabase, criterionId);
+		return {};
+	},
 	deleteTask: async ({ locals, params }) => {
 		await requireStaff(locals);
 		await deleteTask(locals.supabase, params.taskId);
 		redirect(303, `/projects/${params.projectId}`);
 	}
 };
-
-function emptyAsNull(value: string): string | null {
-	if (value === '') return null;
-	return value;
-}
 
 function withAuthorNames(comments: TaskComment[], staffMembers: StaffMember[]) {
 	const nameById = new Map(staffMembers.map((staffMember) => [staffMember.id, staffMember.name]));

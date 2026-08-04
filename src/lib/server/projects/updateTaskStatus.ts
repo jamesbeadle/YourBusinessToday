@@ -6,6 +6,7 @@ export async function updateTaskStatus(
 	taskId: string,
 	status: TaskStatus
 ): Promise<void> {
-	const { error } = await supabase.from('tasks').update({ status }).eq('id', taskId);
+	const update = status === 'done' ? { status, completion_percent: 100 } : { status };
+	const { error } = await supabase.from('tasks').update(update).eq('id', taskId);
 	if (error) throw error;
 }

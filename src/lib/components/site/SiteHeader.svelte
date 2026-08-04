@@ -1,17 +1,20 @@
 <script lang="ts">
 	import BrandWordmark from './BrandWordmark.svelte';
 	import CreditBalancePill from './CreditBalancePill.svelte';
+	import NotificationsBell from './NotificationsBell.svelte';
 
 	let {
 		userEmail,
 		creditBalance,
 		isAdmin,
-		isStaff
+		isStaff,
+		unreadNotificationCount
 	}: {
 		userEmail: string | null;
 		creditBalance: number | null;
 		isAdmin: boolean;
 		isStaff: boolean;
+		unreadNotificationCount: number;
 	} = $props();
 
 	const isSignedIn = $derived(userEmail !== null);
@@ -42,6 +45,9 @@
 					{navigationLink.label}
 				</a>
 			{/each}
+			{#if isProjectManager}
+				<NotificationsBell unreadCount={unreadNotificationCount} />
+			{/if}
 			{#if isSignedIn}
 				<CreditBalancePill balance={creditBalance ?? 0} />
 				<a href="/account" class="font-display text-sm text-chalk/80 transition hover:text-chalk">

@@ -1,8 +1,13 @@
 import { error, fail } from '@sveltejs/kit';
+import { createPhase } from '$lib/server/projects/createPhase';
 import { createTask } from '$lib/server/projects/createTask';
+import { deletePhase } from '$lib/server/projects/deletePhase';
+import { getPhaseSummaries } from '$lib/server/projects/getPhaseSummaries';
 import { getProject } from '$lib/server/projects/getProject';
+import { getProjectPhases } from '$lib/server/projects/getProjectPhases';
 import { getProjectTasks } from '$lib/server/projects/getProjectTasks';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
+import { getTaskAssigneeMap } from '$lib/server/projects/getTaskAssigneeMap';
 import { moveTask, type TaskMoveDirection } from '$lib/server/projects/moveTask';
 import { parseTaskStatus } from '$lib/data/taskStatus';
 import { requireStaff } from '$lib/server/auth/requireStaff';
@@ -13,10 +18,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireStaff(locals);
 	const project = await getProject(locals.supabase, params.projectId);
 	if (project === null) error(404, 'Project not found');
+	const tasks = await getProjectTasks(locals.supabase, params.projectId);
+	const phases = await getProjectPhases(locals.supabase, params.projectId);
+	const taskIds = tasks.map((task) => task.id);
+	const assigneeIdsByTask = await getTaskAssigneeMap(locals.supabase, taskIds);
 	return {
 		project,
-		tasks: await getProjectTasks(locals.supabase, params.projectId),
-		staffMembers: await getStaffDirectory(locals.supabase)
+		tasks,
+		phaseSummaries: getPhaseSummaries(phases, tasks),
+		staffMembers: await getStaffDirectory(locals.supabase),
+		assigneeIdsByTask: Object.fromEntries(assigneeIdsByTask)
 	};
 };
 
@@ -44,6 +55,22 @@ export const actions: Actions = {
 		const taskId = String(formData.get('taskId') ?? '');
 		if (taskId === '') return fail(400, { message: 'A task is required.' });
 		await updateTaskStatus(locals.supabase, taskId, parseTaskStatus(formData.get('status')));
+		return {};
+	},
+	createPhase: async ({ locals, params, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const name = String(formData.get('name') ?? '').trim();
+		if (name === '') return fail(400, { message: 'A phase name is required.' });
+		await createPhase(locals.supabase, params.projectId, name);
+		return { message: `Phase "${name}" added.` };
+	},
+	deletePhase: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const phaseId = String(formData.get('phaseId') ?? '');
+		if (phaseId === '') return fail(400, { message: 'A phase is required.' });
+		await deletePhase(locals.supabase, phaseId);
 		return {};
 	}
 };

@@ -1,9 +1,16 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
 	import TaskCommentThread from '$lib/components/projects/TaskCommentThread.svelte';
 	import TaskEditForm from '$lib/components/projects/TaskEditForm.svelte';
 
 	let { data, form } = $props();
+
+	const storySentence = $derived(
+		data.task.isUserStory && data.task.storyRole !== ''
+			? `As a ${data.task.storyRole}, I want ${data.task.storyWant}, so that ${data.task.storyBenefit}.`
+			: null
+	);
 </script>
 
 <svelte:head>
@@ -19,11 +26,24 @@
 			← {data.project.name}
 		</a>
 		<h1 class="font-display text-3xl font-medium">{data.task.title}</h1>
+		{#if storySentence !== null}
+			<p class="rounded-2xl border border-caution/40 bg-caution/10 px-5 py-3 text-caution">
+				{storySentence}
+			</p>
+		{/if}
 	</div>
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
-	<TaskEditForm task={data.task} staffMembers={data.staffMembers} />
+	<TaskEditForm
+		task={data.task}
+		staffMembers={data.staffMembers}
+		phases={data.phases}
+		sprints={data.sprints}
+		assigneeIds={data.assigneeIds}
+		roles={data.roles}
+	/>
+	<AcceptanceCriteriaSection criteria={data.criteria} />
 	<TaskCommentThread comments={data.comments} />
 	<form
 		method="POST"

@@ -43,8 +43,8 @@ Browser ── /api/agent-chat ── gates (auth → credits → validation)
 The Interviewer runs on a single system prompt: ask one question at a time, hunt for roles,
 tasks, inputs, outputs, and handovers. Every turn is persisted, so the transcript is already
 the raw material for stage 2. Credits meter the reply on a fine-grained scale — 10 credits
-per reply, so the 300-credit welcome balance is a full first interview, and every future
-agent prices its actions in the same currency without a schema change.
+per reply — and every future agent prices its actions in the same currency without a
+schema change.
 
 ## Stage 2 — the Cartographer: transcript → map
 

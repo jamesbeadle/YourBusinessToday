@@ -28,7 +28,7 @@ The Domain Brain code is committed; nothing works until the database matches it.
 6. Stripe live checklist from docs/stripe-setup.md: live keys, webhook registered, one
    real £2.99 purchase landing in the ledger.
 
-**Exit test: a stranger with a fresh account and 300 welcome credits can build and export
+**Exit test: a stranger with a fresh account and a Starter pack can build and export
 a brain with no help.**
 
 ## Phase 2 — Know the customer (company data)

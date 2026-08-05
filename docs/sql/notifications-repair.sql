@@ -1,0 +1,1 @@
+-- Superseded by fix-everything.sql — do not run. Its regclass check errors when the notifications table is missing.

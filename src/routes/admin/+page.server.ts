@@ -1,4 +1,5 @@
 import { fail } from '@sveltejs/kit';
+import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { grantCredits } from '$lib/server/admin/grantCredits';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
@@ -43,5 +44,19 @@ export const actions: Actions = {
 		await setStaffAccess(locals.supabase, targetEmail, shouldBeStaff);
 		const staffState = shouldBeStaff ? 'now staff' : 'no longer staff';
 		return { message: `${targetEmail} is ${staffState}.` };
+	},
+	deleteUser: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const targetEmail = String(formData.get('targetEmail') ?? '');
+		if (targetEmail === '') return fail(400, { message: 'A user is required.' });
+		try {
+			await deleteUserAccount(locals.supabase, targetEmail);
+		} catch {
+			return fail(400, {
+				message: `${targetEmail} could not be deleted — admin accounts and accounts that own team data are protected.`
+			});
+		}
+		return { message: `${targetEmail} has been deleted.` };
 	}
 };

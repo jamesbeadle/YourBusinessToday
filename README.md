@@ -11,8 +11,8 @@ records, and export as Markdown whenever you like).
 
 Early access. Accounts, credits, both live products, and sharing are all working:
 
-- Sign in with Google, Microsoft, or email + password with verification — 300 welcome
-  credits arrive once the email is verified; [docs/auth-setup.md](./docs/auth-setup.md)
+- Sign in with Google, Microsoft, or email + password with verification — new accounts
+  start with zero credits; [docs/auth-setup.md](./docs/auth-setup.md)
   covers the provider configuration.
 - Buy credit packs at `/account/credits` — live Stripe Checkout with webhook fulfilment
   when keys are set, a placeholder otherwise; [docs/stripe-setup.md](./docs/stripe-setup.md)
@@ -30,8 +30,8 @@ Early access. Accounts, credits, both live products, and sharing are all working
   [docs/domain-brain-architecture.md](./docs/domain-brain-architecture.md) covers the design.
 - Share your map read-only by adding someone's email in the workspace; it appears in their
   "Shared with me" once they sign in with that address.
-- Admins (`/admin`) can grant promotional credits and restrict accounts. The first admin is
-  bootstrapped by email on signup.
+- Admins (`/admin`) can grant promotional credits, restrict accounts, and delete accounts.
+  The first admin is bootstrapped by email on signup.
 - The demo map at `/project` shows a finished map.
 
 The agent uses the Claude API when `ANTHROPIC_API_KEY` is set, and falls back to a scripted

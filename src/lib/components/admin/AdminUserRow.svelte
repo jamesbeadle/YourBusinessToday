@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import AdminActionsMenu from '$lib/components/admin/AdminActionsMenu.svelte';
+	import GrantCreditsModal from '$lib/components/admin/GrantCreditsModal.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user }: { user: AdminUserSummary } = $props();
+
+	let isGrantModalOpen = $state(false);
 </script>
 
 <li class="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
@@ -23,49 +26,8 @@
 		</p>
 		<p class="text-xs text-chalk/50">{user.credits} credits</p>
 	</div>
-	<div class="flex flex-wrap items-center gap-3">
-		<form method="POST" action="?/grantCredits" use:enhance class="flex items-center gap-2">
-			<input type="hidden" name="targetEmail" value={user.email} />
-			<input type="hidden" name="note" value="promo" />
-			<input
-				name="creditAmount"
-				type="number"
-				min="1"
-				max="100000"
-				value="1000"
-				aria-label={`Credits to grant ${user.email}`}
-				class="w-20 rounded-full border border-hairline bg-night px-3 py-1.5 text-sm text-chalk
-					outline-none focus:border-go"
-			/>
-			<button
-				type="submit"
-				class="rounded-full border border-go/60 px-4 py-1.5 font-display text-sm text-go
-					transition hover:bg-go hover:text-night"
-			>
-				Grant
-			</button>
-		</form>
-		<form method="POST" action="?/setStaff" use:enhance>
-			<input type="hidden" name="targetEmail" value={user.email} />
-			<input type="hidden" name="shouldBeStaff" value={user.isStaff ? 'false' : 'true'} />
-			<button
-				type="submit"
-				class="rounded-full border border-hairline px-4 py-1.5 font-display text-sm text-chalk/70
-					transition hover:border-go hover:text-go"
-			>
-				{user.isStaff ? 'Remove staff' : 'Make staff'}
-			</button>
-		</form>
-		<form method="POST" action="?/setRestriction" use:enhance>
-			<input type="hidden" name="targetEmail" value={user.email} />
-			<input type="hidden" name="shouldRestrict" value={user.isRestricted ? 'false' : 'true'} />
-			<button
-				type="submit"
-				class="rounded-full border border-hairline px-4 py-1.5 font-display text-sm text-chalk/70
-					transition hover:border-caution hover:text-caution"
-			>
-				{user.isRestricted ? 'Unrestrict' : 'Restrict'}
-			</button>
-		</form>
-	</div>
+	<AdminActionsMenu {user} onGrantCredits={() => (isGrantModalOpen = true)} />
+	{#if isGrantModalOpen}
+		<GrantCreditsModal {user} onClose={() => (isGrantModalOpen = false)} />
+	{/if}
 </li>

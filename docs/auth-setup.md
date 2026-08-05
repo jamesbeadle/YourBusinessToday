@@ -10,8 +10,6 @@ needs one-time configuration in the Supabase dashboard before it works.
    add redirect URLs for every environment:
    - `http://localhost:5173/auth/callback`
    - `https://<production-domain>/auth/callback`
-3. Welcome credits are granted by a database trigger only when the email is confirmed, so
-   unverified signups cost nothing.
 
 The default Supabase email sender is fine for testing but rate-limited (a few emails per
 hour). Point **Authentication → Emails → SMTP** at a real sender before launch.
@@ -44,6 +42,6 @@ Supabase calls this provider **Azure**.
   the provider via `beginOAuthSignIn`.
 - Every flow — OAuth and email verification links — lands on `/auth/callback`, which
   exchanges the code for a session and forwards to `/workspace`.
-- `handle_new_user` creates the profile for every signup; welcome credits arrive via
-  `grant_welcome_credits` only once `email_confirmed_at` is set (immediately for OAuth,
-  on link-click for email).
+- `handle_new_user` creates the profile for every signup. Accounts start with zero
+  credits — the first credits come from a purchase at `/account/credits` or an admin
+  grant at `/admin`.

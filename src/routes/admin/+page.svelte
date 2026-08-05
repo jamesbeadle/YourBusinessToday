@@ -12,8 +12,8 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Admin</h1>
 		<p class="text-chalk/70">
-			Every account, its credit balance, and the controls to grant promotional credits or
-			restrict access.
+			Every account, its credit balance, and the controls to grant promotional credits,
+			restrict access, or delete an account.
 		</p>
 	</div>
 	{#if form?.message}

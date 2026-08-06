@@ -1,37 +1,39 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+
+	let { onCreated }: { onCreated: () => void } = $props();
+
+	const closeWhenCreated: SubmitFunction = () => {
+		return async ({ update, result }) => {
+			await update();
+			if (result.type === 'success') onCreated();
+		};
+	};
+
+	const fieldClasses =
+		'rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none focus:border-go';
 </script>
 
-<form
-	method="POST"
-	action="?/createProject"
-	use:enhance
-	class="flex flex-wrap items-end gap-3 rounded-2xl border border-hairline bg-carriage p-6"
->
-	<label class="flex min-w-48 flex-1 flex-col gap-1">
-		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">New project</span>
-		<input
-			name="name"
-			required
-			placeholder="Project name"
-			class="rounded-full border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
-				focus:border-go"
-		/>
+<form method="POST" action="?/createProject" use:enhance={closeWhenCreated} class="flex flex-col gap-4">
+	<label class="flex flex-col gap-1">
+		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Name</span>
+		<input name="name" required placeholder="Project name" class={fieldClasses} />
 	</label>
-	<label class="flex min-w-64 flex-[2] flex-col gap-1">
+	<label class="flex flex-col gap-1">
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Description</span>
-		<input
+		<textarea
 			name="description"
+			rows="3"
 			placeholder="What this project is for (optional)"
-			class="rounded-full border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
-				focus:border-go"
-		/>
+			class={fieldClasses}
+		></textarea>
 	</label>
 	<button
 		type="submit"
-		class="rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night transition
-			hover:brightness-110"
+		class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
+			transition hover:brightness-110"
 	>
-		Create
+		Create project
 	</button>
 </form>

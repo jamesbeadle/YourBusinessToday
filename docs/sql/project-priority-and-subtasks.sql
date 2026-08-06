@@ -1,0 +1,2 @@
+-- SUPERSEDED: this DDL now lives in fix-everything.sql (Part 4).
+-- Run fix-everything.sql instead — it is idempotent and complete from any state.

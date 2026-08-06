@@ -1,21 +1,41 @@
 <script lang="ts">
+	import Modal from '$lib/components/site/Modal.svelte';
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
 	import PhaseListPanel from '$lib/components/projects/PhaseListPanel.svelte';
+	import ProjectDetailHeader from '$lib/components/projects/ProjectDetailHeader.svelte';
 	import TaskListRow from '$lib/components/projects/TaskListRow.svelte';
+	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
 
 	let { data, form } = $props();
 
-	function assigneeNames(taskId: string): string[] {
+	let isTaskModalOpen = $state(false);
+	let subtaskParent = $state<TaskTreeNode | null>(null);
+
+	function openNewTaskModal() {
+		subtaskParent = null;
+		isTaskModalOpen = true;
+	}
+
+	function openSubtaskModal(parentTask: TaskTreeNode) {
+		subtaskParent = parentTask;
+		isTaskModalOpen = true;
+	}
+
+	function assigneeNamesFor(taskId: string): string[] {
 		const assigneeIds = data.assigneeIdsByTask[taskId] ?? [];
 		return data.staffMembers
 			.filter((staffMember) => assigneeIds.includes(staffMember.id))
 			.map((staffMember) => staffMember.name);
 	}
 
-	function phaseName(phaseId: string | null): string | null {
+	function phaseNameFor(phaseId: string | null): string | null {
 		const phase = data.phaseSummaries.find((phaseSummary) => phaseSummary.id === phaseId);
 		return phase?.name ?? null;
 	}
+
+	const modalTitle = $derived(
+		subtaskParent === null ? 'New task' : `New subtask of “${subtaskParent.title}”`
+	);
 </script>
 
 <svelte:head>
@@ -23,46 +43,37 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-	<div class="flex flex-col gap-2">
-		<a href="/projects" class="font-display text-sm text-chalk/50 transition hover:text-chalk">
-			← All projects
-		</a>
-		<div class="flex items-baseline justify-between gap-4">
-			<h1 class="font-display text-3xl font-medium">{data.project.name}</h1>
-			<a
-				href={`/projects/${data.project.id}/sprints`}
-				class="font-display text-sm text-chalk/60 transition hover:text-go"
-			>
-				Sprints →
-			</a>
-		</div>
-		{#if data.project.description !== ''}
-			<p class="text-chalk/70">{data.project.description}</p>
-		{/if}
-	</div>
+	<ProjectDetailHeader project={data.project} onAddTask={openNewTaskModal} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">
 			{form.message}
 		</p>
 	{/if}
 	<PhaseListPanel phaseSummaries={data.phaseSummaries} />
-	<NewTaskForm />
-	{#if data.tasks.length === 0}
+	{#if data.taskTree.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			No tasks yet — add the first one above. The list stays ordered by priority.
+			No tasks yet — add the first one. The list stays ordered by priority.
 		</p>
 	{:else}
 		<ol class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
-			{#each data.tasks as task, taskIndex (task.id)}
+			{#each data.taskTree as task, taskIndex (task.id)}
 				<TaskListRow
 					{task}
-					positionNumber={taskIndex + 1}
+					numberPath={`${taskIndex + 1}`}
 					isFirst={taskIndex === 0}
-					isLast={taskIndex === data.tasks.length - 1}
-					assigneeNames={assigneeNames(task.id)}
-					phaseName={phaseName(task.phaseId)}
+					isLast={taskIndex === data.taskTree.length - 1}
+					{assigneeNamesFor}
+					{phaseNameFor}
+					onAddSubtask={openSubtaskModal}
 				/>
 			{/each}
 		</ol>
 	{/if}
 </div>
+
+<Modal title={modalTitle} bind:isOpen={isTaskModalOpen}>
+	<NewTaskForm
+		parentTaskId={subtaskParent?.id ?? null}
+		onCreated={() => (isTaskModalOpen = false)}
+	/>
+</Modal>

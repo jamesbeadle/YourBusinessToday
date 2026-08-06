@@ -7,7 +7,7 @@ export async function getProjectList(supabase: SupabaseClient): Promise<ProjectS
 	const { data, error } = await supabase
 		.from('projects')
 		.select('*, tasks(status)')
-		.order('created_at', { ascending: true });
+		.order('priority', { ascending: true });
 	if (error) throw error;
 	return data.map((row: Record<string, unknown>) => ({
 		...parseProjectRecord(row),

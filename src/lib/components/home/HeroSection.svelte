@@ -22,7 +22,7 @@
 				class="rounded-full bg-signal px-7 py-3 font-display text-sm font-medium text-night
 					transition hover:brightness-110"
 			>
-				Start free — 300 credits included
+				Get started
 			</a>
 			<a
 				href="/vision"

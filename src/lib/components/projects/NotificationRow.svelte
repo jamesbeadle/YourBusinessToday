@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { NotificationListItem } from '$lib/server/notifications/notificationListItem';
 
 	let {
 		notification,
 		authorName
 	}: { notification: NotificationListItem; authorName: string } = $props();
+
+	const tracker = new FormTracker();
 
 	const formattedDate = $derived(
 		new Date(notification.createdAt).toLocaleDateString('en-GB', {
@@ -32,16 +36,17 @@
 		<p class="truncate text-sm text-chalk/60">{notification.commentBody}</p>
 		<p class="text-xs text-chalk/40">{formattedDate}</p>
 	</div>
-	<form method="POST" action="?/openNotification" use:enhance>
+	<form method="POST" action="?/openNotification" use:enhance={tracker.submit()}>
 		<input type="hidden" name="notificationId" value={notification.id} />
 		<input type="hidden" name="projectId" value={notification.projectId} />
 		<input type="hidden" name="taskId" value={notification.taskId} />
-		<button
-			type="submit"
+		<SubmitButton
+			isSaving={tracker.isSaving}
+			savingLabel="Opening…"
 			class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/70
 				transition hover:border-go hover:text-go"
 		>
 			Open task
-		</button>
+		</SubmitButton>
 	</form>
 </li>

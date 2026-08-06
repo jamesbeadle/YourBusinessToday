@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user, onClose }: { user: AdminUserSummary; onClose: () => void } = $props();
+
+	const tracker = new FormTracker();
 
 	let dialogElement: HTMLDialogElement | undefined = $state();
 
@@ -20,11 +25,7 @@
 	<form
 		method="POST"
 		action="?/grantCredits"
-		use:enhance={() =>
-			async ({ update }) => {
-				await update();
-				onClose();
-			}}
+		use:enhance={tracker.submit(onClose)}
 		class="flex flex-col gap-5"
 	>
 		<div class="flex flex-col gap-1">
@@ -45,6 +46,7 @@
 					focus:border-go"
 			/>
 		</label>
+		<FormErrorNote message={tracker.errorMessage} />
 		<div class="flex justify-end gap-3">
 			<button
 				type="button"
@@ -54,13 +56,14 @@
 			>
 				Cancel
 			</button>
-			<button
-				type="submit"
+			<SubmitButton
+				isSaving={tracker.isSaving}
+				savingLabel="Granting…"
 				class="rounded-full border border-go/60 px-4 py-1.5 font-display text-sm text-go
 					transition hover:bg-go hover:text-night"
 			>
 				Grant
-			</button>
+			</SubmitButton>
 		</div>
 	</form>
 </dialog>

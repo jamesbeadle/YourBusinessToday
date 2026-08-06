@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ProjectMobileCard from './ProjectMobileCard.svelte';
 	import ProjectTableRow from './ProjectTableRow.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
@@ -14,7 +15,19 @@
 </script>
 
 <div class="overflow-hidden rounded-2xl border border-hairline">
-	<table class="w-full text-left">
+	<ul class="flex flex-col divide-y divide-hairline sm:hidden">
+		{#each projects as project, projectIndex (project.id)}
+			<ProjectMobileCard
+				{project}
+				positionNumber={projectIndex + 1}
+				isFirst={projectIndex === 0}
+				isLast={projectIndex === projects.length - 1}
+				{onEdit}
+				{onDelete}
+			/>
+		{/each}
+	</ul>
+	<table class="hidden w-full text-left sm:table">
 		<thead class="border-b border-hairline bg-carriage">
 			<tr class="font-display text-xs tracking-widest text-chalk/50 uppercase">
 				<th class="w-16 px-4 py-3">Order</th>

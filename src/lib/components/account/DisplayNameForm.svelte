@@ -1,21 +1,18 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 
 	let { displayName, onSaved }: { displayName: string; onSaved: () => void } = $props();
 
-	const closeWhenSaved: SubmitFunction = () => {
-		return async ({ update, result }) => {
-			await update();
-			if (result.type === 'success') onSaved();
-		};
-	};
+	const tracker = new FormTracker();
 </script>
 
 <form
 	method="POST"
 	action="?/saveDisplayName"
-	use:enhance={closeWhenSaved}
+	use:enhance={tracker.submit(onSaved)}
 	class="flex flex-col gap-4"
 >
 	<label class="flex flex-col gap-1">
@@ -29,11 +26,12 @@
 				focus:border-go"
 		/>
 	</label>
-	<button
-		type="submit"
+	<FormErrorNote message={tracker.errorMessage} />
+	<SubmitButton
+		isSaving={tracker.isSaving}
 		class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
 			transition hover:brightness-110"
 	>
 		Save
-	</button>
+	</SubmitButton>
 </form>

@@ -29,10 +29,11 @@
 		aria-haspopup="menu"
 		aria-expanded={isOpen}
 		aria-label={`Actions for ${projectName}`}
-		class="rounded-full border border-hairline px-4 py-1.5 font-display text-sm text-chalk/70
-			transition hover:border-go hover:text-go"
+		class="inline-flex items-center gap-1 rounded-full border border-hairline px-4 py-1.5
+			font-display text-sm whitespace-nowrap text-chalk/70 transition hover:border-go
+			hover:text-go"
 	>
-		Actions <span aria-hidden="true" class="ml-1 text-xs">▾</span>
+		Actions <span aria-hidden="true" class="text-xs">▾</span>
 	</button>
 	{#if isOpen}
 		<div

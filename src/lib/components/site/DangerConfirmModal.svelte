@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import FormErrorNote from './FormErrorNote.svelte';
+	import SubmitButton from './SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 
 	let {
 		title,
@@ -26,6 +28,7 @@
 
 	function close() {
 		typedConfirmation = '';
+		tracker.reset();
 		isOpen = false;
 	}
 
@@ -33,12 +36,7 @@
 		if (event.key === 'Escape') close();
 	}
 
-	const closeWhenDone: SubmitFunction = () => {
-		return async ({ update }) => {
-			await update();
-			close();
-		};
-	};
+	const tracker = new FormTracker();
 </script>
 
 <svelte:window onkeydown={closeOnEscape} />
@@ -53,7 +51,7 @@
 		>
 			<h2 class="font-display text-xl font-medium text-signal">{title}</h2>
 			<p class="mt-3 text-sm text-chalk/70">{description}</p>
-			<form method="POST" {action} use:enhance={closeWhenDone} class="mt-5 flex flex-col gap-4">
+			<form method="POST" {action} use:enhance={tracker.submit(close)} class="mt-5 flex flex-col gap-4">
 				{#each Object.entries(fields) as [fieldName, fieldValue] (fieldName)}
 					<input type="hidden" name={fieldName} value={fieldValue} />
 				{/each}
@@ -68,6 +66,7 @@
 						/>
 					</label>
 				{/if}
+				<FormErrorNote message={tracker.errorMessage} />
 				<div class="flex justify-end gap-3">
 					<button
 						type="button"
@@ -77,14 +76,15 @@
 					>
 						Cancel
 					</button>
-					<button
-						type="submit"
+					<SubmitButton
+						isSaving={tracker.isSaving}
 						disabled={!isConfirmed}
+						savingLabel="Deleting…"
 						class="rounded-full bg-signal px-5 py-2 font-display text-sm font-medium text-night
-							transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+							transition hover:brightness-110 disabled:opacity-40"
 					>
 						{submitLabel}
-					</button>
+					</SubmitButton>
 				</div>
 			</form>
 		</div>

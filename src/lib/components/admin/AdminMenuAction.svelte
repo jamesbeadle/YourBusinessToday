@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let {
 		action,
@@ -17,27 +19,33 @@
 		onDone: () => void;
 	} = $props();
 
+	const tracker = new FormTracker();
+
+	const confirmThenSubmit: SubmitFunction = (submitEvent) => {
+		const isConfirmed = confirmMessage === undefined || confirm(confirmMessage);
+		if (!isConfirmed) {
+			submitEvent.cancel();
+			onDone();
+			return;
+		}
+		return tracker.submit(onDone)(submitEvent);
+	};
+
 	const toneClasses = isDestructive
 		? 'text-signal/80 hover:bg-signal/10 hover:text-signal'
 		: 'text-chalk/80 hover:bg-hairline/40 hover:text-chalk';
 </script>
 
-<form
-	method="POST"
-	{action}
-	use:enhance={({ cancel }) => {
-		const isConfirmed = confirmMessage === undefined || confirm(confirmMessage);
-		if (!isConfirmed) cancel();
-		onDone();
-	}}
->
+<form method="POST" {action} use:enhance={confirmThenSubmit}>
 	{#each Object.entries(fields) as [name, value] (name)}
 		<input type="hidden" {name} {value} />
 	{/each}
 	<button
 		type="submit"
-		class={`w-full rounded-xl px-3 py-2 text-left font-display text-sm transition ${toneClasses}`}
+		disabled={tracker.isSaving}
+		class={`w-full rounded-xl px-3 py-2 text-left font-display text-sm transition
+			disabled:opacity-50 ${tracker.isSaving ? 'animate-pulse' : ''} ${toneClasses}`}
 	>
-		{label}
+		{tracker.isSaving ? 'Working…' : label}
 	</button>
 </form>

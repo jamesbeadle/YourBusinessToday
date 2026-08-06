@@ -7,7 +7,6 @@ export type TaskDetailsUpdate = {
 	status: TaskStatus;
 	dueDate: string | null;
 	phaseId: string | null;
-	sprintId: string | null;
 	storyPoints: number;
 	completionPercent: number;
 	isUserStory: boolean;
@@ -29,7 +28,6 @@ export async function updateTaskDetails(
 			status: update.status,
 			due_date: update.dueDate,
 			phase_id: update.phaseId,
-			sprint_id: update.sprintId,
 			story_points: update.storyPoints,
 			completion_percent: completionPercentFor(update),
 			is_user_story: update.isUserStory,

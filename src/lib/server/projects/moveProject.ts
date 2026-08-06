@@ -31,7 +31,6 @@ async function findNeighbour(
 	const { data, error } = await supabase
 		.from('projects')
 		.select('*')
-		.eq('is_archived', false)
 		.filter('priority', isMovingUp ? 'lt' : 'gt', project.priority)
 		.order('priority', { ascending: !isMovingUp })
 		.limit(1)

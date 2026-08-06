@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
+	import Modal from '$lib/components/site/Modal.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
 
 	let { data, form } = $props();
+
+	let isProfileModalOpen = $state(false);
 </script>
 
 <svelte:head>
@@ -29,7 +32,22 @@
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
-	<DisplayNameForm displayName={data.displayName} />
+	<div class="flex items-center justify-between rounded-2xl border border-hairline bg-carriage p-6">
+		<div>
+			<p class="font-display text-sm tracking-widest text-chalk/50 uppercase">Display name</p>
+			<p class="font-display text-lg">
+				{data.displayName !== '' ? data.displayName : 'Not set'}
+			</p>
+		</div>
+		<button
+			type="button"
+			onclick={() => (isProfileModalOpen = true)}
+			class="rounded-full border border-hairline px-6 py-2.5 font-display text-sm text-chalk/80
+				transition hover:border-go hover:text-go"
+		>
+			Edit profile
+		</button>
+	</div>
 	<div class="flex items-center justify-between rounded-2xl border border-hairline bg-carriage p-6">
 		<div>
 			<p class="font-display text-sm tracking-widest text-chalk/50 uppercase">Credit balance</p>
@@ -45,3 +63,7 @@
 	</div>
 	<PurchaseHistoryTable purchases={data.purchases} />
 </div>
+
+<Modal title="Edit profile" bind:isOpen={isProfileModalOpen}>
+	<DisplayNameForm displayName={data.displayName} onSaved={() => (isProfileModalOpen = false)} />
+</Modal>

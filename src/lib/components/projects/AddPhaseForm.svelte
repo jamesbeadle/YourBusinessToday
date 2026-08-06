@@ -2,29 +2,23 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
-	let { displayName, onSaved }: { displayName: string; onSaved: () => void } = $props();
+	let { onCreated }: { onCreated: () => void } = $props();
 
-	const closeWhenSaved: SubmitFunction = () => {
+	const closeWhenCreated: SubmitFunction = () => {
 		return async ({ update, result }) => {
 			await update();
-			if (result.type === 'success') onSaved();
+			if (result.type === 'success') onCreated();
 		};
 	};
 </script>
 
-<form
-	method="POST"
-	action="?/saveDisplayName"
-	use:enhance={closeWhenSaved}
-	class="flex flex-col gap-4"
->
+<form method="POST" action="?/createPhase" use:enhance={closeWhenCreated} class="flex flex-col gap-4">
 	<label class="flex flex-col gap-1">
-		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Display name</span>
+		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phase name</span>
 		<input
-			name="displayName"
-			value={displayName}
-			maxlength="60"
-			placeholder="How your name appears on tasks and comments"
+			name="name"
+			required
+			placeholder="e.g. Discovery, Build, Launch"
 			class="rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
 				focus:border-go"
 		/>
@@ -34,6 +28,6 @@
 		class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
 			transition hover:brightness-110"
 	>
-		Save
+		Add phase
 	</button>
 </form>

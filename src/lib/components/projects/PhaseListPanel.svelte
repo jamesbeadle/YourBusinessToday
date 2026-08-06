@@ -1,54 +1,56 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import PhaseProgressBar from './PhaseProgressBar.svelte';
+	import AddPhaseForm from './AddPhaseForm.svelte';
+	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
+	import Modal from '$lib/components/site/Modal.svelte';
+	import PhaseRow from './PhaseRow.svelte';
 	import type { PhaseSummary } from '$lib/server/projects/getPhaseSummaries';
 
 	let { phaseSummaries }: { phaseSummaries: PhaseSummary[] } = $props();
+
+	let isAddPhaseModalOpen = $state(false);
+	let isDeletePhaseModalOpen = $state(false);
+	let phaseAwaitingDelete = $state<PhaseSummary | null>(null);
+
+	function openDeleteModal(phaseSummary: PhaseSummary) {
+		phaseAwaitingDelete = phaseSummary;
+		isDeletePhaseModalOpen = true;
+	}
 </script>
 
 <section class="flex flex-col gap-3 rounded-2xl border border-hairline bg-carriage p-6">
-	<h2 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phases</h2>
+	<div class="flex items-center justify-between">
+		<h2 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phases</h2>
+		<button
+			type="button"
+			onclick={() => (isAddPhaseModalOpen = true)}
+			class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/70
+				transition hover:border-go hover:text-go"
+		>
+			Add phase
+		</button>
+	</div>
 	{#if phaseSummaries.length === 0}
 		<p class="text-sm text-chalk/60">No phases yet — add one to group the backlog into stages.</p>
 	{:else}
 		<ul class="flex flex-col gap-3">
 			{#each phaseSummaries as phaseSummary (phaseSummary.id)}
-				<li class="flex items-center gap-4">
-					<span class="w-40 truncate font-display text-sm">{phaseSummary.name}</span>
-					<span class="w-14 text-xs whitespace-nowrap text-chalk/50">
-						{phaseSummary.taskCount} tasks
-					</span>
-					<div class="flex-1">
-						<PhaseProgressBar completionPercent={phaseSummary.completionPercent} />
-					</div>
-					<form method="POST" action="?/deletePhase" use:enhance>
-						<input type="hidden" name="phaseId" value={phaseSummary.id} />
-						<button
-							type="submit"
-							aria-label={`Delete phase ${phaseSummary.name}`}
-							class="px-1 text-chalk/40 transition hover:text-signal"
-						>
-							✕
-						</button>
-					</form>
-				</li>
+				<PhaseRow {phaseSummary} onDelete={openDeleteModal} />
 			{/each}
 		</ul>
 	{/if}
-	<form method="POST" action="?/createPhase" use:enhance class="flex items-center gap-3">
-		<input
-			name="name"
-			required
-			placeholder="Add a phase"
-			class="flex-1 rounded-full border border-hairline bg-night px-4 py-2 text-sm text-chalk
-				outline-none focus:border-go"
-		/>
-		<button
-			type="submit"
-			class="rounded-full border border-hairline px-5 py-2 font-display text-xs text-chalk/70
-				transition hover:border-go hover:text-go"
-		>
-			Add phase
-		</button>
-	</form>
 </section>
+
+<Modal title="Add phase" bind:isOpen={isAddPhaseModalOpen}>
+	<AddPhaseForm onCreated={() => (isAddPhaseModalOpen = false)} />
+</Modal>
+
+{#if phaseAwaitingDelete !== null}
+	<DangerConfirmModal
+		title="Delete phase"
+		description={`Delete “${phaseAwaitingDelete.name}”? Its ${phaseAwaitingDelete.taskCount} tasks are kept — they just lose the phase.`}
+		action="?/deletePhase"
+		fields={{ phaseId: phaseAwaitingDelete.id }}
+		submitLabel="Delete phase"
+		bind:isOpen={isDeletePhaseModalOpen}
+	/>
+{/if}

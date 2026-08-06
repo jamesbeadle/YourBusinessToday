@@ -1,9 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { createProject } from '$lib/server/projects/createProject';
+import { deleteProject } from '$lib/server/projects/deleteProject';
 import { getProjectList } from '$lib/server/projects/getProjectList';
 import { moveProject, type ProjectMoveDirection } from '$lib/server/projects/moveProject';
+import { parseProjectStatus } from '$lib/data/projectStatus';
 import { requireStaff } from '$lib/server/auth/requireStaff';
-import { setProjectArchived } from '$lib/server/projects/setProjectArchived';
+import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -21,6 +23,21 @@ export const actions: Actions = {
 		await createProject(locals.supabase, name, description, user.id);
 		return { message: `Project "${name}" created.` };
 	},
+	updateProject: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const projectId = String(formData.get('projectId') ?? '');
+		const name = String(formData.get('name') ?? '').trim();
+		if (projectId === '' || name === '') {
+			return fail(400, { message: 'A project and a name are required.' });
+		}
+		await updateProjectDetails(locals.supabase, projectId, {
+			name,
+			description: String(formData.get('description') ?? '').trim(),
+			status: parseProjectStatus(formData.get('status'))
+		});
+		return { message: `Project "${name}" saved.` };
+	},
 	moveProject: async ({ locals, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
@@ -30,13 +47,12 @@ export const actions: Actions = {
 		await moveProject(locals.supabase, projectId, direction);
 		return {};
 	},
-	setArchived: async ({ locals, request }) => {
+	deleteProject: async ({ locals, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
 		const projectId = String(formData.get('projectId') ?? '');
-		const shouldArchive = String(formData.get('shouldArchive')) === 'true';
 		if (projectId === '') return fail(400, { message: 'A project is required.' });
-		await setProjectArchived(locals.supabase, projectId, shouldArchive);
-		return {};
+		await deleteProject(locals.supabase, projectId);
+		return { message: 'Project deleted.' };
 	}
 };

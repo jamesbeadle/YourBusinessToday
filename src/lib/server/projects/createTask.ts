@@ -4,6 +4,7 @@ export type NewTaskSeed = {
 	title: string;
 	details: string;
 	dueDate: string | null;
+	phaseId: string | null;
 	parentTaskId: string | null;
 };
 
@@ -14,6 +15,7 @@ export function readNewTaskSeed(formData: FormData): NewTaskSeed | null {
 		title,
 		details: String(formData.get('details') ?? '').trim(),
 		dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
+		phaseId: emptyAsNull(String(formData.get('phaseId') ?? '')),
 		parentTaskId: emptyAsNull(String(formData.get('parentTaskId') ?? ''))
 	};
 }
@@ -28,6 +30,7 @@ export async function createTask(
 	const { error } = await supabase.from('tasks').insert({
 		project_id: projectId,
 		parent_task_id: seed.parentTaskId,
+		phase_id: seed.phaseId,
 		title: seed.title,
 		details: seed.details,
 		due_date: seed.dueDate,

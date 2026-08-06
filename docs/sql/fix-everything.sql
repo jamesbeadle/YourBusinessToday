@@ -363,28 +363,9 @@ where table_schema = 'public'
 		'task_assignees', 'task_roles', 'acceptance_criteria', 'notifications')
 order by table_name;
 
--- ============================================================================
--- Part 4: project priority order and unlimited-nesting subtasks (2026-08-06).
--- Idempotent — safe to re-run with everything above.
--- ============================================================================
 
-alter table public.projects add column if not exists priority integer;
-
-with ordered as (
-	select id, row_number() over (order by created_at) as position
-	from public.projects
-)
-update public.projects set priority = ordered.position
-from ordered
-where public.projects.id = ordered.id and public.projects.priority is null;
-
-alter table public.projects alter column priority set not null;
-
-create index if not exists projects_priority on public.projects (priority);
-
-alter table public.tasks add column if not exists parent_task_id uuid
-	references public.tasks (id) on delete cascade;
-
-create index if not exists tasks_parent on public.tasks (parent_task_id);
-
-notify pgrst, 'reload schema';
+-- ----------------------------------------------------------------------------
+-- Later schema changes live as numbered files in migrations/ (0006 onwards).
+-- This file is frozen: it rebuilds the original schema from any state, but is
+-- no longer appended to — do not add new parts here.
+-- ----------------------------------------------------------------------------

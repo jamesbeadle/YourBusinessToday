@@ -1,18 +1,23 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import PriorityControls from './PriorityControls.svelte';
+	import ProjectActionsMenu from './ProjectActionsMenu.svelte';
+	import ProjectStatusBadge from './ProjectStatusBadge.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
 	let {
 		project,
 		positionNumber,
 		isFirst,
-		isLast
+		isLast,
+		onEdit,
+		onDelete
 	}: {
 		project: ProjectSummary;
 		positionNumber: number;
 		isFirst: boolean;
 		isLast: boolean;
+		onEdit: (project: ProjectSummary) => void;
+		onDelete: (project: ProjectSummary) => void;
 	} = $props();
 </script>
 
@@ -37,20 +42,17 @@
 			{/if}
 		</a>
 	</td>
+	<td class="px-4 py-3"><ProjectStatusBadge status={project.status} /></td>
 	<td class="px-4 py-3 text-right font-display text-sm text-chalk/70">
 		{project.openTaskCount}
 	</td>
 	<td class="px-4 py-3 text-right">
-		<form method="POST" action="?/setArchived" use:enhance class="inline-block">
-			<input type="hidden" name="projectId" value={project.id} />
-			<input type="hidden" name="shouldArchive" value="true" />
-			<button
-				type="submit"
-				class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/60
-					transition hover:border-caution hover:text-caution"
-			>
-				Archive
-			</button>
-		</form>
+		<div class="flex justify-end">
+			<ProjectActionsMenu
+				projectName={project.name}
+				onEdit={() => onEdit(project)}
+				onDelete={() => onDelete(project)}
+			/>
+		</div>
 	</td>
 </tr>

@@ -6,7 +6,6 @@ export type ProjectTask = {
 	projectId: string;
 	parentTaskId: string | null;
 	phaseId: string | null;
-	sprintId: string | null;
 	title: string;
 	details: string;
 	status: TaskStatus;
@@ -27,7 +26,6 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 		projectId: row.project_id as string,
 		parentTaskId: (row.parent_task_id as string) ?? null,
 		phaseId: (row.phase_id as string) ?? null,
-		sprintId: (row.sprint_id as string) ?? null,
 		title: row.title as string,
 		details: row.details as string,
 		status: parseTaskStatus(row.status),

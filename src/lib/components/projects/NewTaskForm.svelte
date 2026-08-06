@@ -1,16 +1,21 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import type { Phase } from '$lib/server/projects/phaseRecord';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let {
 		createAction = '?/createTask',
 		parentTaskId = null,
+		phases = [],
 		onCreated
 	}: {
 		createAction?: string;
 		parentTaskId?: string | null;
+		phases?: Phase[];
 		onCreated: () => void;
 	} = $props();
+
+	const shouldOfferPhase = $derived(parentTaskId === null && phases.length > 0);
 
 	const closeWhenCreated: SubmitFunction = () => {
 		return async ({ update, result }) => {
@@ -40,12 +45,25 @@
 			class={fieldClasses}
 		></textarea>
 	</label>
-	<label class="flex max-w-48 flex-col gap-1">
-		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Due date</span>
-		<input name="dueDate" type="date" class={fieldClasses} />
-	</label>
+	<div class="grid gap-4 sm:grid-cols-2">
+		<label class="flex flex-col gap-1">
+			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Due date</span>
+			<input name="dueDate" type="date" class={fieldClasses} />
+		</label>
+		{#if shouldOfferPhase}
+			<label class="flex flex-col gap-1">
+				<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phase</span>
+				<select name="phaseId" class={fieldClasses}>
+					<option value="">No phase</option>
+					{#each phases as phase (phase.id)}
+						<option value={phase.id}>{phase.name}</option>
+					{/each}
+				</select>
+			</label>
+		{/if}
+	</div>
 	<p class="text-xs text-chalk/50">
-		Phase, sprint, story points, and assignees are set on the task page after it's created.
+		Story points, assignees, and the rest are set on the task page after it's created.
 	</p>
 	<button
 		type="submit"

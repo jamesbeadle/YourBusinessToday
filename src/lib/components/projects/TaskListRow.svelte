@@ -13,7 +13,8 @@
 		isLast,
 		assigneeNamesFor,
 		phaseNameFor,
-		onAddSubtask
+		onAddSubtask,
+		onChangeStatus
 	}: {
 		task: TaskTreeNode;
 		numberPath: string;
@@ -22,6 +23,7 @@
 		assigneeNamesFor: (taskId: string) => string[];
 		phaseNameFor: (phaseId: string | null) => string | null;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
+		onChangeStatus: (task: TaskTreeNode) => void;
 	} = $props();
 
 	const isDone = $derived(task.status === 'done');
@@ -52,7 +54,7 @@
 		{#if task.dueDate !== null}
 			<TaskDueDate dueDate={task.dueDate} {isDone} />
 		{/if}
-		<TaskStatusButton taskId={task.id} status={task.status} />
+		<TaskStatusButton status={task.status} onOpenPicker={() => onChangeStatus(task)} />
 		<button
 			type="button"
 			onclick={() => onAddSubtask(task)}
@@ -75,6 +77,7 @@
 					{assigneeNamesFor}
 					{phaseNameFor}
 					{onAddSubtask}
+					{onChangeStatus}
 				/>
 			{/each}
 		</ol>

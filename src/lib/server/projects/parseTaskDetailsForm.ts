@@ -18,7 +18,6 @@ export function parseTaskDetailsForm(formData: FormData): TaskDetailsSubmission 
 		status: parseTaskStatus(formData.get('status')),
 		dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
 		phaseId: emptyAsNull(String(formData.get('phaseId') ?? '')),
-		sprintId: emptyAsNull(String(formData.get('sprintId') ?? '')),
 		storyPoints: parseStoryPoints(formData.get('storyPoints')),
 		completionPercent: parseCompletionPercent(formData.get('completionPercent')),
 		isUserStory: formData.get('isUserStory') === 'on',

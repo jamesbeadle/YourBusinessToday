@@ -6,36 +6,38 @@
 	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
 	import type { Phase } from '$lib/server/projects/phaseRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
-	import type { Sprint } from '$lib/server/projects/sprintRecord';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let {
 		task,
 		staffMembers,
 		phases,
-		sprints,
 		assigneeIds,
-		roles
+		roles,
+		onSaved
 	}: {
 		task: ProjectTask;
 		staffMembers: StaffMember[];
 		phases: Phase[];
-		sprints: Sprint[];
 		assigneeIds: string[];
 		roles: string[];
+		onSaved: () => void;
 	} = $props();
+
+	const closeWhenSaved: SubmitFunction = () => {
+		return async ({ update, result }) => {
+			await update();
+			if (result.type === 'success') onSaved();
+		};
+	};
 
 	const statusOptions = Object.entries(taskStatusLabels) as [TaskStatus, string][];
 	const fieldClasses =
 		'rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none focus:border-go';
 </script>
 
-<form
-	method="POST"
-	action="?/saveTask"
-	use:enhance
-	class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6"
->
+<form method="POST" action="?/saveTask" use:enhance={closeWhenSaved} class="flex flex-col gap-4">
 	<label class="flex flex-col gap-1">
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Title</span>
 		<input name="title" required value={task.title} class={fieldClasses} />
@@ -62,7 +64,7 @@
 			<input name="dueDate" type="date" value={task.dueDate ?? ''} class={fieldClasses} />
 		</label>
 	</div>
-	<TaskPlanningFields {task} {phases} {sprints} />
+	<TaskPlanningFields {task} {phases} />
 	<UserStoryFields {task} />
 	<TeamPickerFieldset {staffMembers} {assigneeIds} {roles} />
 	<button

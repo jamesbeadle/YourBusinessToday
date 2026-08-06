@@ -1,20 +1,26 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
+	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
 	import SubtaskList from '$lib/components/projects/SubtaskList.svelte';
 	import TaskCommentThread from '$lib/components/projects/TaskCommentThread.svelte';
 	import TaskEditForm from '$lib/components/projects/TaskEditForm.svelte';
+	import TaskOverviewPanel from '$lib/components/projects/TaskOverviewPanel.svelte';
 
 	let { data, form } = $props();
 
+	let isEditModalOpen = $state(false);
 	let isSubtaskModalOpen = $state(false);
+	let isDeleteModalOpen = $state(false);
 
-	const storySentence = $derived(
-		data.task.isUserStory && data.task.storyRole !== ''
-			? `As a ${data.task.storyRole}, I want ${data.task.storyWant}, so that ${data.task.storyBenefit}.`
-			: null
+	const phaseName = $derived(
+		data.phases.find((phase) => phase.id === data.task.phaseId)?.name ?? null
+	);
+	const assigneeNames = $derived(
+		data.staffMembers
+			.filter((staffMember) => data.assigneeIds.includes(staffMember.id))
+			.map((staffMember) => staffMember.name)
 	);
 </script>
 
@@ -39,44 +45,39 @@
 			</a>
 		{/if}
 		<h1 class="font-display text-3xl font-medium">{data.task.title}</h1>
-		{#if storySentence !== null}
-			<p class="rounded-2xl border border-caution/40 bg-caution/10 px-5 py-3 text-caution">
-				{storySentence}
-			</p>
-		{/if}
 	</div>
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
-	<TaskEditForm
+	<TaskOverviewPanel
 		task={data.task}
-		staffMembers={data.staffMembers}
-		phases={data.phases}
-		sprints={data.sprints}
-		assigneeIds={data.assigneeIds}
-		roles={data.roles}
+		{phaseName}
+		{assigneeNames}
+		onEdit={() => (isEditModalOpen = true)}
 	/>
 	<AcceptanceCriteriaSection criteria={data.criteria} />
 	<SubtaskList subtasks={data.subtasks} onAddSubtask={() => (isSubtaskModalOpen = true)} />
 	<TaskCommentThread comments={data.comments} />
-	<form
-		method="POST"
-		action="?/deleteTask"
-		use:enhance
-		class="self-end"
-		onsubmit={(event) => {
-			if (!confirm('Delete this task, its subtasks, and its comments?')) event.preventDefault();
-		}}
+	<button
+		type="button"
+		onclick={() => (isDeleteModalOpen = true)}
+		class="self-end rounded-full border border-hairline px-5 py-2 font-display text-sm
+			text-chalk/60 transition hover:border-signal hover:text-signal"
 	>
-		<button
-			type="submit"
-			class="rounded-full border border-hairline px-5 py-2 font-display text-sm text-chalk/60
-				transition hover:border-signal hover:text-signal"
-		>
-			Delete task
-		</button>
-	</form>
+		Delete task…
+	</button>
 </div>
+
+<Modal title="Edit task" maxWidthClass="max-w-2xl" bind:isOpen={isEditModalOpen}>
+	<TaskEditForm
+		task={data.task}
+		staffMembers={data.staffMembers}
+		phases={data.phases}
+		assigneeIds={data.assigneeIds}
+		roles={data.roles}
+		onSaved={() => (isEditModalOpen = false)}
+	/>
+</Modal>
 
 <Modal title={`New subtask of “${data.task.title}”`} bind:isOpen={isSubtaskModalOpen}>
 	<NewTaskForm
@@ -85,3 +86,12 @@
 		onCreated={() => (isSubtaskModalOpen = false)}
 	/>
 </Modal>
+
+<DangerConfirmModal
+	title="Delete task"
+	description={`This permanently deletes “${data.task.title}”, its subtasks, and their comments. This cannot be undone.`}
+	action="?/deleteTask"
+	fields={{}}
+	submitLabel="Delete task"
+	bind:isOpen={isDeleteModalOpen}
+/>

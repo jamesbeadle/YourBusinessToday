@@ -4,8 +4,9 @@
 	let {
 		title,
 		isOpen = $bindable(),
+		maxWidthClass = 'max-w-lg',
 		children
-	}: { title: string; isOpen: boolean; children: Snippet } = $props();
+	}: { title: string; isOpen: boolean; maxWidthClass?: string; children: Snippet } = $props();
 
 	function close() {
 		isOpen = false;
@@ -20,13 +21,14 @@
 
 {#if isOpen}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-night/80 p-6 backdrop-blur-sm"
+		class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-night/80 p-6
+			backdrop-blur-sm"
 	>
 		<div
 			role="dialog"
 			aria-modal="true"
 			aria-label={title}
-			class="w-full max-w-lg rounded-2xl border border-hairline bg-carriage p-6 shadow-2xl"
+			class={`my-auto w-full ${maxWidthClass} rounded-2xl border border-hairline bg-carriage p-6 shadow-2xl`}
 		>
 			<div class="mb-5 flex items-center justify-between gap-4">
 				<h2 class="font-display text-xl font-medium">{title}</h2>

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import AskPanel from '$lib/components/brain/AskPanel.svelte';
 	import BrainActivityLog from '$lib/components/brain/BrainActivityLog.svelte';
+	import BrainConversationPanel from '$lib/components/brain/BrainConversationPanel.svelte';
 	import DomainModelIndex from '$lib/components/brain/DomainModelIndex.svelte';
 	import OutOfCreditsNotice from '$lib/components/workspace/OutOfCreditsNotice.svelte';
 	import SourcesPanel from '$lib/components/brain/SourcesPanel.svelte';
@@ -25,8 +25,8 @@
 			<h1 class="font-display text-3xl font-medium">A model of your business</h1>
 			<p class="max-w-prose text-chalk/70">
 				Feed it the documents your company files. The modeller reads each one and keeps a domain
-				model — bounded contexts, the things you track, the language you speak — so any question
-				gets an answer grounded in your own records.
+				model — bounded contexts, the things you track, the language you speak — so any
+				conversation is grounded in your own records.
 			</p>
 		</div>
 		<a
@@ -45,7 +45,12 @@
 	{/if}
 	<div class="grid items-start gap-6 lg:grid-cols-2">
 		<div class="flex flex-col gap-6">
-			<AskPanel events={data.events} pageIndex={data.pageIndex} onOutOfCredits={showOutOfCredits} />
+			<BrainConversationPanel
+				conversationId={data.conversation.conversationId}
+				messages={data.conversation.messages}
+				pageIndex={data.pageIndex}
+				onOutOfCredits={showOutOfCredits}
+			/>
 			<BrainActivityLog events={data.events} />
 		</div>
 		<div class="flex flex-col gap-6">

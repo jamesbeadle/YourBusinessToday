@@ -1,10 +1,13 @@
 <div class="flex items-center justify-between gap-4 border-t border-hairline bg-night p-4">
-	<p class="text-sm text-chalk/80">You're out of credits — top up to keep the conversation going.</p>
+	<p class="text-sm text-chalk/80">
+		You're out of credits — during early access, the Your Business Today team tops up accounts
+		directly. Get in touch and we'll sort you out.
+	</p>
 	<a
 		href="/account/credits"
-		class="shrink-0 rounded-full bg-go px-5 py-2.5 font-display text-sm font-medium text-night
-			transition hover:brightness-110"
+		class="shrink-0 rounded-full border border-hairline px-5 py-2.5 font-display text-sm
+			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
 	>
-		Buy credits
+		About credits
 	</a>
 </div>

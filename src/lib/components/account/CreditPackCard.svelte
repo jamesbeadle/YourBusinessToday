@@ -3,7 +3,11 @@
 	import { formatPenceAsPounds } from '$lib/data/creditPricing';
 	import type { CreditPack } from '$lib/server/credits/getCreditPacks';
 
-	let { creditPack, isMostPopular }: { creditPack: CreditPack; isMostPopular: boolean } = $props();
+	let {
+		creditPack,
+		isMostPopular,
+		isCheckoutLive
+	}: { creditPack: CreditPack; isMostPopular: boolean; isCheckoutLive: boolean } = $props();
 </script>
 
 <article
@@ -28,10 +32,11 @@
 		<input type="hidden" name="packId" value={creditPack.id} />
 		<button
 			type="submit"
+			disabled={!isCheckoutLive}
 			class="w-full rounded-full bg-signal px-6 py-3 font-display text-sm font-medium text-night
-				transition hover:brightness-110"
+				transition hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100"
 		>
-			Buy with Stripe (test)
+			{isCheckoutLive ? 'Buy with Stripe' : 'Coming soon'}
 		</button>
 	</form>
 </article>

@@ -1,10 +1,14 @@
 import { error, json } from '@sveltejs/kit';
 import { converseWithFace } from '$lib/server/brain/converseWithFace';
+import { createBrainConversation } from '$lib/server/brain/createBrainConversation';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
+import { getLatestConversationId } from '$lib/server/brain/getBrainConversation';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
+import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
 import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
 import type { FaceChatTurn } from '$lib/data/faceChatTypes';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 
 const longestConversation = 12;
@@ -22,17 +26,29 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const contexts = await getBrainContexts(locals.supabase);
 	const index = await getBrainPageIndex(locals.supabase);
 	const spoken = await converseWithFace(locals.supabase, contexts, index, turns);
+	const question = turns[turns.length - 1].text;
+	const conversationId = await faceConversationId(locals.supabase);
+	await recordConversationTurn(locals.supabase, conversationId, question, {
+		answerMarkdown: spoken.reply,
+		citedSlugs: spoken.citedSlugs
+	});
 	await recordBrainEvent(locals.supabase, {
 		kind: 'question_answered',
 		detail: {
-			question: turns[turns.length - 1].text,
+			question,
 			answerMarkdown: spoken.reply,
 			citedSlugs: spoken.citedSlugs,
+			conversationId,
 			askedThrough: 'face'
 		}
 	});
 	return json({ ...spoken, creditBalance: spend.creditBalance });
 };
+
+async function faceConversationId(supabase: SupabaseClient): Promise<string> {
+	const existingId = await getLatestConversationId(supabase, 'face');
+	return existingId ?? createBrainConversation(supabase, 'face');
+}
 
 async function readTurns(request: Request): Promise<FaceChatTurn[]> {
 	const payload = await request.json();

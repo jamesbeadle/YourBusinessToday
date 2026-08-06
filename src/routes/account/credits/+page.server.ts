@@ -1,11 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { getCreditPacks } from '$lib/server/credits/getCreditPacks';
 import { getProfileFlags } from '$lib/server/auth/getProfileFlags';
-import { purchaseCreditPack } from '$lib/server/credits/purchaseCreditPack';
 import { createCheckoutSession } from '$lib/server/payments/createCheckoutSession';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { stripeClient } from '$lib/server/payments/stripeClient';
 import type { Actions, PageServerLoad } from './$types';
+
+const earlyAccessMessage =
+	'Checkout is not open yet — during early access, credits are granted directly by the Your Business Today team.';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	await requireUser(locals);
@@ -27,21 +29,9 @@ export const actions: Actions = {
 			return fail(403, { message: 'This account is currently restricted from purchases.' });
 		}
 		const stripe = stripeClient();
-		if (stripe === null) return placeholderPurchase(locals, packId);
+		if (stripe === null) return fail(503, { message: earlyAccessMessage });
 		const creditPack = (await getCreditPacks(locals.supabase)).find((pack) => pack.id === packId);
 		if (creditPack === undefined) return fail(400, { message: 'Choose a pack to buy.' });
 		redirect(303, await createCheckoutSession(stripe, creditPack, user.id, url.origin));
 	}
 };
-
-async function placeholderPurchase(locals: App.Locals, packId: string) {
-	try {
-		const creditBalance = await purchaseCreditPack(locals.supabase, packId);
-		return { purchasedPackId: packId, creditBalance };
-	} catch (purchaseError) {
-		if (String(purchaseError).includes('account_restricted')) {
-			return fail(403, { message: 'This account is currently restricted from purchases.' });
-		}
-		throw purchaseError;
-	}
-}

@@ -14,7 +14,7 @@
 	} = $props();
 </script>
 
-<div class="overflow-hidden rounded-2xl border border-hairline">
+<div class="rounded-2xl border border-hairline">
 	<ul class="flex flex-col divide-y divide-hairline sm:hidden">
 		{#each projects as project, projectIndex (project.id)}
 			<ProjectMobileCard
@@ -30,11 +30,11 @@
 	<table class="hidden w-full text-left sm:table">
 		<thead class="border-b border-hairline bg-carriage">
 			<tr class="font-display text-xs tracking-widest text-chalk/50 uppercase">
-				<th class="w-16 px-4 py-3">Order</th>
+				<th class="w-16 rounded-tl-2xl px-4 py-3">Order</th>
 				<th class="px-4 py-3">Project</th>
 				<th class="w-28 px-4 py-3">Status</th>
-				<th class="w-28 px-4 py-3 text-right">Open tasks</th>
-				<th class="w-32 px-4 py-3 text-right">Actions</th>
+				<th class="w-28 px-4 py-3 text-right whitespace-nowrap">Open tasks</th>
+				<th class="w-32 rounded-tr-2xl px-4 py-3 text-right">Actions</th>
 			</tr>
 		</thead>
 		<tbody class="divide-y divide-hairline">

@@ -12,21 +12,24 @@ export async function moveTask(
 	if (error) throw error;
 	if (data === null) return;
 	const task = parseTaskRecord(data);
-	const neighbour = await findNeighbour(supabase, task, direction);
+	const neighbour = await findSiblingNeighbour(supabase, task, direction);
 	if (neighbour === null) return;
-	await swapPriorities(supabase, task, neighbour);
+	await setPriority(supabase, task.id, neighbour.priority);
+	await setPriority(supabase, neighbour.id, task.priority);
 }
 
-async function findNeighbour(
+async function findSiblingNeighbour(
 	supabase: SupabaseClient,
 	task: ProjectTask,
 	direction: TaskMoveDirection
 ): Promise<ProjectTask | null> {
 	const isMovingUp = direction === 'up';
-	const { data, error } = await supabase
-		.from('tasks')
-		.select('*')
-		.eq('project_id', task.projectId)
+	const siblings = supabase.from('tasks').select('*').eq('project_id', task.projectId);
+	const scopedSiblings =
+		task.parentTaskId === null
+			? siblings.is('parent_task_id', null)
+			: siblings.eq('parent_task_id', task.parentTaskId);
+	const { data, error } = await scopedSiblings
 		.filter('priority', isMovingUp ? 'lt' : 'gt', task.priority)
 		.order('priority', { ascending: !isMovingUp })
 		.limit(1)
@@ -34,15 +37,6 @@ async function findNeighbour(
 	if (error) throw error;
 	if (data === null) return null;
 	return parseTaskRecord(data);
-}
-
-async function swapPriorities(
-	supabase: SupabaseClient,
-	task: ProjectTask,
-	neighbour: ProjectTask
-): Promise<void> {
-	await setPriority(supabase, task.id, neighbour.priority);
-	await setPriority(supabase, neighbour.id, task.priority);
 }
 
 async function setPriority(

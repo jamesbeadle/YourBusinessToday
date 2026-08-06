@@ -1,8 +1,11 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
 import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
 import { deleteTask } from '$lib/server/projects/deleteTask';
+import { getSubtasks } from '$lib/server/projects/getSubtasks';
+import { getTask } from '$lib/server/projects/getTask';
 import { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
 import { parseTaskDetailsForm } from '$lib/server/projects/parseTaskDetailsForm';
 import { requireStaff } from '$lib/server/auth/requireStaff';
@@ -18,8 +21,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireStaff(locals);
 	const workspace = await loadTaskWorkspace(locals.supabase, params.projectId, params.taskId);
 	if (workspace === null) error(404, 'Task not found');
+	const parentTaskId = workspace.task.parentTaskId;
 	return {
 		...workspace,
+		parentTask: parentTaskId === null ? null : await getTask(locals.supabase, parentTaskId),
+		subtasks: await getSubtasks(locals.supabase, params.taskId),
 		comments: withAuthorNames(workspace.comments, workspace.staffMembers)
 	};
 };
@@ -33,6 +39,13 @@ export const actions: Actions = {
 		await setTaskAssignees(locals.supabase, params.taskId, submission.assigneeIds);
 		await setTaskRoles(locals.supabase, params.taskId, submission.roles);
 		return { message: 'Task saved.' };
+	},
+	addSubtask: async ({ locals, params, request }) => {
+		const user = await requireStaff(locals);
+		const seed = readNewTaskSeed(await request.formData());
+		if (seed === null) return fail(400, { message: 'A subtask title is required.' });
+		await createTask(locals.supabase, params.projectId, seed, user.id);
+		return {};
 	},
 	addComment: async ({ locals, params, request }) => {
 		const user = await requireStaff(locals);

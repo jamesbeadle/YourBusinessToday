@@ -4,6 +4,7 @@ import { parseTaskStatus, type TaskStatus } from '$lib/data/taskStatus';
 export type ProjectTask = {
 	id: string;
 	projectId: string;
+	parentTaskId: string | null;
 	phaseId: string | null;
 	sprintId: string | null;
 	title: string;
@@ -24,6 +25,7 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 	return {
 		id: row.id as string,
 		projectId: row.project_id as string,
+		parentTaskId: (row.parent_task_id as string) ?? null,
 		phaseId: (row.phase_id as string) ?? null,
 		sprintId: (row.sprint_id as string) ?? null,
 		title: row.title as string,

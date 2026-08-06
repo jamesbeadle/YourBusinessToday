@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
+	import Modal from '$lib/components/site/Modal.svelte';
+	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
+	import SubtaskList from '$lib/components/projects/SubtaskList.svelte';
 	import TaskCommentThread from '$lib/components/projects/TaskCommentThread.svelte';
 	import TaskEditForm from '$lib/components/projects/TaskEditForm.svelte';
 
 	let { data, form } = $props();
+
+	let isSubtaskModalOpen = $state(false);
 
 	const storySentence = $derived(
 		data.task.isUserStory && data.task.storyRole !== ''
@@ -25,6 +30,14 @@
 		>
 			← {data.project.name}
 		</a>
+		{#if data.parentTask !== null}
+			<a
+				href={`/projects/${data.project.id}/tasks/${data.parentTask.id}`}
+				class="font-display text-sm text-chalk/50 transition hover:text-chalk"
+			>
+				↳ Subtask of “{data.parentTask.title}”
+			</a>
+		{/if}
 		<h1 class="font-display text-3xl font-medium">{data.task.title}</h1>
 		{#if storySentence !== null}
 			<p class="rounded-2xl border border-caution/40 bg-caution/10 px-5 py-3 text-caution">
@@ -44,6 +57,7 @@
 		roles={data.roles}
 	/>
 	<AcceptanceCriteriaSection criteria={data.criteria} />
+	<SubtaskList subtasks={data.subtasks} onAddSubtask={() => (isSubtaskModalOpen = true)} />
 	<TaskCommentThread comments={data.comments} />
 	<form
 		method="POST"
@@ -51,7 +65,7 @@
 		use:enhance
 		class="self-end"
 		onsubmit={(event) => {
-			if (!confirm('Delete this task and its comments?')) event.preventDefault();
+			if (!confirm('Delete this task, its subtasks, and its comments?')) event.preventDefault();
 		}}
 	>
 		<button
@@ -63,3 +77,11 @@
 		</button>
 	</form>
 </div>
+
+<Modal title={`New subtask of “${data.task.title}”`} bind:isOpen={isSubtaskModalOpen}>
+	<NewTaskForm
+		createAction="?/addSubtask"
+		parentTaskId={data.task.id}
+		onCreated={() => (isSubtaskModalOpen = false)}
+	/>
+</Modal>

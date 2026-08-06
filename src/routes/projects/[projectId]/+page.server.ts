@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
+import { buildTaskTree } from '$lib/server/projects/buildTaskTree';
 import { createPhase } from '$lib/server/projects/createPhase';
-import { createTask } from '$lib/server/projects/createTask';
+import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { deletePhase } from '$lib/server/projects/deletePhase';
 import { getPhaseSummaries } from '$lib/server/projects/getPhaseSummaries';
 import { getProject } from '$lib/server/projects/getProject';
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const assigneeIdsByTask = await getTaskAssigneeMap(locals.supabase, taskIds);
 	return {
 		project,
-		tasks,
+		taskTree: buildTaskTree(tasks),
 		phaseSummaries: getPhaseSummaries(phases, tasks),
 		staffMembers: await getStaffDirectory(locals.supabase),
 		assigneeIdsByTask: Object.fromEntries(assigneeIdsByTask)
@@ -34,10 +35,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	createTask: async ({ locals, params, request }) => {
 		const user = await requireStaff(locals);
-		const formData = await request.formData();
-		const title = String(formData.get('title') ?? '').trim();
-		if (title === '') return fail(400, { message: 'A task title is required.' });
-		await createTask(locals.supabase, params.projectId, title, user.id);
+		const seed = readNewTaskSeed(await request.formData());
+		if (seed === null) return fail(400, { message: 'A task title is required.' });
+		await createTask(locals.supabase, params.projectId, seed, user.id);
 		return {};
 	},
 	moveTask: async ({ locals, request }) => {

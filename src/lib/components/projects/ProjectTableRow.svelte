@@ -21,8 +21,8 @@
 	} = $props();
 </script>
 
-<tr class="transition hover:bg-carriage/60">
-	<td class="px-4 py-3">
+<tr class="group/row">
+	<td class="px-4 py-3 transition group-hover/row:bg-carriage/60" class:rounded-bl-2xl={isLast}>
 		<div class="flex items-center gap-2">
 			<PriorityControls
 				moveAction="?/moveProject"
@@ -34,7 +34,7 @@
 			<span class="font-display text-sm text-chalk/40">{positionNumber}</span>
 		</div>
 	</td>
-	<td class="px-4 py-3">
+	<td class="px-4 py-3 transition group-hover/row:bg-carriage/60">
 		<a href={`/projects/${project.id}`} class="group flex flex-col gap-0.5">
 			<span class="font-display font-medium transition group-hover:text-go">{project.name}</span>
 			{#if project.description !== ''}
@@ -42,11 +42,19 @@
 			{/if}
 		</a>
 	</td>
-	<td class="px-4 py-3"><ProjectStatusBadge status={project.status} /></td>
-	<td class="px-4 py-3 text-right font-display text-sm text-chalk/70">
+	<td class="px-4 py-3 transition group-hover/row:bg-carriage/60">
+		<ProjectStatusBadge status={project.status} />
+	</td>
+	<td
+		class="px-4 py-3 text-right font-display text-sm text-chalk/70 transition
+			group-hover/row:bg-carriage/60"
+	>
 		{project.openTaskCount}
 	</td>
-	<td class="px-4 py-3 text-right">
+	<td
+		class="px-4 py-3 text-right transition group-hover/row:bg-carriage/60"
+		class:rounded-br-2xl={isLast}
+	>
 		<div class="flex justify-end">
 			<ProjectActionsMenu
 				projectName={project.name}

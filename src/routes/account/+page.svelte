@@ -3,10 +3,14 @@
 	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 
 	let { data, form } = $props();
 
 	let isProfileModalOpen = $state(false);
+
+	const signOutTracker = new FormTracker();
 </script>
 
 <svelte:head>
@@ -19,14 +23,15 @@
 			<h1 class="font-display text-3xl font-medium">Account</h1>
 			<p class="text-chalk/70">{data.userEmail}</p>
 		</div>
-		<form method="POST" action="?/signOut" use:enhance>
-			<button
-				type="submit"
+		<form method="POST" action="?/signOut" use:enhance={signOutTracker.submit()}>
+			<SubmitButton
+				isSaving={signOutTracker.isSaving}
+				savingLabel="Signing out…"
 				class="rounded-full border border-hairline px-6 py-2.5 font-display text-sm text-chalk/80
 					transition hover:border-signal hover:text-signal"
 			>
 				Sign out
-			</button>
+			</SubmitButton>
 		</form>
 	</div>
 	{#if form?.message}

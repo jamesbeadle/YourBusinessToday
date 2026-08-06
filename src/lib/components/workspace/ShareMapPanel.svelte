@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { MapViewer } from '$lib/server/maps/getMapViewers';
 
 	let { viewers }: { viewers: MapViewer[] } = $props();
+
+	const addViewerTracker = new FormTracker();
+	const removeViewerTracker = new FormTracker();
 </script>
 
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
@@ -13,7 +19,8 @@
 			their “Shared with me”.
 		</p>
 	</div>
-	<form method="POST" action="?/addViewer" use:enhance class="flex gap-2">
+	<FormErrorNote message={addViewerTracker.errorMessage} />
+	<form method="POST" action="?/addViewer" use:enhance={addViewerTracker.submit()} class="flex gap-2">
 		<input
 			name="viewerEmail"
 			type="email"
@@ -23,25 +30,29 @@
 			class="min-w-0 flex-1 rounded-full border border-hairline bg-night px-4 py-2.5 text-sm
 				text-chalk outline-none placeholder:text-chalk/40 focus:border-signal"
 		/>
-		<button
-			type="submit"
+		<SubmitButton
+			isSaving={addViewerTracker.isSaving}
+			savingLabel="Sharing…"
 			class="rounded-full bg-go px-5 py-2.5 font-display text-sm font-medium text-night
 				transition hover:brightness-110"
 		>
 			Share
-		</button>
+		</SubmitButton>
 	</form>
+	<FormErrorNote message={removeViewerTracker.errorMessage} />
 	{#if viewers.length > 0}
 		<ul class="flex flex-col divide-y divide-hairline">
 			{#each viewers as viewer (viewer.id)}
 				<li class="flex items-center justify-between gap-3 py-2.5">
 					<span class="truncate text-sm text-chalk/80">{viewer.email}</span>
-					<form method="POST" action="?/removeViewer" use:enhance>
+					<form method="POST" action="?/removeViewer" use:enhance={removeViewerTracker.submit()}>
 						<input type="hidden" name="viewerId" value={viewer.id} />
 						<button
 							type="submit"
+							disabled={removeViewerTracker.isSaving}
 							aria-label={`Stop sharing with ${viewer.email}`}
-							class="font-display text-sm text-chalk/50 transition hover:text-signal"
+							class="font-display text-sm text-chalk/50 transition hover:text-signal
+								disabled:opacity-50"
 						>
 							Remove
 						</button>

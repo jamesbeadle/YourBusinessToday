@@ -1,7 +1,10 @@
 <script lang="ts">
 	import BrandWordmark from './BrandWordmark.svelte';
 	import CreditBalancePill from './CreditBalancePill.svelte';
+	import MobileMenuButton from './MobileMenuButton.svelte';
+	import MobileNavDrawer from './MobileNavDrawer.svelte';
 	import NotificationsBell from './NotificationsBell.svelte';
+	import { buildNavigationLinks } from './siteNavigation';
 
 	let {
 		userEmail,
@@ -19,16 +22,12 @@
 
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
+	const navigationLinks = $derived(buildNavigationLinks({ isSignedIn, isProjectManager, isAdmin }));
 
-	const navigationLinks = $derived([
-		{ href: '/', label: 'Home' },
-		{ href: '/project', label: 'Demo map' },
-		{ href: '/workspace', label: 'Workspace' },
-		{ href: '/brain', label: 'Second Brain' },
-		...(isSignedIn ? [{ href: '/shared', label: 'Shared with me' }] : []),
-		...(isProjectManager ? [{ href: '/projects', label: 'Projects' }] : []),
-		...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : [])
-	]);
+	let isMobileMenuOpen = $state(false);
+
+	const openMobileMenu = () => (isMobileMenuOpen = true);
+	const closeMobileMenu = () => (isMobileMenuOpen = false);
 </script>
 
 <header class="border-b border-hairline bg-night/95 backdrop-blur">
@@ -36,7 +35,7 @@
 		<a href="/" class="flex items-center">
 			<BrandWordmark fontSize={26} />
 		</a>
-		<nav class="flex flex-wrap items-center gap-x-6 gap-y-2">
+		<nav class="hidden items-center gap-6 md:flex">
 			{#each navigationLinks as navigationLink}
 				<a
 					href={navigationLink.href}
@@ -63,5 +62,15 @@
 				</a>
 			{/if}
 		</nav>
+		<div class="flex items-center gap-4 md:hidden">
+			{#if isProjectManager}
+				<NotificationsBell unreadCount={unreadNotificationCount} />
+			{/if}
+			<MobileMenuButton onOpen={openMobileMenu} />
+		</div>
 	</div>
 </header>
+
+{#if isMobileMenuOpen}
+	<MobileNavDrawer {navigationLinks} {isSignedIn} creditBalance={creditBalance ?? 0} onClose={closeMobileMenu} />
+{/if}

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { Phase } from '$lib/server/projects/phaseRecord';
-	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let {
 		createAction = '?/createTask',
@@ -17,18 +19,18 @@
 
 	const shouldOfferPhase = $derived(parentTaskId === null && phases.length > 0);
 
-	const closeWhenCreated: SubmitFunction = () => {
-		return async ({ update, result }) => {
-			await update();
-			if (result.type === 'success') onCreated();
-		};
-	};
+	const tracker = new FormTracker();
 
 	const fieldClasses =
 		'rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none focus:border-go';
 </script>
 
-<form method="POST" action={createAction} use:enhance={closeWhenCreated} class="flex flex-col gap-4">
+<form
+	method="POST"
+	action={createAction}
+	use:enhance={tracker.submit(onCreated)}
+	class="flex flex-col gap-4"
+>
 	{#if parentTaskId !== null}
 		<input type="hidden" name="parentTaskId" value={parentTaskId} />
 	{/if}
@@ -65,11 +67,13 @@
 	<p class="text-xs text-chalk/50">
 		Story points, assignees, and the rest are set on the task page after it's created.
 	</p>
-	<button
-		type="submit"
+	<FormErrorNote message={tracker.errorMessage} />
+	<SubmitButton
+		isSaving={tracker.isSaving}
+		savingLabel="Adding…"
 		class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
 			transition hover:brightness-110"
 	>
 		Add task
-	</button>
+	</SubmitButton>
 </form>

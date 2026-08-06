@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { formatPenceAsPounds } from '$lib/data/creditPricing';
 	import type { CreditPack } from '$lib/server/credits/getCreditPacks';
 
@@ -8,6 +11,8 @@
 		isMostPopular,
 		isCheckoutLive
 	}: { creditPack: CreditPack; isMostPopular: boolean; isCheckoutLive: boolean } = $props();
+
+	const tracker = new FormTracker();
 </script>
 
 <article
@@ -28,15 +33,17 @@
 		<span class="text-base font-normal text-chalk/60">credits</span>
 	</p>
 	<p class="text-chalk/70">{formatPenceAsPounds(creditPack.pricePence)}</p>
-	<form method="POST" action="?/buy" use:enhance class="mt-auto">
+	<form method="POST" action="?/buy" use:enhance={tracker.submit()} class="mt-auto flex flex-col gap-3">
 		<input type="hidden" name="packId" value={creditPack.id} />
-		<button
-			type="submit"
+		<FormErrorNote message={tracker.errorMessage} />
+		<SubmitButton
+			isSaving={tracker.isSaving}
 			disabled={!isCheckoutLive}
+			savingLabel="Opening checkout…"
 			class="w-full rounded-full bg-signal px-6 py-3 font-display text-sm font-medium text-night
 				transition hover:brightness-110 disabled:opacity-40 disabled:hover:brightness-100"
 		>
 			{isCheckoutLive ? 'Buy with Stripe' : 'Coming soon'}
-		</button>
+		</SubmitButton>
 	</form>
 </article>

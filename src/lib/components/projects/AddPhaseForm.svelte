@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 
 	let { onCreated }: { onCreated: () => void } = $props();
 
-	const closeWhenCreated: SubmitFunction = () => {
-		return async ({ update, result }) => {
-			await update();
-			if (result.type === 'success') onCreated();
-		};
-	};
+	const tracker = new FormTracker();
 </script>
 
-<form method="POST" action="?/createPhase" use:enhance={closeWhenCreated} class="flex flex-col gap-4">
+<form
+	method="POST"
+	action="?/createPhase"
+	use:enhance={tracker.submit(onCreated)}
+	class="flex flex-col gap-4"
+>
 	<label class="flex flex-col gap-1">
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phase name</span>
 		<input
@@ -23,11 +25,13 @@
 				focus:border-go"
 		/>
 	</label>
-	<button
-		type="submit"
+	<FormErrorNote message={tracker.errorMessage} />
+	<SubmitButton
+		isSaving={tracker.isSaving}
+		savingLabel="Adding…"
 		class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
 			transition hover:brightness-110"
 	>
 		Add phase
-	</button>
+	</SubmitButton>
 </form>

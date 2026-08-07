@@ -16,7 +16,7 @@ export class FormTracker {
 		this.errorMessage = null;
 	}
 
-	/** Build the use:enhance submit function. onSuccess runs after a successful save or redirect. */
+	/** Build the use:enhance submit function. onSuccess runs as soon as the save is confirmed. */
 	submit(onSuccess?: () => void): SubmitFunction {
 		return ({ cancel }) => {
 			if (this.isSaving) {
@@ -26,6 +26,12 @@ export class FormTracker {
 			this.isSaving = true;
 			this.errorMessage = null;
 			return async ({ update, result }) => {
+				const succeeded = result.type !== 'failure' && result.type !== 'error';
+				// On success run onSuccess (usually "close the modal") BEFORE update():
+				// update() resets the form fields and then awaits a data refetch, so
+				// running it first flashed a blanked-out form inside the still-open
+				// modal before the modal finally closed.
+				if (succeeded) onSuccess?.();
 				await update();
 				this.isSaving = false;
 				if (result.type === 'failure') {
@@ -34,8 +40,6 @@ export class FormTracker {
 						typeof failureData?.message === 'string' ? failureData.message : fallbackErrorMessage;
 				} else if (result.type === 'error') {
 					this.errorMessage = fallbackErrorMessage;
-				} else {
-					onSuccess?.();
 				}
 			};
 		};

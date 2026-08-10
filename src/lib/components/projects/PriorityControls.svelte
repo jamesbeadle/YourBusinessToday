@@ -7,13 +7,15 @@
 		fieldName,
 		id,
 		isFirst,
-		isLast
+		isLast,
+		extraFields = {}
 	}: {
 		moveAction: string;
 		fieldName: string;
 		id: string;
 		isFirst: boolean;
 		isLast: boolean;
+		extraFields?: Record<string, string>;
 	} = $props();
 
 	const tracker = new FormTracker();
@@ -23,6 +25,9 @@
 	<form method="POST" action={moveAction} use:enhance={tracker.submit()}>
 		<input type="hidden" name={fieldName} value={id} />
 		<input type="hidden" name="direction" value="up" />
+		{#each Object.entries(extraFields) as [extraFieldName, extraFieldValue] (extraFieldName)}
+			<input type="hidden" name={extraFieldName} value={extraFieldValue} />
+		{/each}
 		<button
 			type="submit"
 			disabled={isFirst || tracker.isSaving}
@@ -36,6 +41,9 @@
 	<form method="POST" action={moveAction} use:enhance={tracker.submit()}>
 		<input type="hidden" name={fieldName} value={id} />
 		<input type="hidden" name="direction" value="down" />
+		{#each Object.entries(extraFields) as [extraFieldName, extraFieldValue] (extraFieldName)}
+			<input type="hidden" name={extraFieldName} value={extraFieldValue} />
+		{/each}
 		<button
 			type="submit"
 			disabled={isLast || tracker.isSaving}

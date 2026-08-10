@@ -10,6 +10,7 @@ export type ProjectTask = {
 	details: string;
 	status: TaskStatus;
 	priority: number;
+	globalPriority: number | null;
 	storyPoints: number;
 	completionPercent: number;
 	isUserStory: boolean;
@@ -30,6 +31,7 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 		details: row.details as string,
 		status: parseTaskStatus(row.status),
 		priority: row.priority as number,
+		globalPriority: (row.global_priority as number) ?? null,
 		storyPoints: parseStoryPoints(row.story_points),
 		completionPercent: row.completion_percent as number,
 		isUserStory: row.is_user_story as boolean,

@@ -35,9 +35,26 @@ export async function createTask(
 		details: seed.details,
 		due_date: seed.dueDate,
 		priority: nextPriority,
+		global_priority: await nextGlobalPriority(supabase, seed),
 		created_by: createdBy
 	});
 	if (error) throw error;
+}
+
+async function nextGlobalPriority(
+	supabase: SupabaseClient,
+	seed: NewTaskSeed
+): Promise<number | null> {
+	if (seed.parentTaskId !== null) return null;
+	const { data, error } = await supabase
+		.from('tasks')
+		.select('global_priority')
+		.not('global_priority', 'is', null)
+		.order('global_priority', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+	if (error) throw error;
+	return (data?.global_priority ?? 0) + 1;
 }
 
 async function getHighestSiblingPriority(

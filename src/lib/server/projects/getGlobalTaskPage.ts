@@ -1,0 +1,44 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { parseTaskRecord, type ProjectTask } from '$lib/server/projects/taskRecord';
+
+export type GlobalTask = ProjectTask & { projectName: string };
+
+export type GlobalTaskPage = {
+	tasks: GlobalTask[];
+	pageNumber: number;
+	pageCount: number;
+	taskCount: number;
+	firstTaskNumber: number;
+};
+
+const tasksPerPage = 20;
+
+export async function getGlobalTaskPage(
+	supabase: SupabaseClient,
+	pageNumber: number,
+	shouldIncludeDone: boolean
+): Promise<GlobalTaskPage> {
+	const firstRowIndex = (pageNumber - 1) * tasksPerPage;
+	const topLevelTasks = supabase
+		.from('tasks')
+		.select('*, projects(name)', { count: 'exact' })
+		.is('parent_task_id', null);
+	const scopedTasks = shouldIncludeDone ? topLevelTasks : topLevelTasks.neq('status', 'done');
+	const { data, error, count } = await scopedTasks
+		.order('global_priority', { ascending: true, nullsFirst: false })
+		.range(firstRowIndex, firstRowIndex + tasksPerPage - 1);
+	if (error) throw error;
+	const taskCount = count ?? 0;
+	return {
+		tasks: data.map(parseGlobalTaskRow),
+		pageNumber,
+		pageCount: Math.max(1, Math.ceil(taskCount / tasksPerPage)),
+		taskCount,
+		firstTaskNumber: firstRowIndex + 1
+	};
+}
+
+function parseGlobalTaskRow(row: Record<string, unknown>): GlobalTask {
+	const project = row.projects as { name: string } | null;
+	return { ...parseTaskRecord(row), projectName: project?.name ?? '' };
+}

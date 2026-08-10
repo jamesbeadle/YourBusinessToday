@@ -16,6 +16,29 @@ export async function moveTask(
 	if (neighbour === null) return;
 	await setPriority(supabase, task.id, neighbour.priority);
 	await setPriority(supabase, neighbour.id, task.priority);
+	await swapGlobalPriorities(supabase, task, neighbour);
+}
+
+async function swapGlobalPriorities(
+	supabase: SupabaseClient,
+	task: ProjectTask,
+	neighbour: ProjectTask
+): Promise<void> {
+	if (task.globalPriority === null || neighbour.globalPriority === null) return;
+	await setGlobalPriority(supabase, task.id, neighbour.globalPriority);
+	await setGlobalPriority(supabase, neighbour.id, task.globalPriority);
+}
+
+async function setGlobalPriority(
+	supabase: SupabaseClient,
+	taskId: string,
+	globalPriority: number
+): Promise<void> {
+	const { error } = await supabase
+		.from('tasks')
+		.update({ global_priority: globalPriority })
+		.eq('id', taskId);
+	if (error) throw error;
 }
 
 async function findSiblingNeighbour(

@@ -48,14 +48,23 @@
 				Ordered by priority — the top row is the next thing to spend Claude on.
 			</p>
 		</div>
-		<button
-			type="button"
-			onclick={() => (isNewProjectModalOpen = true)}
-			class="rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
-				transition hover:brightness-110"
-		>
-			New project
-		</button>
+		<div class="flex flex-wrap items-center gap-3">
+			<a
+				href="/tasks"
+				class="rounded-full border border-hairline px-6 py-2.5 font-display text-sm text-chalk/80
+					transition hover:border-go hover:text-go"
+			>
+				Task view
+			</a>
+			<button
+				type="button"
+				onclick={() => (isNewProjectModalOpen = true)}
+				class="rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
+					transition hover:brightness-110"
+			>
+				New project
+			</button>
+		</div>
 	</div>
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>

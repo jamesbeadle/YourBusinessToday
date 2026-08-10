@@ -14,6 +14,12 @@
 		statusTask = task;
 		isStatusModalOpen = true;
 	}
+
+	const taskCountLabel = $derived(
+		`${data.taskPage.taskCount} ${data.shouldIncludeDone ? 'task' : 'open task'}${
+			data.taskPage.taskCount === 1 ? '' : 's'
+		}`
+	);
 </script>
 
 <svelte:head>
@@ -37,7 +43,10 @@
 			Project view
 		</a>
 	</div>
-	<GlobalTaskFilter shouldIncludeDone={data.shouldIncludeDone} />
+	<div class="flex flex-wrap items-center justify-between gap-4">
+		<GlobalTaskFilter shouldIncludeDone={data.shouldIncludeDone} />
+		<p class="font-display text-sm text-chalk/50">{taskCountLabel}</p>
+	</div>
 	{#if data.taskPage.tasks.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
 			No tasks here — add one from a project, or switch the filter to All.

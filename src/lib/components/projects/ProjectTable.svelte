@@ -5,10 +5,14 @@
 
 	let {
 		projects,
+		firstPositionNumber,
+		projectCount,
 		onEdit,
 		onDelete
 	}: {
 		projects: ProjectSummary[];
+		firstPositionNumber: number;
+		projectCount: number;
 		onEdit: (project: ProjectSummary) => void;
 		onDelete: (project: ProjectSummary) => void;
 	} = $props();
@@ -19,9 +23,9 @@
 		{#each projects as project, projectIndex (project.id)}
 			<ProjectMobileCard
 				{project}
-				positionNumber={projectIndex + 1}
-				isFirst={projectIndex === 0}
-				isLast={projectIndex === projects.length - 1}
+				positionNumber={firstPositionNumber + projectIndex}
+				isFirst={firstPositionNumber + projectIndex === 1}
+				isLast={firstPositionNumber + projectIndex === projectCount}
 				{onEdit}
 				{onDelete}
 			/>
@@ -41,9 +45,10 @@
 			{#each projects as project, projectIndex (project.id)}
 				<ProjectTableRow
 					{project}
-					positionNumber={projectIndex + 1}
-					isFirst={projectIndex === 0}
-					isLast={projectIndex === projects.length - 1}
+					positionNumber={firstPositionNumber + projectIndex}
+					isFirst={firstPositionNumber + projectIndex === 1}
+					isLast={firstPositionNumber + projectIndex === projectCount}
+					isLastOnPage={projectIndex === projects.length - 1}
 					{onEdit}
 					{onDelete}
 				/>

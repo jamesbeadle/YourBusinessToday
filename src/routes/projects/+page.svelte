@@ -4,8 +4,9 @@
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewProjectForm from '$lib/components/projects/NewProjectForm.svelte';
 	import ProjectFilterBar from '$lib/components/projects/ProjectFilterBar.svelte';
+	import ProjectPagination from '$lib/components/projects/ProjectPagination.svelte';
 	import ProjectTable from '$lib/components/projects/ProjectTable.svelte';
-	import type { ProjectStatus } from '$lib/data/projectStatus';
+	import { ProjectListView } from '$lib/client/projectListView.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
 	let { data, form } = $props();
@@ -14,8 +15,8 @@
 	let isEditModalOpen = $state(false);
 	let isDeleteModalOpen = $state(false);
 	let selectedProject = $state<ProjectSummary | null>(null);
-	let searchText = $state('');
-	let selectedStatus = $state<ProjectStatus | 'all'>('all');
+
+	const listView = new ProjectListView(() => data.projects);
 
 	function openEditModal(project: ProjectSummary) {
 		selectedProject = project;
@@ -26,14 +27,6 @@
 		selectedProject = project;
 		isDeleteModalOpen = true;
 	}
-
-	const visibleProjects = $derived(
-		data.projects.filter(
-			(project) =>
-				(selectedStatus === 'all' || project.status === selectedStatus) &&
-				project.name.toLowerCase().includes(searchText.trim().toLowerCase())
-		)
-	);
 </script>
 
 <svelte:head>
@@ -69,13 +62,26 @@
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
-	<ProjectFilterBar bind:searchText bind:selectedStatus />
-	{#if visibleProjects.length === 0}
+	<div class="flex flex-col gap-2">
+		<ProjectFilterBar
+			bind:searchText={listView.searchText}
+			bind:selectedStatus={listView.selectedStatus}
+		/>
+		<p class="text-right font-display text-sm text-chalk/50">{listView.countLabel}</p>
+	</div>
+	{#if listView.filteredProjects.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
 			No projects match — adjust the filters or create one.
 		</p>
 	{:else}
-		<ProjectTable projects={visibleProjects} onEdit={openEditModal} onDelete={openDeleteModal} />
+		<ProjectTable
+			projects={listView.pagedProjects}
+			firstPositionNumber={listView.firstPositionNumber}
+			projectCount={listView.filteredProjects.length}
+			onEdit={openEditModal}
+			onDelete={openDeleteModal}
+		/>
+		<ProjectPagination bind:pageNumber={listView.pageNumber} pageCount={listView.pageCount} />
 	{/if}
 </div>
 

@@ -9,6 +9,7 @@
 		positionNumber,
 		isFirst,
 		isLast,
+		isLastOnPage,
 		onEdit,
 		onDelete
 	}: {
@@ -16,13 +17,14 @@
 		positionNumber: number;
 		isFirst: boolean;
 		isLast: boolean;
+		isLastOnPage: boolean;
 		onEdit: (project: ProjectSummary) => void;
 		onDelete: (project: ProjectSummary) => void;
 	} = $props();
 </script>
 
 <tr class="group/row">
-	<td class="px-4 py-3 transition group-hover/row:bg-carriage/60" class:rounded-bl-2xl={isLast}>
+	<td class="px-4 py-3 transition group-hover/row:bg-carriage/60" class:rounded-bl-2xl={isLastOnPage}>
 		<div class="flex items-center gap-2">
 			<PriorityControls
 				moveAction="?/moveProject"
@@ -53,7 +55,7 @@
 	</td>
 	<td
 		class="px-4 py-3 text-right transition group-hover/row:bg-carriage/60"
-		class:rounded-br-2xl={isLast}
+		class:rounded-br-2xl={isLastOnPage}
 	>
 		<div class="flex justify-end">
 			<ProjectActionsMenu

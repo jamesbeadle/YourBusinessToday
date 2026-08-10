@@ -29,7 +29,11 @@ Run these in the Supabase SQL editor, in order (each is run-once):
 
 ## The views
 
-- `/projects` — create projects, see open-task counts, archive finished ones.
+- `/projects` — create projects, see open-task counts, archive finished ones. The
+  Task view button leads to the global queue.
+- `/tasks` — every project's top-level tasks in one paginated queue, ordered by global
+  priority, each labelled with its project. Open tasks show by default; the All filter
+  reveals Done. The ▲ ▼ controls reorder the queue, and the status pill works in place.
 - `/projects/[projectId]` — phases (with weighted completion bars and an add-phase form)
   above the prioritised backlog. New tasks join the bottom; the ▲ ▼ controls reorder, so
   the top row is always the next thing to spend Claude on. Each row shows its phase,
@@ -51,6 +55,12 @@ Run these in the Supabase SQL editor, in order (each is run-once):
 
 - **Priority** is a per-project integer; the backlog is always ordered by it. Moving a
   task swaps its priority with its neighbour, so reordering never renumbers the backlog.
+- **Global priority** is a single integer sequence across every project's top-level
+  tasks — the order of `/tasks`. The two orderings stay in step: swapping neighbours in
+  a project backlog swaps their global priorities too, and a move in the global queue
+  past a task from the same project swaps their backlog priorities. New top-level tasks
+  join the bottom of the queue; subtasks stay out of it. Requires a one-time run of
+  [`migrations/0007_global_task_priority.sql`](../migrations/0007_global_task_priority.sql).
 - **Completion** is a manual 0–100 % on each task. Phase and sprint percentages are
   derived, weighted by story points, so a 5-point task moves the bar more than a
   1-point one. Marking a task done sets it to 100 %.

@@ -4,6 +4,7 @@
 	import TaskListRow from './TaskListRow.svelte';
 	import { ListReorder } from '$lib/client/listReorder.svelte';
 	import { postListReorder } from '$lib/client/postListReorder';
+	import { tasksInPhase, withoutDoneTasks } from './taskTreeFilters';
 	import type { PhaseSummary } from '$lib/server/projects/getPhaseSummaries';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -27,11 +28,13 @@
 	let selectedPhaseId = $state('all');
 	let shouldIncludeDone = $state(false);
 
-	const listReorder = new ListReorder((movedTaskId, targetTaskId, placement) =>
-		postListReorder('?/placeTask', { movedTaskId, targetTaskId, placement })
+	const listReorder = new ListReorder(
+		(movedTaskId, targetTaskId, placement) =>
+			postListReorder('?/placeTask', { movedTaskId, targetTaskId, placement }),
+		{ canNestRows: true }
 	);
 
-	const tasksInSelectedPhase = $derived(taskTree.filter((task) => isInSelectedPhase(task.phaseId)));
+	const tasksInSelectedPhase = $derived(tasksInPhase(taskTree, selectedPhaseId));
 	const visibleTasks = $derived(
 		shouldIncludeDone ? tasksInSelectedPhase : withoutDoneTasks(tasksInSelectedPhase)
 	);
@@ -40,18 +43,6 @@
 			? 'Everything here is done — switch the filter to All to see finished tasks.'
 			: 'No tasks here — add one, or pick a different phase filter.'
 	);
-
-	function isInSelectedPhase(phaseId: string | null): boolean {
-		if (selectedPhaseId === 'all') return true;
-		if (selectedPhaseId === 'none') return phaseId === null;
-		return phaseId === selectedPhaseId;
-	}
-
-	function withoutDoneTasks(tasks: TaskTreeNode[]): TaskTreeNode[] {
-		return tasks
-			.filter((task) => task.status !== 'done')
-			.map((task) => ({ ...task, subtasks: withoutDoneTasks(task.subtasks) }));
-	}
 
 	function assigneeNamesFor(taskId: string): string[] {
 		const assigneeIds = assigneeIdsByTask[taskId] ?? [];

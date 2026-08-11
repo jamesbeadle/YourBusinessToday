@@ -1,7 +1,7 @@
 import { EdgeAutoScroller } from '$lib/client/edgeAutoScroller';
 import { findReorderRow } from '$lib/client/findReorderRow';
 
-export type DropPlacement = 'before' | 'after';
+export type DropPlacement = 'before' | 'after' | 'inside';
 
 export type SubmitListReorder = (
 	movedId: string,
@@ -9,12 +9,16 @@ export type SubmitListReorder = (
 	placement: DropPlacement
 ) => Promise<void>;
 
+export type ListReorderOptions = { canNestRows?: boolean };
+
 let nextListNumber = 0;
 
 /**
  * Drag-to-reorder state for one list, driven by pointer events so it works
  * with both mouse and touch. Rows carry a sibling-group key (for nested
- * lists), so a drag can only drop among the rows it started beside.
+ * lists), so a drag can only drop among the rows it started beside. Lists
+ * that allow nesting also accept a drop on a row's middle band, which files
+ * the dragged row as that row's child.
  */
 export class ListReorder {
 	draggedId = $state<string | null>(null);
@@ -22,11 +26,13 @@ export class ListReorder {
 	dropTargetId = $state<string | null>(null);
 	dropPlacement = $state<DropPlacement>('before');
 	readonly listId: string;
+	readonly canNestRows: boolean;
 	readonly submitReorder: SubmitListReorder;
 	#autoScroller = new EdgeAutoScroller();
 
-	constructor(submitReorder: SubmitListReorder) {
+	constructor(submitReorder: SubmitListReorder, options: ListReorderOptions = {}) {
 		this.submitReorder = submitReorder;
+		this.canNestRows = options.canNestRows ?? false;
 		nextListNumber += 1;
 		this.listId = `reorder-${nextListNumber}`;
 	}
@@ -43,7 +49,8 @@ export class ListReorder {
 			this.listId,
 			this.draggedGroupId,
 			event.clientX,
-			event.clientY
+			event.clientY,
+			this.canNestRows
 		);
 		if (dropTarget === null || dropTarget.rowId === this.draggedId) {
 			this.dropTargetId = null;

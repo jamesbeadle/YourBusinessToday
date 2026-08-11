@@ -71,6 +71,8 @@
 <Modal title="Edit task" maxWidthClass="max-w-2xl" bind:isOpen={isEditModalOpen}>
 	<TaskEditForm
 		task={data.task}
+		parentTask={data.parentTask}
+		siblingTasks={data.siblingTasks}
 		staffMembers={data.staffMembers}
 		phases={data.phases}
 		assigneeIds={data.assigneeIds}

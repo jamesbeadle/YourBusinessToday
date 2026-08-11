@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import TaskMoveField from './TaskMoveField.svelte';
 	import TaskPlanningFields from './TaskPlanningFields.svelte';
 	import TeamPickerFieldset from './TeamPickerFieldset.svelte';
 	import UserStoryFields from './UserStoryFields.svelte';
@@ -13,6 +14,8 @@
 
 	let {
 		task,
+		parentTask,
+		siblingTasks,
 		staffMembers,
 		phases,
 		assigneeIds,
@@ -20,6 +23,8 @@
 		onSaved
 	}: {
 		task: ProjectTask;
+		parentTask: ProjectTask | null;
+		siblingTasks: ProjectTask[];
 		staffMembers: StaffMember[];
 		phases: Phase[];
 		assigneeIds: string[];
@@ -67,6 +72,7 @@
 		</label>
 	</div>
 	<TaskPlanningFields {task} {phases} />
+	<TaskMoveField {parentTask} {siblingTasks} />
 	<UserStoryFields {task} />
 	<TeamPickerFieldset {staffMembers} {assigneeIds} {roles} />
 	<FormErrorNote message={tracker.errorMessage} />

@@ -4,8 +4,8 @@ import { addTaskComment } from '$lib/server/projects/addTaskComment';
 import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
 import { deleteTask } from '$lib/server/projects/deleteTask';
-import { getSubtasks } from '$lib/server/projects/getSubtasks';
-import { getTask } from '$lib/server/projects/getTask';
+import { getTaskFamily } from '$lib/server/projects/getTaskFamily';
+import { applyTaskMoveChoice, parseTaskMoveChoice } from '$lib/server/projects/taskMoveChoice';
 import { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
 import { parseTaskDetailsForm } from '$lib/server/projects/parseTaskDetailsForm';
 import { requireStaff } from '$lib/server/auth/requireStaff';
@@ -21,11 +21,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireStaff(locals);
 	const workspace = await loadTaskWorkspace(locals.supabase, params.projectId, params.taskId);
 	if (workspace === null) error(404, 'Task not found');
-	const parentTaskId = workspace.task.parentTaskId;
 	return {
 		...workspace,
-		parentTask: parentTaskId === null ? null : await getTask(locals.supabase, parentTaskId),
-		subtasks: await getSubtasks(locals.supabase, params.taskId),
+		...(await getTaskFamily(locals.supabase, workspace.task)),
 		comments: withAuthorNames(workspace.comments, workspace.staffMembers)
 	};
 };
@@ -33,11 +31,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	saveTask: async ({ locals, params, request }) => {
 		await requireStaff(locals);
-		const submission = parseTaskDetailsForm(await request.formData());
+		const formData = await request.formData();
+		const submission = parseTaskDetailsForm(formData);
 		if (submission === null) return fail(400, { message: 'A task title is required.' });
 		await updateTaskDetails(locals.supabase, params.taskId, submission);
 		await setTaskAssignees(locals.supabase, params.taskId, submission.assigneeIds);
 		await setTaskRoles(locals.supabase, params.taskId, submission.roles);
+		const moveChoice = parseTaskMoveChoice(formData.get('moveTo'));
+		await applyTaskMoveChoice(locals.supabase, params.taskId, moveChoice);
 		return { message: 'Task saved.' };
 	},
 	addSubtask: async ({ locals, params, request }) => {

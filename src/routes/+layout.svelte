@@ -4,8 +4,11 @@
 	import SavingOverlay from '$lib/components/site/SavingOverlay.svelte';
 	import SiteFooter from '$lib/components/site/SiteFooter.svelte';
 	import SiteHeader from '$lib/components/site/SiteHeader.svelte';
+	import { SlowNavigation } from '$lib/client/slowNavigation.svelte';
 
 	let { children, data } = $props();
+
+	const slowNavigation = new SlowNavigation();
 </script>
 
 <NavigationProgressBar />
@@ -19,7 +22,11 @@
 		isStaff={data.isStaff}
 		unreadNotificationCount={data.unreadNotificationCount}
 	/>
-	<main class="flex-1">
+	<main
+		class="flex-1 transition-opacity duration-300"
+		class:opacity-40={slowNavigation.isActive}
+		class:pointer-events-none={slowNavigation.isActive}
+	>
 		{@render children()}
 	</main>
 	<SiteFooter />

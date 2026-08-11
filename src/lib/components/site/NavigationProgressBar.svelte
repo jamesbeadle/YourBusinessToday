@@ -1,21 +1,10 @@
 <script lang="ts">
-	import { navigating } from '$app/state';
+	import { SlowNavigation } from '$lib/client/slowNavigation.svelte';
 
-	const showDelayMilliseconds = 150;
-
-	let isVisible = $state(false);
-
-	$effect(() => {
-		if (navigating.to === null) {
-			isVisible = false;
-			return;
-		}
-		const showTimer = setTimeout(() => (isVisible = true), showDelayMilliseconds);
-		return () => clearTimeout(showTimer);
-	});
+	const slowNavigation = new SlowNavigation();
 </script>
 
-{#if isVisible}
+{#if slowNavigation.isActive}
 	<div
 		role="status"
 		aria-label="Loading"

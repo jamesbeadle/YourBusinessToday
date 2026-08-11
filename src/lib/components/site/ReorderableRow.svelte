@@ -18,8 +18,6 @@
 		children: Snippet<[Snippet]>;
 	} = $props();
 
-	let isDraggable = $state(false);
-
 	const isDragged = $derived(listReorder.draggedId === rowId);
 	const isDropTarget = $derived(listReorder.dropTargetId === rowId);
 	const dropIndicatorClass = $derived.by(() => {
@@ -28,22 +26,25 @@
 		return 'shadow-[inset_0_-2px_0_0_var(--color-go)]';
 	});
 
-	function beginRowDrag(event: DragEvent) {
-		event.stopPropagation();
-		event.dataTransfer?.setData('text/plain', rowId);
+	function beginHandleDrag(event: PointerEvent) {
+		event.preventDefault();
+		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+		lockTextSelection(true);
 		listReorder.beginDrag(rowId, groupId);
 	}
 
-	function endRowDrag(event: DragEvent) {
-		event.stopPropagation();
-		isDraggable = false;
+	function finishHandleDrag() {
+		lockTextSelection(false);
+		listReorder.completeDrop();
+	}
+
+	function cancelHandleDrag() {
+		lockTextSelection(false);
 		listReorder.reset();
 	}
 
-	function dropOnRow(event: DragEvent) {
-		event.preventDefault();
-		event.stopPropagation();
-		listReorder.completeDrop();
+	function lockTextSelection(isLocked: boolean) {
+		document.body.style.userSelect = isLocked ? 'none' : '';
 	}
 </script>
 
@@ -53,9 +54,11 @@
 		tabindex="-1"
 		aria-hidden="true"
 		title="Drag to reorder"
-		onmousedown={() => (isDraggable = true)}
-		onmouseup={() => (isDraggable = false)}
-		class="cursor-grab px-1 text-chalk/30 transition select-none hover:text-chalk/70
+		onpointerdown={beginHandleDrag}
+		onpointermove={(event) => listReorder.trackDrag(event)}
+		onpointerup={finishHandleDrag}
+		onpointercancel={cancelHandleDrag}
+		class="cursor-grab touch-none px-1 text-chalk/30 transition select-none hover:text-chalk/70
 			active:cursor-grabbing"
 	>
 		⠿
@@ -64,12 +67,9 @@
 
 <svelte:element
 	this={tag}
-	role={tag === 'tr' ? 'row' : 'listitem'}
-	draggable={isDraggable}
-	ondragstart={beginRowDrag}
-	ondragend={endRowDrag}
-	ondragover={(event: DragEvent) => listReorder.trackDragOver(rowId, groupId, event)}
-	ondrop={dropOnRow}
+	data-reorder-list={listReorder.listId}
+	data-reorder-row={rowId}
+	data-reorder-group={groupId ?? ''}
 	class={`${rowClasses} ${dropIndicatorClass}`}
 	class:opacity-40={isDragged}
 >

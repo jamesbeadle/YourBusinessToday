@@ -29,6 +29,7 @@
 		{#each projects as project, projectIndex (project.id)}
 			<ProjectMobileCard
 				{project}
+				{listReorder}
 				positionNumber={firstPositionNumber + projectIndex}
 				isFirst={firstPositionNumber + projectIndex === 1}
 				isLast={firstPositionNumber + projectIndex === projectCount}

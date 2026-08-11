@@ -8,12 +8,23 @@ export async function moveGlobalTask(
 	direction: TaskMoveDirection,
 	shouldIncludeDone: boolean
 ): Promise<void> {
-	const { data, error } = await supabase.from('tasks').select('*').eq('id', taskId).maybeSingle();
+	const { data, error } = await supabase
+		.from('tasks')
+		.select('*, projects!inner(owner_id)')
+		.eq('id', taskId)
+		.maybeSingle();
 	if (error) throw error;
 	if (data === null) return;
 	const task = parseTaskRecord(data);
 	if (task.globalPriority === null) return;
-	const neighbour = await findGlobalNeighbour(supabase, task, direction, shouldIncludeDone);
+	const listOwnerId = readProjectOwnerId(data);
+	const neighbour = await findGlobalNeighbour(
+		supabase,
+		task,
+		listOwnerId,
+		direction,
+		shouldIncludeDone
+	);
 	if (neighbour === null || neighbour.globalPriority === null) return;
 	await updateTask(supabase, task.id, { global_priority: neighbour.globalPriority });
 	await updateTask(supabase, neighbour.id, { global_priority: task.globalPriority });
@@ -22,14 +33,24 @@ export async function moveGlobalTask(
 	await updateTask(supabase, neighbour.id, { priority: task.priority });
 }
 
+function readProjectOwnerId(row: Record<string, unknown>): string {
+	const project = row.projects as { owner_id: string };
+	return project.owner_id;
+}
+
 async function findGlobalNeighbour(
 	supabase: SupabaseClient,
 	task: ProjectTask,
+	listOwnerId: string,
 	direction: TaskMoveDirection,
 	shouldIncludeDone: boolean
 ): Promise<ProjectTask | null> {
 	const isMovingUp = direction === 'up';
-	const topLevelTasks = supabase.from('tasks').select('*').is('parent_task_id', null);
+	const topLevelTasks = supabase
+		.from('tasks')
+		.select('*, projects!inner(owner_id)')
+		.eq('projects.owner_id', listOwnerId)
+		.is('parent_task_id', null);
 	const scopedTasks = shouldIncludeDone ? topLevelTasks : topLevelTasks.neq('status', 'done');
 	const { data, error } = await scopedTasks
 		.not('global_priority', 'is', null)

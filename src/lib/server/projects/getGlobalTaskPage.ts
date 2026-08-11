@@ -15,13 +15,15 @@ const tasksPerPage = 20;
 
 export async function getGlobalTaskPage(
 	supabase: SupabaseClient,
+	ownerId: string,
 	pageNumber: number,
 	shouldIncludeDone: boolean
 ): Promise<GlobalTaskPage> {
 	const firstRowIndex = (pageNumber - 1) * tasksPerPage;
 	const topLevelTasks = supabase
 		.from('tasks')
-		.select('*, projects(name)', { count: 'exact' })
+		.select('*, projects!inner(name, owner_id)', { count: 'exact' })
+		.eq('projects.owner_id', ownerId)
 		.is('parent_task_id', null);
 	const scopedTasks = shouldIncludeDone ? topLevelTasks : topLevelTasks.neq('status', 'done');
 	const { data, error, count } = await scopedTasks

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ProjectMobileCard from './ProjectMobileCard.svelte';
 	import ProjectTableRow from './ProjectTableRow.svelte';
+	import { ListReorder } from '$lib/client/listReorder.svelte';
+	import { postListReorder } from '$lib/client/postListReorder';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
 	let {
@@ -16,6 +18,10 @@
 		onEdit: (project: ProjectSummary) => void;
 		onDelete: (project: ProjectSummary) => void;
 	} = $props();
+
+	const listReorder = new ListReorder((movedProjectId, targetProjectId, placement) =>
+		postListReorder('?/placeProject', { movedProjectId, targetProjectId, placement })
+	);
 </script>
 
 <div class="rounded-2xl border border-hairline">
@@ -45,6 +51,7 @@
 			{#each projects as project, projectIndex (project.id)}
 				<ProjectTableRow
 					{project}
+					{listReorder}
 					positionNumber={firstPositionNumber + projectIndex}
 					isFirst={firstPositionNumber + projectIndex === 1}
 					isLast={firstPositionNumber + projectIndex === projectCount}

@@ -5,6 +5,7 @@
 	import NewProjectForm from '$lib/components/projects/NewProjectForm.svelte';
 	import ProjectFilterBar from '$lib/components/projects/ProjectFilterBar.svelte';
 	import ProjectPagination from '$lib/components/projects/ProjectPagination.svelte';
+	import ProjectsPageHeader from '$lib/components/projects/ProjectsPageHeader.svelte';
 	import ProjectTable from '$lib/components/projects/ProjectTable.svelte';
 	import { ProjectListView } from '$lib/client/projectListView.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
@@ -34,31 +35,12 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-16">
-	<div class="flex flex-wrap items-end justify-between gap-4">
-		<div class="flex flex-col gap-2">
-			<h1 class="font-display text-3xl font-medium">Projects</h1>
-			<p class="max-w-prose text-chalk/70">
-				Ordered by priority — the top row is the next thing to spend Claude on.
-			</p>
-		</div>
-		<div class="flex flex-wrap items-center gap-3">
-			<a
-				href="/tasks"
-				class="rounded-full border border-hairline px-6 py-2.5 font-display text-sm text-chalk/80
-					transition hover:border-go hover:text-go"
-			>
-				Task view
-			</a>
-			<button
-				type="button"
-				onclick={() => (isNewProjectModalOpen = true)}
-				class="rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
-					transition hover:brightness-110"
-			>
-				New project
-			</button>
-		</div>
-	</div>
+	<ProjectsPageHeader
+		staffMembers={data.staffMembers}
+		viewedStaffMember={data.viewedStaffMember}
+		currentUserId={data.currentUserId}
+		onNewProject={() => (isNewProjectModalOpen = true)}
+	/>
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
@@ -86,7 +68,10 @@
 </div>
 
 <Modal title="New project" bind:isOpen={isNewProjectModalOpen}>
-	<NewProjectForm onCreated={() => (isNewProjectModalOpen = false)} />
+	<NewProjectForm
+		ownerId={data.viewedStaffMember.id}
+		onCreated={() => (isNewProjectModalOpen = false)}
+	/>
 </Modal>
 
 {#if selectedProject !== null}

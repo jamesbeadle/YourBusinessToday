@@ -2,11 +2,13 @@
 	let {
 		pageNumber,
 		pageCount,
-		shouldIncludeDone
+		shouldIncludeDone,
+		viewedUserId
 	}: {
 		pageNumber: number;
 		pageCount: number;
 		shouldIncludeDone: boolean;
+		viewedUserId: string | null;
 	} = $props();
 
 	const hasPreviousPage = $derived(pageNumber > 1);
@@ -16,6 +18,7 @@
 		const parameters = new URLSearchParams();
 		if (targetPageNumber > 1) parameters.set('page', String(targetPageNumber));
 		if (shouldIncludeDone) parameters.set('status', 'all');
+		if (viewedUserId !== null) parameters.set('user', viewedUserId);
 		const query = parameters.toString();
 		if (query === '') return '/tasks';
 		return `/tasks?${query}`;

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseTaskRecord, type ProjectTask } from '$lib/server/projects/taskRecord';
+import { reparentTask } from '$lib/server/projects/reparentTask';
 import {
 	reassignValuesInOrder,
 	reorderByDrop,
@@ -12,6 +13,7 @@ export async function placeTask(
 	targetTaskId: string,
 	placement: DropPlacement
 ): Promise<void> {
+	if (placement === 'inside') return reparentTask(supabase, movedTaskId, targetTaskId);
 	const movedTask = await findTask(supabase, movedTaskId);
 	if (movedTask === null) return;
 	const siblings = await getSiblingsByPriority(supabase, movedTask);

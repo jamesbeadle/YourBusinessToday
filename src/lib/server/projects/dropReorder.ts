@@ -1,9 +1,10 @@
-export type DropPlacement = 'before' | 'after';
+export type DropPlacement = 'before' | 'after' | 'inside';
 
 export type PriorityUpdate = { id: string; value: number };
 
 export function parseDropPlacement(value: unknown): DropPlacement {
-	return value === 'after' ? 'after' : 'before';
+	if (value === 'after' || value === 'inside') return value;
+	return 'before';
 }
 
 export function reorderByDrop<Item extends { id: string }>(

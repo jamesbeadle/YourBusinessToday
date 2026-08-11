@@ -1,5 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getProjectOwnerId } from '$lib/server/projects/getProjectOwnerId';
+import {
+	getNextGlobalPriority,
+	getNextSiblingPriority
+} from '$lib/server/projects/nextTaskPriorities';
 
 export type NewTaskSeed = {
 	title: string;
@@ -27,7 +30,8 @@ export async function createTask(
 	seed: NewTaskSeed,
 	createdBy: string
 ): Promise<void> {
-	const nextPriority = (await getHighestSiblingPriority(supabase, projectId, seed)) + 1;
+	const globalPriority =
+		seed.parentTaskId === null ? await getNextGlobalPriority(supabase, projectId) : null;
 	const { error } = await supabase.from('tasks').insert({
 		project_id: projectId,
 		parent_task_id: seed.parentTaskId,
@@ -35,48 +39,11 @@ export async function createTask(
 		title: seed.title,
 		details: seed.details,
 		due_date: seed.dueDate,
-		priority: nextPriority,
-		global_priority: await nextGlobalPriority(supabase, projectId, seed),
+		priority: await getNextSiblingPriority(supabase, projectId, seed.parentTaskId),
+		global_priority: globalPriority,
 		created_by: createdBy
 	});
 	if (error) throw error;
-}
-
-async function nextGlobalPriority(
-	supabase: SupabaseClient,
-	projectId: string,
-	seed: NewTaskSeed
-): Promise<number | null> {
-	if (seed.parentTaskId !== null) return null;
-	const listOwnerId = await getProjectOwnerId(supabase, projectId);
-	const { data, error } = await supabase
-		.from('tasks')
-		.select('global_priority, projects!inner(owner_id)')
-		.eq('projects.owner_id', listOwnerId)
-		.not('global_priority', 'is', null)
-		.order('global_priority', { ascending: false })
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	return (data?.global_priority ?? 0) + 1;
-}
-
-async function getHighestSiblingPriority(
-	supabase: SupabaseClient,
-	projectId: string,
-	seed: NewTaskSeed
-): Promise<number> {
-	const siblings = supabase.from('tasks').select('priority').eq('project_id', projectId);
-	const scopedSiblings =
-		seed.parentTaskId === null
-			? siblings.is('parent_task_id', null)
-			: siblings.eq('parent_task_id', seed.parentTaskId);
-	const { data, error } = await scopedSiblings
-		.order('priority', { ascending: false })
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	return data?.priority ?? 0;
 }
 
 function emptyAsNull(value: string): string | null {

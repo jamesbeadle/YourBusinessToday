@@ -1,6 +1,9 @@
 <script lang="ts">
+	import DoneTaskFilter from './DoneTaskFilter.svelte';
 	import PhaseFilterBar from './PhaseFilterBar.svelte';
 	import TaskListRow from './TaskListRow.svelte';
+	import { ListReorder } from '$lib/client/listReorder.svelte';
+	import { postListReorder } from '$lib/client/postListReorder';
 	import type { PhaseSummary } from '$lib/server/projects/getPhaseSummaries';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -22,13 +25,32 @@
 	} = $props();
 
 	let selectedPhaseId = $state('all');
+	let shouldIncludeDone = $state(false);
 
-	const visibleTasks = $derived(taskTree.filter((task) => isInSelectedPhase(task.phaseId)));
+	const listReorder = new ListReorder((movedTaskId, targetTaskId, placement) =>
+		postListReorder('?/placeTask', { movedTaskId, targetTaskId, placement })
+	);
+
+	const tasksInSelectedPhase = $derived(taskTree.filter((task) => isInSelectedPhase(task.phaseId)));
+	const visibleTasks = $derived(
+		shouldIncludeDone ? tasksInSelectedPhase : withoutDoneTasks(tasksInSelectedPhase)
+	);
+	const emptyStateMessage = $derived(
+		tasksInSelectedPhase.length > 0
+			? 'Everything here is done — switch the filter to All to see finished tasks.'
+			: 'No tasks here — add one, or pick a different phase filter.'
+	);
 
 	function isInSelectedPhase(phaseId: string | null): boolean {
 		if (selectedPhaseId === 'all') return true;
 		if (selectedPhaseId === 'none') return phaseId === null;
 		return phaseId === selectedPhaseId;
+	}
+
+	function withoutDoneTasks(tasks: TaskTreeNode[]): TaskTreeNode[] {
+		return tasks
+			.filter((task) => task.status !== 'done')
+			.map((task) => ({ ...task, subtasks: withoutDoneTasks(task.subtasks) }));
 	}
 
 	function assigneeNamesFor(taskId: string): string[] {
@@ -45,12 +67,17 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	{#if phaseSummaries.length > 0}
-		<PhaseFilterBar {phaseSummaries} bind:selectedPhaseId />
-	{/if}
+	<div class="flex flex-wrap items-center gap-3">
+		{#if phaseSummaries.length > 0}
+			<PhaseFilterBar {phaseSummaries} bind:selectedPhaseId />
+		{/if}
+		<div class="ml-auto">
+			<DoneTaskFilter bind:shouldIncludeDone />
+		</div>
+	</div>
 	{#if visibleTasks.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			No tasks here — add one, or pick a different phase filter.
+			{emptyStateMessage}
 		</p>
 	{:else}
 		<ol class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
@@ -60,6 +87,7 @@
 					numberPath={`${taskIndex + 1}`}
 					isFirst={taskIndex === 0}
 					isLast={taskIndex === visibleTasks.length - 1}
+					{listReorder}
 					{assigneeNamesFor}
 					{phaseNameFor}
 					{onAddSubtask}

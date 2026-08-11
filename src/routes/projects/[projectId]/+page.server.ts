@@ -10,7 +10,9 @@ import { getProjectTasks } from '$lib/server/projects/getProjectTasks';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { getTaskAssigneeMap } from '$lib/server/projects/getTaskAssigneeMap';
 import { moveTask, type TaskMoveDirection } from '$lib/server/projects/moveTask';
+import { parseDropPlacement } from '$lib/server/projects/dropReorder';
 import { parseTaskStatus } from '$lib/data/taskStatus';
+import { placeTask } from '$lib/server/projects/placeTask';
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import { updateTaskStatus } from '$lib/server/projects/updateTaskStatus';
 import type { Actions, PageServerLoad } from './$types';
@@ -47,6 +49,18 @@ export const actions: Actions = {
 		const direction = String(formData.get('direction')) as TaskMoveDirection;
 		if (taskId === '') return fail(400, { message: 'A task is required.' });
 		await moveTask(locals.supabase, taskId, direction);
+		return {};
+	},
+	placeTask: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const movedTaskId = String(formData.get('movedTaskId') ?? '');
+		const targetTaskId = String(formData.get('targetTaskId') ?? '');
+		if (movedTaskId === '' || targetTaskId === '') {
+			return fail(400, { message: 'A task to move and a drop target are required.' });
+		}
+		const placement = parseDropPlacement(formData.get('placement'));
+		await placeTask(locals.supabase, movedTaskId, targetTaskId, placement);
 		return {};
 	},
 	setStatus: async ({ locals, request }) => {

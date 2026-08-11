@@ -2,6 +2,7 @@ import { parseProjectStatus, type ProjectStatus } from '$lib/data/projectStatus'
 
 export type Project = {
 	id: string;
+	ownerId: string;
 	name: string;
 	description: string;
 	status: ProjectStatus;
@@ -12,6 +13,7 @@ export type Project = {
 export function parseProjectRecord(row: Record<string, unknown>): Project {
 	return {
 		id: row.id as string,
+		ownerId: row.owner_id as string,
 		name: row.name as string,
 		description: row.description as string,
 		status: parseProjectStatus(row.status),

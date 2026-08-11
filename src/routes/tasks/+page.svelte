@@ -2,10 +2,17 @@
 	import GlobalTaskFilter from '$lib/components/tasks/GlobalTaskFilter.svelte';
 	import GlobalTaskPagination from '$lib/components/tasks/GlobalTaskPagination.svelte';
 	import GlobalTaskRow from '$lib/components/tasks/GlobalTaskRow.svelte';
+	import TasksPageHeader from '$lib/components/tasks/TasksPageHeader.svelte';
 	import TaskStatusModal from '$lib/components/projects/TaskStatusModal.svelte';
+	import { ListReorder } from '$lib/client/listReorder.svelte';
+	import { postListReorder } from '$lib/client/postListReorder';
 	import type { GlobalTask } from '$lib/server/projects/getGlobalTaskPage';
 
 	let { data } = $props();
+
+	const listReorder = new ListReorder((movedTaskId, targetTaskId, placement) =>
+		postListReorder('?/placeTask', { movedTaskId, targetTaskId, placement })
+	);
 
 	let isStatusModalOpen = $state(false);
 	let statusTask = $state<GlobalTask | null>(null);
@@ -15,6 +22,8 @@
 		isStatusModalOpen = true;
 	}
 
+	const isOwnList = $derived(data.viewedStaffMember.id === data.currentUserId);
+	const viewedUserId = $derived(isOwnList ? null : data.viewedStaffMember.id);
 	const taskCountLabel = $derived(
 		`${data.taskPage.taskCount} ${data.shouldIncludeDone ? 'task' : 'open task'}${
 			data.taskPage.taskCount === 1 ? '' : 's'
@@ -27,24 +36,14 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-	<div class="flex flex-wrap items-end justify-between gap-4">
-		<div class="flex flex-col gap-2">
-			<h1 class="font-display text-3xl font-medium">Tasks</h1>
-			<p class="max-w-prose text-chalk/70">
-				Every project's tasks in one queue, ordered by global priority — the top row is the next
-				thing to work on.
-			</p>
-		</div>
-		<a
-			href="/projects"
-			class="rounded-full border border-hairline px-6 py-2.5 font-display text-sm text-chalk/80
-				transition hover:border-go hover:text-go"
-		>
-			Project view
-		</a>
-	</div>
+	<TasksPageHeader
+		staffMembers={data.staffMembers}
+		viewedStaffMember={data.viewedStaffMember}
+		currentUserId={data.currentUserId}
+		shouldIncludeDone={data.shouldIncludeDone}
+	/>
 	<div class="flex flex-wrap items-center justify-between gap-4">
-		<GlobalTaskFilter shouldIncludeDone={data.shouldIncludeDone} />
+		<GlobalTaskFilter shouldIncludeDone={data.shouldIncludeDone} {viewedUserId} />
 		<p class="font-display text-sm text-chalk/50">{taskCountLabel}</p>
 	</div>
 	{#if data.taskPage.tasks.length === 0}
@@ -56,6 +55,7 @@
 			{#each data.taskPage.tasks as task, taskIndex (task.id)}
 				<GlobalTaskRow
 					{task}
+					{listReorder}
 					positionNumber={data.taskPage.firstTaskNumber + taskIndex}
 					isFirst={data.taskPage.firstTaskNumber + taskIndex === 1}
 					isLast={data.taskPage.firstTaskNumber + taskIndex === data.taskPage.taskCount}
@@ -68,6 +68,7 @@
 			pageNumber={data.taskPage.pageNumber}
 			pageCount={data.taskPage.pageCount}
 			shouldIncludeDone={data.shouldIncludeDone}
+			{viewedUserId}
 		/>
 	{/if}
 </div>

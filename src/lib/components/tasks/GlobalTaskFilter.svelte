@@ -1,9 +1,21 @@
 <script lang="ts">
-	let { shouldIncludeDone }: { shouldIncludeDone: boolean } = $props();
+	let {
+		shouldIncludeDone,
+		viewedUserId
+	}: { shouldIncludeDone: boolean; viewedUserId: string | null } = $props();
+
+	function filterHref(shouldShowAll: boolean): string {
+		const parameters = new URLSearchParams();
+		if (shouldShowAll) parameters.set('status', 'all');
+		if (viewedUserId !== null) parameters.set('user', viewedUserId);
+		const query = parameters.toString();
+		if (query === '') return '/tasks';
+		return `/tasks?${query}`;
+	}
 
 	const filterOptions = $derived([
-		{ label: 'Open', href: '/tasks', isActive: !shouldIncludeDone },
-		{ label: 'All', href: '/tasks?status=all', isActive: shouldIncludeDone }
+		{ label: 'Open', href: filterHref(false), isActive: !shouldIncludeDone },
+		{ label: 'All', href: filterHref(true), isActive: shouldIncludeDone }
 	]);
 </script>
 

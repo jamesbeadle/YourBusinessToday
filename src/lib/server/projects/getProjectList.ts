@@ -3,10 +3,14 @@ import { parseProjectRecord, type Project } from '$lib/server/projects/projectRe
 
 export type ProjectSummary = Project & { openTaskCount: number };
 
-export async function getProjectList(supabase: SupabaseClient): Promise<ProjectSummary[]> {
+export async function getProjectList(
+	supabase: SupabaseClient,
+	ownerId: string
+): Promise<ProjectSummary[]> {
 	const { data, error } = await supabase
 		.from('projects')
 		.select('*, tasks(status)')
+		.eq('owner_id', ownerId)
 		.order('priority', { ascending: true });
 	if (error) throw error;
 	return data.map((row: Record<string, unknown>) => ({

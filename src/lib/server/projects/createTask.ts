@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { getProjectOwnerId } from '$lib/server/projects/getProjectOwnerId';
 
 export type NewTaskSeed = {
 	title: string;
@@ -35,7 +36,7 @@ export async function createTask(
 		details: seed.details,
 		due_date: seed.dueDate,
 		priority: nextPriority,
-		global_priority: await nextGlobalPriority(supabase, seed),
+		global_priority: await nextGlobalPriority(supabase, projectId, seed),
 		created_by: createdBy
 	});
 	if (error) throw error;
@@ -43,12 +44,15 @@ export async function createTask(
 
 async function nextGlobalPriority(
 	supabase: SupabaseClient,
+	projectId: string,
 	seed: NewTaskSeed
 ): Promise<number | null> {
 	if (seed.parentTaskId !== null) return null;
+	const listOwnerId = await getProjectOwnerId(supabase, projectId);
 	const { data, error } = await supabase
 		.from('tasks')
-		.select('global_priority')
+		.select('global_priority, projects!inner(owner_id)')
+		.eq('projects.owner_id', listOwnerId)
 		.not('global_priority', 'is', null)
 		.order('global_priority', { ascending: false })
 		.limit(1)

@@ -4,7 +4,7 @@
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 
-	let { onCreated }: { onCreated: () => void } = $props();
+	let { ownerId, onCreated }: { ownerId: string; onCreated: () => void } = $props();
 
 	const tracker = new FormTracker();
 
@@ -18,6 +18,7 @@
 	use:enhance={tracker.submit(onCreated)}
 	class="flex flex-col gap-4"
 >
+	<input type="hidden" name="ownerId" value={ownerId} />
 	<label class="flex flex-col gap-1">
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Name</span>
 		<input name="name" required placeholder="Project name" class={fieldClasses} />

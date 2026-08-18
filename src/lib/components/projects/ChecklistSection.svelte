@@ -1,0 +1,73 @@
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import ChecklistPanel from './ChecklistPanel.svelte';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import Modal from '$lib/components/site/Modal.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import type { TaskChecklist } from '$lib/server/projects/checklistRecord';
+
+	let { checklists }: { checklists: TaskChecklist[] } = $props();
+
+	let isAddModalOpen = $state(false);
+
+	const tracker = new FormTracker();
+
+	$effect(() => {
+		if (!isAddModalOpen) tracker.reset();
+	});
+</script>
+
+<section class="flex flex-col gap-3">
+	<div class="flex items-center justify-between gap-4">
+		<h2 class="font-display text-xl font-medium">Lists</h2>
+		<button
+			type="button"
+			onclick={() => (isAddModalOpen = true)}
+			class="rounded-full border border-hairline px-4 py-1.5 font-display text-sm text-chalk/70
+				transition hover:border-go hover:text-go"
+		>
+			Add list
+		</button>
+	</div>
+	{#if checklists.length === 0}
+		<p class="rounded-2xl border border-dashed border-hairline p-6 text-chalk/60">
+			No lists yet — add one to track side work like a UAT run or a launch checklist.
+		</p>
+	{:else}
+		<div class="flex flex-col gap-4">
+			{#each checklists as checklist (checklist.id)}
+				<ChecklistPanel {checklist} />
+			{/each}
+		</div>
+	{/if}
+</section>
+
+<Modal title="Add list" bind:isOpen={isAddModalOpen}>
+	<form
+		method="POST"
+		action="?/addChecklist"
+		use:enhance={tracker.submit(() => (isAddModalOpen = false))}
+		class="flex flex-col gap-4"
+	>
+		<label class="flex flex-col gap-1">
+			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Title</span>
+			<input
+				name="title"
+				required
+				placeholder="UAT tests"
+				class="rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
+					focus:border-go"
+			/>
+		</label>
+		<FormErrorNote message={tracker.errorMessage} />
+		<SubmitButton
+			isSaving={tracker.isSaving}
+			savingLabel="Adding…"
+			class="self-end rounded-full bg-go px-6 py-2.5 font-display text-sm font-medium text-night
+				transition hover:brightness-110"
+		>
+			Add
+		</SubmitButton>
+	</form>
+</Modal>

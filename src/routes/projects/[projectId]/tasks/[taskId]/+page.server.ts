@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
 import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { checklistActions } from './checklistActions';
 import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
 import { deleteTask } from '$lib/server/projects/deleteTask';
@@ -29,6 +30,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 };
 
 export const actions: Actions = {
+	...checklistActions,
 	saveTask: async ({ locals, params, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();

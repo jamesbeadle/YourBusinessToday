@@ -3,19 +3,20 @@
 	import NeuronDetailPanel from './NeuronDetailPanel.svelte';
 	import NeuronTooltip from './NeuronTooltip.svelte';
 	import { buildConstellationModel } from './constellation/buildConstellationModel';
+	import type { BrainPagePayload } from './constellation/fetchBrainPage';
 	import { ConstellationExperience } from './constellation/createConstellationExperience';
 	import type { ConstellationHover } from './constellation/constellationTypes';
 	import type { BrainContext, BrainPageLink, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
-		brainId,
+		loadPage,
 		pageBasePath,
 		contexts,
 		pageIndex,
 		pageLinks
 	}: {
-		brainId: string;
-		pageBasePath: string;
+		loadPage: (slug: string) => Promise<BrainPagePayload>;
+		pageBasePath: string | null;
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
@@ -78,7 +79,7 @@
 			<NeuronTooltip {hover} {contexts} {pageIndex} />
 		{/if}
 		{#if selectedSlug !== null}
-			<NeuronDetailPanel {brainId} {pageBasePath} slug={selectedSlug} onClose={returnToContext} />
+			<NeuronDetailPanel {loadPage} {pageBasePath} slug={selectedSlug} onClose={returnToContext} />
 		{/if}
 	</div>
 {:else}

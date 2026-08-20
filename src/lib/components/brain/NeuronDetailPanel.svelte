@@ -1,14 +1,19 @@
 <script lang="ts">
 	import MarkdownBody from './MarkdownBody.svelte';
-	import { fetchBrainPage, type BrainPagePayload } from './constellation/fetchBrainPage';
 	import { domainBlockLabels } from '$lib/data/domainBlocks';
+	import type { BrainPagePayload } from './constellation/fetchBrainPage';
 
 	let {
-		brainId,
+		loadPage,
 		slug,
 		pageBasePath,
 		onClose
-	}: { brainId: string; slug: string; pageBasePath: string; onClose: () => void } = $props();
+	}: {
+		loadPage: (slug: string) => Promise<BrainPagePayload>;
+		slug: string;
+		pageBasePath: string | null;
+		onClose: () => void;
+	} = $props();
 
 	let payload = $state<BrainPagePayload | null>(null);
 	let loadFailure = $state<string | null>(null);
@@ -16,7 +21,7 @@
 	$effect(() => {
 		payload = null;
 		loadFailure = null;
-		fetchBrainPage(brainId, slug)
+		loadPage(slug)
 			.then((loaded) => (payload = loaded))
 			.catch((failure: Error) => (loadFailure = failure.message));
 	});
@@ -60,12 +65,14 @@
 			<MarkdownBody markdown={payload.page.body} />
 		{/if}
 	</div>
-	<footer class="border-t border-hairline p-4">
-		<a
-			href={`${pageBasePath}/${slug}`}
-			class="font-display text-sm text-chalk/80 underline transition hover:text-chalk"
-		>
-			Open the full page →
-		</a>
-	</footer>
+	{#if pageBasePath !== null}
+		<footer class="border-t border-hairline p-4">
+			<a
+				href={`${pageBasePath}/${slug}`}
+				class="font-display text-sm text-chalk/80 underline transition hover:text-chalk"
+			>
+				Open the full page →
+			</a>
+		</footer>
+	{/if}
 </aside>

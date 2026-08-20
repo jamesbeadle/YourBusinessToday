@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BrainActivityLog from '$lib/components/brain/BrainActivityLog.svelte';
 	import BrainConstellation from '$lib/components/brain/BrainConstellation.svelte';
+	import { fetchBrainPage } from '$lib/components/brain/constellation/fetchBrainPage';
 	import BrainConversationPanel from '$lib/components/brain/BrainConversationPanel.svelte';
 	import DomainModelIndex from '$lib/components/brain/DomainModelIndex.svelte';
 	import OutOfCreditsNotice from '$lib/components/workspace/OutOfCreditsNotice.svelte';
@@ -50,7 +51,7 @@
 		</a>
 	</header>
 	<BrainConstellation
-		brainId={data.brain.id}
+		loadPage={(slug) => fetchBrainPage(data.brain.id, slug)}
 		{pageBasePath}
 		contexts={data.contexts}
 		pageIndex={data.pageIndex}

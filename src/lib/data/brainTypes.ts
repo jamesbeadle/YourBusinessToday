@@ -1,4 +1,4 @@
-export type BrainSourceStatus = 'uploaded' | 'ingested' | 'failed';
+export type BrainSourceStatus = 'uploaded' | 'ingested' | 'failed' | 'proposed' | 'rejected';
 
 export type BrainSource = {
 	id: string;
@@ -51,7 +51,10 @@ export type BrainEventKind =
 	| 'page_updated'
 	| 'page_deleted'
 	| 'question_answered'
-	| 'brain_exported';
+	| 'brain_exported'
+	| 'changes_proposed'
+	| 'changes_approved'
+	| 'changes_rejected';
 
 export type BrainEvent = {
 	id: number;

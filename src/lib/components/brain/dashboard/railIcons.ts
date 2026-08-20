@@ -1,12 +1,16 @@
-export type SectionKey = 'terminal' | 'sources' | 'model' | 'log';
+export type SectionKey = 'terminal' | 'sources' | 'model' | 'log' | 'review' | 'share';
 
-export const sectionOrder: SectionKey[] = ['terminal', 'sources', 'model', 'log'];
+export const memberSections: SectionKey[] = ['terminal', 'sources', 'model', 'log'];
+
+export const ownerSections: SectionKey[] = [...memberSections, 'review', 'share'];
 
 export const sectionLabels: Record<SectionKey, string> = {
 	terminal: 'Terminal',
 	sources: 'Source documents',
 	model: 'The model',
-	log: 'The log'
+	log: 'The log',
+	review: 'Review changes',
+	share: 'Sharing'
 };
 
 export const sectionIconPaths: Record<SectionKey, string[]> = {
@@ -20,5 +24,18 @@ export const sectionIconPaths: Record<SectionKey, string[]> = {
 		'M9.4 16.4 6.6 8.9',
 		'M11.8 17.2 16.8 9.8'
 	],
-	log: ['M8 6h13', 'M8 12h13', 'M8 18h13', 'M3 6h.01', 'M3 12h.01', 'M3 18h.01']
+	log: ['M8 6h13', 'M8 12h13', 'M8 18h13', 'M3 6h.01', 'M3 12h.01', 'M3 18h.01'],
+	review: [
+		'M6 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+		'M6 9v10',
+		'M18 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+		'M18 15V9a4 4 0 0 0-4-4h-2',
+		'M14 3l-2 2 2 2'
+	],
+	share: [
+		'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+		'M3 20a6 6 0 0 1 12 0',
+		'M18 8v6',
+		'M15 11h6'
+	]
 };

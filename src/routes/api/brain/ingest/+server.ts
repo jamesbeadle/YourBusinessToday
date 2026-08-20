@@ -3,6 +3,8 @@ import { findBrainSource, markSourceStatus } from '$lib/server/brain/findBrainSo
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
 import { refundForBrainIngest, spendForBrainIngest } from '$lib/server/brain/spendForBrainWork';
 import { runSourceIngest } from '$lib/server/brain/runSourceIngest';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
+import { runProposedIngest } from '$lib/server/sharing/runProposedIngest';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
@@ -22,15 +24,18 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
+	const brain = await getDomainBrain(locals.supabase, source.brainId);
+	const isProposal = brain !== null && brain.ownerId !== user.id;
 	try {
-		await runSourceIngest(locals.supabase, source);
+		if (isProposal) await runProposedIngest(locals.supabase, source, user.email ?? '');
+		if (!isProposal) await runSourceIngest(locals.supabase, source);
 	} catch (failure) {
 		console.error('Brain ingest failed', failure);
 		await markSourceStatus(locals.supabase, sourceId, 'failed', failureSummary(failure));
 		await refundForBrainIngest(locals.supabase);
 		error(502, 'Reading that document failed — your credits have been refunded');
 	}
-	return json({ creditBalance: await getCreditBalance(locals.supabase) });
+	return json({ creditBalance: await getCreditBalance(locals.supabase), isProposal });
 };
 
 function failureSummary(failure: unknown): string {

@@ -5,9 +5,15 @@
 
 	let {
 		brainId,
+		isOwner,
 		sources,
 		onOutOfCredits
-	}: { brainId: string; sources: BrainSource[]; onOutOfCredits: () => void } = $props();
+	}: {
+		brainId: string;
+		isOwner: boolean;
+		sources: BrainSource[];
+		onOutOfCredits: () => void;
+	} = $props();
 </script>
 
 <section class="flex flex-col gap-4 p-4">
@@ -21,7 +27,7 @@
 	{#if sources.length > 0}
 		<ul class="flex flex-col">
 			{#each sources as source (source.id)}
-				<SourceRow {source} {onOutOfCredits} />
+				<SourceRow {source} {isOwner} {onOutOfCredits} />
 			{/each}
 		</ul>
 	{/if}

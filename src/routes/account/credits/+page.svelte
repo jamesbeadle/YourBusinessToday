@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CreditPackCard from '$lib/components/account/CreditPackCard.svelte';
+	import SendCreditsPanel from '$lib/components/account/SendCreditsPanel.svelte';
 
 	let { data, form } = $props();
 </script>
@@ -55,4 +56,5 @@
 			Prices shown are what packs will cost once checkout opens.
 		{/if}
 	</p>
+	<SendCreditsPanel />
 </div>

@@ -6,8 +6,9 @@
 
 	let {
 		source,
+		isOwner,
 		onOutOfCredits
-	}: { source: BrainSource; onOutOfCredits: () => void } = $props();
+	}: { source: BrainSource; isOwner: boolean; onOutOfCredits: () => void } = $props();
 
 	let isRetrying = $state(false);
 	let removalFailure = $state('');
@@ -15,14 +16,20 @@
 	const statusStyles: Record<BrainSource['status'], string> = {
 		uploaded: 'border-chalk/30 text-chalk/60',
 		ingested: 'border-go/60 text-go',
-		failed: 'border-signal/60 text-signal'
+		failed: 'border-signal/60 text-signal',
+		proposed: 'border-caution/60 text-caution',
+		rejected: 'border-signal/60 text-signal'
 	};
 
 	const statusLabels: Record<BrainSource['status'], string> = {
 		uploaded: 'Waiting',
 		ingested: 'In the brain',
-		failed: 'Failed'
+		failed: 'Failed',
+		proposed: 'Awaiting review',
+		rejected: 'Rejected'
 	};
+
+	const canRemove = $derived(isOwner || source.status !== 'ingested');
 
 	async function retryIngest() {
 		isRetrying = true;
@@ -57,11 +64,13 @@
 		>
 			{statusLabels[source.status]}
 		</span>
-		<SourceRemoveButton
-			{source}
-			{onOutOfCredits}
-			onFailure={(message) => (removalFailure = message)}
-		/>
+		{#if canRemove}
+			<SourceRemoveButton
+				{source}
+				{onOutOfCredits}
+				onFailure={(message) => (removalFailure = message)}
+			/>
+		{/if}
 	</div>
 </li>
 {#if removalFailure !== ''}

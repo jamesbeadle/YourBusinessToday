@@ -20,7 +20,10 @@
 		isUploading = false;
 		input.value = '';
 		if (outcome.status === 'out_of_credits') return onOutOfCredits();
-		if (outcome.status !== 'ingested') noticeMessage = outcome.message;
+		if (outcome.status === 'proposed') noticeMessage = 'Sent to the owner for review.';
+		if (outcome.status === 'rejected' || outcome.status === 'failed') {
+			noticeMessage = outcome.message;
+		}
 		await invalidateAll();
 	}
 </script>

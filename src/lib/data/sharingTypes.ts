@@ -1,0 +1,33 @@
+export type ShareScope = 'brain' | 'entity';
+
+export type WorkspaceShare = {
+	id: string;
+	collaboratorEmail: string;
+	scope: ShareScope;
+	createdAt: string;
+};
+
+export type SharedBrainSummary = {
+	brainId: string;
+	entityId: string;
+	brainName: string;
+	entityName: string;
+};
+
+export type ProposalChangeKind = 'context_write' | 'page_write' | 'page_delete' | 'context_delete';
+
+export type ProposalStatus = 'pending' | 'approved' | 'rejected';
+
+export type BrainChangeProposal = {
+	id: string;
+	proposerEmail: string;
+	sourceId: string | null;
+	sourceFilename: string;
+	changeKind: ProposalChangeKind;
+	slug: string;
+	title: string;
+	payload: Record<string, unknown>;
+	before: Record<string, unknown> | null;
+	status: ProposalStatus;
+	createdAt: string;
+};

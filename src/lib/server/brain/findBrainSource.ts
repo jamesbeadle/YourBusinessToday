@@ -33,7 +33,7 @@ export async function findBrainSource(
 export async function markSourceStatus(
 	supabase: SupabaseClient,
 	sourceId: string,
-	status: 'ingested' | 'failed',
+	status: 'ingested' | 'failed' | 'proposed' | 'rejected',
 	summary = ''
 ): Promise<void> {
 	const { error } = await supabase

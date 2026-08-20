@@ -27,10 +27,9 @@
 	}
 </script>
 
-<section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
+<section class="flex flex-col gap-4 p-4">
 	<div class="flex items-baseline justify-between gap-3">
 		<div>
-			<h2 class="font-display text-xl font-medium">The model</h2>
 			<p class="text-sm text-chalk/60">
 				Your business as a domain model — one bounded context per area, one page per building
 				block.

@@ -21,9 +21,9 @@
 	}
 </script>
 
-<section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
+<section class="flex flex-col gap-4 p-4">
 	<div>
-		<h2 class="font-display text-xl font-medium">The log</h2>
+		
 		<p class="text-sm text-chalk/60">Everything the modeller has done, newest first.</p>
 	</div>
 	{#if events.length === 0}

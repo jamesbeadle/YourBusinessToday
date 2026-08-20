@@ -39,6 +39,7 @@
 			Build your own →
 		</a>
 	</header>
+	<div class="h-[70vh] min-h-105 overflow-hidden rounded-2xl border border-hairline">
 	<BrainConstellation
 		loadPage={loadDemoPage}
 		pageBasePath={null}
@@ -46,4 +47,5 @@
 		pageIndex={demoPageIndex}
 		pageLinks={demoPageLinks}
 	/>
+	</div>
 </div>

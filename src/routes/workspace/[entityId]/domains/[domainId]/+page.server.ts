@@ -7,6 +7,7 @@ import { getBrainPageLinks } from '$lib/server/brain/getBrainPageLinks';
 import { getBrainSources } from '$lib/server/brain/getBrainSources';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { getPendingProposals } from '$lib/server/sharing/getPendingProposals';
+import { getInvitesForBrain } from '$lib/server/sharing/workspaceInvites';
 import { getSharesForBrain } from '$lib/server/sharing/getWorkspaceShares';
 import { requireUser } from '$lib/server/auth/requireUser';
 import type { PageServerLoad } from './$types';
@@ -28,6 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		events: await getBrainEvents(locals.supabase, brain.id),
 		conversation: await getBrainConversationThread(locals.supabase, brain.id, 'brain'),
 		proposals: isOwner ? await getPendingProposals(locals.supabase, brain.id) : [],
-		shares: isOwner ? await getSharesForBrain(locals.supabase, brain) : []
+		shares: isOwner ? await getSharesForBrain(locals.supabase, brain) : [],
+		invites: isOwner ? await getInvitesForBrain(locals.supabase, brain) : []
 	};
 };

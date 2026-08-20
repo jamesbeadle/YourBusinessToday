@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
-import { anthropicMessagesUrl, anthropicModel, anthropicVersion } from './anthropicConstants';
+import { anthropicMessagesUrl, anthropicVersion } from './anthropicConstants';
+import { getSiteModel } from './getSiteModel';
 import type { AnthropicMessage, AnthropicResponse, AnthropicTool } from './anthropicTypes';
 
 const failureDetailLimit = 300;
@@ -24,7 +25,7 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 			'anthropic-version': anthropicVersion
 		},
 		body: JSON.stringify({
-			model: anthropicModel,
+			model: await getSiteModel(),
 			max_tokens: request.maxTokens,
 			system: request.system,
 			tools: request.tools,

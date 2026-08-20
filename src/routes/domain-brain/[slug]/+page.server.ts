@@ -1,14 +1,6 @@
-import { error } from '@sveltejs/kit';
-import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
-import { getBrainPage } from '$lib/server/brain/getBrainPage';
-import { requireUser } from '$lib/server/auth/requireUser';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	await requireUser(locals);
-	const page = await getBrainPage(locals.supabase, params.slug);
-	if (page === null) error(404, 'That page is not in your Domain Brain');
-	const contexts = await getBrainContexts(locals.supabase);
-	const context = contexts.find((candidate) => candidate.slug === page.contextSlug) ?? null;
-	return { page, contextName: context?.name ?? null };
+export const load: PageServerLoad = () => {
+	redirect(308, '/workspace');
 };

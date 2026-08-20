@@ -4,7 +4,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { uploadSourceFile } from './uploadSourceFile';
 
-	let { onOutOfCredits }: { onOutOfCredits: () => void } = $props();
+	let { brainId, onOutOfCredits }: { brainId: string; onOutOfCredits: () => void } = $props();
 
 	let isUploading = $state(false);
 	let noticeMessage = $state('');
@@ -16,7 +16,7 @@
 		if (file === undefined) return;
 		isUploading = true;
 		noticeMessage = '';
-		const outcome = await uploadSourceFile(file);
+		const outcome = await uploadSourceFile(file, brainId);
 		isUploading = false;
 		input.value = '';
 		if (outcome.status === 'out_of_credits') return onOutOfCredits();

@@ -1,0 +1,91 @@
+<script lang="ts">
+	import ConstellationHud from './ConstellationHud.svelte';
+	import NeuronDetailPanel from './NeuronDetailPanel.svelte';
+	import NeuronTooltip from './NeuronTooltip.svelte';
+	import { buildConstellationModel } from './constellation/buildConstellationModel';
+	import { ConstellationExperience } from './constellation/createConstellationExperience';
+	import type { ConstellationHover } from './constellation/constellationTypes';
+	import type { BrainContext, BrainPageLink, BrainPageSummary } from '$lib/data/brainTypes';
+
+	let {
+		brainId,
+		pageBasePath,
+		contexts,
+		pageIndex,
+		pageLinks
+	}: {
+		brainId: string;
+		pageBasePath: string;
+		contexts: BrainContext[];
+		pageIndex: BrainPageSummary[];
+		pageLinks: BrainPageLink[];
+	} = $props();
+
+	const model = $derived(buildConstellationModel(contexts, pageIndex, pageLinks));
+	const hasNeurons = $derived(model.neurons.length > 0 || model.nuclei.length > 0);
+
+	let containerElement = $state<HTMLDivElement>();
+	let canvasElement = $state<HTMLCanvasElement>();
+	let experience = $state<ConstellationExperience>();
+	let hover = $state<ConstellationHover | null>(null);
+	let focusedContextSlug = $state<string | null>(null);
+	let selectedSlug = $state<string | null>(null);
+
+	$effect(() => {
+		if (canvasElement === undefined || containerElement === undefined) return;
+		const mounted = new ConstellationExperience(canvasElement, containerElement, model, {
+			onHover: (candidate) => (hover = candidate),
+			onSelectNeuron: rememberSelection,
+			onFocusContext: (contextSlug) => (focusedContextSlug = contextSlug)
+		});
+		experience = mounted;
+		return () => mounted.destroy();
+	});
+
+	function rememberSelection(slug: string): void {
+		selectedSlug = slug;
+		const page = pageIndex.find((candidate) => candidate.slug === slug);
+		focusedContextSlug = page?.contextSlug ?? focusedContextSlug;
+	}
+
+	function returnToModel(): void {
+		selectedSlug = null;
+		focusedContextSlug = null;
+		experience?.resetView();
+	}
+
+	function returnToContext(): void {
+		selectedSlug = null;
+		experience?.focusContext(focusedContextSlug);
+	}
+</script>
+
+{#if hasNeurons}
+	<div
+		bind:this={containerElement}
+		class="relative h-[70vh] min-h-105 overflow-hidden rounded-2xl border border-hairline bg-night"
+	>
+		<canvas bind:this={canvasElement} class="h-full w-full"></canvas>
+		<ConstellationHud
+			{contexts}
+			{pageIndex}
+			{focusedContextSlug}
+			{selectedSlug}
+			onReturnToModel={returnToModel}
+			onReturnToContext={returnToContext}
+		/>
+		{#if hover !== null && selectedSlug === null}
+			<NeuronTooltip {hover} {contexts} {pageIndex} />
+		{/if}
+		{#if selectedSlug !== null}
+			<NeuronDetailPanel {brainId} {pageBasePath} slug={selectedSlug} onClose={returnToContext} />
+		{/if}
+	</div>
+{:else}
+	<div
+		class="flex h-52 items-center justify-center rounded-2xl border-2 border-dashed border-hairline
+			text-sm text-chalk/50"
+	>
+		No neurons yet — add your first document and watch the constellation grow.
+	</div>
+{/if}

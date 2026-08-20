@@ -1,19 +1,23 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import CreditBalancePill from './CreditBalancePill.svelte';
-	import type { NavigationLink } from './siteNavigation';
+	import MobileNavGroup from './MobileNavGroup.svelte';
+	import { primaryNavigationLinks } from './siteNavigation';
+	import type { NavigationGroup } from './siteNavigation';
 
 	let {
-		navigationLinks,
+		menuGroups,
 		isSignedIn,
 		creditBalance,
 		onClose
 	}: {
-		navigationLinks: NavigationLink[];
+		menuGroups: NavigationGroup[];
 		isSignedIn: boolean;
 		creditBalance: number;
 		onClose: () => void;
 	} = $props();
+
+	const drawerWidth = 256;
 </script>
 
 <svelte:window onkeydown={(event) => event.key === 'Escape' && onClose()} />
@@ -30,7 +34,7 @@
 	aria-label="Site menu"
 	class="fixed inset-y-0 right-0 z-50 flex w-64 flex-col gap-1 overflow-y-auto border-l
 		border-hairline bg-carriage px-4 py-4 md:hidden"
-	transition:fly={{ x: 256, duration: 200, opacity: 1 }}
+	transition:fly={{ x: drawerWidth, duration: 200, opacity: 1 }}
 >
 	<div class="mb-2 flex justify-end">
 		<button
@@ -55,7 +59,7 @@
 			</svg>
 		</button>
 	</div>
-	{#each navigationLinks as navigationLink}
+	{#each primaryNavigationLinks as navigationLink (navigationLink.href)}
 		<a
 			href={navigationLink.href}
 			class="rounded-lg px-3 py-2 font-display text-sm text-chalk/80 transition
@@ -65,27 +69,12 @@
 			{navigationLink.label}
 		</a>
 	{/each}
-	<div class="my-3 border-t border-hairline"></div>
+	{#each menuGroups as menuGroup (menuGroup.label)}
+		<MobileNavGroup group={menuGroup} onNavigate={onClose} />
+	{/each}
 	{#if isSignedIn}
-		<a
-			href="/account"
-			class="rounded-lg px-3 py-2 font-display text-sm text-chalk/80 transition
-				hover:bg-night/60 hover:text-chalk"
-			onclick={onClose}
-		>
-			Account
-		</a>
-		<div class="px-3 py-2">
+		<div class="mt-2 border-t border-hairline px-3 py-3">
 			<CreditBalancePill balance={creditBalance} />
 		</div>
-	{:else}
-		<a
-			href="/account/sign-in"
-			class="mx-3 rounded-full bg-signal px-5 py-2 text-center font-display text-sm
-				font-medium text-night transition hover:brightness-110"
-			onclick={onClose}
-		>
-			Sign in
-		</a>
 	{/if}
 </nav>

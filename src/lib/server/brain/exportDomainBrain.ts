@@ -5,10 +5,13 @@ import { renderExportFiles } from './renderExportFiles';
 import { strToU8, zipSync } from 'fflate';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export async function exportDomainBrain(supabase: SupabaseClient): Promise<Uint8Array> {
-	const contexts = await getBrainContexts(supabase);
-	const pages = await getAllBrainPages(supabase);
-	const events = await getFullBrainEventLog(supabase);
+export async function exportDomainBrain(
+	supabase: SupabaseClient,
+	brainId: string
+): Promise<Uint8Array> {
+	const contexts = await getBrainContexts(supabase, brainId);
+	const pages = await getAllBrainPages(supabase, brainId);
+	const events = await getFullBrainEventLog(supabase, brainId);
 	const files = renderExportFiles(contexts, pages, events);
 	return zipSync(asZipEntries(files));
 }

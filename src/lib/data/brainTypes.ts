@@ -39,6 +39,8 @@ export type BrainPage = BrainPageSummary & {
 	updatedAt: string;
 };
 
+export type BrainPageLink = { fromSlug: string; toSlug: string };
+
 export type BrainEventKind =
 	| 'source_ingested'
 	| 'context_created'

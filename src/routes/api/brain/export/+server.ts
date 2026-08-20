@@ -1,16 +1,20 @@
 import { error } from '@sveltejs/kit';
 import { exportDomainBrain } from '$lib/server/brain/exportDomainBrain';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import type { RequestHandler } from './$types';
 
 const exportFilename = 'domain-brain.zip';
 
-export const GET: RequestHandler = async ({ locals }) => {
+export const GET: RequestHandler = async ({ locals, url }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to export your Domain Brain');
+	if (user === null) error(401, 'Sign in to export your domain brain');
 
-	const zipBytes = await exportDomainBrain(locals.supabase);
-	await recordBrainEvent(locals.supabase, { kind: 'brain_exported', detail: {} });
+	const brain = await getDomainBrain(locals.supabase, url.searchParams.get('brain') ?? '');
+	if (brain === null) error(404, 'That domain brain could not be found');
+
+	const zipBytes = await exportDomainBrain(locals.supabase, brain.id);
+	await recordBrainEvent(locals.supabase, { brainId: brain.id, kind: 'brain_exported', detail: {} });
 	return new Response(new Uint8Array(zipBytes), {
 		headers: {
 			'content-type': 'application/zip',

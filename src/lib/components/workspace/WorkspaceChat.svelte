@@ -9,9 +9,14 @@
 	import type { WorkflowModel } from '$lib/data/workflowModel';
 
 	let {
+		workflowId,
 		initialMessages,
 		onMapUpdate
-	}: { initialMessages: ChatMessage[]; onMapUpdate: (model: WorkflowModel) => void } = $props();
+	}: {
+		workflowId: string;
+		initialMessages: ChatMessage[];
+		onMapUpdate: (model: WorkflowModel) => void;
+	} = $props();
 
 	const sessionId = crypto.randomUUID();
 	let messages = $state<ChatMessage[]>(seedMessages(initialMessages));
@@ -34,7 +39,7 @@
 		const response = await fetch('/api/agent-chat', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ sessionId, message: text })
+			body: JSON.stringify({ sessionId, workflowId, message: text })
 		});
 		isAgentTyping = false;
 		if (response.status === 402) {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BrainEvent } from '$lib/data/brainTypes';
 
-	let { events }: { events: BrainEvent[] } = $props();
+	let { events, pageBasePath }: { events: BrainEvent[]; pageBasePath: string } = $props();
 
 	function describe(event: BrainEvent): string {
 		if (event.kind === 'source_ingested') return String(event.detail.logLine ?? 'Source read');
@@ -35,7 +35,7 @@
 					<span class="shrink-0 font-display text-xs text-chalk/40">{dayOf(event)}</span>
 					{#if event.pageSlug !== null}
 						<a
-							href={`/domain-brain/${event.pageSlug}`}
+							href={`${pageBasePath}/${event.pageSlug}`}
 							class="text-chalk/80 transition hover:text-chalk"
 						>
 							{describe(event)}

@@ -17,6 +17,7 @@ const maxAnswerTokens = 4000;
 
 export async function askModeller(
 	supabase: SupabaseClient,
+	brainId: string,
 	contexts: BrainContext[],
 	index: BrainPageSummary[],
 	turns: BrainConversationTurn[]
@@ -34,7 +35,7 @@ export async function askModeller(
 		return parseBrainAnswer(toolUseNamed(firstResponse.content, answerTool.name)?.input);
 	}
 	messages.push({ role: 'assistant', content: firstResponse.content });
-	messages.push(await readPagesResultMessage(supabase, readRequest));
+	messages.push(await readPagesResultMessage(supabase, brainId, readRequest));
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,

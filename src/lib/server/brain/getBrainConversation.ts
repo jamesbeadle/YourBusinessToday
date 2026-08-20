@@ -7,20 +7,23 @@ import type {
 
 export async function getBrainConversationThread(
 	supabase: SupabaseClient,
+	brainId: string,
 	channel: BrainConversationChannel
 ): Promise<BrainConversationThread> {
-	const conversationId = await getLatestConversationId(supabase, channel);
+	const conversationId = await getLatestConversationId(supabase, brainId, channel);
 	if (conversationId === null) return { conversationId: null, messages: [] };
 	return { conversationId, messages: await getConversationMessages(supabase, conversationId) };
 }
 
 export async function getLatestConversationId(
 	supabase: SupabaseClient,
+	brainId: string,
 	channel: BrainConversationChannel
 ): Promise<string | null> {
 	const { data, error } = await supabase
 		.from('brain_conversations')
 		.select('id')
+		.eq('brain_id', brainId)
 		.eq('channel', channel)
 		.order('last_message_at', { ascending: false })
 		.limit(1)

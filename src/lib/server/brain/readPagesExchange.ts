@@ -14,10 +14,11 @@ export function toolUseNamed(content: unknown[], name: string): AnthropicToolUse
 
 export async function readPagesResultMessage(
 	supabase: SupabaseClient,
+	brainId: string,
 	readRequest: AnthropicToolUseBlock
 ): Promise<AnthropicMessage> {
 	const slugs = parseRequestedSlugs(readRequest.input);
-	const pages = await getBrainPagesBySlugs(supabase, slugs);
+	const pages = await getBrainPagesBySlugs(supabase, brainId, slugs);
 	return {
 		role: 'user',
 		content: [

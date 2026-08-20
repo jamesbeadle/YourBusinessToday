@@ -1,10 +1,11 @@
 <script lang="ts">
+	import AccountMenu from './AccountMenu.svelte';
 	import BrandWordmark from './BrandWordmark.svelte';
 	import CreditBalancePill from './CreditBalancePill.svelte';
 	import MobileMenuButton from './MobileMenuButton.svelte';
 	import MobileNavDrawer from './MobileNavDrawer.svelte';
 	import NotificationsBell from './NotificationsBell.svelte';
-	import { buildNavigationLinks } from './siteNavigation';
+	import { buildMenuGroups, primaryNavigationLinks } from './siteNavigation';
 
 	let {
 		userEmail,
@@ -22,7 +23,7 @@
 
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
-	const navigationLinks = $derived(buildNavigationLinks({ isSignedIn, isProjectManager, isAdmin }));
+	const menuGroups = $derived(buildMenuGroups({ isSignedIn, isProjectManager, isAdmin }));
 
 	let isMobileMenuOpen = $state(false);
 
@@ -36,7 +37,7 @@
 			<BrandWordmark fontSize={26} />
 		</a>
 		<nav class="hidden items-center gap-6 md:flex">
-			{#each navigationLinks as navigationLink}
+			{#each primaryNavigationLinks as navigationLink (navigationLink.href)}
 				<a
 					href={navigationLink.href}
 					class="font-display text-sm text-chalk/80 transition hover:text-chalk"
@@ -49,9 +50,7 @@
 			{/if}
 			{#if isSignedIn}
 				<CreditBalancePill balance={creditBalance ?? 0} />
-				<a href="/account" class="font-display text-sm text-chalk/80 transition hover:text-chalk">
-					Account
-				</a>
+				<AccountMenu {menuGroups} />
 			{:else}
 				<a
 					href="/account/sign-in"
@@ -72,5 +71,5 @@
 </header>
 
 {#if isMobileMenuOpen}
-	<MobileNavDrawer {navigationLinks} {isSignedIn} creditBalance={creditBalance ?? 0} onClose={closeMobileMenu} />
+	<MobileNavDrawer {menuGroups} {isSignedIn} creditBalance={creditBalance ?? 0} onClose={closeMobileMenu} />
 {/if}

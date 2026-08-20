@@ -4,8 +4,13 @@
 
 	let {
 		contexts,
-		pageIndex
-	}: { contexts: BrainContext[]; pageIndex: BrainPageSummary[] } = $props();
+		pageIndex,
+		pageBasePath
+	}: {
+		contexts: BrainContext[];
+		pageIndex: BrainPageSummary[];
+		pageBasePath: string;
+	} = $props();
 
 	const contextMapPage = $derived(pageIndex.find((page) => page.kind === 'context_map'));
 
@@ -33,7 +38,7 @@
 		</div>
 		{#if contextMapPage !== undefined}
 			<a
-				href={`/domain-brain/${contextMapPage.slug}`}
+				href={`${pageBasePath}/${contextMapPage.slug}`}
 				class="shrink-0 font-display text-xs text-chalk/70 underline transition hover:text-chalk"
 			>
 				Context map
@@ -46,7 +51,7 @@
 		</p>
 	{:else}
 		{#each contexts as context (context.slug)}
-			<ContextModelSection {context} pages={pagesIn(context)} />
+			<ContextModelSection {context} pages={pagesIn(context)} {pageBasePath} />
 		{/each}
 		{#if strayPages.length > 0}
 			<div class="flex flex-col gap-1.5">
@@ -54,7 +59,7 @@
 				<ul class="flex flex-col gap-1.5">
 					{#each strayPages as page (page.slug)}
 						<li>
-							<a href={`/domain-brain/${page.slug}`} class="group flex flex-col">
+							<a href={`${pageBasePath}/${page.slug}`} class="group flex flex-col">
 								<span class="font-display text-sm text-chalk transition group-hover:text-signal">
 									{page.title}
 								</span>

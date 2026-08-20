@@ -1,5 +1,5 @@
-import { startAnimationLoop } from './animationLoop';
-import { createStage, fitStageTo, type Stage } from './createStage';
+import { startAnimationLoop } from '../stage/animationLoop';
+import { createStage, fitStageTo, type Stage } from '../stage/createStage';
 import type { ExpressionName } from './expressionLibrary';
 import { FaceWorld } from './faceWorld';
 import type { FaceMood } from './presenceDirector';

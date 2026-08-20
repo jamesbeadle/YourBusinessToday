@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AdminUserRow from '$lib/components/admin/AdminUserRow.svelte';
+	import SiteModelPanel from '$lib/components/admin/SiteModelPanel.svelte';
 
 	let { data, form } = $props();
 </script>
@@ -12,13 +13,14 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Admin</h1>
 		<p class="text-chalk/70">
-			Every account, its credit balance, and the controls to grant promotional credits,
-			restrict access, or delete an account.
+			The model the site runs on, every account, its credit balance, and the controls to grant
+			promotional credits, restrict access, or delete an account.
 		</p>
 	</div>
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
+	<SiteModelPanel siteModel={data.siteModel} />
 	<ul class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
 		{#each data.users as user (user.email)}
 			<AdminUserRow {user} />

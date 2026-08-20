@@ -1,18 +1,34 @@
 import { fail } from '@sveltejs/kit';
 import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
+import { getSiteModel } from '$lib/server/anthropic/getSiteModel';
 import { grantCredits } from '$lib/server/admin/grantCredits';
+import { isKnownSiteModel } from '$lib/data/siteModels';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
 import { setAccountRestriction } from '$lib/server/admin/setAccountRestriction';
+import { setSiteModel } from '$lib/server/admin/setSiteModel';
 import { setStaffAccess } from '$lib/server/admin/setStaffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	await requireAdmin(locals);
-	return { users: await getAdminUserList(locals.supabase) };
+	return {
+		users: await getAdminUserList(locals.supabase),
+		siteModel: await getSiteModel()
+	};
 };
 
 export const actions: Actions = {
+	setSiteModel: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const modelId = String(formData.get('modelId') ?? '');
+		if (!isKnownSiteModel(modelId)) {
+			return fail(400, { message: 'Choose one of the listed models.' });
+		}
+		await setSiteModel(locals.supabase, modelId);
+		return { message: `The site now runs on ${modelId}.` };
+	},
 	grantCredits: async ({ locals, request }) => {
 		await requireAdmin(locals);
 		const formData = await request.formData();

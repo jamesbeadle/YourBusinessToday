@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
-import { anthropicMessagesUrl, anthropicModel, anthropicVersion } from './anthropicConstants';
+import { anthropicMessagesUrl, anthropicVersion } from './anthropicConstants';
+import { getSiteModel } from './getSiteModel';
 import type { AnthropicMessage, AnthropicResponse, AnthropicTool } from './anthropicTypes';
 
 export type AnthropicRequest = {
@@ -11,6 +12,7 @@ export type AnthropicRequest = {
 };
 
 export async function requestAnthropic(request: AnthropicRequest): Promise<AnthropicResponse> {
+	const siteModel = await getSiteModel();
 	const response = await fetch(anthropicMessagesUrl, {
 		method: 'POST',
 		headers: {
@@ -19,7 +21,7 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 			'anthropic-version': anthropicVersion
 		},
 		body: JSON.stringify({
-			model: anthropicModel,
+			model: siteModel,
 			max_tokens: request.maxTokens,
 			system: request.system,
 			tools: request.tools,

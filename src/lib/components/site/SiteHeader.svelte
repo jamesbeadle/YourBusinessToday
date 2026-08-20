@@ -31,7 +31,7 @@
 	const closeMobileMenu = () => (isMobileMenuOpen = false);
 </script>
 
-<header class="border-b border-hairline bg-night/95 backdrop-blur">
+<header class="relative z-40 border-b border-hairline bg-night">
 	<div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
 		<a href="/" class="flex items-center">
 			<BrandWordmark fontSize={26} />

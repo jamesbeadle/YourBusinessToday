@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (email === '') error(400, 'An email is required');
 	if (!Number.isInteger(amount) || amount < 1) error(400, 'A whole number of credits is required');
 
-	const recipient = await resolveAccountByEmail(email);
+	const recipient = await resolveAccountByEmail(locals.supabase, email);
 	if (recipient === null) {
 		error(404, 'No Your Business Today account has that email — your credits were not sent');
 	}

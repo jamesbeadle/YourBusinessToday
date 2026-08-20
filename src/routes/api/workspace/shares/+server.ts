@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		error(400, 'That is your own account');
 	}
 
-	const collaborator = await resolveAccountByEmail(email);
+	const collaborator = await resolveAccountByEmail(locals.supabase, email);
 	if (collaborator === null) error(404, 'No Your Business Today account has that email');
 
 	const outcome = await createWorkspaceShare(locals.supabase, collaborator, scope, targetId);

@@ -30,7 +30,8 @@ Early access. Accounts, credits, both live products, and sharing are all working
   [docs/domain-brain-architecture.md](./docs/domain-brain-architecture.md) covers the design.
 - Share your map read-only by adding someone's email in the workspace; it appears in their
   "Shared with me" once they sign in with that address.
-- Admins (`/admin`) can grant promotional credits, restrict accounts, and delete accounts.
+- Admins (`/admin`) can set the site model — the Claude model behind every agent reply,
+  Haiku by default — grant promotional credits, restrict accounts, and delete accounts.
   The first admin is bootstrapped by email on signup.
 - The demo map at `/project` shows a finished map.
 
@@ -54,7 +55,7 @@ npm run dev
 | `ANTHROPIC_API_KEY` | Claude API key — optional, scripted agent without it |
 | `STRIPE_SECRET_KEY` | Stripe secret key — optional, placeholder checkout without it |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret for `/api/stripe-webhook` |
-| `SUPABASE_SECRET_KEY` | Supabase secret key — used only by the Stripe webhook |
+| `SUPABASE_SECRET_KEY` | Supabase secret key — used by the Stripe webhook and to read the site model |
 
 ## Architecture
 

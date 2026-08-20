@@ -12,7 +12,7 @@
 	import { fetchBrainPage } from '../constellation/fetchBrainPage';
 	import { memberSections, ownerSections, type SectionKey } from './railIcons';
 	import { onMount } from 'svelte';
-	import type { BrainChangeProposal, WorkspaceShare } from '$lib/data/sharingTypes';
+	import type { BrainChangeProposal, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 	import type {
 		BrainContext,
@@ -33,7 +33,8 @@
 		events,
 		conversation,
 		proposals,
-		shares
+		shares,
+		invites
 	}: {
 		brain: DomainBrain;
 		isOwner: boolean;
@@ -45,6 +46,7 @@
 		conversation: BrainConversationThread;
 		proposals: BrainChangeProposal[];
 		shares: WorkspaceShare[];
+		invites: WorkspaceInvite[];
 	} = $props();
 
 	const pageBasePath = $derived(`/workspace/${brain.entityId}/domains/${brain.id}`);
@@ -106,7 +108,7 @@
 					<ReviewPanel brainId={brain.id} {proposals} />
 				{:else if activeSection === 'share'}
 					<div class="min-h-0 flex-1 overflow-y-auto">
-						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} />
+						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} {invites} />
 					</div>
 				{:else}
 					<div class="min-h-0 flex-1 overflow-y-auto">

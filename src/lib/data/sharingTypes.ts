@@ -7,6 +7,13 @@ export type WorkspaceShare = {
 	createdAt: string;
 };
 
+export type WorkspaceInvite = {
+	id: string;
+	invitedEmail: string;
+	scope: ShareScope;
+	createdAt: string;
+};
+
 export type SharedBrainSummary = {
 	brainId: string;
 	entityId: string;

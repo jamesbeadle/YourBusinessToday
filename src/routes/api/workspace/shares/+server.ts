@@ -1,10 +1,14 @@
 import { error, json } from '@sveltejs/kit';
 import { createWorkspaceShare, deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
+import { createWorkspaceInvite, deleteWorkspaceInvite } from '$lib/server/sharing/workspaceInvites';
+import { inviteEmailSubject, renderInviteEmail } from '$lib/server/email/inviteEmail';
 import { resolveAccountByEmail } from '$lib/server/sharing/resolveAccountByEmail';
+import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
+import { verifyShareTarget } from '$lib/server/sharing/verifyShareTarget';
 import type { RequestHandler } from './$types';
 import type { ShareScope } from '$lib/data/sharingTypes';
 
-export const POST: RequestHandler = async ({ locals, request }) => {
+export const POST: RequestHandler = async ({ locals, request, url }) => {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to share your workspace');
 
@@ -16,12 +20,22 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		error(400, 'That is your own account');
 	}
 
-	const collaborator = await resolveAccountByEmail(locals.supabase, email);
-	if (collaborator === null) error(404, 'No Your Business Today account has that email');
+	const target = await verifyShareTarget(locals.supabase, user.id, scope, targetId);
+	if (target === null) error(404, 'Only the owner can share this');
 
-	const outcome = await createWorkspaceShare(locals.supabase, collaborator, scope, targetId);
-	if (outcome === 'already_shared') error(409, 'Already shared with that account');
-	return json({ collaboratorEmail: collaborator.email });
+	const collaborator = await resolveAccountByEmail(locals.supabase, email);
+	if (collaborator !== null) {
+		await createWorkspaceShare(locals.supabase, collaborator, scope, targetId);
+		return json({ isShared: true });
+	}
+	await createWorkspaceInvite(locals.supabase, {
+		invitedEmail: email,
+		invitedByEmail: user.email ?? '',
+		scope,
+		targetId
+	});
+	await deliverInvite(email, user.email ?? '', target.name, url.origin);
+	return json({ isShared: true });
 };
 
 export const DELETE: RequestHandler = async ({ locals, request }) => {
@@ -29,11 +43,34 @@ export const DELETE: RequestHandler = async ({ locals, request }) => {
 	if (user === null) error(401, 'Sign in to manage your shares');
 
 	const payload = await request.json();
-	const shareId = typeof payload.shareId === 'string' ? payload.shareId : '';
-	if (shareId === '') error(400, 'A share is required');
-	await deleteWorkspaceShare(locals.supabase, shareId);
-	return json({ isRemoved: true });
+	if (typeof payload.shareId === 'string' && payload.shareId !== '') {
+		await deleteWorkspaceShare(locals.supabase, payload.shareId);
+		return json({ isRemoved: true });
+	}
+	if (typeof payload.inviteId === 'string' && payload.inviteId !== '') {
+		await deleteWorkspaceInvite(locals.supabase, payload.inviteId);
+		return json({ isRemoved: true });
+	}
+	error(400, 'A share or an invite is required');
 };
+
+async function deliverInvite(
+	invitedEmail: string,
+	inviterEmail: string,
+	workspaceName: string,
+	origin: string
+): Promise<void> {
+	const signInUrl = `${origin}/account/sign-in?invited=1&by=${encodeURIComponent(inviterEmail)}`;
+	try {
+		await sendTransactionalEmail({
+			to: invitedEmail,
+			subject: inviteEmailSubject(inviterEmail),
+			html: renderInviteEmail(inviterEmail, workspaceName, signInUrl)
+		});
+	} catch (failure) {
+		console.error('Invite email failed', failure);
+	}
+}
 
 function readTarget(payload: Record<string, unknown>): { scope: ShareScope; targetId: string } {
 	if (typeof payload.brainId === 'string' && payload.brainId !== '') {

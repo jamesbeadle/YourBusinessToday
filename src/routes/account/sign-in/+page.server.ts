@@ -4,9 +4,13 @@ import type { Actions, PageServerLoad } from './$types';
 
 const destinationAfterAuth = '/workspace';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const { user } = await locals.safeGetSession();
 	if (user !== null) redirect(303, destinationAfterAuth);
+	return {
+		isInvited: url.searchParams.get('invited') === '1',
+		invitedBy: url.searchParams.get('by') ?? ''
+	};
 };
 
 export const actions: Actions = {

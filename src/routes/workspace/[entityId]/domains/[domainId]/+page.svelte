@@ -19,4 +19,5 @@
 	conversation={data.conversation}
 	proposals={data.proposals}
 	shares={data.shares}
+	invites={data.invites}
 />

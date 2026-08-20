@@ -1,24 +1,33 @@
 <script lang="ts">
 	import ShareList from './ShareList.svelte';
 	import { invalidateAll } from '$app/navigation';
-	import type { ShareScope, WorkspaceShare } from '$lib/data/sharingTypes';
+	import type { ShareScope, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
 
 	let {
 		brainId,
 		entityId,
-		shares
-	}: { brainId: string; entityId: string; shares: WorkspaceShare[] } = $props();
+		shares,
+		invites
+	}: {
+		brainId: string;
+		entityId: string;
+		shares: WorkspaceShare[];
+		invites: WorkspaceInvite[];
+	} = $props();
 
 	let email = $state('');
 	let scope = $state<ShareScope>('brain');
 	let isSharing = $state(false);
-	let noticeMessage = $state('');
+	let notice = $state<{ tone: 'go' | 'caution'; message: string } | null>(null);
+
+	const NEUTRAL_CONFIRMATION =
+		'Done — if that email has an account they now have access; otherwise an invitation email is on its way.';
 
 	async function share(event: SubmitEvent) {
 		event.preventDefault();
 		if (email.trim() === '' || isSharing) return;
 		isSharing = true;
-		noticeMessage = '';
+		notice = null;
 		const response = await fetch('/api/workspace/shares', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
@@ -29,7 +38,8 @@
 			})
 		});
 		isSharing = false;
-		if (!response.ok) return (noticeMessage = await messageFrom(response));
+		if (!response.ok) return (notice = { tone: 'caution', message: await messageFrom(response) });
+		notice = { tone: 'go', message: NEUTRAL_CONFIRMATION };
 		email = '';
 		await invalidateAll();
 	}
@@ -77,11 +87,13 @@
 		>
 			{isSharing ? 'Sharing…' : 'Share'}
 		</button>
-		{#if noticeMessage !== ''}
-			<p class="text-xs text-caution">{noticeMessage}</p>
+		{#if notice !== null}
+			<p class={`text-xs ${notice.tone === 'go' ? 'text-go' : 'text-caution'}`}>
+				{notice.message}
+			</p>
 		{/if}
 	</form>
-	{#if shares.length > 0}
-		<ShareList {shares} />
+	{#if shares.length > 0 || invites.length > 0}
+		<ShareList {shares} {invites} />
 	{/if}
 </div>

@@ -7,11 +7,15 @@
 	import type { BrainConversationMessage, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
+		brainId,
+		pageBasePath,
 		conversationId,
 		messages,
 		pageIndex,
 		onOutOfCredits
 	}: {
+		brainId: string;
+		pageBasePath: string;
 		conversationId: string | null;
 		messages: BrainConversationMessage[];
 		pageIndex: BrainPageSummary[];
@@ -29,7 +33,7 @@
 		const response = await fetch('/api/brain/ask', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ question, conversationId })
+			body: JSON.stringify({ brainId, question, conversationId })
 		});
 		if (response.ok) await invalidateAll();
 		isThinking = false;
@@ -39,7 +43,11 @@
 	}
 
 	async function startFreshConversation() {
-		const response = await fetch('/api/brain/conversations', { method: 'POST' });
+		const response = await fetch('/api/brain/conversations', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ brainId })
+		});
 		if (response.ok) await invalidateAll();
 	}
 </script>
@@ -65,7 +73,7 @@
 	{#if messages.length > 0 || pendingQuestion !== null}
 		<div class="flex max-h-[28rem] flex-col gap-3 overflow-y-auto pr-1">
 			{#each messages as message (message.id)}
-				<ConversationTurnRow {message} {pageIndex} />
+				<ConversationTurnRow {message} {pageIndex} {pageBasePath} />
 			{/each}
 			{#if pendingQuestion !== null}
 				<div class="flex justify-end">

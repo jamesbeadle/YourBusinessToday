@@ -14,27 +14,29 @@ export type AppliedPageWrite = { slug: string; wasCreated: boolean };
 
 export async function saveBrainPageWrites(
 	supabase: SupabaseClient,
+	brainId: string,
 	writes: BrainPageWrite[]
 ): Promise<AppliedPageWrite[]> {
 	const applied: AppliedPageWrite[] = [];
 	for (const write of writes) {
-		applied.push(await savePageWrite(supabase, write));
+		applied.push(await savePageWrite(supabase, brainId, write));
 	}
 	return applied;
 }
 
 async function savePageWrite(
 	supabase: SupabaseClient,
+	brainId: string,
 	write: BrainPageWrite
 ): Promise<AppliedPageWrite> {
-	const row = asPageRow(write);
-	const existingPage = await findPage(supabase, write.slug);
+	const row = { brain_id: brainId, ...asPageRow(write) };
+	const existingPage = await findPage(supabase, brainId, write.slug);
 	if (existingPage === null) {
 		const { error } = await supabase.from('brain_pages').insert(row);
 		if (error !== null) throw error;
 		return { slug: write.slug, wasCreated: true };
 	}
-	await snapshotRevision(supabase, existingPage);
+	await snapshotRevision(supabase, brainId, existingPage);
 	const { error } = await supabase
 		.from('brain_pages')
 		.update({ ...row, updated_at: new Date().toISOString() })
@@ -54,10 +56,11 @@ function asPageRow(write: BrainPageWrite) {
 	};
 }
 
-async function findPage(supabase: SupabaseClient, slug: string) {
+async function findPage(supabase: SupabaseClient, brainId: string, slug: string) {
 	const { data, error } = await supabase
 		.from('brain_pages')
 		.select('id, title, summary, kind, context_slug, body')
+		.eq('brain_id', brainId)
 		.eq('slug', slug)
 		.maybeSingle();
 	if (error !== null) throw error;
@@ -66,6 +69,7 @@ async function findPage(supabase: SupabaseClient, slug: string) {
 
 async function snapshotRevision(
 	supabase: SupabaseClient,
+	brainId: string,
 	page: {
 		id: string;
 		title: string;
@@ -76,6 +80,7 @@ async function snapshotRevision(
 	}
 ) {
 	const { error } = await supabase.from('brain_page_revisions').insert({
+		brain_id: brainId,
 		page_id: page.id,
 		title: page.title,
 		summary: page.summary,

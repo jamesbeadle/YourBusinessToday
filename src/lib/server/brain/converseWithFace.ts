@@ -14,6 +14,7 @@ const maxReplyTokens = 2000;
 
 export async function converseWithFace(
 	supabase: SupabaseClient,
+	brainId: string,
 	contexts: BrainContext[],
 	index: BrainPageSummary[],
 	turns: FaceChatTurn[]
@@ -31,7 +32,7 @@ export async function converseWithFace(
 		return parseSpokenReply(toolUseNamed(firstResponse.content, speakTool.name)?.input);
 	}
 	messages.push({ role: 'assistant', content: firstResponse.content });
-	messages.push(await readPagesResultMessage(supabase, readRequest));
+	messages.push(await readPagesResultMessage(supabase, brainId, readRequest));
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,

@@ -4,11 +4,16 @@ export type UploadOutcome =
 	| { status: 'rejected'; message: string }
 	| { status: 'failed'; message: string };
 
-export async function uploadSourceFile(file: File): Promise<UploadOutcome> {
+export async function uploadSourceFile(file: File, brainId: string): Promise<UploadOutcome> {
 	const grantResponse = await fetch('/api/brain/sources', {
 		method: 'POST',
 		headers: { 'content-type': 'application/json' },
-		body: JSON.stringify({ filename: file.name, mimeType: file.type, byteCount: file.size })
+		body: JSON.stringify({
+			brainId,
+			filename: file.name,
+			mimeType: file.type,
+			byteCount: file.size
+		})
 	});
 	if (grantResponse.status === 400) return { status: 'rejected', message: await messageFrom(grantResponse) };
 	if (!grantResponse.ok) return { status: 'failed', message: 'The upload could not be started.' };

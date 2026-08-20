@@ -4,6 +4,7 @@ import { createBrainConversation } from '$lib/server/brain/createBrainConversati
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import { getLatestConversationId } from '$lib/server/brain/getBrainConversation';
+import { getLatestDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
 import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
@@ -16,23 +17,26 @@ const longestTurnLength = 2000;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to talk to your Domain Brain');
+	if (user === null) error(401, 'Sign in to talk to your domain brain');
 
 	const turns = await readTurns(request);
+	const brain = await getLatestDomainBrain(locals.supabase);
+	if (brain === null) error(404, 'Create a domain brain in your workspace first');
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
-	const contexts = await getBrainContexts(locals.supabase);
-	const index = await getBrainPageIndex(locals.supabase);
-	const spoken = await converseWithFace(locals.supabase, contexts, index, turns);
+	const contexts = await getBrainContexts(locals.supabase, brain.id);
+	const index = await getBrainPageIndex(locals.supabase, brain.id);
+	const spoken = await converseWithFace(locals.supabase, brain.id, contexts, index, turns);
 	const question = turns[turns.length - 1].text;
-	const conversationId = await faceConversationId(locals.supabase);
+	const conversationId = await faceConversationId(locals.supabase, brain.id);
 	await recordConversationTurn(locals.supabase, conversationId, question, {
 		answerMarkdown: spoken.reply,
 		citedSlugs: spoken.citedSlugs
 	});
 	await recordBrainEvent(locals.supabase, {
+		brainId: brain.id,
 		kind: 'question_answered',
 		detail: {
 			question,
@@ -45,9 +49,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	return json({ ...spoken, creditBalance: spend.creditBalance });
 };
 
-async function faceConversationId(supabase: SupabaseClient): Promise<string> {
-	const existingId = await getLatestConversationId(supabase, 'face');
-	return existingId ?? createBrainConversation(supabase, 'face');
+async function faceConversationId(supabase: SupabaseClient, brainId: string): Promise<string> {
+	const existingId = await getLatestConversationId(supabase, brainId, 'face');
+	return existingId ?? createBrainConversation(supabase, brainId, 'face');
 }
 
 async function readTurns(request: Request): Promise<FaceChatTurn[]> {

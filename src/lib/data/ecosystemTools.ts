@@ -24,7 +24,7 @@ export const ecosystemTools: EcosystemTool[] = [
 		description:
 			'Reads everything your company files into a domain model maintained by a modeller agent — bounded contexts, the things you track, the language you speak — so you can simply ask and get answers grounded in your own records. Yours to export as Markdown any time.',
 		isLive: true,
-		href: '/domain-brain'
+		href: '/workspace'
 	},
 	{
 		id: 'workforce',

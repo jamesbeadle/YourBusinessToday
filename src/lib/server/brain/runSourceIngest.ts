@@ -16,14 +16,19 @@ export async function runSourceIngest(
 ): Promise<void> {
 	const fileBytes = await downloadSourceFile(supabase, source.storagePath);
 	const contentBlock = await sourceContentBlock(fileBytes, source.mimeType);
-	const contexts = await getBrainContexts(supabase);
-	const index = await getBrainPageIndex(supabase);
+	const contexts = await getBrainContexts(supabase, source.brainId);
+	const index = await getBrainPageIndex(supabase, source.brainId);
 	const record = await ingestSource(contentBlock, source.filename, contexts, index);
-	const appliedContextWrites = await saveBrainContextWrites(supabase, record.contextWrites);
-	const appliedPageWrites = await saveBrainPageWrites(supabase, record.pageWrites);
-	await recordContextEvents(supabase, source.id, appliedContextWrites);
-	await recordPageEvents(supabase, source.id, appliedPageWrites);
+	const appliedContextWrites = await saveBrainContextWrites(
+		supabase,
+		source.brainId,
+		record.contextWrites
+	);
+	const appliedPageWrites = await saveBrainPageWrites(supabase, source.brainId, record.pageWrites);
+	await recordContextEvents(supabase, source, appliedContextWrites);
+	await recordPageEvents(supabase, source, appliedPageWrites);
 	await recordBrainEvent(supabase, {
+		brainId: source.brainId,
 		kind: 'source_ingested',
 		detail: { filename: source.filename, logLine: record.logLine },
 		sourceId: source.id
@@ -33,28 +38,30 @@ export async function runSourceIngest(
 
 async function recordContextEvents(
 	supabase: SupabaseClient,
-	sourceId: string,
+	source: StoredBrainSource,
 	appliedWrites: { slug: string; wasCreated: boolean }[]
 ): Promise<void> {
 	for (const write of appliedWrites) {
 		await recordBrainEvent(supabase, {
+			brainId: source.brainId,
 			kind: write.wasCreated ? 'context_created' : 'context_updated',
 			detail: { contextSlug: write.slug },
-			sourceId
+			sourceId: source.id
 		});
 	}
 }
 
 async function recordPageEvents(
 	supabase: SupabaseClient,
-	sourceId: string,
+	source: StoredBrainSource,
 	appliedWrites: { slug: string; wasCreated: boolean }[]
 ): Promise<void> {
 	for (const write of appliedWrites) {
 		await recordBrainEvent(supabase, {
+			brainId: source.brainId,
 			kind: write.wasCreated ? 'page_created' : 'page_updated',
 			detail: {},
-			sourceId,
+			sourceId: source.id,
 			pageSlug: write.slug
 		});
 	}

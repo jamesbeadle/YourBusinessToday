@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { creditsPerReply, welcomeCreditCount } from '$lib/data/creditPricing';
+	import { creditsPerReply } from '$lib/data/creditPricing';
 </script>
 
 <section class="mx-auto max-w-6xl px-6 py-16">
@@ -33,10 +33,6 @@
 				<div class="flex items-baseline justify-between gap-4">
 					<dt class="text-chalk/80">Live Workflow Map updates</dt>
 					<dd class="font-display text-go">Included</dd>
-				</div>
-				<div class="flex items-baseline justify-between gap-4">
-					<dt class="text-chalk/80">Welcome credits on sign-up</dt>
-					<dd class="font-display text-go">{welcomeCreditCount} free</dd>
 				</div>
 			</dl>
 		</div>

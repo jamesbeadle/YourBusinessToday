@@ -4,6 +4,7 @@ import { createBrainConversation } from '$lib/server/brain/createBrainConversati
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import { getConversationMessages } from '$lib/server/brain/getBrainConversation';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
 import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
@@ -15,24 +16,27 @@ const longestRememberedExchange = 12;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to talk to your Domain Brain');
+	if (user === null) error(401, 'Sign in to talk to your domain brain');
 
 	const payload = await request.json();
 	const question = readQuestion(payload);
+	const brain = await getDomainBrain(locals.supabase, readBrainId(payload));
+	if (brain === null) error(404, 'That domain brain could not be found');
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
-	const conversationId = await resolveConversationId(locals.supabase, payload.conversationId);
+	const conversationId = await resolveConversationId(locals.supabase, brain.id, payload.conversationId);
 	const priorTurns = await rememberedTurns(locals.supabase, conversationId);
-	const contexts = await getBrainContexts(locals.supabase);
-	const index = await getBrainPageIndex(locals.supabase);
-	const answer = await askModeller(locals.supabase, contexts, index, [
+	const contexts = await getBrainContexts(locals.supabase, brain.id);
+	const index = await getBrainPageIndex(locals.supabase, brain.id);
+	const answer = await askModeller(locals.supabase, brain.id, contexts, index, [
 		...priorTurns,
 		{ speaker: 'user', text: question }
 	]);
 	await recordConversationTurn(locals.supabase, conversationId, question, answer);
 	await recordBrainEvent(locals.supabase, {
+		brainId: brain.id,
 		kind: 'question_answered',
 		detail: {
 			question,
@@ -50,8 +54,15 @@ function readQuestion(payload: { question?: unknown }): string {
 	return question;
 }
 
+function readBrainId(payload: { brainId?: unknown }): string {
+	const brainId = typeof payload.brainId === 'string' ? payload.brainId : '';
+	if (brainId === '') error(400, 'A domain brain is required');
+	return brainId;
+}
+
 async function resolveConversationId(
 	supabase: SupabaseClient,
+	brainId: string,
 	candidate: unknown
 ): Promise<string> {
 	if (typeof candidate === 'string' && candidate !== '') {
@@ -59,10 +70,11 @@ async function resolveConversationId(
 			.from('brain_conversations')
 			.select('id')
 			.eq('id', candidate)
+			.eq('brain_id', brainId)
 			.maybeSingle();
 		if (data !== null) return data.id;
 	}
-	return createBrainConversation(supabase, 'brain');
+	return createBrainConversation(supabase, brainId, 'brain');
 }
 
 async function rememberedTurns(

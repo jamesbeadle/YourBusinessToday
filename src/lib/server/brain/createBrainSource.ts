@@ -9,12 +9,14 @@ export type SourceUploadGrant = {
 export async function createBrainSource(
 	supabase: SupabaseClient,
 	userId: string,
+	brainId: string,
 	upload: { filename: string; mimeType: string; byteCount: number }
 ): Promise<SourceUploadGrant> {
 	const sourceId = crypto.randomUUID();
 	const uploadPath = `${userId}/${sourceId}/${safeFilename(upload.filename)}`;
 	const { error: insertError } = await supabase.from('brain_sources').insert({
 		id: sourceId,
+		brain_id: brainId,
 		filename: upload.filename,
 		mime_type: upload.mimeType,
 		byte_count: upload.byteCount,

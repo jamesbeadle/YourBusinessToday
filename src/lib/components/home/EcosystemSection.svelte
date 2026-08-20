@@ -8,8 +8,8 @@
 		<div class="flex flex-col gap-2">
 			<h2 class="font-display text-3xl font-medium">The ecosystem</h2>
 			<p class="max-w-prose text-chalk/70">
-				Four products, one idea: the Workflow Map captures what your business does, the Second
-				Brain captures what it knows, the Workforce runs what it hands over, and the Prospector
+				Four products, one idea: the Workflow Map captures what your business does, the Domain
+				Brain models what it knows, the Workforce runs what it hands over, and the Prospector
 				finds who it serves next. The first two are live today, and each gets sharper as your
 				business profile grows.
 			</p>

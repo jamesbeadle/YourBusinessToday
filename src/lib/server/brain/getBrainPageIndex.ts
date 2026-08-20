@@ -2,10 +2,14 @@ import { domainBlockLabels } from '$lib/data/domainBlocks';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { BrainContext, BrainPageSummary } from '$lib/data/brainTypes';
 
-export async function getBrainPageIndex(supabase: SupabaseClient): Promise<BrainPageSummary[]> {
+export async function getBrainPageIndex(
+	supabase: SupabaseClient,
+	brainId: string
+): Promise<BrainPageSummary[]> {
 	const { data, error } = await supabase
 		.from('brain_pages')
 		.select('slug, title, summary, kind, context_slug')
+		.eq('brain_id', brainId)
 		.order('kind')
 		.order('title');
 	if (error !== null) throw error;

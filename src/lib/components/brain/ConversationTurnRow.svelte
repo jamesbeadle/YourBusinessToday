@@ -5,8 +5,13 @@
 
 	let {
 		message,
-		pageIndex
-	}: { message: BrainConversationMessage; pageIndex: BrainPageSummary[] } = $props();
+		pageIndex,
+		pageBasePath
+	}: {
+		message: BrainConversationMessage;
+		pageIndex: BrainPageSummary[];
+		pageBasePath: string;
+	} = $props();
 
 	function titleFor(slug: string): string {
 		return pageIndex.find((page) => page.slug === slug)?.title ?? slug;
@@ -34,7 +39,7 @@
 					</span>
 					{#each message.citedSlugs as slug (slug)}
 						<a
-							href={`/domain-brain/${slug}`}
+							href={`${pageBasePath}/${slug}`}
 							class="rounded-full border border-hairline px-3 py-1 font-display text-xs
 								text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
 						>

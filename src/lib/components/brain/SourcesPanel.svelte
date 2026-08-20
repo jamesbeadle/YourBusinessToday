@@ -4,9 +4,10 @@
 	import type { BrainSource } from '$lib/data/brainTypes';
 
 	let {
+		brainId,
 		sources,
 		onOutOfCredits
-	}: { sources: BrainSource[]; onOutOfCredits: () => void } = $props();
+	}: { brainId: string; sources: BrainSource[]; onOutOfCredits: () => void } = $props();
 </script>
 
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
@@ -16,7 +17,7 @@
 			The raw material — every document is read once and remembered in the model.
 		</p>
 	</div>
-	<SourceUploadPanel {onOutOfCredits} />
+	<SourceUploadPanel {brainId} {onOutOfCredits} />
 	{#if sources.length > 0}
 		<ul class="flex flex-col">
 			{#each sources as source (source.id)}

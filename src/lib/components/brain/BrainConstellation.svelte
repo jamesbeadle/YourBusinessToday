@@ -43,6 +43,11 @@
 		return () => mounted.destroy();
 	});
 
+	export function drillToNeuron(slug: string): void {
+		rememberSelection(slug);
+		experience?.focusNeuron(slug);
+	}
+
 	function rememberSelection(slug: string): void {
 		selectedSlug = slug;
 		const page = pageIndex.find((candidate) => candidate.slug === slug);

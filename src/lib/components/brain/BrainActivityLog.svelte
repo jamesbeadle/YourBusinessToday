@@ -9,6 +9,11 @@
 		if (event.kind === 'context_updated') return `Reshaped context: ${String(event.detail.contextSlug ?? '')}`;
 		if (event.kind === 'page_created') return `Created ${event.pageSlug}`;
 		if (event.kind === 'page_updated') return `Updated ${event.pageSlug}`;
+		if (event.kind === 'page_deleted') return `Forgot ${String(event.detail.pageSlug ?? '')}`;
+		if (event.kind === 'context_deleted')
+			return `Dissolved context: ${String(event.detail.contextSlug ?? '')}`;
+		if (event.kind === 'source_removed')
+			return String(event.detail.logLine ?? `Removed ${String(event.detail.filename ?? 'a source')}`);
 		if (event.kind === 'brain_exported') return 'Exported the brain as Markdown';
 		return `Answered: ${String(event.detail.question ?? '')}`;
 	}

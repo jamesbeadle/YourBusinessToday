@@ -13,6 +13,18 @@ export async function spendForBrainQuestion(supabase: SupabaseClient): Promise<B
 	return spendThrough(supabase, 'spend_for_brain_question', {});
 }
 
+export async function spendForBrainUnlearn(
+	supabase: SupabaseClient,
+	sourceId: string
+): Promise<BrainSpend> {
+	return spendThrough(supabase, 'spend_for_brain_unlearn', { source_identifier: sourceId });
+}
+
+export async function refundForBrainUnlearn(supabase: SupabaseClient): Promise<void> {
+	const { error } = await supabase.rpc('refund_for_brain_unlearn', {});
+	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+}
+
 export async function refundForBrainIngest(supabase: SupabaseClient): Promise<void> {
 	const { error } = await supabase.rpc('refund_for_brain_ingest', {});
 	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;

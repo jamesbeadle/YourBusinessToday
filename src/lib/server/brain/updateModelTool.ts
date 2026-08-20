@@ -22,7 +22,7 @@ const contextWriteSchema = {
 	}
 };
 
-const pageWriteSchema = {
+export const pageWriteSchema = {
 	type: 'object',
 	required: ['operation', 'slug', 'title', 'summary', 'kind', 'contextSlug', 'body'],
 	properties: {

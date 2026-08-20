@@ -44,7 +44,7 @@ function parseContextWrite(candidate: unknown): BrainContextWrite[] {
 	];
 }
 
-function parsePageWrite(candidate: unknown): BrainPageWrite[] {
+export function parsePageWrite(candidate: unknown): BrainPageWrite[] {
 	if (!isRecord(candidate)) return [];
 	const slug = slugify(asText(candidate.slug));
 	const title = asText(candidate.title);

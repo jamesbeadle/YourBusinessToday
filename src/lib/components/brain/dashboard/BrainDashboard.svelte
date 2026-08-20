@@ -42,6 +42,7 @@
 
 	let activeSection = $state<SectionKey | null>(null);
 	let isOutOfCredits = $state(false);
+	let constellation = $state<{ drillToNeuron: (slug: string) => void }>();
 
 	onMount(() => {
 		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'terminal';
@@ -49,6 +50,11 @@
 
 	function toggleSection(section: SectionKey): void {
 		activeSection = activeSection === section ? null : section;
+	}
+
+	function openPageInBrain(slug: string): void {
+		if (!window.matchMedia('(min-width: 1024px)').matches) activeSection = null;
+		constellation?.drillToNeuron(slug);
 	}
 </script>
 
@@ -78,7 +84,7 @@
 					</div>
 				{:else if activeSection === 'model'}
 					<div class="min-h-0 flex-1 overflow-y-auto">
-						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} />
+						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
 					</div>
 				{:else}
 					<div class="min-h-0 flex-1 overflow-y-auto">
@@ -89,6 +95,7 @@
 		{/if}
 		<div class="relative min-w-0 flex-1">
 			<BrainConstellation
+				bind:this={constellation}
 				loadPage={(slug) => fetchBrainPage(brain.id, slug)}
 				{pageBasePath}
 				{contexts}

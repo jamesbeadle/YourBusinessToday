@@ -1,73 +1,99 @@
 <script lang="ts">
-	import ContextModelSection from './ContextModelSection.svelte';
-	import type { BrainContext, BrainPageSummary } from '$lib/data/brainTypes';
+	import { asCssColour, kindColours } from './constellation/constellationPalette';
+	import { domainBlockLabels, domainBlockOrder } from '$lib/data/domainBlocks';
+	import type { BrainContext, BrainPageSummary, DomainBlockKind } from '$lib/data/brainTypes';
 
 	let {
 		contexts,
 		pageIndex,
-		pageBasePath
+		pageBasePath,
+		onSelectPage
 	}: {
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageBasePath: string;
+		onSelectPage: (slug: string) => void;
 	} = $props();
 
+	let chosenContextSlug = $state<string | null>(null);
+
+	const selectedSlug = $derived(chosenContextSlug ?? contexts[0]?.slug ?? null);
+	const selectedContext = $derived(contexts.find((context) => context.slug === selectedSlug));
 	const contextMapPage = $derived(pageIndex.find((page) => page.kind === 'context_map'));
+	const selectedPages = $derived(
+		pageIndex.filter((page) => page.contextSlug === selectedSlug && page.kind !== 'context_map')
+	);
+	const populatedKinds = $derived(
+		domainBlockOrder.filter((kind) => selectedPages.some((page) => page.kind === kind))
+	);
 
-	const strayPages = $derived(pageIndex.filter(isOutsideEveryContext));
-
-	function pagesIn(context: BrainContext): BrainPageSummary[] {
-		return pageIndex.filter((page) => page.contextSlug === context.slug);
-	}
-
-	function isOutsideEveryContext(page: BrainPageSummary): boolean {
-		if (page.kind === 'context_map') return false;
-		if (page.contextSlug === null) return true;
-		return !contexts.some((context) => context.slug === page.contextSlug);
+	function pagesOf(kind: DomainBlockKind): BrainPageSummary[] {
+		return selectedPages.filter((page) => page.kind === kind);
 	}
 </script>
 
-<section class="flex flex-col gap-4 p-4">
-	<div class="flex items-baseline justify-between gap-3">
-		<div>
-			<p class="text-sm text-chalk/60">
-				Your business as a domain model — one bounded context per area, one page per building
-				block.
-			</p>
+<div class="flex flex-col gap-4 p-4">
+	{#if contexts.length === 0}
+		<p class="text-sm text-chalk/50">
+			No model yet — drop your first document into the terminal and the modeller will start
+			building.
+		</p>
+	{:else}
+		<div class="flex flex-wrap gap-1.5">
+			{#each contexts as context (context.slug)}
+				<button
+					type="button"
+					onclick={() => (chosenContextSlug = context.slug)}
+					aria-pressed={context.slug === selectedSlug}
+					class={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-display text-xs
+						transition ${
+							context.slug === selectedSlug
+								? 'border-chalk/40 bg-hairline/50 text-chalk'
+								: 'border-hairline text-chalk/60 hover:border-chalk/30 hover:text-chalk'
+						}`}
+				>
+					{#if context.isCoreDomain}
+						<span class="h-1.5 w-1.5 rounded-full bg-signal"></span>
+					{/if}
+					{context.name}
+				</button>
+			{/each}
 		</div>
+		{#if selectedContext !== undefined && selectedContext.summary !== ''}
+			<p class="text-xs text-chalk/50">{selectedContext.summary}</p>
+		{/if}
+		{#each populatedKinds as kind (kind)}
+			<div class="flex flex-col gap-1.5">
+				<p class="font-display text-[10px] tracking-widest text-chalk/40 uppercase">
+					{domainBlockLabels[kind].plural}
+				</p>
+				<div class="flex flex-wrap gap-1.5">
+					{#each pagesOf(kind) as page (page.slug)}
+						<button
+							type="button"
+							title={page.summary}
+							onclick={() => onSelectPage(page.slug)}
+							class="flex items-center gap-1.5 rounded-lg border border-hairline bg-carriage/60
+								px-2.5 py-1.5 text-left text-xs text-chalk/80 transition
+								hover:border-chalk/30 hover:text-chalk"
+						>
+							<span
+								class="h-1.5 w-1.5 shrink-0 rounded-full"
+								style={`background-color: ${asCssColour(kindColours[kind])}`}
+							></span>
+							{page.title}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/each}
 		{#if contextMapPage !== undefined}
 			<a
 				href={`${pageBasePath}/${contextMapPage.slug}`}
-				class="shrink-0 font-display text-xs text-chalk/70 underline transition hover:text-chalk"
+				class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
 			>
-				Context map
+				How the contexts relate →
 			</a>
 		{/if}
-	</div>
-	{#if contexts.length === 0 && pageIndex.length === 0}
-		<p class="rounded-xl border-2 border-dashed border-hairline p-6 text-center text-sm text-chalk/50">
-			No model yet — add your first document and the modeller will start building.
-		</p>
-	{:else}
-		{#each contexts as context (context.slug)}
-			<ContextModelSection {context} pages={pagesIn(context)} {pageBasePath} />
-		{/each}
-		{#if strayPages.length > 0}
-			<div class="flex flex-col gap-1.5">
-				<h3 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Unassigned</h3>
-				<ul class="flex flex-col gap-1.5">
-					{#each strayPages as page (page.slug)}
-						<li>
-							<a href={`${pageBasePath}/${page.slug}`} class="group flex flex-col">
-								<span class="font-display text-sm text-chalk transition group-hover:text-signal">
-									{page.title}
-								</span>
-								<span class="text-xs text-chalk/50">{page.summary}</span>
-							</a>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		{/if}
 	{/if}
-</section>
+</div>

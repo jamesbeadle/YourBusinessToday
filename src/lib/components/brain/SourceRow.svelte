@@ -1,4 +1,5 @@
 <script lang="ts">
+	import SourceRemoveButton from './SourceRemoveButton.svelte';
 	import { ingestSource } from './uploadSourceFile';
 	import { invalidateAll } from '$app/navigation';
 	import type { BrainSource } from '$lib/data/brainTypes';
@@ -9,6 +10,7 @@
 	}: { source: BrainSource; onOutOfCredits: () => void } = $props();
 
 	let isRetrying = $state(false);
+	let removalFailure = $state('');
 
 	const statusStyles: Record<BrainSource['status'], string> = {
 		uploaded: 'border-chalk/30 text-chalk/60',
@@ -55,5 +57,15 @@
 		>
 			{statusLabels[source.status]}
 		</span>
+		<SourceRemoveButton
+			{source}
+			{onOutOfCredits}
+			onFailure={(message) => (removalFailure = message)}
+		/>
 	</div>
 </li>
+{#if removalFailure !== ''}
+	<li class="border-b border-hairline pb-2 text-xs text-caution last:border-b-0">
+		{removalFailure}
+	</li>
+{/if}

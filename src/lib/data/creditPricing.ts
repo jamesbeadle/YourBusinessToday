@@ -1,5 +1,6 @@
 export const creditsPerReply = 10;
 export const creditsPerBrainIngest = 50;
+export const creditsPerBrainUnlearn = 50;
 export const creditsPerBrainQuestion = 10;
 
 export function formatPenceAsPounds(pence: number): string {

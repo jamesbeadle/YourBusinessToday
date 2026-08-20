@@ -43,10 +43,13 @@ export type BrainPageLink = { fromSlug: string; toSlug: string };
 
 export type BrainEventKind =
 	| 'source_ingested'
+	| 'source_removed'
 	| 'context_created'
 	| 'context_updated'
+	| 'context_deleted'
 	| 'page_created'
 	| 'page_updated'
+	| 'page_deleted'
 	| 'question_answered'
 	| 'brain_exported';
 

@@ -57,7 +57,7 @@
 	<ConstellationLegend />
 </div>
 <p
-	class="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 font-display text-xs
+	class="pointer-events-none absolute bottom-3 left-1/2 hidden -translate-x-1/2 font-display text-xs sm:block
 		tracking-wide text-chalk/40"
 >
 	Drag to orbit · scroll to zoom · click a neuron to drill in

@@ -64,7 +64,7 @@
 {#if hasNeurons}
 	<div
 		bind:this={containerElement}
-		class="relative h-[70vh] min-h-105 overflow-hidden rounded-2xl border border-hairline bg-night"
+		class="relative h-full min-h-80 overflow-hidden bg-night"
 	>
 		<canvas bind:this={canvasElement} class="h-full w-full"></canvas>
 		<ConstellationHud
@@ -84,7 +84,7 @@
 	</div>
 {:else}
 	<div
-		class="flex h-52 items-center justify-center rounded-2xl border-2 border-dashed border-hairline
+		class="flex h-full min-h-80 items-center justify-center
 			text-sm text-chalk/50"
 	>
 		No neurons yet — add your first document and watch the constellation grow.

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import DOMPurify from 'isomorphic-dompurify';
-	import { marked } from 'marked';
+	import { renderMarkdown } from './renderMarkdown';
 
 	let { markdown }: { markdown: string } = $props();
 
-	const html = $derived(DOMPurify.sanitize(marked.parse(markdown, { async: false })));
+	const html = $derived(renderMarkdown(markdown));
 </script>
 
 <div

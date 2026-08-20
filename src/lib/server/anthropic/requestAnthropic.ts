@@ -1,7 +1,8 @@
 import { env } from '$env/dynamic/private';
-import { anthropicMessagesUrl, anthropicVersion } from './anthropicConstants';
-import { getSiteModel } from './getSiteModel';
+import { anthropicMessagesUrl, anthropicModel, anthropicVersion } from './anthropicConstants';
 import type { AnthropicMessage, AnthropicResponse, AnthropicTool } from './anthropicTypes';
+
+const failureDetailLimit = 300;
 
 export type AnthropicRequest = {
 	system: string;
@@ -12,7 +13,9 @@ export type AnthropicRequest = {
 };
 
 export async function requestAnthropic(request: AnthropicRequest): Promise<AnthropicResponse> {
-	const siteModel = await getSiteModel();
+	if ((env.ANTHROPIC_API_KEY ?? '') === '') {
+		throw new Error('ANTHROPIC_API_KEY is not set — add it to .env');
+	}
 	const response = await fetch(anthropicMessagesUrl, {
 		method: 'POST',
 		headers: {
@@ -21,7 +24,7 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 			'anthropic-version': anthropicVersion
 		},
 		body: JSON.stringify({
-			model: siteModel,
+			model: anthropicModel,
 			max_tokens: request.maxTokens,
 			system: request.system,
 			tools: request.tools,
@@ -29,8 +32,13 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 			messages: request.messages
 		})
 	});
-	if (!response.ok) throw new Error(`Anthropic request failed with status ${response.status}`);
+	if (!response.ok) throw new Error(await describeFailure(response));
 	return response.json();
+}
+
+async function describeFailure(response: Response): Promise<string> {
+	const detail = (await response.text()).slice(0, failureDetailLimit);
+	return `Anthropic request failed with status ${response.status}: ${detail}`;
 }
 
 function toolChoiceFor(request: AnthropicRequest): Record<string, unknown> {

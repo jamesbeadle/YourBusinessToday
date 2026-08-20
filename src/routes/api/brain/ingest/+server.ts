@@ -7,6 +7,8 @@ import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
 
+const failureSummaryLimit = 160;
+
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to build your Domain Brain');
@@ -22,13 +24,19 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 	try {
 		await runSourceIngest(locals.supabase, source);
-	} catch {
-		await markSourceStatus(locals.supabase, sourceId, 'failed');
+	} catch (failure) {
+		console.error('Brain ingest failed', failure);
+		await markSourceStatus(locals.supabase, sourceId, 'failed', failureSummary(failure));
 		await refundForBrainIngest(locals.supabase);
 		error(502, 'Reading that document failed — your credits have been refunded');
 	}
 	return json({ creditBalance: await getCreditBalance(locals.supabase) });
 };
+
+function failureSummary(failure: unknown): string {
+	const message = failure instanceof Error ? failure.message : 'Unknown failure';
+	return message.slice(0, failureSummaryLimit);
+}
 
 async function readSourceId(request: Request): Promise<string> {
 	const payload = await request.json();

@@ -4,8 +4,8 @@ import { STARLIGHT } from './constellationPalette';
 const STAR_COUNT = 400;
 const NEAREST_STAR_RADIUS = 26;
 const STAR_SHELL_DEPTH = 30;
-const STAR_SIZE = 0.14;
-const STAR_OPACITY = 0.65;
+const STAR_SIZE = 0.1;
+const STAR_OPACITY = 0.45;
 
 export type StarBackdrop = { points: Points; dispose: () => void };
 

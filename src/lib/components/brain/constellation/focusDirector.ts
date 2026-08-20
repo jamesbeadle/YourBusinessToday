@@ -37,6 +37,7 @@ export function createFocusDirector(dependencies: DirectorDependencies): FocusDi
 		view.bank.setFocus(contextKey);
 		view.web.setFocus(contextKey);
 		view.pulses.setFocus(contextKey);
+		view.ambient.setFocus(contextKey);
 	}
 
 	function travel(viewpoint: Viewpoint): void {

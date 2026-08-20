@@ -1,15 +1,29 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { mergedInviteGrants, mergedShareGrants, type MergedGrant } from './shareGrouping';
 	import type { WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
 
-	let { shares, invites }: { shares: WorkspaceShare[]; invites: WorkspaceInvite[] } = $props();
+	let {
+		shares,
+		invites,
+		onResend
+	}: {
+		shares: WorkspaceShare[];
+		invites: WorkspaceInvite[];
+		onResend: (invite: MergedGrant) => void;
+	} = $props();
 
-	async function revoke(body: Record<string, string>) {
-		await fetch('/api/workspace/shares', {
-			method: 'DELETE',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify(body)
-		});
+	const collaborators = $derived(mergedShareGrants(shares));
+	const invited = $derived(mergedInviteGrants(invites));
+
+	async function revoke(idField: 'shareId' | 'inviteId', grant: MergedGrant) {
+		for (const id of grant.ids) {
+			await fetch('/api/workspace/shares', {
+				method: 'DELETE',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ [idField]: id })
+			});
+		}
 		await invalidateAll();
 	}
 
@@ -19,40 +33,49 @@
 </script>
 
 <ul class="flex flex-col">
-	{#each shares as share (share.id)}
+	{#each collaborators as grant (grant.email)}
 		<li class="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0">
 			<div class="min-w-0">
-				<p class="truncate text-sm text-chalk">{share.collaboratorEmail}</p>
+				<p class="truncate text-sm text-chalk">{grant.email}</p>
 				<p class="font-display text-[10px] tracking-widest text-chalk/40 uppercase">
-					{scopeLabel(share.scope)}
+					{scopeLabel(grant.scope)}
 				</p>
 			</div>
 			<button
 				type="button"
-				onclick={() => revoke({ shareId: share.id })}
-				aria-label={`Stop sharing with ${share.collaboratorEmail}`}
+				onclick={() => revoke('shareId', grant)}
+				aria-label={`Stop sharing with ${grant.email}`}
 				class="rounded-full px-1.5 text-chalk/40 transition hover:bg-hairline/40 hover:text-signal"
 			>
 				✕
 			</button>
 		</li>
 	{/each}
-	{#each invites as invite (invite.id)}
+	{#each invited as grant (grant.email)}
 		<li class="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0">
 			<div class="min-w-0">
-				<p class="truncate text-sm text-chalk/70">{invite.invitedEmail}</p>
+				<p class="truncate text-sm text-chalk/70">{grant.email}</p>
 				<p class="font-display text-[10px] tracking-widest text-caution/70 uppercase">
-					Invited · {scopeLabel(invite.scope)}
+					Invited · {scopeLabel(grant.scope)}
 				</p>
 			</div>
-			<button
-				type="button"
-				onclick={() => revoke({ inviteId: invite.id })}
-				aria-label={`Withdraw the invite for ${invite.invitedEmail}`}
-				class="rounded-full px-1.5 text-chalk/40 transition hover:bg-hairline/40 hover:text-signal"
-			>
-				✕
-			</button>
+			<div class="flex shrink-0 items-center gap-2">
+				<button
+					type="button"
+					onclick={() => onResend(grant)}
+					class="font-display text-xs text-chalk/60 underline transition hover:text-chalk"
+				>
+					Resend invite
+				</button>
+				<button
+					type="button"
+					onclick={() => revoke('inviteId', grant)}
+					aria-label={`Withdraw the invite for ${grant.email}`}
+					class="rounded-full px-1.5 text-chalk/40 transition hover:bg-hairline/40 hover:text-signal"
+				>
+					✕
+				</button>
+			</div>
 		</li>
 	{/each}
 </ul>

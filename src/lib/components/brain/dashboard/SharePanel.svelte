@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ShareList from './ShareList.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { requestShare } from './shareRequests';
+	import type { MergedGrant } from './shareGrouping';
 	import type { ShareScope, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
 
 	let {
@@ -28,25 +30,20 @@
 		if (email.trim() === '' || isSharing) return;
 		isSharing = true;
 		notice = null;
-		const response = await fetch('/api/workspace/shares', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				email,
-				brainId: scope === 'brain' ? brainId : '',
-				entityId: scope === 'entity' ? entityId : ''
-			})
-		});
+		const outcome = await requestShare(email, scope, brainId, entityId);
 		isSharing = false;
-		if (!response.ok) return (notice = { tone: 'caution', message: await messageFrom(response) });
+		if (!outcome.isShared) return (notice = { tone: 'caution', message: outcome.message });
 		notice = { tone: 'go', message: NEUTRAL_CONFIRMATION };
 		email = '';
 		await invalidateAll();
 	}
 
-	async function messageFrom(response: Response): Promise<string> {
-		const payload = await response.json().catch(() => null);
-		return payload?.message ?? 'Sharing went wrong — try again.';
+	async function resendInvite(invite: MergedGrant) {
+		notice = null;
+		const outcome = await requestShare(invite.email, invite.scope, brainId, entityId);
+		notice = outcome.isShared
+			? { tone: 'go', message: `Invitation re-sent to ${invite.email}.` }
+			: { tone: 'caution', message: outcome.message };
 	}
 </script>
 
@@ -94,6 +91,6 @@
 		{/if}
 	</form>
 	{#if shares.length > 0 || invites.length > 0}
-		<ShareList {shares} {invites} />
+		<ShareList {shares} {invites} onResend={resendInvite} />
 	{/if}
 </div>

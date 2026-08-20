@@ -2,7 +2,7 @@
 	import TerminalTurn from './TerminalTurn.svelte';
 	import { creditsPerBrainIngest, creditsPerBrainQuestion } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
-	import { uploadSourceFile } from '../uploadSourceFile';
+	import { uploadSourceFile, type UploadOutcome } from '../uploadSourceFile';
 	import type { BrainConversationMessage, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
@@ -57,10 +57,15 @@
 		transferLines = [...transferLines, `⇡ reading ${file.name} — ${creditsPerBrainIngest} credits`];
 		const outcome = await uploadSourceFile(file, brainId);
 		if (outcome.status === 'out_of_credits') return onOutOfCredits();
-		const verdict =
-			outcome.status === 'ingested' ? `✓ ${file.name} is in the brain` : `✗ ${outcome.message}`;
-		transferLines = [...transferLines, verdict];
+		transferLines = [...transferLines, verdictFor(file.name, outcome)];
 		await invalidateAll();
+	}
+
+	function verdictFor(filename: string, outcome: UploadOutcome): string {
+		if (outcome.status === 'ingested') return `✓ ${filename} is in the brain`;
+		if (outcome.status === 'proposed') return `➜ ${filename} proposed — waiting for the owner's review`;
+		if (outcome.status === 'out_of_credits') return `✗ out of credits`;
+		return `✗ ${outcome.message}`;
 	}
 
 	async function acceptDrop(event: DragEvent) {

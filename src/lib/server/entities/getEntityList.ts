@@ -8,10 +8,14 @@ export type EntitySummary = {
 	createdAt: string;
 };
 
-export async function getEntityList(supabase: SupabaseClient): Promise<EntitySummary[]> {
+export async function getEntityList(
+	supabase: SupabaseClient,
+	ownerId: string
+): Promise<EntitySummary[]> {
 	const { data, error } = await supabase
 		.from('entities')
 		.select('id, name, created_at, domain_brains(count), workflows(count)')
+		.eq('owner_id', ownerId)
 		.order('created_at');
 	if (error !== null) throw error;
 	return (data ?? []).map((row) => ({

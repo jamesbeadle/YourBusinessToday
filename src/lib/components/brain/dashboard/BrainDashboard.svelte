@@ -4,12 +4,15 @@
 	import BrainTerminal from './BrainTerminal.svelte';
 	import DomainModelIndex from '../DomainModelIndex.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
+	import ReviewPanel from '../review/ReviewPanel.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
+	import SharePanel from './SharePanel.svelte';
 	import SourcesPanel from '../SourcesPanel.svelte';
 	import { fetchBrainPage } from '../constellation/fetchBrainPage';
+	import { memberSections, ownerSections, type SectionKey } from './railIcons';
 	import { onMount } from 'svelte';
-	import type { SectionKey } from './railIcons';
+	import type { BrainChangeProposal, WorkspaceShare } from '$lib/data/sharingTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 	import type {
 		BrainContext,
@@ -22,23 +25,30 @@
 
 	let {
 		brain,
+		isOwner,
 		contexts,
 		pageIndex,
 		pageLinks,
 		sources,
 		events,
-		conversation
+		conversation,
+		proposals,
+		shares
 	}: {
 		brain: DomainBrain;
+		isOwner: boolean;
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
 		sources: BrainSource[];
 		events: BrainEvent[];
 		conversation: BrainConversationThread;
+		proposals: BrainChangeProposal[];
+		shares: WorkspaceShare[];
 	} = $props();
 
 	const pageBasePath = $derived(`/workspace/${brain.entityId}/domains/${brain.id}`);
+	const sections = $derived(isOwner ? ownerSections : memberSections);
 
 	let activeSection = $state<SectionKey | null>(null);
 	let isOutOfCredits = $state(false);
@@ -60,7 +70,12 @@
 
 <div class="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-night lg:flex-row">
 	<div class="order-2 lg:order-1 lg:contents">
-		<SectionRail {activeSection} onSelect={toggleSection} />
+		<SectionRail
+			{sections}
+			{activeSection}
+			badgeCounts={{ review: proposals.length }}
+			onSelect={toggleSection}
+		/>
 	</div>
 	<div class="relative order-1 flex min-h-0 min-w-0 flex-1 lg:order-2">
 		{#if activeSection !== null}
@@ -78,6 +93,7 @@
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<SourcesPanel
 							brainId={brain.id}
+							{isOwner}
 							{sources}
 							onOutOfCredits={() => (isOutOfCredits = true)}
 						/>
@@ -85,6 +101,12 @@
 				{:else if activeSection === 'model'}
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
+					</div>
+				{:else if activeSection === 'review'}
+					<ReviewPanel brainId={brain.id} {proposals} />
+				{:else if activeSection === 'share'}
+					<div class="min-h-0 flex-1 overflow-y-auto">
+						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} />
 					</div>
 				{:else}
 					<div class="min-h-0 flex-1 overflow-y-auto">

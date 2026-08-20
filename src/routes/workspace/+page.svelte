@@ -31,6 +31,27 @@
 			New entity
 		</button>
 	</header>
+	{#if data.sharedBrains.length > 0}
+		<section class="flex flex-col gap-3">
+			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Shared with you</h2>
+			<ul class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+				{#each data.sharedBrains as shared (shared.brainId)}
+					<li>
+						<a
+							href={`/workspace/${shared.entityId}/domains/${shared.brainId}`}
+							class="group flex flex-col gap-1 rounded-2xl border border-hairline bg-carriage p-5
+								transition hover:border-chalk/30"
+						>
+							<span class="font-display text-base text-chalk transition group-hover:text-signal">
+								{shared.brainName}
+							</span>
+							<span class="text-xs text-chalk/50">{shared.entityName} · shared domain brain</span>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 	{#if data.entities.length === 0}
 		<div
 			class="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-hairline

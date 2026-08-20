@@ -1,5 +1,6 @@
 export type UploadOutcome =
 	| { status: 'ingested'; creditBalance: number }
+	| { status: 'proposed'; creditBalance: number }
 	| { status: 'out_of_credits' }
 	| { status: 'rejected'; message: string }
 	| { status: 'failed'; message: string };
@@ -38,6 +39,7 @@ export async function ingestSource(sourceId: string): Promise<UploadOutcome> {
 	if (ingestResponse.status === 402) return { status: 'out_of_credits' };
 	if (!ingestResponse.ok) return { status: 'failed', message: await messageFrom(ingestResponse) };
 	const payload = await ingestResponse.json();
+	if (payload.isProposal === true) return { status: 'proposed', creditBalance: payload.creditBalance };
 	return { status: 'ingested', creditBalance: payload.creditBalance };
 }
 

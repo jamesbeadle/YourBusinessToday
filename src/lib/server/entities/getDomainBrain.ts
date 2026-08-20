@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export type DomainBrain = {
 	id: string;
 	entityId: string;
+	ownerId: string;
 	name: string;
 };
 
@@ -12,12 +13,12 @@ export async function getDomainBrain(
 ): Promise<DomainBrain | null> {
 	const { data, error } = await supabase
 		.from('domain_brains')
-		.select('id, entity_id, name')
+		.select('id, entity_id, owner_id, name')
 		.eq('id', brainId)
 		.maybeSingle();
 	if (error !== null) throw error;
 	if (data === null) return null;
-	return { id: data.id, entityId: data.entity_id, name: data.name };
+	return { id: data.id, entityId: data.entity_id, ownerId: data.owner_id, name: data.name };
 }
 
 export async function getLatestDomainBrain(
@@ -25,11 +26,11 @@ export async function getLatestDomainBrain(
 ): Promise<DomainBrain | null> {
 	const { data, error } = await supabase
 		.from('domain_brains')
-		.select('id, entity_id, name')
+		.select('id, entity_id, owner_id, name')
 		.order('created_at', { ascending: false })
 		.limit(1)
 		.maybeSingle();
 	if (error !== null) throw error;
 	if (data === null) return null;
-	return { id: data.id, entityId: data.entity_id, name: data.name };
+	return { id: data.id, entityId: data.entity_id, ownerId: data.owner_id, name: data.name };
 }

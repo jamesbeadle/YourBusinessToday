@@ -10,10 +10,13 @@
 
 <BrainDashboard
 	brain={data.brain}
+	isOwner={data.isOwner}
 	contexts={data.contexts}
 	pageIndex={data.pageIndex}
 	pageLinks={data.pageLinks}
 	sources={data.sources}
 	events={data.events}
 	conversation={data.conversation}
+	proposals={data.proposals}
+	shares={data.shares}
 />

@@ -24,11 +24,11 @@
 	<header class="flex flex-wrap items-end justify-between gap-4">
 		<div class="flex flex-col gap-2">
 			<p class="font-display text-sm tracking-widest text-signal uppercase">Demo brain</p>
-			<h1 class="font-display text-3xl font-medium">A construction firm, as a constellation</h1>
+			<h1 class="font-display text-3xl font-medium">A construction firm, as a brain</h1>
 			<p class="max-w-prose text-chalk/70">
 				This is what a domain brain looks like once the modeller has read a firm’s documents —
 				four bounded contexts, the things they track, the language they speak. Drag to orbit,
-				click a cluster to dive in, click a neuron to read its page.
+				click a lobe to dive in, click a neuron to read its page.
 			</p>
 		</div>
 		<a

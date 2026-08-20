@@ -12,10 +12,10 @@ import { WHOLE_MODEL_KEY } from './materialBank';
 import type { Synapse } from './constellationTypes';
 
 const POINTS_PER_CURVE = 14;
-const DENDRITE_BOW = 0.18;
-const CROSSLINK_BOW = 1.25;
-const FULL_OPACITY = 0.4;
-const DIMMED_OPACITY = 0.06;
+const DENDRITE_BOW = 0.14;
+const CROSSLINK_BOW = 1.12;
+const FULL_OPACITY = 0.24;
+const DIMMED_OPACITY = 0.05;
 
 export type SampledCurve = { points: Vector3[]; contextKey: string };
 

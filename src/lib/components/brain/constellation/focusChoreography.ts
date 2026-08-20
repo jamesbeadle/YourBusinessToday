@@ -1,15 +1,16 @@
 import { Vector3 } from 'three';
 import type { ConstellationModel, Neuron, Nucleus } from './constellationTypes';
 
-const HOME_DISTANCE_SHARE = 1.9;
+const HOME_DISTANCE_SHARE = 2.1;
 const SMALLEST_HOME_DISTANCE = 8;
-const HOME_LIFT_SHARE = 0.55;
-const CLUSTER_DISTANCE_SHARE = 2.6;
-const CLUSTER_CLEARANCE = 1.6;
+const CLUSTER_DISTANCE_SHARE = 2.2;
+const CLUSTER_CLEARANCE = 2.2;
 const NEURON_DISTANCE = 1.7;
 const NEURON_LIFT = 0.35;
 
 export type Viewpoint = { position: Vector3; target: Vector3 };
+
+const HOME_VIEW_DIRECTION = new Vector3(1, 0.42, 0.8).normalize();
 
 export function homeViewpoint(model: ConstellationModel): Viewpoint {
 	const reach = model.nuclei.reduce(
@@ -18,7 +19,7 @@ export function homeViewpoint(model: ConstellationModel): Viewpoint {
 	);
 	const distance = Math.max(SMALLEST_HOME_DISTANCE, reach * HOME_DISTANCE_SHARE);
 	return {
-		position: new Vector3(0, distance * HOME_LIFT_SHARE, distance),
+		position: HOME_VIEW_DIRECTION.clone().multiplyScalar(distance),
 		target: new Vector3()
 	};
 }

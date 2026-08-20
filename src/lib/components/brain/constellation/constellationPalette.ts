@@ -3,17 +3,18 @@ import type { DomainBlockKind } from '$lib/data/brainTypes';
 export const NIGHT_SKY = 0x0b0e16;
 export const CHALK = 0xeef1f8;
 export const SIGNAL = 0xff4d5e;
-export const STARLIGHT = 0x8a94b8;
-export const DENDRITE = 0x3a4a78;
-export const CROSSLINK = 0x5a6ba8;
+export const SILVER = 0xc9d2e6;
+export const STARLIGHT = 0x6c7694;
+export const DENDRITE = 0xaeb8d2;
+export const CROSSLINK = 0xd8dff0;
 
 export const kindColours: Record<DomainBlockKind, number> = {
-	entity: 0x7da2ff,
-	value_object: 0x2fd48a,
-	aggregate: 0xffc861,
-	domain_service: 0xb08cff,
-	domain_event: 0xff8a5e,
-	glossary: 0x5ee6e6,
+	entity: 0x9db6ff,
+	value_object: 0x8fe6bd,
+	aggregate: 0xffd89a,
+	domain_service: 0xc4aeff,
+	domain_event: 0xffab8a,
+	glossary: 0x9fe8e8,
 	context_map: 0xeef1f8
 };
 

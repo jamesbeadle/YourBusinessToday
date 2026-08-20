@@ -4,10 +4,10 @@ import type { SampledCurve } from './synapseWeb';
 
 const PULSE_LIMIT = 20;
 const PULSES_PER_CURVE = 0.4;
-const PULSE_SCALE = 0.3;
+const PULSE_SCALE = 0.15;
 const SLOWEST_SPEED = 0.2;
 const SPEED_SPREAD = 0.35;
-const PULSE_OPACITY = 0.9;
+const PULSE_OPACITY = 0.75;
 
 type Pulse = { sprite: Sprite; curve: SampledCurve; progress: number; speed: number };
 

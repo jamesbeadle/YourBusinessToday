@@ -1,7 +1,7 @@
 import { AdditiveBlending, MeshBasicMaterial, SpriteMaterial, type Texture } from 'three';
 
 const FULL_CORE_OPACITY = 1;
-const FULL_GLOW_OPACITY = 0.85;
+const FULL_GLOW_OPACITY = 0.55;
 const DIMMED_OPACITY_SHARE = 0.15;
 
 export const WHOLE_MODEL_KEY = 'model';

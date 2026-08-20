@@ -3,13 +3,13 @@ import { CHALK, SIGNAL, kindColours } from './constellationPalette';
 import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
 import type { ConstellationModel, Neuron, Nucleus } from './constellationTypes';
 
-const NEURON_CORE_RADIUS = 0.09;
-const NEURON_GLOW_SCALE = 0.55;
+const NEURON_CORE_RADIUS = 0.065;
+const NEURON_GLOW_SCALE = 0.32;
 const NEURON_HIT_RADIUS = 0.32;
-const NUCLEUS_CORE_RADIUS = 0.34;
-const NUCLEUS_GLOW_SCALE = 2.4;
-const NUCLEUS_HIT_RADIUS = 0.75;
-const TWINKLE_SHARE = 0.18;
+const NUCLEUS_CORE_RADIUS = 0.14;
+const NUCLEUS_GLOW_SCALE = 0.85;
+const NUCLEUS_HIT_RADIUS = 0.55;
+const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;
 
 type Twinkler = { sprite: Sprite; baseScale: number; phase: number };

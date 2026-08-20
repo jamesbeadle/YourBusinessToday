@@ -27,6 +27,7 @@ export function constellationInteractions(dependencies: InteractionDependencies)
 	function click(pointerX: number, pointerY: number): void {
 		const picked = picker.pick(pointerX, pointerY);
 		if (picked === null) return;
+		callbacks.onHover(null);
 		if (picked.nucleusSlug !== undefined) {
 			dependencies.focusContext(picked.nucleusSlug);
 			callbacks.onFocusContext(picked.nucleusSlug);

@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { pseudoRandomFrom } from './pseudoRandom';
+import { shareStreamFrom } from './pseudoRandom';
 
 export const BRAIN_HALF_WIDTH = 3.1;
 export const BRAIN_HALF_HEIGHT = 2.3;
@@ -34,12 +34,7 @@ export function isInsideBrain(point: Vector3): boolean {
 }
 
 export function brainPointFrom(seedText: string): Vector3 {
-	let seed = pseudoRandomFrom(seedText);
-	const nextShare = () => {
-		seed = (seed * 9301.7 + 0.2331) % 1;
-		return seed;
-	};
-	return sampleInsideBrain(nextShare);
+	return sampleInsideBrain(shareStreamFrom(seedText));
 }
 
 export function sampleInsideBrain(nextShare: () => number): Vector3 {

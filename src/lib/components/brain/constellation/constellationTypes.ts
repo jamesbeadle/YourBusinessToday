@@ -24,6 +24,8 @@ export type SynapseKind = 'dendrite' | 'crosslink';
 export type Synapse = {
 	kind: SynapseKind;
 	contextSlug: string | null;
+	fromSlug: string;
+	toSlug: string;
 	from: Vector3;
 	to: Vector3;
 };

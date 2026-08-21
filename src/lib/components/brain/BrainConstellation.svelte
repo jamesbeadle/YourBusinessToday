@@ -3,9 +3,13 @@
 	import NeuronDetailPanel from './NeuronDetailPanel.svelte';
 	import NeuronTooltip from './NeuronTooltip.svelte';
 	import { buildConstellationModel } from './constellation/buildConstellationModel';
+	import { createConstellationExploration } from './constellation/constellationExploration.svelte';
+	import { untrack } from 'svelte';
+	import {
+		createConstellationExperience,
+		type ConstellationExperience
+	} from './constellation/createConstellationExperience';
 	import type { BrainPagePayload } from './constellation/fetchBrainPage';
-	import { ConstellationExperience } from './constellation/createConstellationExperience';
-	import type { ConstellationHover } from './constellation/constellationTypes';
 	import type { BrainContext, BrainPageLink, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
@@ -28,41 +32,34 @@
 	let containerElement = $state<HTMLDivElement>();
 	let canvasElement = $state<HTMLCanvasElement>();
 	let experience = $state<ConstellationExperience>();
-	let hover = $state<ConstellationHover | null>(null);
-	let focusedContextSlug = $state<string | null>(null);
-	let selectedSlug = $state<string | null>(null);
+	let hasWatchedEmptyBrain = false;
+
+	const exploration = createConstellationExploration({
+		pageIndex: () => pageIndex,
+		experience: () => experience
+	});
 
 	$effect(() => {
 		if (canvasElement === undefined || containerElement === undefined) return;
-		const mounted = new ConstellationExperience(canvasElement, containerElement, model, {
-			onHover: (candidate) => (hover = candidate),
-			onSelectNeuron: rememberSelection,
-			onFocusContext: (contextSlug) => (focusedContextSlug = contextSlug)
-		});
+		const mounted = createConstellationExperience(
+			canvasElement,
+			containerElement,
+			untrack(() => model),
+			exploration.callbacks,
+			{ shouldCascadeInitialModel: hasWatchedEmptyBrain }
+		);
 		experience = mounted;
 		return () => mounted.destroy();
 	});
 
+	$effect(() => {
+		if (!hasNeurons) hasWatchedEmptyBrain = true;
+		experience?.updateModel(model);
+	});
+
 	export function drillToNeuron(slug: string): void {
-		rememberSelection(slug);
+		exploration.rememberSelection(slug);
 		experience?.focusNeuron(slug);
-	}
-
-	function rememberSelection(slug: string): void {
-		selectedSlug = slug;
-		const page = pageIndex.find((candidate) => candidate.slug === slug);
-		focusedContextSlug = page?.contextSlug ?? focusedContextSlug;
-	}
-
-	function returnToModel(): void {
-		selectedSlug = null;
-		focusedContextSlug = null;
-		experience?.resetView();
-	}
-
-	function returnToContext(): void {
-		selectedSlug = null;
-		experience?.focusContext(focusedContextSlug);
 	}
 </script>
 
@@ -75,16 +72,21 @@
 		<ConstellationHud
 			{contexts}
 			{pageIndex}
-			{focusedContextSlug}
-			{selectedSlug}
-			onReturnToModel={returnToModel}
-			onReturnToContext={returnToContext}
+			focusedContextSlug={exploration.focusedContextSlug}
+			selectedSlug={exploration.selectedSlug}
+			onReturnToModel={exploration.returnToModel}
+			onReturnToContext={exploration.returnToContext}
 		/>
-		{#if hover !== null && selectedSlug === null}
-			<NeuronTooltip {hover} {contexts} {pageIndex} />
+		{#if exploration.hover !== null && exploration.selectedSlug === null}
+			<NeuronTooltip hover={exploration.hover} {contexts} {pageIndex} />
 		{/if}
-		{#if selectedSlug !== null}
-			<NeuronDetailPanel {loadPage} {pageBasePath} slug={selectedSlug} onClose={returnToContext} />
+		{#if exploration.selectedSlug !== null}
+			<NeuronDetailPanel
+				{loadPage}
+				{pageBasePath}
+				slug={exploration.selectedSlug}
+				onClose={exploration.returnToContext}
+			/>
 		{/if}
 	</div>
 {:else}

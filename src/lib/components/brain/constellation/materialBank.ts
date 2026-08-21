@@ -1,4 +1,10 @@
-import { AdditiveBlending, MeshBasicMaterial, SpriteMaterial, type Texture } from 'three';
+import {
+	AdditiveBlending,
+	LineBasicMaterial,
+	MeshBasicMaterial,
+	SpriteMaterial,
+	type Texture
+} from 'three';
 
 const FULL_CORE_OPACITY = 1;
 const FULL_GLOW_OPACITY = 0.55;
@@ -6,8 +12,10 @@ const DIMMED_OPACITY_SHARE = 0.15;
 
 export const WHOLE_MODEL_KEY = 'model';
 
+type BankMaterial = MeshBasicMaterial | SpriteMaterial | LineBasicMaterial;
+
 type BankEntry = {
-	material: MeshBasicMaterial | SpriteMaterial;
+	material: BankMaterial;
 	contextKey: string;
 	fullOpacity: number;
 };
@@ -15,6 +23,7 @@ type BankEntry = {
 export type MaterialBank = {
 	coreFor: (colour: number, contextKey: string) => MeshBasicMaterial;
 	glowFor: (colour: number, contextKey: string) => SpriteMaterial;
+	strandFor: (colour: number, contextKey: string, fullOpacity: number) => LineBasicMaterial;
 	setFocus: (contextKey: string | null) => void;
 	dispose: () => void;
 };
@@ -22,7 +31,7 @@ export type MaterialBank = {
 export function createMaterialBank(glowTexture: Texture): MaterialBank {
 	const entries = new Map<string, BankEntry>();
 
-	function remember<MaterialType extends MeshBasicMaterial | SpriteMaterial>(
+	function remember<MaterialType extends BankMaterial>(
 		key: string,
 		contextKey: string,
 		fullOpacity: number,
@@ -45,20 +54,28 @@ export function createMaterialBank(glowTexture: Texture): MaterialBank {
 	}
 
 	function glowFor(colour: number, contextKey: string): SpriteMaterial {
-		return remember(
-			`glow:${contextKey}:${colour}`,
-			contextKey,
-			FULL_GLOW_OPACITY,
-			() =>
-				new SpriteMaterial({
-					map: glowTexture,
-					color: colour,
-					transparent: true,
-					opacity: FULL_GLOW_OPACITY,
-					blending: AdditiveBlending,
-					depthWrite: false
-				})
-		);
+		return remember(`glow:${contextKey}:${colour}`, contextKey, FULL_GLOW_OPACITY, () => {
+			return new SpriteMaterial({
+				map: glowTexture,
+				color: colour,
+				transparent: true,
+				opacity: FULL_GLOW_OPACITY,
+				blending: AdditiveBlending,
+				depthWrite: false
+			});
+		});
+	}
+
+	function strandFor(colour: number, contextKey: string, fullOpacity: number): LineBasicMaterial {
+		return remember(`strand:${contextKey}:${colour}:${fullOpacity}`, contextKey, fullOpacity, () => {
+			return new LineBasicMaterial({
+				color: colour,
+				transparent: true,
+				opacity: fullOpacity,
+				blending: AdditiveBlending,
+				depthWrite: false
+			});
+		});
 	}
 
 	function setFocus(contextKey: string | null): void {
@@ -75,5 +92,5 @@ export function createMaterialBank(glowTexture: Texture): MaterialBank {
 		entries.clear();
 	}
 
-	return { coreFor, glowFor, setFocus, dispose };
+	return { coreFor, glowFor, strandFor, setFocus, dispose };
 }

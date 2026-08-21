@@ -53,31 +53,30 @@
 			{/if}
 		</p>
 	{/if}
-	{#if canBuy}
-		<div class="flex flex-wrap items-center gap-2">
-			<form method="POST" action="?/subscribe" use:enhance={subscribeTracker.submit()}>
+	<div class="flex flex-wrap items-center gap-2">
+		<form method="POST" action="?/subscribe" use:enhance={subscribeTracker.submit()}>
+			<SubmitButton
+				isSaving={subscribeTracker.isSaving}
+				disabled={!canBuy}
+				savingLabel="Subscribing…"
+				class="rounded-full bg-signal px-5 py-2 font-display text-xs font-medium text-night
+					transition hover:brightness-110 disabled:opacity-40"
+			>
+				{subscribeLabel}
+			</SubmitButton>
+		</form>
+		{#if canBuy && isRunning && subscription?.status === 'active'}
+			<form method="POST" action="?/cancelSubscription" use:enhance={cancelTracker.submit()}>
 				<SubmitButton
-					isSaving={subscribeTracker.isSaving}
-					savingLabel="Subscribing…"
-					class="rounded-full bg-signal px-5 py-2 font-display text-xs font-medium text-night
-						transition hover:brightness-110"
+					isSaving={cancelTracker.isSaving}
+					savingLabel="Cancelling…"
+					class="rounded-full border border-hairline px-5 py-2 font-display text-xs
+						text-chalk/70 transition hover:border-chalk/40 hover:text-chalk"
 				>
-					{subscribeLabel}
+					Cancel — keep access until the period ends
 				</SubmitButton>
 			</form>
-			{#if isRunning && subscription?.status === 'active'}
-				<form method="POST" action="?/cancelSubscription" use:enhance={cancelTracker.submit()}>
-					<SubmitButton
-						isSaving={cancelTracker.isSaving}
-						savingLabel="Cancelling…"
-						class="rounded-full border border-hairline px-5 py-2 font-display text-xs
-							text-chalk/70 transition hover:border-chalk/40 hover:text-chalk"
-					>
-						Cancel — keep access until the period ends
-					</SubmitButton>
-				</form>
-			{/if}
-		</div>
-	{/if}
+		{/if}
+	</div>
 	<FormErrorNote message={subscribeTracker.errorMessage ?? cancelTracker.errorMessage} />
 </div>

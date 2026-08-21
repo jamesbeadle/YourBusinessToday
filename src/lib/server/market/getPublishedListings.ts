@@ -6,7 +6,7 @@ export async function getPublishedListings(supabase: SupabaseClient): Promise<Br
 	const { data, error } = await supabase
 		.from('brain_listings')
 		.select(
-			'id, brain_id, owner_id, owner_email, headline, description, edition_price_credits, ' +
+			'id, brain_id, owner_id, owner_name, headline, description, edition_price_credits, ' +
 				'subscription_price_credits, is_published, created_at'
 		)
 		.eq('is_published', true)

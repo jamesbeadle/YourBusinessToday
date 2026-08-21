@@ -1,4 +1,5 @@
 <script lang="ts">
+	import IngestProgressLabel from './IngestProgressLabel.svelte';
 	import { creditsPerBrainIngest } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
 	import { rereadSource } from './rereadSource';
@@ -33,7 +34,9 @@
 </script>
 
 {#if isRereading}
-	<span class="animate-pulse font-display text-xs text-chalk/50">Re-reading…</span>
+	<span class="animate-pulse font-display text-xs text-chalk/50">
+		<IngestProgressLabel />
+	</span>
 {:else if isConfirming}
 	<span class="flex items-center gap-2 font-display text-xs">
 		<span class="text-caution">Re-read — {creditsPerBrainIngest} credits?</span>

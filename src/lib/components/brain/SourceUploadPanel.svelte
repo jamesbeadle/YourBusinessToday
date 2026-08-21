@@ -1,4 +1,5 @@
 <script lang="ts">
+	import IngestProgressLabel from './IngestProgressLabel.svelte';
 	import { acceptedUploadExtensions, uploadLimitDescription } from '$lib/data/brainUploadRules';
 	import { creditsPerBrainIngest } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
@@ -43,7 +44,11 @@
 		class="rounded-full bg-signal px-6 py-3 font-display text-sm font-medium text-night
 			transition hover:brightness-110 disabled:opacity-40"
 	>
-		{isUploading ? 'Reading the document…' : `Add a document — ${creditsPerBrainIngest} credits`}
+		{#if isUploading}
+			<IngestProgressLabel />
+		{:else}
+			Add a document — {creditsPerBrainIngest} credits
+		{/if}
 	</button>
 	<p class="text-xs text-chalk/50">{uploadLimitDescription()}</p>
 	{#if noticeMessage !== ''}

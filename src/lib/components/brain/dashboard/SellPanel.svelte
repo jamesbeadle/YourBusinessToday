@@ -32,7 +32,9 @@
 	<p class="text-sm text-chalk/60">
 		Sell this brain on the market. Buyers pay you in credits — an edition is a frozen copy they
 		keep forever, a subscription is 30 days of live access at a time. Either way they ask
-		questions on their own credits.
+		questions on their own credits. Buyers see your display name from
+		<a href="/account" class="underline transition hover:text-chalk">your account</a>, never your
+		email address — saving the listing picks up the latest name.
 	</p>
 	<ListingForm {brainId} {listing} />
 	{#if listing !== null}

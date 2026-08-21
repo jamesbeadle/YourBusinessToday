@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export type ListingDraft = {
 	brainId: string;
 	ownerEmail: string;
+	ownerName: string;
 	headline: string;
 	description: string;
 	editionPriceCredits: number | null;
@@ -17,6 +18,7 @@ export async function upsertBrainListing(
 		{
 			brain_id: draft.brainId,
 			owner_email: draft.ownerEmail,
+			owner_name: draft.ownerName,
 			headline: draft.headline,
 			description: draft.description,
 			edition_price_credits: draft.editionPriceCredits,

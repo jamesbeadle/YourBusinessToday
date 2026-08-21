@@ -2,7 +2,7 @@ export type BrainListing = {
 	id: string;
 	brainId: string;
 	ownerId: string;
-	ownerEmail: string;
+	ownerName: string;
 	headline: string;
 	description: string;
 	editionPriceCredits: number | null;

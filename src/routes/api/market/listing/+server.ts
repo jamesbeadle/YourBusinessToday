@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { getDisplayName } from '$lib/server/auth/getDisplayName';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { getListingForBrain } from '$lib/server/market/getBrainListing';
 import { setListingPublished, upsertBrainListing } from '$lib/server/market/saveBrainListing';
@@ -27,6 +28,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	await upsertBrainListing(locals.supabase, {
 		brainId,
 		ownerEmail: user.email ?? '',
+		ownerName: await getDisplayName(locals.supabase),
 		headline,
 		description: readText(payload.description),
 		editionPriceCredits: editionPrice,

@@ -40,14 +40,15 @@
 			<span class="rounded-full border border-go/50 px-3 py-1 font-display text-xs text-go">
 				In your library
 			</span>
-		{:else if canBuy && priceCredits !== null}
+		{:else if priceCredits !== null}
 			<form method="POST" action="?/buyEdition" use:enhance={tracker.submit()}>
 				<input type="hidden" name="editionId" value={edition.id} />
 				<SubmitButton
 					isSaving={tracker.isSaving}
+					disabled={!canBuy}
 					savingLabel="Buying…"
 					class="rounded-full bg-signal px-5 py-2 font-display text-xs font-medium text-night
-						transition hover:brightness-110"
+						transition hover:brightness-110 disabled:opacity-40"
 				>
 					Buy for {priceCredits} credits
 				</SubmitButton>

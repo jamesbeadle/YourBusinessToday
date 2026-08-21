@@ -32,6 +32,8 @@
 		{#if listing.subscriptionPriceCredits !== null}
 			<span>Subscription · {listing.subscriptionPriceCredits} credits / 30 days</span>
 		{/if}
-		<span class="basis-full">Sold by {listing.ownerEmail}</span>
+		{#if listing.ownerName !== ''}
+			<span class="basis-full">Sold by {listing.ownerName}</span>
+		{/if}
 	</div>
 </a>

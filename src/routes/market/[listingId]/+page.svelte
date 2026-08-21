@@ -17,13 +17,17 @@
 			← The market
 		</a>
 		<h1 class="font-display text-3xl font-medium">{data.listing.headline}</h1>
-		<p class="text-sm text-chalk/50">Sold by {data.listing.ownerEmail}</p>
+		{#if data.listing.ownerName !== ''}
+			<p class="text-sm text-chalk/50">Sold by {data.listing.ownerName}</p>
+		{/if}
 		{#if data.listing.description !== ''}
 			<p class="max-w-prose text-chalk/70">{data.listing.description}</p>
 		{/if}
 		{#if data.isOwnListing}
 			<p class="rounded-2xl border border-signal/40 bg-signal/10 px-5 py-4 text-sm text-chalk/80">
-				This is your listing — this is how buyers see it. Manage it from the brain's dashboard.
+				This is your listing exactly as buyers see it — the buy buttons are switched off for
+				you because you can't buy your own brain. Manage prices and editions from the brain's
+				dashboard.
 			</p>
 		{/if}
 	</div>

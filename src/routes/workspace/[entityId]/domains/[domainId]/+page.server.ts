@@ -1,4 +1,5 @@
 import { error, fail, redirect } from '@sveltejs/kit';
+import { applyToHiveMind } from '$lib/server/hive/applyToHiveMind';
 import { deleteDomainBrain } from '$lib/server/entities/deleteDomainBrain';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainConversationThread } from '$lib/server/brain/getBrainConversation';
@@ -8,6 +9,7 @@ import { getBrainPageLinks } from '$lib/server/brain/getBrainPageLinks';
 import { getBrainMarketState } from '$lib/server/market/getBrainMarketState';
 import { getBrainSources } from '$lib/server/brain/getBrainSources';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
+import { getHiveBrainStatus } from '$lib/server/hive/getHiveBrainStatus';
 import { getPendingProposals } from '$lib/server/sharing/getPendingProposals';
 import { getInvitesForBrain } from '$lib/server/sharing/workspaceInvites';
 import { getSharesForBrain } from '$lib/server/sharing/getWorkspaceShares';
@@ -40,6 +42,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		proposals: isOwner ? await getPendingProposals(locals.supabase, brain.id) : [],
 		shares: isOwner ? await getSharesForBrain(locals.supabase, brain) : [],
 		invites: isOwner ? await getInvitesForBrain(locals.supabase, brain) : [],
+		hive: isOwner ? await getHiveBrainStatus(locals.supabase, brain.id) : null,
 		...marketState
 	};
 };
@@ -53,6 +56,19 @@ export const actions: Actions = {
 			return fail(400, { message: 'A domain brain needs a goal — say what it should articulate.' });
 		}
 		await updateDomainBrainGoal(locals.supabase, brain.id, domainGoal);
+		return {};
+	},
+	applyToHiveMind: async ({ locals, params, request }) => {
+		const brain = await requireOwnedBrain(locals, params);
+		const formData = await request.formData();
+		const pitch = String(formData.get('pitch') ?? '').trim();
+		if (pitch === '') {
+			return fail(400, { message: 'Say what your specialty can advise on.' });
+		}
+		const outcome = await applyToHiveMind(locals.supabase, brain.id, pitch);
+		if (outcome === 'already_pending') {
+			return fail(400, { message: 'This brain already has an application under review.' });
+		}
 		return {};
 	},
 	deleteDomainBrain: async ({ locals, params }) => {

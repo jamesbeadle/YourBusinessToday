@@ -1,4 +1,9 @@
 import { fail } from '@sveltejs/kit';
+import {
+	approveHiveApplication,
+	getHiveReviewQueue,
+	rejectHiveApplication
+} from '$lib/server/hive/hiveReview';
 import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { getSiteModel } from '$lib/server/anthropic/getSiteModel';
@@ -14,7 +19,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	await requireAdmin(locals);
 	return {
 		users: await getAdminUserList(locals.supabase),
-		siteModel: await getSiteModel()
+		siteModel: await getSiteModel(),
+		hiveApplications: await getHiveReviewQueue(locals.supabase)
 	};
 };
 
@@ -40,6 +46,23 @@ export const actions: Actions = {
 		}
 		const newBalance = await grantCredits(locals.supabase, targetEmail, creditAmount, note);
 		return { message: `Granted ${creditAmount} credits to ${targetEmail} — balance ${newBalance}.` };
+	},
+	approveHiveApplication: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const applicationId = String(formData.get('applicationId') ?? '');
+		if (applicationId === '') return fail(400, { message: 'An application is required.' });
+		await approveHiveApplication(locals.supabase, applicationId);
+		return { message: 'Approved — the brain has joined the hive with a fresh snapshot.' };
+	},
+	rejectHiveApplication: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const applicationId = String(formData.get('applicationId') ?? '');
+		const note = String(formData.get('note') ?? '').trim();
+		if (applicationId === '') return fail(400, { message: 'An application is required.' });
+		await rejectHiveApplication(locals.supabase, applicationId, note);
+		return { message: 'Application rejected — the owner sees the note on their brain.' };
 	},
 	setRestriction: async ({ locals, request }) => {
 		await requireAdmin(locals);

@@ -35,16 +35,10 @@
 			title="Domain brains"
 			description="Each brain reads the documents you feed it and distils them into an abstract
 				model of one domain — the concepts, not the examples."
-			emptyMessage="No domain brains yet — name one, state its goal, and start feeding it documents."
-			createAction="?/createDomainBrain"
-			createPlaceholder="Football, contracts, site operations…"
-			createLabel="Create domain brain"
-			goalField={{
-				name: 'domainGoal',
-				label: 'Domain goal',
-				placeholder:
-					'What should this brain articulate? e.g. “The abstract domain of organized football — the concepts any football app would need, whatever club or league the documents describe.”'
-			}}
+			emptyMessage="No domain brains yet — pick a template or state your own goal, then start
+				feeding it documents."
+			createLabel="New domain brain"
+			createHref={`/workspace/${data.entity.id}/domains/new`}
 			rows={data.domainBrains}
 			hrefFor={(id) => `/workspace/${data.entity.id}/domains/${id}`}
 		/>

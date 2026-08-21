@@ -18,7 +18,8 @@ export const primaryNavigationLinks: NavigationLink[] = [
 	{ href: '/', label: 'Home' },
 	{ href: '/demo-brain', label: 'Demo brain' },
 	{ href: '/workspace', label: 'Workspace' },
-	{ href: '/market', label: 'Market' }
+	{ href: '/market', label: 'Market' },
+	{ href: '/hive-mind', label: 'Hive Mind' }
 ];
 
 export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {

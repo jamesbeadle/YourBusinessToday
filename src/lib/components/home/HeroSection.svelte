@@ -13,8 +13,8 @@
 		<p class="max-w-prose text-lg text-chalk/70">
 			Tell YBT about your business once, and every tool in the ecosystem works from that
 			understanding — the Workflow Map captures what your business does, the Domain Brain
-			models what it knows, the Workforce runs what you hand over, and the Prospector
-			finds who you serve next.
+			models what it knows, the Hive Mind shares what specialists know, the Workforce runs
+			what you hand over, and the Prospector finds who you serve next.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a

@@ -23,4 +23,5 @@
 	listing={data.listing}
 	editions={data.editions}
 	sales={data.sales}
+	hive={data.hive}
 />

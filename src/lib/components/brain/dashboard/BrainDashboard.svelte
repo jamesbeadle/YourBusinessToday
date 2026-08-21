@@ -4,6 +4,7 @@
 	import BrainSettingsPanel from './BrainSettingsPanel.svelte';
 	import BrainTerminal from './BrainTerminal.svelte';
 	import DomainModelIndex from '../DomainModelIndex.svelte';
+	import HiveMindPanel from './HiveMindPanel.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
 	import ReviewPanel from '../review/ReviewPanel.svelte';
 	import SectionPanel from './SectionPanel.svelte';
@@ -22,6 +23,7 @@
 		ListingSales
 	} from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
+	import type { HiveBrainStatus } from '$lib/data/hiveTypes';
 	import type {
 		BrainContext,
 		BrainConversationThread,
@@ -45,7 +47,8 @@
 		invites,
 		listing,
 		editions,
-		sales
+		sales,
+		hive
 	}: {
 		brain: DomainBrain;
 		accessRole: BrainAccessRole;
@@ -61,6 +64,7 @@
 		listing: BrainListing | null;
 		editions: BrainEdition[];
 		sales: ListingSales | null;
+		hive: HiveBrainStatus | null;
 	} = $props();
 
 	const isOwner = $derived(accessRole === 'owner');
@@ -134,6 +138,10 @@
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<SellPanel brainId={brain.id} {listing} {editions} {sales} />
 					</div>
+				{:else if activeSection === 'hive'}
+					{#if hive !== null}
+						<HiveMindPanel {hive} />
+					{/if}
 				{:else if activeSection === 'settings'}
 					<BrainSettingsPanel {brain} />
 				{:else}

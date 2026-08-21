@@ -2,7 +2,7 @@
 	import TerminalTurn from './TerminalTurn.svelte';
 	import { creditsPerBrainIngest, creditsPerBrainQuestion } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
-	import { uploadSourceFile, type UploadOutcome } from '../uploadSourceFile';
+	import { createTerminalIngest } from './terminalIngest';
 	import type { BrainConversationMessage, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
@@ -34,11 +34,14 @@
 		if (element !== undefined) element.scrollTo({ top: element.scrollHeight });
 	});
 
+	const loneLinkPattern = /^https?:\/\/\S+$/i;
+
 	async function sendCommand(event: SubmitEvent) {
 		event.preventDefault();
 		const question = commandText.trim();
 		if (question === '' || isThinking) return;
 		commandText = '';
+		if (loneLinkPattern.test(question)) return ingest.ingestLinkedPage(question);
 		isThinking = true;
 		pendingQuestion = question;
 		const response = await fetch('/api/brain/ask', {
@@ -53,25 +56,18 @@
 		if (!response.ok) transferLines = [...transferLines, '✗ that turn went wrong — try again'];
 	}
 
-	async function ingestDroppedFile(file: File) {
-		transferLines = [...transferLines, `⇡ reading ${file.name} — ${creditsPerBrainIngest} credits`];
-		const outcome = await uploadSourceFile(file, brainId);
-		if (outcome.status === 'out_of_credits') return onOutOfCredits();
-		transferLines = [...transferLines, verdictFor(file.name, outcome)];
-		await invalidateAll();
-	}
-
-	function verdictFor(filename: string, outcome: UploadOutcome): string {
-		if (outcome.status === 'ingested') return `✓ ${filename} is in the brain`;
-		if (outcome.status === 'proposed') return `➜ ${filename} proposed — waiting for the owner's review`;
-		if (outcome.status === 'out_of_credits') return `✗ out of credits`;
-		return `✗ ${outcome.message}`;
-	}
+	const ingest = $derived(
+		createTerminalIngest({
+			brainId,
+			appendLine: (line) => (transferLines = [...transferLines, line]),
+			onOutOfCredits
+		})
+	);
 
 	async function acceptDrop(event: DragEvent) {
 		event.preventDefault();
 		isDropTarget = false;
-		for (const file of event.dataTransfer?.files ?? []) await ingestDroppedFile(file);
+		for (const file of event.dataTransfer?.files ?? []) await ingest.ingestDroppedFile(file);
 	}
 </script>
 
@@ -87,8 +83,8 @@
 >
 	<div bind:this={scrollElement} class="min-h-0 flex-1 overflow-y-auto px-4 py-3">
 		<p class="mb-3 text-xs text-chalk/35">
-			domain brain · {creditsPerBrainQuestion} credits a question · drop a file to ingest ({creditsPerBrainIngest}
-			credits)
+			domain brain · {creditsPerBrainQuestion} credits a question · drop a file or paste a link to ingest
+			({creditsPerBrainIngest} credits)
 		</p>
 		<div class="flex flex-col gap-3">
 			{#each messages as message (message.id)}

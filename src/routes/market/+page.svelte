@@ -36,7 +36,7 @@
 			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">On the market</h2>
 			<ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each data.listings as listing (listing.id)}
-					<li><MarketListingCard {listing} /></li>
+					<li><MarketListingCard {listing} isMine={listing.ownerId === data.viewerId} /></li>
 				{/each}
 			</ul>
 		</section>

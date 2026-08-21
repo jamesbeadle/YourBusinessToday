@@ -17,6 +17,7 @@
 		createAction,
 		createPlaceholder,
 		createLabel,
+		createHref,
 		goalField,
 		rows,
 		hrefFor
@@ -24,9 +25,10 @@
 		title: string;
 		description: string;
 		emptyMessage: string;
-		createAction: string;
-		createPlaceholder: string;
+		createAction?: string;
+		createPlaceholder?: string;
 		createLabel: string;
+		createHref?: string;
 		goalField?: FeatureGoalField;
 		rows: FeatureRow[];
 		hrefFor: (id: string) => string;
@@ -42,11 +44,24 @@
 </script>
 
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
-	<div>
-		<h2 class="font-display text-xl font-medium">{title}</h2>
-		<p class="mt-1 text-sm text-chalk/60">{description}</p>
+	<div class="flex flex-wrap items-start justify-between gap-4">
+		<div>
+			<h2 class="font-display text-xl font-medium">{title}</h2>
+			<p class="mt-1 text-sm text-chalk/60">{description}</p>
+		</div>
+		{#if createHref !== undefined}
+			<a
+				href={createHref}
+				class="rounded-full bg-signal px-5 py-2.5 font-display text-sm font-medium text-night
+					transition hover:brightness-110"
+			>
+				{createLabel}
+			</a>
+		{/if}
 	</div>
-	<FeatureCreateForm {createAction} {createPlaceholder} {createLabel} {goalField} />
+	{#if createAction !== undefined && createPlaceholder !== undefined}
+		<FeatureCreateForm {createAction} {createPlaceholder} {createLabel} {goalField} />
+	{/if}
 	{#if rows.length === 0}
 		<p class="rounded-xl border-2 border-dashed border-hairline p-6 text-center text-sm text-chalk/50">
 			{emptyMessage}

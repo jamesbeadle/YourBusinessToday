@@ -27,6 +27,15 @@ export const ecosystemTools: EcosystemTool[] = [
 		href: '/workspace'
 	},
 	{
+		id: 'hive-mind',
+		name: 'The Hive Mind',
+		tagline: 'Shares what specialists know',
+		description:
+			'Domain Brains that pass review join a hive of specialists — snapshots of what real businesses actually know. One query consults every specialty that can help, and each brain that shapes the answer earns its owner credits.',
+		isLive: true,
+		href: '/hive-mind'
+	},
+	{
 		id: 'workforce',
 		name: 'The Workforce',
 		tagline: 'Runs what your business hands over',

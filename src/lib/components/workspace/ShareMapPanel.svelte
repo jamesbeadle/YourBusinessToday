@@ -15,8 +15,8 @@
 	<div>
 		<h2 class="font-display text-xl font-medium">Share your map</h2>
 		<p class="mt-1 text-sm text-chalk/70">
-			Invite someone by email — once they sign in with that address, your latest map appears in
-			their “Shared with me”.
+			Invite someone by email — once they sign in with that address, your latest map appears on
+			their workspace under “Shared with you”.
 		</p>
 	</div>
 	<FormErrorNote message={addViewerTracker.errorMessage} />

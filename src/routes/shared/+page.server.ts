@@ -1,11 +1,8 @@
-import { getSharedWorkflowSummaries } from '$lib/server/maps/getSharedMaps';
-import { requireUser } from '$lib/server/auth/requireUser';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const user = await requireUser(locals);
-	return {
-		userEmail: user.email ?? '',
-		sharedWorkflows: await getSharedWorkflowSummaries(locals.supabase)
-	};
+// Shared workflow maps now appear on the workspace under "Shared with you" —
+// this old listing page just forwards anyone with a stale link.
+export const load: PageServerLoad = async () => {
+	redirect(301, '/workspace');
 };

@@ -2,7 +2,6 @@
 	import { fade, fly } from 'svelte/transition';
 	import CreditBalancePill from './CreditBalancePill.svelte';
 	import MobileNavGroup from './MobileNavGroup.svelte';
-	import { primaryNavigationLinks } from './siteNavigation';
 	import type { NavigationGroup } from './siteNavigation';
 
 	let {
@@ -59,16 +58,6 @@
 			</svg>
 		</button>
 	</div>
-	{#each primaryNavigationLinks as navigationLink (navigationLink.href)}
-		<a
-			href={navigationLink.href}
-			class="rounded-lg px-3 py-2 font-display text-sm text-chalk/80 transition
-				hover:bg-night/60 hover:text-chalk"
-			onclick={onClose}
-		>
-			{navigationLink.label}
-		</a>
-	{/each}
 	{#each menuGroups as menuGroup (menuGroup.label)}
 		<MobileNavGroup group={menuGroup} onNavigate={onClose} />
 	{/each}

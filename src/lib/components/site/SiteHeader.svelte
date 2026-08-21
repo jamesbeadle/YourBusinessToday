@@ -5,7 +5,7 @@
 	import MobileMenuButton from './MobileMenuButton.svelte';
 	import MobileNavDrawer from './MobileNavDrawer.svelte';
 	import NotificationsBell from './NotificationsBell.svelte';
-	import { buildMenuGroups, primaryNavigationLinks } from './siteNavigation';
+	import { buildMenuGroups } from './siteNavigation';
 
 	let {
 		userEmail,
@@ -37,20 +37,11 @@
 			<BrandWordmark fontSize={26} />
 		</a>
 		<nav class="hidden items-center gap-6 md:flex">
-			{#each primaryNavigationLinks as navigationLink (navigationLink.href)}
-				<a
-					href={navigationLink.href}
-					class="font-display text-sm text-chalk/80 transition hover:text-chalk"
-				>
-					{navigationLink.label}
-				</a>
-			{/each}
 			{#if isProjectManager}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}
 			{#if isSignedIn}
 				<CreditBalancePill balance={creditBalance ?? 0} />
-				<AccountMenu {menuGroups} />
 			{:else}
 				<a
 					href="/account/sign-in"
@@ -60,6 +51,7 @@
 					Sign in
 				</a>
 			{/if}
+			<AccountMenu {menuGroups} />
 		</nav>
 		<div class="flex items-center gap-4 md:hidden">
 			{#if isProjectManager}

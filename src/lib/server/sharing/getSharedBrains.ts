@@ -9,6 +9,7 @@ export async function getSharedBrains(
 		.from('domain_brains')
 		.select('id, name, entity_id, owner_id, entities (name)')
 		.neq('owner_id', userId)
+		.is('edition_of', null)
 		.order('name');
 	if (error !== null) throw error;
 	return (data ?? []).map((row) => ({

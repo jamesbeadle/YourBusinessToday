@@ -5,12 +5,14 @@ import { getBrainConversationThread } from '$lib/server/brain/getBrainConversati
 import { getBrainEvents } from '$lib/server/brain/getBrainEvents';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import { getBrainPageLinks } from '$lib/server/brain/getBrainPageLinks';
+import { getBrainMarketState } from '$lib/server/market/getBrainMarketState';
 import { getBrainSources } from '$lib/server/brain/getBrainSources';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { getPendingProposals } from '$lib/server/sharing/getPendingProposals';
 import { getInvitesForBrain } from '$lib/server/sharing/workspaceInvites';
 import { getSharesForBrain } from '$lib/server/sharing/getWorkspaceShares';
 import { requireUser } from '$lib/server/auth/requireUser';
+import { resolveBrainAccessRole } from '$lib/server/market/resolveBrainAccessRole';
 import { updateDomainBrainGoal } from '$lib/server/entities/updateDomainBrainGoal';
 import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 import type { Actions, PageServerLoad } from './$types';
@@ -21,10 +23,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (brain === null || brain.entityId !== params.entityId) {
 		error(404, 'That domain brain is not in this entity');
 	}
-	const isOwner = brain.ownerId === user.id;
+	const accessRole = await resolveBrainAccessRole(locals.supabase, brain, user.id);
+	const isOwner = accessRole === 'owner';
+	const marketState = isOwner
+		? await getBrainMarketState(locals.supabase, brain.id)
+		: { listing: null, editions: [], sales: null };
 	return {
 		brain,
-		isOwner,
+		accessRole,
 		sources: await getBrainSources(locals.supabase, brain.id),
 		contexts: await getBrainContexts(locals.supabase, brain.id),
 		pageIndex: await getBrainPageIndex(locals.supabase, brain.id),
@@ -33,7 +39,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		conversation: await getBrainConversationThread(locals.supabase, brain.id, 'brain'),
 		proposals: isOwner ? await getPendingProposals(locals.supabase, brain.id) : [],
 		shares: isOwner ? await getSharesForBrain(locals.supabase, brain) : [],
-		invites: isOwner ? await getInvitesForBrain(locals.supabase, brain) : []
+		invites: isOwner ? await getInvitesForBrain(locals.supabase, brain) : [],
+		...marketState
 	};
 };
 

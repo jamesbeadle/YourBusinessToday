@@ -14,6 +14,7 @@ export async function getDomainBrains(
 		.from('domain_brains')
 		.select('id, name, created_at')
 		.eq('entity_id', entityId)
+		.is('edition_of', null)
 		.order('created_at');
 	if (error !== null) throw error;
 	return (data ?? []).map((row) => ({ id: row.id, name: row.name, createdAt: row.created_at }));

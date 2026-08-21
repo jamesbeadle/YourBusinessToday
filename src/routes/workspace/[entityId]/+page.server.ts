@@ -23,9 +23,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	createDomainBrain: async ({ locals, params, request }) => {
 		await requireUser(locals);
-		const name = await readName(request);
+		const formData = await request.formData();
+		const name = readField(formData, 'name');
+		const domainGoal = readField(formData, 'domainGoal');
 		if (name === '') return fail(400, { message: 'A domain brain needs a name.' });
-		const brainId = await createDomainBrain(locals.supabase, params.entityId, name);
+		if (domainGoal === '') {
+			return fail(400, { message: 'A domain brain needs a goal — say what domain it should articulate.' });
+		}
+		const brainId = await createDomainBrain(locals.supabase, params.entityId, name, domainGoal);
 		redirect(303, `/workspace/${params.entityId}/domains/${brainId}`);
 	},
 	createWorkflow: async ({ locals, params, request }) => {
@@ -50,6 +55,9 @@ export const actions: Actions = {
 };
 
 async function readName(request: Request): Promise<string> {
-	const formData = await request.formData();
-	return String(formData.get('name') ?? '').trim();
+	return readField(await request.formData(), 'name');
+}
+
+function readField(formData: FormData, field: string): string {
+	return String(formData.get(field) ?? '').trim();
 }

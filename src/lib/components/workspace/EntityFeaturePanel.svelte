@@ -7,10 +7,8 @@
 </script>
 
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
-	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
-	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import FeatureCreateForm from './FeatureCreateForm.svelte';
+	import type { FeatureGoalField } from './FeatureCreateForm.svelte';
 
 	let {
 		title,
@@ -19,6 +17,7 @@
 		createAction,
 		createPlaceholder,
 		createLabel,
+		goalField,
 		rows,
 		hrefFor
 	}: {
@@ -28,11 +27,10 @@
 		createAction: string;
 		createPlaceholder: string;
 		createLabel: string;
+		goalField?: FeatureGoalField;
 		rows: FeatureRow[];
 		hrefFor: (id: string) => string;
 	} = $props();
-
-	const tracker = new FormTracker();
 
 	function formatCreatedDate(isoDate: string): string {
 		return new Date(isoDate).toLocaleDateString('en-GB', {
@@ -48,25 +46,7 @@
 		<h2 class="font-display text-xl font-medium">{title}</h2>
 		<p class="mt-1 text-sm text-chalk/60">{description}</p>
 	</div>
-	<FormErrorNote message={tracker.errorMessage} />
-	<form method="POST" action={createAction} use:enhance={tracker.submit()} class="flex gap-2">
-		<input
-			name="name"
-			required
-			placeholder={createPlaceholder}
-			aria-label={`${createLabel} name`}
-			class="min-w-0 flex-1 rounded-full border border-hairline bg-night px-4 py-2.5 text-sm
-				text-chalk outline-none placeholder:text-chalk/40 focus:border-signal"
-		/>
-		<SubmitButton
-			isSaving={tracker.isSaving}
-			savingLabel="Creating…"
-			class="rounded-full bg-signal px-5 py-2.5 font-display text-sm font-medium text-night
-				transition hover:brightness-110"
-		>
-			{createLabel}
-		</SubmitButton>
-	</form>
+	<FeatureCreateForm {createAction} {createPlaceholder} {createLabel} {goalField} />
 	{#if rows.length === 0}
 		<p class="rounded-xl border-2 border-dashed border-hairline p-6 text-center text-sm text-chalk/50">
 			{emptyMessage}

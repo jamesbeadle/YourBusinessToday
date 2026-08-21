@@ -7,7 +7,7 @@ import { getConversationMessages } from '$lib/server/brain/getBrainConversation'
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
-import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
+import { refundForBrainQuestion, spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
 import type { BrainConversationTurn } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
@@ -26,26 +26,32 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
-	const conversationId = await resolveConversationId(locals.supabase, brain.id, payload.conversationId);
-	const priorTurns = await rememberedTurns(locals.supabase, conversationId);
-	const contexts = await getBrainContexts(locals.supabase, brain.id);
-	const index = await getBrainPageIndex(locals.supabase, brain.id);
-	const answer = await askModeller(locals.supabase, brain.id, contexts, index, [
-		...priorTurns,
-		{ speaker: 'user', text: question }
-	]);
-	await recordConversationTurn(locals.supabase, conversationId, question, answer);
-	await recordBrainEvent(locals.supabase, {
-		brainId: brain.id,
-		kind: 'question_answered',
-		detail: {
-			question,
-			answerMarkdown: answer.answerMarkdown,
-			citedSlugs: answer.citedSlugs,
-			conversationId
-		}
-	});
-	return json({ conversationId, ...answer, creditBalance: spend.creditBalance });
+	try {
+		const conversationId = await resolveConversationId(locals.supabase, brain.id, payload.conversationId);
+		const priorTurns = await rememberedTurns(locals.supabase, conversationId);
+		const contexts = await getBrainContexts(locals.supabase, brain.id);
+		const index = await getBrainPageIndex(locals.supabase, brain.id);
+		const answer = await askModeller(locals.supabase, brain.id, contexts, index, [
+			...priorTurns,
+			{ speaker: 'user', text: question }
+		]);
+		await recordConversationTurn(locals.supabase, conversationId, question, answer);
+		await recordBrainEvent(locals.supabase, {
+			brainId: brain.id,
+			kind: 'question_answered',
+			detail: {
+				question,
+				answerMarkdown: answer.answerMarkdown,
+				citedSlugs: answer.citedSlugs,
+				conversationId
+			}
+		});
+		return json({ conversationId, ...answer, creditBalance: spend.creditBalance });
+	} catch (failure) {
+		console.error('Brain question failed', failure);
+		await refundForBrainQuestion(locals.supabase);
+		error(502, 'That question failed — your credits have been refunded');
+	}
 };
 
 function readQuestion(payload: { question?: unknown }): string {

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import TerminalTurn from './TerminalTurn.svelte';
-	import { creditsPerBrainIngest, creditsPerBrainQuestion } from '$lib/data/creditPricing';
-	import { invalidateAll } from '$app/navigation';
+	import TerminalFeed from './TerminalFeed.svelte';
+	import { createTerminalAsk } from './terminalAsk';
 	import { createTerminalIngest } from './terminalIngest';
 	import type { BrainConversationMessage, BrainPageSummary } from '$lib/data/brainTypes';
 
@@ -34,33 +33,36 @@
 		if (element !== undefined) element.scrollTo({ top: element.scrollHeight });
 	});
 
-	const loneLinkPattern = /^https?:\/\/\S+$/i;
+	const linkPattern = /https?:\/\/[^\s]+/gi;
 
 	async function sendCommand(event: SubmitEvent) {
 		event.preventDefault();
 		const question = commandText.trim();
 		if (question === '' || isThinking) return;
 		commandText = '';
-		if (loneLinkPattern.test(question)) return ingest.ingestLinkedPage(question);
+		const links = question.match(linkPattern);
+		if (links !== null) return ingestEveryLink(links);
 		isThinking = true;
-		pendingQuestion = question;
-		const response = await fetch('/api/brain/ask', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ brainId, question, conversationId })
-		});
-		if (response.ok) await invalidateAll();
+		await ask(question, conversationId);
 		isThinking = false;
-		pendingQuestion = null;
-		if (response.status === 402) return onOutOfCredits();
-		if (!response.ok) transferLines = [...transferLines, '✗ that turn went wrong — try again'];
 	}
 
-	const ingest = $derived(
-		createTerminalIngest({
+	async function ingestEveryLink(links: string[]) {
+		for (const link of links) {
+			await ingest.ingestLinkedPage(link.replace(/[.,;)\]]+$/, ''));
+		}
+	}
+
+	const appendLine = (line: string) => (transferLines = [...transferLines, line]);
+
+	const ingest = $derived(createTerminalIngest({ brainId, appendLine, onOutOfCredits }));
+
+	const ask = $derived(
+		createTerminalAsk({
 			brainId,
-			appendLine: (line) => (transferLines = [...transferLines, line]),
-			onOutOfCredits
+			appendLine,
+			onOutOfCredits,
+			setPendingQuestion: (question) => (pendingQuestion = question)
 		})
 	);
 
@@ -82,24 +84,14 @@
 	ondrop={acceptDrop}
 >
 	<div bind:this={scrollElement} class="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-		<p class="mb-3 text-xs text-chalk/35">
-			domain brain · {creditsPerBrainQuestion} credits a question · drop a file or paste a link to ingest
-			({creditsPerBrainIngest} credits)
-		</p>
-		<div class="flex flex-col gap-3">
-			{#each messages as message (message.id)}
-				<TerminalTurn {message} {pageIndex} {pageBasePath} />
-			{/each}
-			{#if pendingQuestion !== null}
-				<p class="text-chalk"><span class="text-signal select-none">❯</span> {pendingQuestion}</p>
-			{/if}
-			{#if isThinking}
-				<p class="animate-pulse pl-4 text-chalk/40">thinking…</p>
-			{/if}
-			{#each transferLines as line, index (index)}
-				<p class="text-chalk/60">{line}</p>
-			{/each}
-		</div>
+		<TerminalFeed
+			{messages}
+			{pageIndex}
+			{pageBasePath}
+			{pendingQuestion}
+			{isThinking}
+			{transferLines}
+		/>
 	</div>
 	<form onsubmit={sendCommand} class="flex items-center gap-2 border-t border-hairline px-4 py-3">
 		<span class="text-signal select-none">❯</span>
@@ -115,7 +107,7 @@
 			class="pointer-events-none absolute inset-2 flex items-center justify-center rounded-xl
 				border-2 border-dashed border-signal/60 bg-night/80 text-signal"
 		>
-			drop to ingest — {creditsPerBrainIngest} credits
+			drop to ingest
 		</div>
 	{/if}
 </div>

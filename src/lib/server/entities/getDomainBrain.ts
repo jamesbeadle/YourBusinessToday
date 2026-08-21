@@ -28,6 +28,7 @@ export async function getLatestDomainBrain(
 	const { data, error } = await supabase
 		.from('domain_brains')
 		.select('id, entity_id, owner_id, name, domain_goal')
+		.is('edition_of', null)
 		.order('created_at', { ascending: false })
 		.limit(1)
 		.maybeSingle();

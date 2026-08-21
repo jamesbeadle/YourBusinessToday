@@ -54,7 +54,8 @@ export type BrainEventKind =
 	| 'brain_exported'
 	| 'changes_proposed'
 	| 'changes_approved'
-	| 'changes_rejected';
+	| 'changes_rejected'
+	| 'edition_published';
 
 export type BrainEvent = {
 	id: number;

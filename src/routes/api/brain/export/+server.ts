@@ -12,6 +12,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
 	const brain = await getDomainBrain(locals.supabase, url.searchParams.get('brain') ?? '');
 	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain.ownerId !== user.id) error(403, 'Only the owner can export this domain brain');
 
 	const zipBytes = await exportDomainBrain(locals.supabase, brain.id);
 	await recordBrainEvent(locals.supabase, { brainId: brain.id, kind: 'brain_exported', detail: {} });

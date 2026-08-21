@@ -8,12 +8,19 @@
 	import ReviewPanel from '../review/ReviewPanel.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
+	import SellPanel from './SellPanel.svelte';
 	import SharePanel from './SharePanel.svelte';
 	import SourcesPanel from '../SourcesPanel.svelte';
 	import { fetchBrainPage } from '../constellation/fetchBrainPage';
-	import { memberSections, ownerSections, type SectionKey } from './railIcons';
+	import { memberSections, ownerSections, readerSections, type SectionKey } from './railIcons';
 	import { onMount } from 'svelte';
 	import type { BrainChangeProposal, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
+	import type {
+		BrainAccessRole,
+		BrainEdition,
+		BrainListing,
+		ListingSales
+	} from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 	import type {
 		BrainContext,
@@ -26,7 +33,7 @@
 
 	let {
 		brain,
-		isOwner,
+		accessRole,
 		contexts,
 		pageIndex,
 		pageLinks,
@@ -35,10 +42,13 @@
 		conversation,
 		proposals,
 		shares,
-		invites
+		invites,
+		listing,
+		editions,
+		sales
 	}: {
 		brain: DomainBrain;
-		isOwner: boolean;
+		accessRole: BrainAccessRole;
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
@@ -48,10 +58,19 @@
 		proposals: BrainChangeProposal[];
 		shares: WorkspaceShare[];
 		invites: WorkspaceInvite[];
+		listing: BrainListing | null;
+		editions: BrainEdition[];
+		sales: ListingSales | null;
 	} = $props();
 
+	const isOwner = $derived(accessRole === 'owner');
 	const pageBasePath = $derived(`/workspace/${brain.entityId}/domains/${brain.id}`);
-	const sections = $derived(isOwner ? ownerSections : memberSections);
+	const sectionsByRole: Record<BrainAccessRole, SectionKey[]> = {
+		owner: ownerSections,
+		collaborator: memberSections,
+		reader: readerSections
+	};
+	const sections = $derived(sectionsByRole[accessRole]);
 
 	let activeSection = $state<SectionKey | null>(null);
 	let isOutOfCredits = $state(false);
@@ -111,6 +130,10 @@
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} {invites} />
 					</div>
+				{:else if activeSection === 'sell'}
+					<div class="min-h-0 flex-1 overflow-y-auto">
+						<SellPanel brainId={brain.id} {listing} {editions} {sales} />
+					</div>
 				{:else if activeSection === 'settings'}
 					<BrainSettingsPanel {brain} />
 				{:else}
@@ -139,14 +162,16 @@
 				>
 					← {brain.name}
 				</a>
-				<a
-					href={`/api/brain/export?brain=${brain.id}`}
-					download
-					class="pointer-events-auto font-display text-xs text-chalk/50 underline transition
-						hover:text-chalk"
-				>
-					Export as Markdown
-				</a>
+				{#if isOwner}
+					<a
+						href={`/api/brain/export?brain=${brain.id}`}
+						download
+						class="pointer-events-auto font-display text-xs text-chalk/50 underline transition
+							hover:text-chalk"
+					>
+						Export as Markdown
+					</a>
+				{/if}
 			</div>
 			{#if isOutOfCredits}
 				<div class="absolute inset-x-4 top-4 z-20 overflow-hidden rounded-2xl border border-hairline">

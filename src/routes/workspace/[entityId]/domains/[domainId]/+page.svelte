@@ -10,7 +10,7 @@
 
 <BrainDashboard
 	brain={data.brain}
-	isOwner={data.isOwner}
+	accessRole={data.accessRole}
 	contexts={data.contexts}
 	pageIndex={data.pageIndex}
 	pageLinks={data.pageLinks}
@@ -20,4 +20,7 @@
 	proposals={data.proposals}
 	shares={data.shares}
 	invites={data.invites}
+	listing={data.listing}
+	editions={data.editions}
+	sales={data.sales}
 />

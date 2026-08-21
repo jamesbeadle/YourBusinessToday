@@ -15,13 +15,19 @@ const maxPageWrites = 10;
 export function parseIngestRecord(candidate: unknown): IngestRecord | null {
 	if (!isRecord(candidate) || !Array.isArray(candidate.pageWrites)) return null;
 	const pageWrites = candidate.pageWrites.slice(0, maxPageWrites).flatMap(parsePageWrite);
-	if (pageWrites.length === 0) return null;
-	return {
+	const record = {
 		sourceSummary: asText(candidate.sourceSummary),
 		contextWrites: parseContextWrites(candidate.contextWrites),
 		pageWrites,
 		logLine: asText(candidate.logLine)
 	};
+	if (isEmptyHanded(record)) return null;
+	return record;
+}
+
+function isEmptyHanded(record: IngestRecord): boolean {
+	if (record.pageWrites.length > 0 || record.contextWrites.length > 0) return false;
+	return record.sourceSummary === '' && record.logLine === '';
 }
 
 function parseContextWrites(candidate: unknown): BrainContextWrite[] {

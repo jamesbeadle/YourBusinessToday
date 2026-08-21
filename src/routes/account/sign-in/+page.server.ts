@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { beginGoogleSignIn } from '$lib/server/auth/beginGoogleSignIn';
+import { beginMicrosoftSignIn } from '$lib/server/auth/beginMicrosoftSignIn';
 import type { Actions, PageServerLoad } from './$types';
 
 const destinationAfterAuth = '/workspace';
@@ -16,5 +17,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
 	signInWithGoogle: async ({ locals, url }) => {
 		redirect(303, await beginGoogleSignIn(locals.supabase, url.origin));
+	},
+	signInWithMicrosoft: async ({ locals, url }) => {
+		redirect(303, await beginMicrosoftSignIn(locals.supabase, url.origin));
 	}
 };

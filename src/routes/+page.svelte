@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CreditsSection from '$lib/components/home/CreditsSection.svelte';
+	import DemosSection from '$lib/components/home/DemosSection.svelte';
 	import EcosystemSection from '$lib/components/home/EcosystemSection.svelte';
 	import HeroSection from '$lib/components/home/HeroSection.svelte';
 	import SharedProfileSection from '$lib/components/home/SharedProfileSection.svelte';
@@ -16,6 +17,7 @@
 
 <HeroSection />
 <EcosystemSection />
+<DemosSection />
 <SharedProfileSection />
 <WorkflowSpotlightSection />
 <CreditsSection />

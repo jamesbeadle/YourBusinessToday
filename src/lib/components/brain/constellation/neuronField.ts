@@ -4,9 +4,11 @@ import { createNeuronBody, type NeuronBody } from './neuronBody';
 import { CHALK, SIGNAL, kindColours } from './constellationPalette';
 import { neuronProportions, nucleusProportions, type BodyProportions } from './neuronProportions';
 import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
+import type { MembraneBank } from './membraneBank';
 import type { ConstellationModel } from './constellationTypes';
 
 const SOMA_DETAIL = 1;
+const MEMBRANE_DETAIL = 3;
 const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;
 
@@ -18,11 +20,16 @@ export type NeuronField = {
 	dispose: () => void;
 };
 
-export function createNeuronField(model: ConstellationModel, bank: MaterialBank): NeuronField {
+export function createNeuronField(
+	model: ConstellationModel,
+	bank: MaterialBank,
+	membranes: MembraneBank
+): NeuronField {
 	const group = new Group();
 	const hitTargets: Mesh[] = [];
 	const bodies = new Map<string, NeuronBody>();
 	const somaGeometry = new IcosahedronGeometry(1, SOMA_DETAIL);
+	const membraneGeometry = new IcosahedronGeometry(1, MEMBRANE_DETAIL);
 	const hitMaterial = new MeshBasicMaterial({ visible: false });
 	const directionsBySlug = connectionDirectionsOf(model);
 
@@ -42,8 +49,10 @@ export function createNeuronField(model: ConstellationModel, bank: MaterialBank)
 			proportions,
 			connectionDirections: directionsBySlug.get(slug) ?? [],
 			somaGeometry,
+			membraneGeometry,
 			hitMaterial,
 			bank,
+			membranes,
 			userData
 		});
 		bodies.set(slug, body);
@@ -73,6 +82,7 @@ export function createNeuronField(model: ConstellationModel, bank: MaterialBank)
 	function dispose(): void {
 		for (const body of bodies.values()) body.dispose();
 		somaGeometry.dispose();
+		membraneGeometry.dispose();
 		hitMaterial.dispose();
 	}
 

@@ -3,6 +3,7 @@ import { createAmbientNeuralWeb, type AmbientNeuralWeb } from './ambientNeuralWe
 import { createFiringPulses, type FiringPulses } from './firingPulses';
 import { createGlowTexture } from './glowTexture';
 import { createMaterialBank, type MaterialBank } from './materialBank';
+import { createMembraneBank, type MembraneBank } from './membraneBank';
 import { createNeuronField, type NeuronField } from './neuronField';
 import { createNucleusLabels, disposeNucleusLabels } from './nucleusLabels';
 import { createSettleFlashes, type SettleFlashes } from './settleFlash';
@@ -19,6 +20,7 @@ export type ConstellationScene = {
 	ambient: AmbientNeuralWeb;
 	flashes: SettleFlashes;
 	bank: MaterialBank;
+	membranes: MembraneBank;
 	rebuild: (model: ConstellationModel) => void;
 	dispose: () => void;
 };
@@ -29,6 +31,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 
 	const glowTexture = createGlowTexture();
 	const bank = createMaterialBank(glowTexture);
+	const membranes = createMembraneBank();
 	const backdrop = createStarBackdrop();
 	const ambient = createAmbientNeuralWeb();
 	const flashes = createSettleFlashes(glowTexture);
@@ -40,7 +43,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 	let labels: Group;
 
 	function mountModel(mountedModel: ConstellationModel): void {
-		field = createNeuronField(mountedModel, bank);
+		field = createNeuronField(mountedModel, bank, membranes);
 		web = createSynapseWeb(mountedModel, bank);
 		pulses = createFiringPulses(web.curves, glowTexture);
 		labels = createNucleusLabels(mountedModel.nuclei);
@@ -68,6 +71,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		ambient.dispose();
 		flashes.dispose();
 		bank.dispose();
+		membranes.dispose();
 		glowTexture.dispose();
 	}
 
@@ -85,6 +89,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		ambient,
 		flashes,
 		bank,
+		membranes,
 		rebuild,
 		dispose
 	};

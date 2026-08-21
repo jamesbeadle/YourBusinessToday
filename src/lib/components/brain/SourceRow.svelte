@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SourceRemoveButton from './SourceRemoveButton.svelte';
+	import SourceRereadButton from './SourceRereadButton.svelte';
 	import { ingestSource } from './uploadSourceFile';
 	import { invalidateAll } from '$app/navigation';
 	import type { BrainSource } from '$lib/data/brainTypes';
@@ -11,7 +12,7 @@
 	}: { source: BrainSource; isOwner: boolean; onOutOfCredits: () => void } = $props();
 
 	let isRetrying = $state(false);
-	let removalFailure = $state('');
+	let failureMessage = $state('');
 
 	const statusStyles: Record<BrainSource['status'], string> = {
 		uploaded: 'border-chalk/30 text-chalk/60',
@@ -30,6 +31,7 @@
 	};
 
 	const canRemove = $derived(isOwner || source.status !== 'ingested');
+	const canReread = $derived(isOwner && source.status === 'ingested');
 
 	async function retryIngest() {
 		isRetrying = true;
@@ -59,6 +61,13 @@
 				{isRetrying ? 'Reading…' : 'Read it'}
 			</button>
 		{/if}
+		{#if canReread}
+			<SourceRereadButton
+				{source}
+				{onOutOfCredits}
+				onFailure={(message) => (failureMessage = message)}
+			/>
+		{/if}
 		<span
 			class={`rounded-full border px-3 py-1 font-display text-xs ${statusStyles[source.status]}`}
 		>
@@ -68,13 +77,13 @@
 			<SourceRemoveButton
 				{source}
 				{onOutOfCredits}
-				onFailure={(message) => (removalFailure = message)}
+				onFailure={(message) => (failureMessage = message)}
 			/>
 		{/if}
 	</div>
 </li>
-{#if removalFailure !== ''}
+{#if failureMessage !== ''}
 	<li class="border-b border-hairline pb-2 text-xs text-caution last:border-b-0">
-		{removalFailure}
+		{failureMessage}
 	</li>
 {/if}

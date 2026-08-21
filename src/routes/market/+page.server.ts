@@ -6,7 +6,8 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = await requireUser(locals);
 	return {
-		listings: await getPublishedListings(locals.supabase, user.id),
+		viewerId: user.id,
+		listings: await getPublishedListings(locals.supabase),
 		purchasedEditions: await getPurchasedEditions(locals.supabase, user.id),
 		subscriptions: await getBrainSubscriptions(locals.supabase, user.id)
 	};

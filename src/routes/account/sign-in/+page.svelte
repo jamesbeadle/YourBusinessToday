@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GoogleSignInButton from '$lib/components/account/GoogleSignInButton.svelte';
+	import MicrosoftSignInButton from '$lib/components/account/MicrosoftSignInButton.svelte';
 
 	let { data } = $props();
 </script>
@@ -16,13 +17,16 @@
 			{:else}
 				You've been invited to collaborate.
 			{/if}
-			Sign in with Google using the email address that received the invitation, and you can
-			accept it from your workspace.
+			Sign in with Google or Microsoft using the email address that received the invitation, and
+			you can accept it from your workspace.
 		</div>
 	{/if}
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Sign in</h1>
-		<p class="text-chalk/70">New here? Signing in with Google creates your account.</p>
+		<p class="text-chalk/70">New here? Signing in creates your account.</p>
 	</div>
-	<GoogleSignInButton />
+	<div class="flex flex-col gap-3">
+		<GoogleSignInButton />
+		<MicrosoftSignInButton />
+	</div>
 </div>

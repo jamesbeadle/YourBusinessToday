@@ -20,8 +20,8 @@ export function renderInviteEmail(
 			a living model of a business you can explore in 3D and question like a colleague.
 		</p>
 		<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#c9d2e6;">
-			Sign in with Google using this email address and the shared workspace will be waiting
-			for you.
+			Sign in with Google using this email address and accept the invitation from your
+			workspace.
 		</p>
 		<a
 			href="${signInUrl}"

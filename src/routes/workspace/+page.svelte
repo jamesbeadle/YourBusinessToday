@@ -1,5 +1,6 @@
 <script lang="ts">
 	import EntityCard from '$lib/components/workspace/EntityCard.svelte';
+	import InvitationsPanel from '$lib/components/workspace/InvitationsPanel.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewEntityForm from '$lib/components/workspace/NewEntityForm.svelte';
 
@@ -31,6 +32,9 @@
 			New entity
 		</button>
 	</header>
+	{#if data.invitations.length > 0}
+		<InvitationsPanel invitations={data.invitations} />
+	{/if}
 	{#if data.sharedBrains.length > 0}
 		<section class="flex flex-col gap-3">
 			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Shared with you</h2>

@@ -14,7 +14,8 @@
 	} = $props();
 
 	const collaborators = $derived(mergedShareGrants(shares));
-	const invited = $derived(mergedInviteGrants(invites));
+	const invited = $derived(mergedInviteGrants(invites.filter((invite) => invite.status === 'pending')));
+	const declined = $derived(mergedInviteGrants(invites.filter((invite) => invite.status === 'declined')));
 
 	async function revoke(idField: 'shareId' | 'inviteId', grant: MergedGrant) {
 		for (const id of grant.ids) {
@@ -45,6 +46,24 @@
 				type="button"
 				onclick={() => revoke('shareId', grant)}
 				aria-label={`Stop sharing with ${grant.email}`}
+				class="rounded-full px-1.5 text-chalk/40 transition hover:bg-hairline/40 hover:text-signal"
+			>
+				✕
+			</button>
+		</li>
+	{/each}
+	{#each declined as grant (grant.email)}
+		<li class="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0">
+			<div class="min-w-0">
+				<p class="truncate text-sm text-chalk/50">{grant.email}</p>
+				<p class="font-display text-[10px] tracking-widest text-signal/60 uppercase">
+					Declined · {scopeLabel(grant.scope)}
+				</p>
+			</div>
+			<button
+				type="button"
+				onclick={() => revoke('inviteId', grant)}
+				aria-label={`Dismiss the declined invite for ${grant.email}`}
 				class="rounded-full px-1.5 text-chalk/40 transition hover:bg-hairline/40 hover:text-signal"
 			>
 				✕

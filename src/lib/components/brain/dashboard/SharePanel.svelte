@@ -23,7 +23,7 @@
 	let notice = $state<{ tone: 'go' | 'caution'; message: string } | null>(null);
 
 	const NEUTRAL_CONFIRMATION =
-		'Done — if that email has an account they now have access; otherwise an invitation email is on its way.';
+		'Invitation sent — they get access as soon as they accept it.';
 
 	async function share(event: SubmitEvent) {
 		event.preventDefault();

@@ -16,8 +16,8 @@
 			{:else}
 				You've been invited to collaborate.
 			{/if}
-			Sign in with Google using the email address that received the invitation and the shared
-			workspace will be waiting for you.
+			Sign in with Google using the email address that received the invitation, and you can
+			accept it from your workspace.
 		</div>
 	{/if}
 	<div class="flex flex-col gap-2">

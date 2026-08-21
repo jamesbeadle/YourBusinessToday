@@ -7,11 +7,21 @@ export type WorkspaceShare = {
 	createdAt: string;
 };
 
+export type InviteStatus = 'pending' | 'declined';
+
 export type WorkspaceInvite = {
 	id: string;
 	invitedEmail: string;
 	scope: ShareScope;
+	status: InviteStatus;
 	createdAt: string;
+};
+
+export type ReceivedInvite = {
+	id: string;
+	invitedByEmail: string;
+	targetName: string;
+	scope: ShareScope;
 };
 
 export type SharedBrainSummary = {

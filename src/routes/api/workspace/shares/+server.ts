@@ -1,8 +1,7 @@
 import { error, json } from '@sveltejs/kit';
-import { createWorkspaceShare, deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
 import { createWorkspaceInvite, deleteWorkspaceInvite } from '$lib/server/sharing/workspaceInvites';
+import { deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
 import { inviteEmailSubject, renderInviteEmail } from '$lib/server/email/inviteEmail';
-import { resolveAccountByEmail } from '$lib/server/sharing/resolveAccountByEmail';
 import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
 import { verifyShareTarget } from '$lib/server/sharing/verifyShareTarget';
 import type { RequestHandler } from './$types';
@@ -23,19 +22,15 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
 	const target = await verifyShareTarget(locals.supabase, user.id, scope, targetId);
 	if (target === null) error(404, 'Only the owner can share this');
 
-	const collaborator = await resolveAccountByEmail(locals.supabase, email);
-	if (collaborator !== null) {
-		await createWorkspaceShare(locals.supabase, collaborator, scope, targetId);
-		return json({ isShared: true });
-	}
 	await createWorkspaceInvite(locals.supabase, {
 		invitedEmail: email,
 		invitedByEmail: user.email ?? '',
 		scope,
-		targetId
+		targetId,
+		targetName: target.name
 	});
 	await deliverInvite(email, user.email ?? '', target.name, url.origin);
-	return json({ isShared: true });
+	return json({ isInvited: true });
 };
 
 export const DELETE: RequestHandler = async ({ locals, request }) => {

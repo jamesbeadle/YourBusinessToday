@@ -2,23 +2,22 @@ import {
 	Group,
 	LineSegments,
 	Mesh,
-	Sprite,
-	Vector3,
 	type BufferGeometry,
-	type MeshBasicMaterial
+	type MeshBasicMaterial,
+	type Vector3
 } from 'three';
+import { createCellSoma } from './cellSoma';
 import { growDendrites } from './dendriteBranching';
 import { clampShare, flare } from './growthShares';
 import { revealWireframe, wireframeFrom } from './neuronWireframe';
 import { shareStreamFrom } from './pseudoRandom';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
+import type { MembraneBank } from './membraneBank';
 
 const DENDRITE_OPACITY = 0.55;
-const SOMA_SQUASH_SPREAD = 0.35;
 const SOMA_PHASE_END = 0.4;
 const DENDRITE_PHASE_START = 0.25;
-const FULL_TURN_RADIANS = Math.PI * 2;
 
 export type NeuronBody = {
 	group: Group;
@@ -39,8 +38,10 @@ export type BodySeed = {
 	proportions: BodyProportions;
 	connectionDirections: Vector3[];
 	somaGeometry: BufferGeometry;
+	membraneGeometry: BufferGeometry;
 	hitMaterial: MeshBasicMaterial;
 	bank: MaterialBank;
+	membranes: MembraneBank;
 	userData: Record<string, string>;
 };
 
@@ -48,15 +49,17 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 	const { position, colour, contextKey, proportions, bank } = seed;
 	const nextShare = shareStreamFrom(seed.slug);
 
-	const soma = new Mesh(seed.somaGeometry, bank.coreFor(colour, contextKey));
-	soma.position.copy(position);
-	soma.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
-	const somaShape = irregularShape(proportions.somaRadius, nextShare);
-	soma.scale.copy(somaShape);
-
-	const glow = new Sprite(bank.glowFor(colour, contextKey));
-	glow.position.copy(position);
-	glow.scale.setScalar(proportions.glowScale);
+	const soma = createCellSoma({
+		position,
+		colour,
+		contextKey,
+		proportions,
+		somaGeometry: seed.somaGeometry,
+		membraneGeometry: seed.membraneGeometry,
+		bank,
+		membranes: seed.membranes,
+		nextShare
+	});
 
 	const branches = growDendrites(seed.connectionDirections, proportions, nextShare);
 	const wireframe = wireframeFrom(branches, position);
@@ -71,30 +74,22 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 	hitTarget.userData = seed.userData;
 
 	const group = new Group();
-	group.add(soma, glow, dendrites, hitTarget);
-	let flareShare = 1;
+	group.add(soma.core, soma.membrane, soma.glow, dendrites, hitTarget);
 
 	function setGrowth(share: number): void {
-		flareShare = flare(clampShare(share / SOMA_PHASE_END));
-		soma.scale.copy(somaShape).multiplyScalar(flareShare);
+		soma.setGrowth(flare(clampShare(share / SOMA_PHASE_END)));
 		const dendriteShare = clampShare((share - DENDRITE_PHASE_START) / (1 - DENDRITE_PHASE_START));
 		revealWireframe(wireframe, dendriteShare);
 	}
 
-	function glowPulse(pulse: number): void {
-		glow.scale.setScalar(proportions.glowScale * flareShare * pulse);
-	}
-
-	const twinklePhase = position.x + position.y * 7;
-	const dispose = () => wireframe.geometry.dispose();
-	return { group, hitTarget, position, colour, twinklePhase, setGrowth, glowPulse, dispose };
-}
-
-function irregularShape(radius: number, nextShare: () => number): Vector3 {
-	const stretch = () => radius * (1 - SOMA_SQUASH_SPREAD / 2 + SOMA_SQUASH_SPREAD * nextShare());
-	return new Vector3(stretch(), stretch(), stretch());
-}
-
-function spin(nextShare: () => number): number {
-	return nextShare() * FULL_TURN_RADIANS;
+	return {
+		group,
+		hitTarget,
+		position,
+		colour,
+		twinklePhase: position.x + position.y * 7,
+		setGrowth,
+		glowPulse: soma.glowPulse,
+		dispose: () => wireframe.geometry.dispose()
+	};
 }

@@ -8,7 +8,8 @@ import {
 
 const FULL_CORE_OPACITY = 1;
 const FULL_GLOW_OPACITY = 0.55;
-const DIMMED_OPACITY_SHARE = 0.15;
+
+export const DIMMED_OPACITY_SHARE = 0.15;
 
 export const WHOLE_MODEL_KEY = 'model';
 

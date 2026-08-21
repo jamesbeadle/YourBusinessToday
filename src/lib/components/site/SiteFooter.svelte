@@ -3,13 +3,21 @@
 </script>
 
 <footer class="border-t border-hairline bg-night">
-	<div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-6">
+	<div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6">
 		<div class="flex items-center gap-3">
 			<BrandWordmark fontSize={18} />
 			<p class="text-sm text-chalk/60">
 				Your Business Today — an ecosystem of AI tools that know your business.
 			</p>
 		</div>
-		<p class="font-display text-xs tracking-widest text-chalk/40 uppercase">Early access</p>
+		<div class="flex flex-wrap items-center gap-6">
+			<a href="/terms" class="text-sm text-chalk/60 transition hover:text-chalk">
+				Terms of service
+			</a>
+			<a href="/privacy" class="text-sm text-chalk/60 transition hover:text-chalk">
+				Privacy statement
+			</a>
+			<p class="font-display text-xs tracking-widest text-chalk/40 uppercase">Early access</p>
+		</div>
 	</div>
 </footer>

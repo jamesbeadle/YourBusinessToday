@@ -1,9 +1,11 @@
 import { downloadSourceFile } from './downloadSourceFile';
 import { getBrainContexts } from './getBrainContexts';
 import { getBrainPageIndex } from './getBrainPageIndex';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { ingestSource } from './ingestSource';
 import { markSourceStatus } from './findBrainSource';
 import { recordBrainEvent } from './recordBrainEvent';
+import { retireSupersededPages } from './retireSupersededPages';
 import { saveBrainContextWrites } from './saveBrainContextWrites';
 import { saveBrainPageWrites } from './saveBrainPageWrites';
 import { sourceContentBlock } from './sourceContentBlock';
@@ -14,17 +16,20 @@ export async function runSourceIngest(
 	supabase: SupabaseClient,
 	source: StoredBrainSource
 ): Promise<void> {
+	const brain = await getDomainBrain(supabase, source.brainId);
+	if (brain === null) throw new Error('That domain brain no longer exists');
 	const fileBytes = await downloadSourceFile(supabase, source.storagePath);
 	const contentBlock = await sourceContentBlock(fileBytes, source.mimeType);
 	const contexts = await getBrainContexts(supabase, source.brainId);
 	const index = await getBrainPageIndex(supabase, source.brainId);
-	const record = await ingestSource(contentBlock, source.filename, contexts, index);
+	const record = await ingestSource(contentBlock, source.filename, brain, contexts, index);
 	const appliedContextWrites = await saveBrainContextWrites(
 		supabase,
 		source.brainId,
 		record.contextWrites
 	);
 	const appliedPageWrites = await saveBrainPageWrites(supabase, source.brainId, record.pageWrites);
+	await retireSupersededPages(supabase, source, record.pageRetires, index);
 	await recordContextEvents(supabase, source, appliedContextWrites);
 	await recordPageEvents(supabase, source, appliedPageWrites);
 	await recordBrainEvent(supabase, {

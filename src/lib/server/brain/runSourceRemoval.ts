@@ -4,6 +4,7 @@ import { downloadSourceFile } from './downloadSourceFile';
 import { getBrainContexts } from './getBrainContexts';
 import { getBrainPageIndex } from './getBrainPageIndex';
 import { getBrainPagesBySlugs } from './getBrainPage';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { getSourceTouchedSlugs } from './getSourceContributions';
 import { recordBrainEvent } from './recordBrainEvent';
 import { saveBrainPageWrites } from './saveBrainPageWrites';
@@ -36,12 +37,14 @@ async function retirementRecordFor(
 	source: StoredBrainSource,
 	touchedSlugs: string[]
 ): Promise<RetirementRecord> {
+	const brain = await getDomainBrain(supabase, source.brainId);
+	if (brain === null) throw new Error('That domain brain no longer exists');
 	const fileBytes = await downloadSourceFile(supabase, source.storagePath);
 	const contentBlock = await sourceContentBlock(fileBytes, source.mimeType);
 	const contexts = await getBrainContexts(supabase, source.brainId);
 	const index = await getBrainPageIndex(supabase, source.brainId);
 	const touchedPages = await getBrainPagesBySlugs(supabase, source.brainId, touchedSlugs);
-	return unlearnSource(contentBlock, source.filename, contexts, index, touchedPages);
+	return unlearnSource(contentBlock, source.filename, brain, contexts, index, touchedPages);
 }
 
 async function recordRemovalEvents(

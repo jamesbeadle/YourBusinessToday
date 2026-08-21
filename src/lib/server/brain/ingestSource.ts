@@ -5,6 +5,7 @@ import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import { toolUseFrom } from '$lib/server/anthropic/anthropicTypes';
 import { updateModelTool } from './updateModelTool';
 import type { BrainContext, BrainPageSummary } from '$lib/data/brainTypes';
+import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 import type { IngestRecord } from './parseIngestRecord';
 
 const maxIngestTokens = 24_000;
@@ -12,11 +13,12 @@ const maxIngestTokens = 24_000;
 export async function ingestSource(
 	contentBlock: unknown,
 	filename: string,
+	brain: DomainBrain,
 	contexts: BrainContext[],
 	index: BrainPageSummary[]
 ): Promise<IngestRecord> {
 	const response = await requestAnthropic({
-		system: systemPromptWithIndex(contexts, index),
+		system: systemPromptFor(brain, contexts, index),
 		messages: [{ role: 'user', content: [instructionBlock(filename), contentBlock] }],
 		tools: [updateModelTool],
 		forcedToolName: updateModelTool.name,
@@ -30,8 +32,13 @@ export async function ingestSource(
 	return record;
 }
 
-function systemPromptWithIndex(contexts: BrainContext[], index: BrainPageSummary[]): string {
-	return `${modellerIngestPrompt}\n\n## Current model index\n\n${renderDomainModelIndex(contexts, index)}`;
+function systemPromptFor(
+	brain: DomainBrain,
+	contexts: BrainContext[],
+	index: BrainPageSummary[]
+): string {
+	const prompt = modellerIngestPrompt(brain.name, brain.domainGoal);
+	return `${prompt}\n\n## Current model index\n\n${renderDomainModelIndex(contexts, index)}`;
 }
 
 function instructionBlock(filename: string) {

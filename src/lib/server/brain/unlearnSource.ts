@@ -5,6 +5,7 @@ import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import { retireSourceTool } from './retireSourceTool';
 import { toolUseFrom } from '$lib/server/anthropic/anthropicTypes';
 import type { BrainContext, BrainPage, BrainPageSummary } from '$lib/data/brainTypes';
+import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 import type { RetirementRecord } from './parseRetirementRecord';
 
 const maxUnlearnTokens = 24_000;
@@ -12,12 +13,13 @@ const maxUnlearnTokens = 24_000;
 export async function unlearnSource(
 	contentBlock: unknown,
 	filename: string,
+	brain: DomainBrain,
 	contexts: BrainContext[],
 	index: BrainPageSummary[],
 	touchedPages: BrainPage[]
 ): Promise<RetirementRecord> {
 	const response = await requestAnthropic({
-		system: systemPromptFor(contexts, index, touchedPages),
+		system: systemPromptFor(brain, contexts, index, touchedPages),
 		messages: [{ role: 'user', content: [instructionBlock(filename), contentBlock] }],
 		tools: [retireSourceTool],
 		forcedToolName: retireSourceTool.name,
@@ -32,12 +34,13 @@ export async function unlearnSource(
 }
 
 function systemPromptFor(
+	brain: DomainBrain,
 	contexts: BrainContext[],
 	index: BrainPageSummary[],
 	touchedPages: BrainPage[]
 ): string {
 	return [
-		modellerUnlearnPrompt,
+		modellerUnlearnPrompt(brain.name, brain.domainGoal),
 		`## Current model index\n\n${renderDomainModelIndex(contexts, index)}`,
 		`## Pages this source created or updated\n\n${renderTouchedPages(touchedPages)}`
 	].join('\n\n');

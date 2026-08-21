@@ -25,6 +25,11 @@ export async function refundForBrainUnlearn(supabase: SupabaseClient): Promise<v
 	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
 }
 
+export async function refundForBrainQuestion(supabase: SupabaseClient): Promise<void> {
+	const { error } = await supabase.rpc('refund_for_brain_question', {});
+	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+}
+
 export async function refundForBrainIngest(supabase: SupabaseClient): Promise<void> {
 	const { error } = await supabase.rpc('refund_for_brain_ingest', {});
 	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;

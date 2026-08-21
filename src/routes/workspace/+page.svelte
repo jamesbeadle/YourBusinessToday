@@ -35,7 +35,7 @@
 	{#if data.invitations.length > 0}
 		<InvitationsPanel invitations={data.invitations} />
 	{/if}
-	{#if data.sharedBrains.length > 0}
+	{#if data.sharedBrains.length > 0 || data.sharedWorkflows.length > 0}
 		<section class="flex flex-col gap-3">
 			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Shared with you</h2>
 			<ul class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -50,6 +50,22 @@
 								{shared.brainName}
 							</span>
 							<span class="text-xs text-chalk/50">{shared.entityName} · shared domain brain</span>
+						</a>
+					</li>
+				{/each}
+				{#each data.sharedWorkflows as sharedWorkflow (sharedWorkflow.workflowId)}
+					<li>
+						<a
+							href={`/shared/${sharedWorkflow.workflowId}`}
+							class="group flex flex-col gap-1 rounded-2xl border border-hairline bg-carriage p-5
+								transition hover:border-chalk/30"
+						>
+							<span class="font-display text-base text-chalk transition group-hover:text-signal">
+								{sharedWorkflow.workflowName}
+							</span>
+							<span class="text-xs text-chalk/50">
+								{sharedWorkflow.entityName} · workflow map shared by {sharedWorkflow.ownerEmail}
+							</span>
 						</a>
 					</li>
 				{/each}

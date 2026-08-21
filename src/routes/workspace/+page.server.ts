@@ -3,6 +3,7 @@ import { createEntity } from '$lib/server/entities/createEntity';
 import { getEntityList } from '$lib/server/entities/getEntityList';
 import { getReceivedInvites } from '$lib/server/sharing/workspaceInvites';
 import { getSharedBrains } from '$lib/server/sharing/getSharedBrains';
+import { getSharedWorkflowSummaries } from '$lib/server/maps/getSharedMaps';
 import { requireUser } from '$lib/server/auth/requireUser';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -11,6 +12,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		entities: await getEntityList(locals.supabase, user.id),
 		sharedBrains: await getSharedBrains(locals.supabase, user.id),
+		sharedWorkflows: await getSharedWorkflowSummaries(locals.supabase),
 		invitations: await getReceivedInvites(locals.supabase, user.email ?? '')
 	};
 };

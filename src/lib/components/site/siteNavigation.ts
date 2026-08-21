@@ -22,10 +22,7 @@ export const primaryNavigationLinks: NavigationLink[] = [
 ];
 
 export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {
-	const groups: NavigationGroup[] = [];
-	if (access.isSignedIn) {
-		groups.push({ label: 'Shared', links: [{ href: '/shared', label: 'Shared with me' }] });
-	}
+	const groups: NavigationGroup[] = [{ label: 'Explore', links: primaryNavigationLinks }];
 	if (access.isProjectManager) {
 		groups.push({ label: 'Manage', links: managementLinks(access) });
 	}

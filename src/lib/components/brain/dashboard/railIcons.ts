@@ -1,8 +1,8 @@
-export type SectionKey = 'terminal' | 'sources' | 'model' | 'log' | 'review' | 'share';
+export type SectionKey = 'terminal' | 'sources' | 'model' | 'log' | 'review' | 'share' | 'settings';
 
 export const memberSections: SectionKey[] = ['terminal', 'sources', 'model', 'log'];
 
-export const ownerSections: SectionKey[] = [...memberSections, 'review', 'share'];
+export const ownerSections: SectionKey[] = [...memberSections, 'review', 'share', 'settings'];
 
 export const sectionLabels: Record<SectionKey, string> = {
 	terminal: 'Terminal',
@@ -10,7 +10,8 @@ export const sectionLabels: Record<SectionKey, string> = {
 	model: 'The model',
 	log: 'The log',
 	review: 'Review changes',
-	share: 'Sharing'
+	share: 'Sharing',
+	settings: 'Settings'
 };
 
 export const sectionIconPaths: Record<SectionKey, string[]> = {
@@ -37,5 +38,9 @@ export const sectionIconPaths: Record<SectionKey, string[]> = {
 		'M3 20a6 6 0 0 1 12 0',
 		'M18 8v6',
 		'M15 11h6'
+	],
+	settings: [
+		'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z',
+		'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'
 	]
 };

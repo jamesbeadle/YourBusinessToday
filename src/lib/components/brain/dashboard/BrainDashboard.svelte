@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BrainActivityLog from '../BrainActivityLog.svelte';
 	import BrainConstellation from '../BrainConstellation.svelte';
+	import BrainSettingsPanel from './BrainSettingsPanel.svelte';
 	import BrainTerminal from './BrainTerminal.svelte';
 	import DomainModelIndex from '../DomainModelIndex.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
@@ -110,6 +111,8 @@
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} {invites} />
 					</div>
+				{:else if activeSection === 'settings'}
+					<BrainSettingsPanel {brain} />
 				{:else}
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						<BrainActivityLog {events} {pageBasePath} />

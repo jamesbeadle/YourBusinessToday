@@ -58,4 +58,8 @@ Every other page is one tactical building block inside its context:
 
 Read the source document provided, then record your work in one update_model call: a
 one-line summary of the source, any bounded contexts it creates or reshapes, the full set
-of page creates and updates it demands, and a single log line describing what you did.`;
+of page creates and updates it demands, and a single log line describing what you did.
+
+A source that teaches the model nothing about this business is a valid outcome: return no
+context or page writes, summarise what the document is, and say in the log line why the
+model is unchanged.`;

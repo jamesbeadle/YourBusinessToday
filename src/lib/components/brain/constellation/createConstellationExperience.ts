@@ -1,88 +1,95 @@
 import { startAnimationLoop } from '../../stage/animationLoop';
-import { createStage, fitStageTo, type Stage } from '../../stage/createStage';
-import { constellationInteractions } from './constellationInteractions';
-import { createPicker } from './constellationPicking';
-import { attachConstellationPointer } from './constellationPointer';
-import { assembleConstellationScene, type ConstellationScene } from './constellationSceneAssembly';
-import { createFocusDirector, type FocusDirector } from './focusDirector';
+import { createStage, fitStageTo } from '../../stage/createStage';
+import { assembleConstellationScene } from './constellationSceneAssembly';
+import { attachExperienceInput } from './experienceInput';
+import { createFocusDirector } from './focusDirector';
+import { createGrowthChoreographer } from './growthChoreographer';
+import { bodySlugsOf, newcomerSlugs } from './modelNewcomers';
 import { createOrbitRig, prefersReducedMotion } from './orbitRig';
-import type { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { ConstellationCallbacks, ConstellationModel } from './constellationTypes';
 
 const FIELD_OF_VIEW_DEGREES = 50;
 const FAR_PLANE = 220;
 
-export class ConstellationExperience {
-	private stage: Stage;
-	private view: ConstellationScene;
-	private controls: OrbitControls;
-	private director: FocusDirector;
-	private stopLoop: () => void;
-	private resizeObserver: ResizeObserver;
-	private detachPointer: () => void;
-	private isAnimated = !prefersReducedMotion();
+export type ExperienceOptions = { shouldCascadeInitialModel?: boolean };
 
-	constructor(
-		canvas: HTMLCanvasElement,
-		container: HTMLElement,
-		model: ConstellationModel,
-		callbacks: ConstellationCallbacks
-	) {
-		this.stage = createStage(canvas, {
-			fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES,
-			farPlane: FAR_PLANE
-		});
-		this.view = assembleConstellationScene(model);
-		this.controls = createOrbitRig(this.stage.camera, canvas);
-		this.director = createFocusDirector({
-			camera: this.stage.camera,
-			controls: this.controls,
-			view: this.view,
-			model,
-			isAnimated: this.isAnimated
-		});
-		const picker = createPicker(this.stage.camera, canvas, this.view.field.hitTargets);
-		this.detachPointer = attachConstellationPointer(
-			canvas,
-			constellationInteractions({
-				canvas,
-				picker,
-				callbacks,
-				focusContext: this.director.focusContext,
-				focusNeuron: this.director.focusNeuron
-			})
-		);
-		this.view.pulses.group.visible = this.isAnimated;
-		this.resizeObserver = fitStageTo(this.stage, container);
-		this.stopLoop = startAnimationLoop((delta, time) => this.frame(delta, time));
+export type ConstellationExperience = {
+	updateModel: (model: ConstellationModel) => void;
+	focusContext: (contextSlug: string | null) => void;
+	focusNeuron: (slug: string) => void;
+	resetView: () => void;
+	destroy: () => void;
+};
+
+export function createConstellationExperience(
+	canvas: HTMLCanvasElement,
+	container: HTMLElement,
+	model: ConstellationModel,
+	callbacks: ConstellationCallbacks,
+	options: ExperienceOptions = {}
+): ConstellationExperience {
+	const isAnimated = !prefersReducedMotion();
+	const stage = createStage(canvas, {
+		fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES,
+		farPlane: FAR_PLANE
+	});
+	const view = assembleConstellationScene(model);
+	const controls = createOrbitRig(stage.camera, canvas);
+	const director = createFocusDirector({ camera: stage.camera, controls, view, model, isAnimated });
+	const growth = createGrowthChoreographer({
+		bodyFor: (slug) => view.field.bodyFor(slug),
+		strandsTouching: (slug) => view.web.strandsTouching(slug),
+		flashes: view.flashes,
+		isAnimated
+	});
+	const detachPointer = attachExperienceInput({
+		canvas,
+		camera: stage.camera,
+		hitTargetsFor: () => view.field.hitTargets,
+		callbacks,
+		director
+	});
+	view.pulses.group.visible = isAnimated;
+	if (options.shouldCascadeInitialModel) growth.plan(bodySlugsOf(model));
+	const resizeObserver = fitStageTo(stage, container);
+	let knownModel = model;
+
+	function frame(deltaSeconds: number, timeSeconds: number): void {
+		director.update(deltaSeconds);
+		controls.update();
+		growth.update(deltaSeconds);
+		view.flashes.update(deltaSeconds);
+		if (isAnimated) view.field.twinkle(timeSeconds);
+		if (isAnimated) view.pulses.update(deltaSeconds);
+		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	private frame(deltaSeconds: number, timeSeconds: number): void {
-		this.director.update(deltaSeconds);
-		this.controls.update();
-		if (this.isAnimated) this.view.field.twinkle(timeSeconds);
-		if (this.isAnimated) this.view.pulses.update(deltaSeconds);
-		this.stage.renderer.render(this.view.scene, this.stage.camera);
+	const stopLoop = startAnimationLoop(frame);
+
+	function updateModel(updatedModel: ConstellationModel): void {
+		if (updatedModel === knownModel) return;
+		const newcomers = newcomerSlugs(knownModel, updatedModel);
+		knownModel = updatedModel;
+		view.rebuild(updatedModel);
+		view.pulses.group.visible = isAnimated;
+		director.refresh(updatedModel);
+		growth.plan(newcomers);
 	}
 
-	focusContext(contextSlug: string | null): void {
-		this.director.focusContext(contextSlug);
+	function destroy(): void {
+		stopLoop();
+		detachPointer();
+		resizeObserver.disconnect();
+		controls.dispose();
+		view.dispose();
+		stage.dispose();
 	}
 
-	focusNeuron(slug: string): void {
-		this.director.focusNeuron(slug);
-	}
-
-	resetView(): void {
-		this.director.focusContext(null);
-	}
-
-	destroy(): void {
-		this.stopLoop();
-		this.detachPointer();
-		this.resizeObserver.disconnect();
-		this.controls.dispose();
-		this.view.dispose();
-		this.stage.dispose();
-	}
+	return {
+		updateModel,
+		focusContext: director.focusContext,
+		focusNeuron: director.focusNeuron,
+		resetView: () => director.focusContext(null),
+		destroy
+	};
 }

@@ -9,7 +9,7 @@ export type Picker = {
 export function createPicker(
 	camera: PerspectiveCamera,
 	canvas: HTMLCanvasElement,
-	hitTargets: Mesh[]
+	hitTargetsFor: () => Mesh[]
 ): Picker {
 	const raycaster = new Raycaster();
 	const pointer = new Vector2();
@@ -19,7 +19,7 @@ export function createPicker(
 		pointer.x = ((pointerX - bounds.left) / bounds.width) * 2 - 1;
 		pointer.y = -(((pointerY - bounds.top) / bounds.height) * 2 - 1);
 		raycaster.setFromCamera(pointer, camera);
-		const [nearest] = raycaster.intersectObjects(hitTargets, false);
+		const [nearest] = raycaster.intersectObjects(hitTargetsFor(), false);
 		if (nearest === undefined) return null;
 		return nearest.object.userData as PickResult;
 	}

@@ -17,6 +17,8 @@ function dendritesOf(neurons: Neuron[], nuclei: Nucleus[]): Synapse[] {
 			{
 				kind: 'dendrite' as const,
 				contextSlug: nucleus.slug,
+				fromSlug: nucleus.slug,
+				toSlug: neuron.slug,
 				from: nucleus.position,
 				to: neuron.position
 			}
@@ -34,6 +36,8 @@ function crosslinksOf(neurons: Neuron[], pageLinks: BrainPageLink[]): Synapse[] 
 			{
 				kind: 'crosslink' as const,
 				contextSlug: isWithinOneContext ? from.contextSlug : null,
+				fromSlug: from.slug,
+				toSlug: to.slug,
 				from: from.position,
 				to: to.position
 			}

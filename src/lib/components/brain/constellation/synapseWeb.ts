@@ -1,89 +1,48 @@
-import {
-	AdditiveBlending,
-	BufferGeometry,
-	Group,
-	LineBasicMaterial,
-	LineSegments,
-	QuadraticBezierCurve3,
-	Vector3
-} from 'three';
+import { Group, type Vector3 } from 'three';
+import { createSynapseStrand, type SynapseStrand } from './synapseStrand';
 import { CROSSLINK, DENDRITE } from './constellationPalette';
-import { WHOLE_MODEL_KEY } from './materialBank';
-import type { Synapse } from './constellationTypes';
+import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
+import { neuronProportions, nucleusProportions } from './neuronProportions';
+import type { ConstellationModel } from './constellationTypes';
 
-const POINTS_PER_CURVE = 14;
-const DENDRITE_BOW = 0.14;
-const CROSSLINK_BOW = 1.12;
-const FULL_OPACITY = 0.24;
-const DIMMED_OPACITY = 0.05;
+const STRAND_OPACITY = 0.24;
 
 export type SampledCurve = { points: Vector3[]; contextKey: string };
 
 export type SynapseWeb = {
 	group: Group;
 	curves: SampledCurve[];
-	setFocus: (contextKey: string | null) => void;
+	strandsTouching: (slug: string) => SynapseStrand[];
 	dispose: () => void;
 };
 
-export function createSynapseWeb(synapses: Synapse[]): SynapseWeb {
+export function createSynapseWeb(model: ConstellationModel, bank: MaterialBank): SynapseWeb {
+	const nucleusSlugs = new Set(model.nuclei.map((nucleus) => nucleus.slug));
+	const reachFor = (slug: string) =>
+		nucleusSlugs.has(slug) ? nucleusProportions.dendriteReach : neuronProportions.dendriteReach;
+
 	const group = new Group();
-	const curves = synapses.map(sampleCurve);
-	const materials = new Map<string, LineBasicMaterial>();
-
-	for (const [contextKey, strand] of strandsByContext(curves)) {
+	const strands = model.synapses.map((synapse) => {
+		const contextKey = synapse.contextSlug ?? WHOLE_MODEL_KEY;
 		const colour = contextKey === WHOLE_MODEL_KEY ? CROSSLINK : DENDRITE;
-		const material = new LineBasicMaterial({
-			color: colour,
-			transparent: true,
-			opacity: FULL_OPACITY,
-			blending: AdditiveBlending,
-			depthWrite: false
-		});
-		materials.set(contextKey, material);
-		const geometry = new BufferGeometry().setFromPoints(strand);
-		group.add(new LineSegments(geometry, material));
-	}
+		const material = bank.strandFor(colour, contextKey, STRAND_OPACITY);
+		const strand = createSynapseStrand(synapse, contextKey, material, reachFor);
+		group.add(strand.line);
+		return strand;
+	});
 
-	function setFocus(contextKey: string | null): void {
-		for (const [key, material] of materials) {
-			const isInFocus = contextKey === null || key === contextKey;
-			material.opacity = isInFocus ? FULL_OPACITY : DIMMED_OPACITY;
-		}
+	function strandsTouching(slug: string): SynapseStrand[] {
+		return strands.filter((strand) => strand.touches(slug));
 	}
 
 	function dispose(): void {
-		for (const child of group.children) (child as LineSegments).geometry.dispose();
-		for (const material of materials.values()) material.dispose();
+		for (const strand of strands) strand.dispose();
 	}
 
-	return { group, curves, setFocus, dispose };
-}
-
-function sampleCurve(synapse: Synapse): SampledCurve {
-	const control = bowControlPoint(synapse);
-	const curve = new QuadraticBezierCurve3(synapse.from, control, synapse.to);
 	return {
-		points: curve.getPoints(POINTS_PER_CURVE),
-		contextKey: synapse.contextSlug ?? WHOLE_MODEL_KEY
+		group,
+		curves: strands.map((strand) => ({ points: strand.points, contextKey: strand.contextKey })),
+		strandsTouching,
+		dispose
 	};
-}
-
-function bowControlPoint(synapse: Synapse): Vector3 {
-	const midpoint = synapse.from.clone().add(synapse.to).multiplyScalar(0.5);
-	if (synapse.kind === 'crosslink') return midpoint.multiplyScalar(CROSSLINK_BOW);
-	const lift = synapse.to.clone().sub(synapse.from).length() * DENDRITE_BOW;
-	return midpoint.add(new Vector3(0, lift, 0));
-}
-
-function strandsByContext(curves: SampledCurve[]): Map<string, Vector3[]> {
-	const strands = new Map<string, Vector3[]>();
-	for (const curve of curves) {
-		const strand = strands.get(curve.contextKey) ?? [];
-		for (let index = 0; index < curve.points.length - 1; index += 1) {
-			strand.push(curve.points[index], curve.points[index + 1]);
-		}
-		strands.set(curve.contextKey, strand);
-	}
-	return strands;
 }

@@ -22,20 +22,23 @@ type DirectorDependencies = {
 export type FocusDirector = {
 	focusContext: (contextSlug: string | null) => void;
 	focusNeuron: (slug: string) => void;
+	refresh: (model: ConstellationModel) => void;
 	update: (deltaSeconds: number) => void;
 };
 
 export function createFocusDirector(dependencies: DirectorDependencies): FocusDirector {
-	const { camera, controls, view, model, isAnimated } = dependencies;
+	const { camera, controls, view, isAnimated } = dependencies;
 	const flight = createCameraFlight(camera, controls.target);
+	let model = dependencies.model;
+	let focusKey: string | null = null;
 
 	const home = homeViewpoint(model);
 	camera.position.copy(home.position);
 	controls.target.copy(home.target);
 
 	function applyFocus(contextKey: string | null): void {
+		focusKey = contextKey;
 		view.bank.setFocus(contextKey);
-		view.web.setFocus(contextKey);
 		view.pulses.setFocus(contextKey);
 		view.ambient.setFocus(contextKey);
 	}
@@ -60,9 +63,14 @@ export function createFocusDirector(dependencies: DirectorDependencies): FocusDi
 		travel(neuronViewpoint(neuron, model));
 	}
 
+	function refresh(refreshedModel: ConstellationModel): void {
+		model = refreshedModel;
+		applyFocus(focusKey);
+	}
+
 	function update(deltaSeconds: number): void {
 		flight.update(camera, controls.target, deltaSeconds);
 	}
 
-	return { focusContext, focusNeuron, update };
+	return { focusContext, focusNeuron, refresh, update };
 }

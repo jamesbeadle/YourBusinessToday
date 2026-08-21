@@ -1,4 +1,5 @@
 <script lang="ts">
+	import IngestProgressLabel from './IngestProgressLabel.svelte';
 	import SourceRemoveButton from './SourceRemoveButton.svelte';
 	import SourceRereadButton from './SourceRereadButton.svelte';
 	import { ingestSource } from './uploadSourceFile';
@@ -58,7 +59,11 @@
 				class="font-display text-xs text-chalk/70 underline transition hover:text-chalk
 					disabled:opacity-40"
 			>
-				{isRetrying ? 'Reading…' : 'Read it'}
+				{#if isRetrying}
+					<IngestProgressLabel />
+				{:else}
+					Read it
+				{/if}
 			</button>
 		{/if}
 		{#if canReread}

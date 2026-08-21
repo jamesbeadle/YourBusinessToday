@@ -26,11 +26,13 @@
 	let isThinking = $state(false);
 	let pendingQuestion = $state<string | null>(null);
 	let transferLines = $state<string[]>([]);
+	let activeTransferName = $state<string | null>(null);
 	let isDropTarget = $state(false);
 	let scrollElement = $state<HTMLDivElement>();
 
 	$effect(() => {
 		void (messages.length + transferLines.length + Number(isThinking));
+		void activeTransferName;
 		const element = scrollElement;
 		if (element !== undefined) element.scrollTo({ top: element.scrollHeight });
 	});
@@ -60,7 +62,14 @@
 
 	const appendLine = (line: string) => (transferLines = [...transferLines, line]);
 
-	const ingest = $derived(createTerminalIngest({ brainId, appendLine, onOutOfCredits }));
+	const ingest = $derived(
+		createTerminalIngest({
+			brainId,
+			appendLine,
+			setActiveTransfer: (transferName) => (activeTransferName = transferName),
+			onOutOfCredits
+		})
+	);
 
 	const ask = $derived(
 		createTerminalAsk({
@@ -85,6 +94,7 @@
 			{pendingQuestion}
 			{isThinking}
 			{transferLines}
+			{activeTransferName}
 		/>
 	</div>
 	<CommandBox bind:text={commandText} onSend={sendCommand} />

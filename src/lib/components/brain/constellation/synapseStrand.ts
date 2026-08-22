@@ -6,12 +6,11 @@ import {
 	Vector3,
 	type LineBasicMaterial
 } from 'three';
-import { shareStreamFrom } from './pseudoRandom';
+import { strandHeadingsOf } from './synapseHeadings';
 import type { Synapse } from './constellationTypes';
 
 const POINTS_PER_CURVE = 24;
 const HANDLE_SHARE = 0.32;
-const HANDLE_DRIFT = 0.3;
 const CROSSLINK_OUTWARD_LIFT = 0.12;
 const JOIN_BRIGHTNESS = 1;
 const SPAN_BRIGHTNESS = 0.55;
@@ -31,14 +30,12 @@ export function createSynapseStrand(
 	synapse: Synapse,
 	contextKey: string,
 	material: LineBasicMaterial,
-	membraneRadiusFor: (slug: string) => number
+	dockRadiusFor: (slug: string) => number
 ): SynapseStrand {
-	const nextShare = shareStreamFrom(`${synapse.fromSlug}->${synapse.toSlug}`);
 	const span = synapse.from.distanceTo(synapse.to);
-	const leaving = drifted(synapse.to.clone().sub(synapse.from).normalize(), nextShare);
-	const arriving = drifted(synapse.from.clone().sub(synapse.to).normalize(), nextShare);
-	const start = synapse.from.clone().addScaledVector(leaving, membraneRadiusFor(synapse.fromSlug));
-	const end = synapse.to.clone().addScaledVector(arriving, membraneRadiusFor(synapse.toSlug));
+	const { leaving, arriving } = strandHeadingsOf(synapse);
+	const start = synapse.from.clone().addScaledVector(leaving, dockRadiusFor(synapse.fromSlug));
+	const end = synapse.to.clone().addScaledVector(arriving, dockRadiusFor(synapse.toSlug));
 	const outwardLift = synapse.kind === 'crosslink' ? span * CROSSLINK_OUTWARD_LIFT : 0;
 	const startHandle = handleFrom(start, leaving, span, outwardLift);
 	const endHandle = handleFrom(end, arriving, span, outwardLift);
@@ -66,11 +63,6 @@ export function createSynapseStrand(
 		setGrowth,
 		dispose: () => geometry.dispose()
 	};
-}
-
-function drifted(heading: Vector3, nextShare: () => number): Vector3 {
-	const drift = new Vector3(nextShare() - 0.5, nextShare() - 0.5, nextShare() - 0.5);
-	return heading.addScaledVector(drift, HANDLE_DRIFT).normalize();
 }
 
 function handleFrom(anchor: Vector3, heading: Vector3, span: number, outwardLift: number): Vector3 {

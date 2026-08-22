@@ -1,3 +1,4 @@
+import type { Vector3 } from 'three';
 import { MembraneMaterial } from './membraneMaterial';
 import { SomaMaterial } from './somaMaterial';
 import { DIMMED_OPACITY_SHARE } from './materialBank';
@@ -10,7 +11,7 @@ type SkinMaterial = MembraneMaterial | SomaMaterial;
 type SkinEntry = { material: SkinMaterial; contextKey: string; fullOpacity: number };
 
 export type CellSkinBank = {
-	membraneFor: (colour: number, contextKey: string) => MembraneMaterial;
+	membraneFor: (slug: string, colour: number, contextKey: string, teatDirections: Vector3[]) => MembraneMaterial;
 	somaFor: (colour: number, contextKey: string) => SomaMaterial;
 	setFocus: (contextKey: string | null) => void;
 	tick: (timeSeconds: number) => void;
@@ -34,12 +35,17 @@ export function createCellSkinBank(): CellSkinBank {
 		return material;
 	}
 
-	function membraneFor(colour: number, contextKey: string): MembraneMaterial {
+	function membraneFor(
+		slug: string,
+		colour: number,
+		contextKey: string,
+		teatDirections: Vector3[]
+	): MembraneMaterial {
 		return remember(
-			`membrane:${contextKey}:${colour}`,
+			`membrane:${slug}`,
 			contextKey,
 			FULL_MEMBRANE_OPACITY,
-			() => new MembraneMaterial(colour)
+			() => new MembraneMaterial(colour, teatDirections)
 		);
 	}
 

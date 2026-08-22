@@ -24,6 +24,7 @@ export type DendriteBranch = { points: Vector3[] };
 type BranchSeed = { heading: Vector3; reach: number };
 
 export function growDendrites(
+	slug: string,
 	connectionDirections: Vector3[],
 	proportions: BodyProportions,
 	nextShare: () => number
@@ -32,7 +33,7 @@ export function growDendrites(
 	const twigChance = SPARSEST_TWIG_CHANCE + TWIG_CHANCE_SPREAD * richness;
 	const branches: DendriteBranch[] = [];
 	for (const seed of branchSeeds(connectionDirections, proportions, nextShare)) {
-		const origin = seed.heading.clone().multiplyScalar(membraneRadiusOf(proportions));
+		const origin = seed.heading.clone().multiplyScalar(membraneRadiusOf(slug, proportions));
 		const trunk = growBranch(origin, seed.heading, TRUNK_SEGMENT_SHARES, seed.reach, TRUNK_WOBBLE, nextShare);
 		branches.push(trunk);
 		for (const twig of sproutsAlong(trunk, seed.reach * TWIG_LENGTH_SHARE, TWIG_SEGMENT_SHARES, TWIG_SPREAD, twigChance, nextShare)) {

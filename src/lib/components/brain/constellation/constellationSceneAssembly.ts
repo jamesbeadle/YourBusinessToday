@@ -101,10 +101,14 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 }
 
 function cellZonesOf(model: ConstellationModel): ClearZone[] {
-	const neuronClearance = membraneRadiusOf(neuronProportions) * CLEARANCE_SHARE;
-	const nucleusClearance = membraneRadiusOf(nucleusProportions) * CLEARANCE_SHARE;
 	return [
-		...model.neurons.map((neuron) => ({ centre: neuron.position, radius: neuronClearance })),
-		...model.nuclei.map((nucleus) => ({ centre: nucleus.position, radius: nucleusClearance }))
+		...model.neurons.map((neuron) => ({
+			centre: neuron.position,
+			radius: membraneRadiusOf(neuron.slug, neuronProportions) * CLEARANCE_SHARE
+		})),
+		...model.nuclei.map((nucleus) => ({
+			centre: nucleus.position,
+			radius: membraneRadiusOf(nucleus.slug, nucleusProportions) * CLEARANCE_SHARE
+		}))
 	];
 }

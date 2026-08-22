@@ -4,6 +4,7 @@
 	import TaskDueDate from './TaskDueDate.svelte';
 	import TaskListRow from './TaskListRow.svelte';
 	import TaskMetaBadges from './TaskMetaBadges.svelte';
+	import TaskPhaseButton from './TaskPhaseButton.svelte';
 	import TaskStatusButton from './TaskStatusButton.svelte';
 	import type { ListReorder } from '$lib/client/listReorder.svelte';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -17,7 +18,8 @@
 		assigneeNamesFor,
 		phaseNameFor,
 		onAddSubtask,
-		onChangeStatus
+		onChangeStatus,
+		onChangePhase
 	}: {
 		task: TaskTreeNode;
 		numberPath: string;
@@ -28,14 +30,12 @@
 		phaseNameFor: (phaseId: string | null) => string | null;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
+		onChangePhase: (task: TaskTreeNode) => void;
 	} = $props();
 
 	const isDone = $derived(task.status === 'done');
-	const rowSubtitle = $derived(
-		[phaseNameFor(task.phaseId), assigneeNamesFor(task.id).join(', ')]
-			.filter((part) => part)
-			.join(' · ')
-	);
+	const phaseName = $derived(phaseNameFor(task.phaseId));
+	const assigneeSubtitle = $derived(assigneeNamesFor(task.id).join(', '));
 </script>
 
 <ReorderableRow {listReorder} rowId={task.id} groupId={task.parentTaskId}>
@@ -55,8 +55,8 @@
 					{#if task.isUserStory}<span title="User story" class="text-caution">◆</span>{/if}
 					{task.title}
 				</a>
-				{#if rowSubtitle !== ''}
-					<p class="truncate text-xs text-chalk/50">{rowSubtitle}</p>
+				{#if assigneeSubtitle !== ''}
+					<p class="truncate text-xs text-chalk/50">{assigneeSubtitle}</p>
 				{/if}
 			</div>
 			<div class="ml-auto flex shrink-0 items-center gap-2">
@@ -64,6 +64,7 @@
 				{#if task.dueDate !== null}
 					<TaskDueDate dueDate={task.dueDate} {isDone} />
 				{/if}
+				<TaskPhaseButton {phaseName} onOpenPicker={() => onChangePhase(task)} />
 				<TaskStatusButton status={task.status} onOpenPicker={() => onChangeStatus(task)} />
 				<button
 					type="button"
@@ -90,6 +91,7 @@
 						{phaseNameFor}
 						{onAddSubtask}
 						{onChangeStatus}
+						{onChangePhase}
 					/>
 				{/each}
 			</ol>

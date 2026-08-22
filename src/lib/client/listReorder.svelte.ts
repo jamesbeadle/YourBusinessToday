@@ -16,9 +16,10 @@ let nextListNumber = 0;
 /**
  * Drag-to-reorder state for one list, driven by pointer events so it works
  * with both mouse and touch. Rows carry a sibling-group key (for nested
- * lists), so a drag can only drop among the rows it started beside. Lists
- * that allow nesting also accept a drop on a row's middle band, which files
- * the dragged row as that row's child.
+ * lists); a drag prefers dropping among the rows it started beside. Lists
+ * that allow nesting also accept a drop on a row's middle band (which files
+ * the dragged row as that row's child) and a drop beside a row in another
+ * group (which moves the dragged row to that group's level).
  */
 export class ListReorder {
 	draggedId = $state<string | null>(null);
@@ -43,16 +44,18 @@ export class ListReorder {
 	}
 
 	trackDrag(event: PointerEvent): void {
-		if (this.draggedId === null) return;
+		const { draggedId, draggedGroupId } = this;
+		if (draggedId === null) return;
 		this.#autoScroller.follow(event.clientY);
 		const dropTarget = findReorderRow(
 			this.listId,
-			this.draggedGroupId,
+			draggedId,
+			draggedGroupId,
 			event.clientX,
 			event.clientY,
 			this.canNestRows
 		);
-		if (dropTarget === null || dropTarget.rowId === this.draggedId) {
+		if (dropTarget === null || dropTarget.rowId === draggedId) {
 			this.dropTargetId = null;
 			return;
 		}

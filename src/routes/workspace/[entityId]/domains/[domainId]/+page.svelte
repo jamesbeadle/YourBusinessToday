@@ -24,4 +24,5 @@
 	editions={data.editions}
 	sales={data.sales}
 	hive={data.hive}
+	apiTokens={data.apiTokens}
 />

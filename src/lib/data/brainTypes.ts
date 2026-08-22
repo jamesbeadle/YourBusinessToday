@@ -70,7 +70,7 @@ export type BrainAnswer = {
 	citedSlugs: string[];
 };
 
-export type BrainConversationChannel = 'brain' | 'face';
+export type BrainConversationChannel = 'brain' | 'face' | 'api';
 
 export type BrainSpeaker = 'user' | 'modeller';
 

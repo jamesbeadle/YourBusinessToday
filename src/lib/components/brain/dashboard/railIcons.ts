@@ -7,6 +7,7 @@ export type SectionKey =
 	| 'share'
 	| 'sell'
 	| 'hive'
+	| 'api'
 	| 'settings';
 
 export const readerSections: SectionKey[] = ['terminal', 'model', 'log'];
@@ -19,6 +20,7 @@ export const ownerSections: SectionKey[] = [
 	'share',
 	'sell',
 	'hive',
+	'api',
 	'settings'
 ];
 
@@ -31,6 +33,7 @@ export const sectionLabels: Record<SectionKey, string> = {
 	share: 'Sharing',
 	sell: 'Sell on the market',
 	hive: 'Hive Mind',
+	api: 'API access',
 	settings: 'Settings'
 };
 
@@ -64,6 +67,7 @@ export const sectionIconPaths: Record<SectionKey, string[]> = {
 		'M7.5 7.5h.01'
 	],
 	hive: ['M12 3l7.5 4.3v8.6L12 20.2l-7.5-4.3V7.3z', 'M12 8.2l3.3 1.9v3.8L12 15.8l-3.3-1.9v-3.8z'],
+	api: ['M21 2l-9.6 9.6', 'M15.5 7.5l3 3L22 7l-3-3', 'M7.5 11a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z'],
 	settings: [
 		'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z',
 		'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'

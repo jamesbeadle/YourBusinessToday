@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ApiPanel from './ApiPanel.svelte';
 	import BrainActivityLog from '../BrainActivityLog.svelte';
 	import BrainConstellation from '../BrainConstellation.svelte';
 	import BrainSettingsPanel from './BrainSettingsPanel.svelte';
@@ -22,6 +23,7 @@
 		BrainListing,
 		ListingSales
 	} from '$lib/data/marketTypes';
+	import type { BrainApiToken } from '$lib/data/brainApiTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 	import type { HiveBrainStatus } from '$lib/data/hiveTypes';
 	import type {
@@ -48,7 +50,8 @@
 		listing,
 		editions,
 		sales,
-		hive
+		hive,
+		apiTokens
 	}: {
 		brain: DomainBrain;
 		accessRole: BrainAccessRole;
@@ -65,6 +68,7 @@
 		editions: BrainEdition[];
 		sales: ListingSales | null;
 		hive: HiveBrainStatus | null;
+		apiTokens: BrainApiToken[];
 	} = $props();
 
 	const isOwner = $derived(accessRole === 'owner');
@@ -142,6 +146,10 @@
 					{#if hive !== null}
 						<HiveMindPanel {hive} />
 					{/if}
+				{:else if activeSection === 'api'}
+					<div class="min-h-0 flex-1 overflow-y-auto">
+						<ApiPanel brainId={brain.id} tokens={apiTokens} />
+					</div>
 				{:else if activeSection === 'settings'}
 					<BrainSettingsPanel {brain} />
 				{:else}

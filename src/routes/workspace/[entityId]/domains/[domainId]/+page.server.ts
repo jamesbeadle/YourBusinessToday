@@ -6,6 +6,7 @@ import { getBrainConversationThread } from '$lib/server/brain/getBrainConversati
 import { getBrainEvents } from '$lib/server/brain/getBrainEvents';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import { getBrainPageLinks } from '$lib/server/brain/getBrainPageLinks';
+import { getBrainApiTokens } from '$lib/server/brainApi/brainApiTokens';
 import { getBrainMarketState } from '$lib/server/market/getBrainMarketState';
 import { getBrainSources } from '$lib/server/brain/getBrainSources';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
@@ -43,6 +44,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		shares: isOwner ? await getSharesForBrain(locals.supabase, brain) : [],
 		invites: isOwner ? await getInvitesForBrain(locals.supabase, brain) : [],
 		hive: isOwner ? await getHiveBrainStatus(locals.supabase, brain.id) : null,
+		apiTokens: isOwner ? await getBrainApiTokens(locals.supabase, brain.id) : [],
 		...marketState
 	};
 };

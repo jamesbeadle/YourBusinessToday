@@ -3,36 +3,60 @@ import type { DropPlacement } from '$lib/client/listReorder.svelte';
 export type ReorderDropTarget = { rowId: string; placement: DropPlacement };
 
 /**
- * Hit-test the pointer against the rows of one reorder list: finds the row
- * under the pointer that belongs to the given list and sibling group,
- * walking outward through nested groups so hovering a subtask still counts
- * for the enclosing top-level row.
+ * Hit-test the pointer against the rows of one reorder list. Rows nest, so
+ * the search walks from the innermost row under the pointer outward. Rows
+ * inside the dragged row's own subtree are never targets. A row from the
+ * dragged row's own sibling group is preferred; lists that allow nesting also
+ * accept a row from any other group, which is how a drag leaves its parent.
  */
 export function findReorderRow(
 	listId: string,
-	groupId: string | null,
+	draggedRowId: string,
+	draggedGroupId: string | null,
 	clientX: number,
 	clientY: number,
 	canNestRows: boolean
 ): ReorderDropTarget | null {
+	const rowsUnderPointer = rowsFromInnermostOutward(listId, clientX, clientY);
+	const candidateRows = rowsOutsideDraggedSubtree(rowsUnderPointer, draggedRowId);
+	const targetRow = preferredTargetRow(candidateRows, draggedGroupId, canNestRows);
+	if (targetRow === null) return null;
+	return dropTargetFor(targetRow, clientY, canNestRows);
+}
+
+function rowsFromInnermostOutward(
+	listId: string,
+	clientX: number,
+	clientY: number
+): HTMLElement[] {
+	const rows: HTMLElement[] = [];
 	const pointedElement = document.elementFromPoint(clientX, clientY);
 	let row = pointedElement?.closest('[data-reorder-list]') ?? null;
 	while (row instanceof HTMLElement) {
-		if (isMatchingRow(row, listId, groupId)) return dropTargetFor(row, clientY, canNestRows);
+		if (row.dataset.reorderList === listId) rows.push(row);
 		row = row.parentElement?.closest('[data-reorder-list]') ?? null;
 	}
-	return null;
+	return rows;
 }
 
-function isMatchingRow(row: HTMLElement, listId: string, groupId: string | null): boolean {
-	return row.dataset.reorderList === listId && row.dataset.reorderGroup === (groupId ?? '');
+function rowsOutsideDraggedSubtree(rows: HTMLElement[], draggedRowId: string): HTMLElement[] {
+	const draggedRowIndex = rows.findIndex((row) => row.dataset.reorderRow === draggedRowId);
+	if (draggedRowIndex === -1) return rows;
+	return rows.slice(draggedRowIndex + 1);
 }
 
-function dropTargetFor(
-	row: HTMLElement,
-	clientY: number,
+function preferredTargetRow(
+	rows: HTMLElement[],
+	draggedGroupId: string | null,
 	canNestRows: boolean
-): ReorderDropTarget {
+): HTMLElement | null {
+	const sameGroupRow = rows.find((row) => row.dataset.reorderGroup === (draggedGroupId ?? ''));
+	if (sameGroupRow !== undefined) return sameGroupRow;
+	if (!canNestRows) return null;
+	return rows[0] ?? null;
+}
+
+function dropTargetFor(row: HTMLElement, clientY: number, canNestRows: boolean): ReorderDropTarget {
 	const rowId = row.dataset.reorderRow ?? '';
 	const rowBounds = row.getBoundingClientRect();
 	if (!canNestRows) return { rowId, placement: placementByHalves(rowBounds, clientY) };

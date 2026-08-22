@@ -14,12 +14,31 @@ export async function placeTask(
 	placement: DropPlacement
 ): Promise<void> {
 	if (placement === 'inside') return reparentTask(supabase, movedTaskId, targetTaskId);
-	const movedTask = await findTask(supabase, movedTaskId);
+	const targetTask = await findTask(supabase, targetTaskId);
+	if (targetTask === null) return;
+	const movedTask = await movedTaskBesideTarget(supabase, movedTaskId, targetTask);
 	if (movedTask === null) return;
 	const siblings = await getSiblingsByPriority(supabase, movedTask);
 	const reorderedSiblings = reorderByDrop(siblings, movedTaskId, targetTaskId, placement);
 	if (reorderedSiblings === null) return;
 	await applyNewOrder(supabase, reorderedSiblings);
+}
+
+/**
+ * A drop beside a task in another sibling group first moves the dragged task
+ * into that group. If the move is refused (a cycle, or a missing parent), the
+ * returned task keeps its old group, so the reorder that follows finds no
+ * shared siblings and settles as a no-op.
+ */
+async function movedTaskBesideTarget(
+	supabase: SupabaseClient,
+	movedTaskId: string,
+	targetTask: ProjectTask
+): Promise<ProjectTask | null> {
+	const movedTask = await findTask(supabase, movedTaskId);
+	if (movedTask === null || movedTask.parentTaskId === targetTask.parentTaskId) return movedTask;
+	await reparentTask(supabase, movedTaskId, targetTask.parentTaskId);
+	return findTask(supabase, movedTaskId);
 }
 
 async function applyNewOrder(supabase: SupabaseClient, siblings: ProjectTask[]): Promise<void> {

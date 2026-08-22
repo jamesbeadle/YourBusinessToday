@@ -7,8 +7,8 @@ import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
 import type { CellSkinBank } from './cellSkinBank';
 import type { ConstellationModel } from './constellationTypes';
 
-const SOMA_DETAIL = 4;
-const MEMBRANE_DETAIL = 4;
+const SOMA_DETAIL = 10;
+const MEMBRANE_DETAIL = 16;
 const HIT_DETAIL = 1;
 const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;

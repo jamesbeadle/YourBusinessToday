@@ -51,18 +51,19 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 	const nextShare = shareStreamFrom(seed.slug);
 
 	const soma = createCellSoma({
+		slug: seed.slug,
 		position,
 		colour,
 		contextKey,
 		proportions,
+		connectionDirections: seed.connectionDirections,
 		somaGeometry: seed.somaGeometry,
 		membraneGeometry: seed.membraneGeometry,
 		bank,
-		skins: seed.skins,
-		nextShare
+		skins: seed.skins
 	});
 
-	const branches = growDendrites(seed.connectionDirections, proportions, nextShare);
+	const branches = growDendrites(seed.slug, seed.connectionDirections, proportions, nextShare);
 	const wireframe = wireframeFrom(branches, position);
 	const dendrites = new LineSegments(
 		wireframe.geometry,

@@ -1,4 +1,6 @@
 import { Mesh, Sprite, Vector3, type BufferGeometry } from 'three';
+import { STRAND_DOCK_SHARE } from './membraneMaterial';
+import { shareStreamFrom } from './pseudoRandom';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
 import type { CellSkinBank } from './cellSkinBank';
@@ -17,32 +19,40 @@ export type CellSoma = {
 };
 
 export type SomaSeed = {
+	slug: string;
 	position: Vector3;
 	colour: number;
 	contextKey: string;
 	proportions: BodyProportions;
+	connectionDirections: Vector3[];
 	somaGeometry: BufferGeometry;
 	membraneGeometry: BufferGeometry;
 	bank: MaterialBank;
 	skins: CellSkinBank;
-	nextShare: () => number;
 };
 
-export function membraneRadiusOf(proportions: BodyProportions): number {
-	return proportions.somaRadius * MEMBRANE_RADIUS_SHARE;
+export function membraneRadiusOf(slug: string, proportions: BodyProportions): number {
+	return proportions.somaRadius * somaSizeShareOf(slug) * MEMBRANE_RADIUS_SHARE;
+}
+
+export function strandDockRadiusOf(slug: string, proportions: BodyProportions): number {
+	return membraneRadiusOf(slug, proportions) * STRAND_DOCK_SHARE;
 }
 
 export function createCellSoma(seed: SomaSeed): CellSoma {
-	const { position, colour, contextKey, proportions, bank, skins, nextShare } = seed;
-	const somaShape = irregularShape(proportions.somaRadius, nextShare);
+	const { slug, position, colour, contextKey, proportions, bank, skins } = seed;
+	const somaRadius = proportions.somaRadius * somaSizeShareOf(slug);
+	const nextShare = shareStreamFrom(`${slug}:soma`);
 
 	const core = new Mesh(seed.somaGeometry, skins.somaFor(colour, contextKey));
 	core.position.copy(position);
 	core.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
 
-	const membrane = new Mesh(seed.membraneGeometry, skins.membraneFor(colour, contextKey));
+	const membrane = new Mesh(
+		seed.membraneGeometry,
+		skins.membraneFor(slug, colour, contextKey, seed.connectionDirections)
+	);
 	membrane.position.copy(position);
-	membrane.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
 
 	const glow = new Sprite(bank.glowFor(colour, contextKey));
 	glow.position.copy(position);
@@ -50,8 +60,8 @@ export function createCellSoma(seed: SomaSeed): CellSoma {
 	let flareShare = 1;
 
 	function resize(): void {
-		core.scale.copy(somaShape).multiplyScalar(CORE_RADIUS_SHARE * flareShare);
-		membrane.scale.copy(somaShape).multiplyScalar(MEMBRANE_RADIUS_SHARE * flareShare);
+		core.scale.setScalar(somaRadius * CORE_RADIUS_SHARE * flareShare);
+		membrane.scale.setScalar(somaRadius * MEMBRANE_RADIUS_SHARE * flareShare);
 	}
 
 	function setGrowth(grownFlareShare: number): void {
@@ -68,9 +78,9 @@ export function createCellSoma(seed: SomaSeed): CellSoma {
 	return { core, membrane, glow, setGrowth, glowPulse };
 }
 
-function irregularShape(radius: number, nextShare: () => number): Vector3 {
-	const stretch = () => radius * (1 - SOMA_SQUASH_SPREAD / 2 + SOMA_SQUASH_SPREAD * nextShare());
-	return new Vector3(stretch(), stretch(), stretch());
+function somaSizeShareOf(slug: string): number {
+	const share = shareStreamFrom(`${slug}:size`)();
+	return 1 - SOMA_SQUASH_SPREAD / 2 + SOMA_SQUASH_SPREAD * share;
 }
 
 function spin(nextShare: () => number): number {

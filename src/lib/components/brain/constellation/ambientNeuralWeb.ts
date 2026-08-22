@@ -21,8 +21,11 @@ const FULL_POINT_OPACITY = 0.5;
 const FULL_LINE_OPACITY = 0.11;
 const DIMMED_SHARE = 0.35;
 
+export type ClearZone = { centre: Vector3; radius: number };
+
 export type AmbientNeuralWeb = {
 	group: Group;
+	keepClearOf: (zones: ClearZone[]) => void;
 	setFocus: (contextKey: string | null) => void;
 	dispose: () => void;
 };
@@ -41,8 +44,9 @@ export function createAmbientNeuralWeb(glowTexture: Texture): AmbientNeuralWeb {
 		blending: AdditiveBlending,
 		depthWrite: false
 	});
+	const links = linksAmong(anchors);
 	const linesGeometry = new BufferGeometry();
-	linesGeometry.setAttribute('position', new Float32BufferAttribute(linkPositions(anchors), 3));
+	layLinks([]);
 	const linesMaterial = new LineBasicMaterial({
 		color: SILVER,
 		transparent: true,
@@ -52,6 +56,15 @@ export function createAmbientNeuralWeb(glowTexture: Texture): AmbientNeuralWeb {
 	});
 	const group = new Group();
 	group.add(new Points(pointsGeometry, pointsMaterial), new LineSegments(linesGeometry, linesMaterial));
+
+	function layLinks(zones: ClearZone[]): void {
+		const clearLinks = links.filter((link) => zones.every((zone) => !crosses(link, zone)));
+		linesGeometry.setAttribute('position', new Float32BufferAttribute(linkPositions(clearLinks), 3));
+	}
+
+	function keepClearOf(zones: ClearZone[]): void {
+		layLinks(zones);
+	}
 
 	function setFocus(contextKey: string | null): void {
 		const share = contextKey === null ? 1 : DIMMED_SHARE;
@@ -66,17 +79,31 @@ export function createAmbientNeuralWeb(glowTexture: Texture): AmbientNeuralWeb {
 		linesMaterial.dispose();
 	}
 
-	return { group, setFocus, dispose };
+	return { group, keepClearOf, setFocus, dispose };
 }
 
-function linkPositions(anchors: Vector3[]): number[] {
-	const positions: number[] = [];
+type Link = { start: Vector3; end: Vector3 };
+
+function linksAmong(anchors: Vector3[]): Link[] {
+	const links: Link[] = [];
 	for (let index = 0; index < anchors.length; index += 1) {
 		for (const neighbour of nearestNeighbours(anchors, index)) {
-			positions.push(...anchors[index].toArray(), ...neighbour.toArray());
+			links.push({ start: anchors[index], end: neighbour });
 		}
 	}
-	return positions;
+	return links;
+}
+
+function linkPositions(links: Link[]): number[] {
+	return links.flatMap((link) => [...link.start.toArray(), ...link.end.toArray()]);
+}
+
+function crosses(link: Link, zone: ClearZone): boolean {
+	const along = link.end.clone().sub(link.start);
+	const toCentre = zone.centre.clone().sub(link.start);
+	const share = Math.min(1, Math.max(0, toCentre.dot(along) / along.lengthSq()));
+	const nearest = link.start.clone().addScaledVector(along, share);
+	return nearest.distanceTo(zone.centre) < zone.radius;
 }
 
 function nearestNeighbours(anchors: Vector3[], index: number): Vector3[] {

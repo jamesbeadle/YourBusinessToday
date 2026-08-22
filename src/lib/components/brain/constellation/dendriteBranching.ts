@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from 'three';
+import { membraneRadiusOf } from './cellSoma';
 import { clampShare } from './growthShares';
 import type { BodyProportions } from './neuronProportions';
 
@@ -13,7 +14,9 @@ const TWIGLET_CHANCE = 0.5;
 const TRUNK_WOBBLE = 0.3;
 const TWIG_SPREAD = 0.85;
 const TWIGLET_SPREAD = 0.7;
-const FILLER_REACH_SHARE = 0.65;
+const FREE_REACH_SHARE = 0.75;
+const CONNECTION_CLEARANCE_COSINE = 0.8;
+const CLEARANCE_ATTEMPT_LIMIT = 8;
 const SAMPLES_PER_CONTROL_POINT = 3;
 
 export type DendriteBranch = { points: Vector3[] };
@@ -25,11 +28,11 @@ export function growDendrites(
 	proportions: BodyProportions,
 	nextShare: () => number
 ): DendriteBranch[] {
-	const richness = clampShare(connectionDirections.length / proportions.connectionCap);
+	const richness = clampShare(connectionDirections.length / proportions.branchCountCeiling);
 	const twigChance = SPARSEST_TWIG_CHANCE + TWIG_CHANCE_SPREAD * richness;
 	const branches: DendriteBranch[] = [];
 	for (const seed of branchSeeds(connectionDirections, proportions, nextShare)) {
-		const origin = seed.heading.clone().multiplyScalar(proportions.somaRadius);
+		const origin = seed.heading.clone().multiplyScalar(membraneRadiusOf(proportions));
 		const trunk = growBranch(origin, seed.heading, TRUNK_SEGMENT_SHARES, seed.reach, TRUNK_WOBBLE, nextShare);
 		branches.push(trunk);
 		for (const twig of sproutsAlong(trunk, seed.reach * TWIG_LENGTH_SHARE, TWIG_SEGMENT_SHARES, TWIG_SPREAD, twigChance, nextShare)) {
@@ -46,16 +49,30 @@ function branchSeeds(
 	proportions: BodyProportions,
 	nextShare: () => number
 ): BranchSeed[] {
-	const seeds = connectionDirections
-		.slice(0, proportions.connectionCap)
-		.map((direction) => ({ heading: direction.clone(), reach: proportions.dendriteReach }));
-	while (seeds.length < proportions.branchCountFloor) {
+	const richness = clampShare(connectionDirections.length / proportions.branchCountCeiling);
+	const seedCount = Math.round(
+		proportions.branchCountFloor + (proportions.branchCountCeiling - proportions.branchCountFloor) * richness
+	);
+	const seeds: BranchSeed[] = [];
+	while (seeds.length < seedCount) {
 		seeds.push({
-			heading: randomDirection(nextShare),
-			reach: proportions.dendriteReach * FILLER_REACH_SHARE
+			heading: clearOfConnections(connectionDirections, nextShare),
+			reach: proportions.dendriteReach * FREE_REACH_SHARE
 		});
 	}
 	return seeds;
+}
+
+function clearOfConnections(connectionDirections: Vector3[], nextShare: () => number): Vector3 {
+	let heading = randomDirection(nextShare);
+	for (let attempt = 0; attempt < CLEARANCE_ATTEMPT_LIMIT; attempt += 1) {
+		const isClear = connectionDirections.every(
+			(direction) => direction.dot(heading) < CONNECTION_CLEARANCE_COSINE
+		);
+		if (isClear) return heading;
+		heading = randomDirection(nextShare);
+	}
+	return heading;
 }
 
 function growBranch(

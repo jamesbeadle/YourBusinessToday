@@ -4,7 +4,7 @@ export type BodyProportions = {
 	hitRadius: number;
 	dendriteReach: number;
 	branchCountFloor: number;
-	connectionCap: number;
+	branchCountCeiling: number;
 };
 
 export const neuronProportions: BodyProportions = {
@@ -13,7 +13,7 @@ export const neuronProportions: BodyProportions = {
 	hitRadius: 0.32,
 	dendriteReach: 0.42,
 	branchCountFloor: 5,
-	connectionCap: 8
+	branchCountCeiling: 8
 };
 
 export const nucleusProportions: BodyProportions = {
@@ -22,5 +22,5 @@ export const nucleusProportions: BodyProportions = {
 	hitRadius: 0.55,
 	dendriteReach: 0.8,
 	branchCountFloor: 8,
-	connectionCap: 12
+	branchCountCeiling: 12
 };

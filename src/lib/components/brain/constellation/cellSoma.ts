@@ -28,6 +28,10 @@ export type SomaSeed = {
 	nextShare: () => number;
 };
 
+export function membraneRadiusOf(proportions: BodyProportions): number {
+	return proportions.somaRadius * MEMBRANE_RADIUS_SHARE;
+}
+
 export function createCellSoma(seed: SomaSeed): CellSoma {
 	const { position, colour, contextKey, proportions, bank, skins, nextShare } = seed;
 	const somaShape = irregularShape(proportions.somaRadius, nextShare);

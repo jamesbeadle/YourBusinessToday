@@ -39,7 +39,7 @@ export function createFocusDirector(dependencies: DirectorDependencies): FocusDi
 	function applyFocus(contextKey: string | null): void {
 		focusKey = contextKey;
 		view.bank.setFocus(contextKey);
-		view.membranes.setFocus(contextKey);
+		view.skins.setFocus(contextKey);
 		view.pulses.setFocus(contextKey);
 		view.ambient.setFocus(contextKey);
 	}

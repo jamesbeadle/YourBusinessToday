@@ -1,7 +1,7 @@
 import { Mesh, Sprite, Vector3, type BufferGeometry } from 'three';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
-import type { MembraneBank } from './membraneBank';
+import type { CellSkinBank } from './cellSkinBank';
 
 const CORE_RADIUS_SHARE = 0.6;
 const MEMBRANE_RADIUS_SHARE = 1.5;
@@ -24,19 +24,19 @@ export type SomaSeed = {
 	somaGeometry: BufferGeometry;
 	membraneGeometry: BufferGeometry;
 	bank: MaterialBank;
-	membranes: MembraneBank;
+	skins: CellSkinBank;
 	nextShare: () => number;
 };
 
 export function createCellSoma(seed: SomaSeed): CellSoma {
-	const { position, colour, contextKey, proportions, bank, nextShare } = seed;
+	const { position, colour, contextKey, proportions, bank, skins, nextShare } = seed;
 	const somaShape = irregularShape(proportions.somaRadius, nextShare);
 
-	const core = new Mesh(seed.somaGeometry, bank.coreFor(colour, contextKey));
+	const core = new Mesh(seed.somaGeometry, skins.somaFor(colour, contextKey));
 	core.position.copy(position);
 	core.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
 
-	const membrane = new Mesh(seed.membraneGeometry, seed.membranes.membraneFor(colour, contextKey));
+	const membrane = new Mesh(seed.membraneGeometry, skins.membraneFor(colour, contextKey));
 	membrane.position.copy(position);
 	membrane.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
 

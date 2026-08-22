@@ -60,7 +60,7 @@ export function createConstellationExperience(
 		growth.update(deltaSeconds);
 		view.flashes.update(deltaSeconds);
 		if (isAnimated) view.field.twinkle(timeSeconds);
-		if (isAnimated) view.membranes.tick(timeSeconds);
+		if (isAnimated) view.skins.tick(timeSeconds);
 		if (isAnimated) view.pulses.update(deltaSeconds);
 		stage.renderer.render(view.scene, stage.camera);
 	}

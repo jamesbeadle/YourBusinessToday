@@ -4,11 +4,12 @@ import { createNeuronBody, type NeuronBody } from './neuronBody';
 import { CHALK, SIGNAL, kindColours } from './constellationPalette';
 import { neuronProportions, nucleusProportions, type BodyProportions } from './neuronProportions';
 import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
-import type { MembraneBank } from './membraneBank';
+import type { CellSkinBank } from './cellSkinBank';
 import type { ConstellationModel } from './constellationTypes';
 
-const SOMA_DETAIL = 1;
-const MEMBRANE_DETAIL = 3;
+const SOMA_DETAIL = 4;
+const MEMBRANE_DETAIL = 4;
+const HIT_DETAIL = 1;
 const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;
 
@@ -23,13 +24,14 @@ export type NeuronField = {
 export function createNeuronField(
 	model: ConstellationModel,
 	bank: MaterialBank,
-	membranes: MembraneBank
+	skins: CellSkinBank
 ): NeuronField {
 	const group = new Group();
 	const hitTargets: Mesh[] = [];
 	const bodies = new Map<string, NeuronBody>();
 	const somaGeometry = new IcosahedronGeometry(1, SOMA_DETAIL);
 	const membraneGeometry = new IcosahedronGeometry(1, MEMBRANE_DETAIL);
+	const hitGeometry = new IcosahedronGeometry(1, HIT_DETAIL);
 	const hitMaterial = new MeshBasicMaterial({ visible: false });
 	const directionsBySlug = connectionDirectionsOf(model);
 
@@ -50,9 +52,10 @@ export function createNeuronField(
 			connectionDirections: directionsBySlug.get(slug) ?? [],
 			somaGeometry,
 			membraneGeometry,
+			hitGeometry,
 			hitMaterial,
 			bank,
-			membranes,
+			skins,
 			userData
 		});
 		bodies.set(slug, body);
@@ -83,6 +86,7 @@ export function createNeuronField(
 		for (const body of bodies.values()) body.dispose();
 		somaGeometry.dispose();
 		membraneGeometry.dispose();
+		hitGeometry.dispose();
 		hitMaterial.dispose();
 	}
 

@@ -14,6 +14,7 @@ import { parseDropPlacement } from '$lib/server/projects/dropReorder';
 import { parseTaskStatus } from '$lib/data/taskStatus';
 import { placeTask } from '$lib/server/projects/placeTask';
 import { requireStaff } from '$lib/server/auth/requireStaff';
+import { updateTaskPhase } from '$lib/server/projects/updateTaskPhase';
 import { updateTaskStatus } from '$lib/server/projects/updateTaskStatus';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -69,6 +70,15 @@ export const actions: Actions = {
 		const taskId = String(formData.get('taskId') ?? '');
 		if (taskId === '') return fail(400, { message: 'A task is required.' });
 		await updateTaskStatus(locals.supabase, taskId, parseTaskStatus(formData.get('status')));
+		return {};
+	},
+	setPhase: async ({ locals, request }) => {
+		await requireStaff(locals);
+		const formData = await request.formData();
+		const taskId = String(formData.get('taskId') ?? '');
+		if (taskId === '') return fail(400, { message: 'A task is required.' });
+		const phaseId = String(formData.get('phaseId') ?? '');
+		await updateTaskPhase(locals.supabase, taskId, phaseId === '' ? null : phaseId);
 		return {};
 	},
 	createPhase: async ({ locals, params, request }) => {

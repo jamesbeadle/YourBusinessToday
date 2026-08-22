@@ -5,15 +5,20 @@ export async function recordConversationTurn(
 	supabase: SupabaseClient,
 	conversationId: string,
 	question: string,
-	answer: BrainAnswer
+	answer: BrainAnswer,
+	// Only for service-role writes (the API), where auth.uid() cannot fill
+	// the owner default. Session writes omit it.
+	ownerId?: string
 ): Promise<void> {
+	const owner = ownerId === undefined ? {} : { owner_id: ownerId };
 	const { error } = await supabase.from('brain_messages').insert([
-		{ conversation_id: conversationId, speaker: 'user', body: question },
+		{ conversation_id: conversationId, speaker: 'user', body: question, ...owner },
 		{
 			conversation_id: conversationId,
 			speaker: 'modeller',
 			body: answer.answerMarkdown,
-			cited_slugs: answer.citedSlugs
+			cited_slugs: answer.citedSlugs,
+			...owner
 		}
 	]);
 	if (error !== null) throw error;

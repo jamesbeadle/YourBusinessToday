@@ -15,7 +15,8 @@
 		staffMembers,
 		assigneeIdsByTask,
 		onAddSubtask,
-		onChangeStatus
+		onChangeStatus,
+		onChangePhase
 	}: {
 		taskTree: TaskTreeNode[];
 		phaseSummaries: PhaseSummary[];
@@ -23,6 +24,7 @@
 		assigneeIdsByTask: Record<string, string[]>;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
+		onChangePhase: (task: TaskTreeNode) => void;
 	} = $props();
 
 	let selectedPhaseId = $state('all');
@@ -83,6 +85,7 @@
 					{phaseNameFor}
 					{onAddSubtask}
 					{onChangeStatus}
+					{onChangePhase}
 				/>
 			{/each}
 		</ol>

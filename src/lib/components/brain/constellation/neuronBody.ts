@@ -13,9 +13,9 @@ import { revealWireframe, wireframeFrom } from './neuronWireframe';
 import { shareStreamFrom } from './pseudoRandom';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
-import type { MembraneBank } from './membraneBank';
+import type { CellSkinBank } from './cellSkinBank';
 
-const DENDRITE_OPACITY = 0.55;
+const DENDRITE_OPACITY = 0.7;
 const SOMA_PHASE_END = 0.4;
 const DENDRITE_PHASE_START = 0.25;
 
@@ -39,9 +39,10 @@ export type BodySeed = {
 	connectionDirections: Vector3[];
 	somaGeometry: BufferGeometry;
 	membraneGeometry: BufferGeometry;
+	hitGeometry: BufferGeometry;
 	hitMaterial: MeshBasicMaterial;
 	bank: MaterialBank;
-	membranes: MembraneBank;
+	skins: CellSkinBank;
 	userData: Record<string, string>;
 };
 
@@ -57,7 +58,7 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 		somaGeometry: seed.somaGeometry,
 		membraneGeometry: seed.membraneGeometry,
 		bank,
-		membranes: seed.membranes,
+		skins: seed.skins,
 		nextShare
 	});
 
@@ -65,10 +66,10 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 	const wireframe = wireframeFrom(branches, position);
 	const dendrites = new LineSegments(
 		wireframe.geometry,
-		bank.strandFor(colour, contextKey, DENDRITE_OPACITY)
+		bank.dendriteFor(colour, contextKey, DENDRITE_OPACITY)
 	);
 
-	const hitTarget = new Mesh(seed.somaGeometry, seed.hitMaterial);
+	const hitTarget = new Mesh(seed.hitGeometry, seed.hitMaterial);
 	hitTarget.position.copy(position);
 	hitTarget.scale.setScalar(proportions.hitRadius);
 	hitTarget.userData = seed.userData;

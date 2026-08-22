@@ -1,13 +1,20 @@
-import { Vector3 } from 'three';
+import { CatmullRomCurve3, Vector3 } from 'three';
+import { clampShare } from './growthShares';
 import type { BodyProportions } from './neuronProportions';
 
-const TRUNK_SEGMENT_SHARES = [0.45, 0.35, 0.2];
-const TWIG_SEGMENT_SHARES = [0.6, 0.4];
-const TWIG_LENGTH_SHARE = 0.45;
-const TWIG_CHANCE = 0.7;
-const TRUNK_WOBBLE = 0.35;
+const TRUNK_SEGMENT_SHARES = [0.3, 0.25, 0.2, 0.15, 0.1];
+const TWIG_SEGMENT_SHARES = [0.45, 0.3, 0.25];
+const TWIGLET_SEGMENT_SHARES = [0.6, 0.4];
+const TWIG_LENGTH_SHARE = 0.5;
+const TWIGLET_LENGTH_SHARE = 0.45;
+const SPARSEST_TWIG_CHANCE = 0.45;
+const TWIG_CHANCE_SPREAD = 0.45;
+const TWIGLET_CHANCE = 0.5;
+const TRUNK_WOBBLE = 0.3;
 const TWIG_SPREAD = 0.85;
+const TWIGLET_SPREAD = 0.7;
 const FILLER_REACH_SHARE = 0.65;
+const SAMPLES_PER_CONTROL_POINT = 3;
 
 export type DendriteBranch = { points: Vector3[] };
 
@@ -18,11 +25,18 @@ export function growDendrites(
 	proportions: BodyProportions,
 	nextShare: () => number
 ): DendriteBranch[] {
+	const richness = clampShare(connectionDirections.length / proportions.connectionCap);
+	const twigChance = SPARSEST_TWIG_CHANCE + TWIG_CHANCE_SPREAD * richness;
 	const branches: DendriteBranch[] = [];
 	for (const seed of branchSeeds(connectionDirections, proportions, nextShare)) {
 		const origin = seed.heading.clone().multiplyScalar(proportions.somaRadius);
-		const trunk = growBranch(origin, seed.heading, TRUNK_SEGMENT_SHARES, seed.reach, nextShare);
-		branches.push(trunk, ...twigsAlong(trunk, seed.reach, nextShare));
+		const trunk = growBranch(origin, seed.heading, TRUNK_SEGMENT_SHARES, seed.reach, TRUNK_WOBBLE, nextShare);
+		branches.push(trunk);
+		for (const twig of sproutsAlong(trunk, seed.reach * TWIG_LENGTH_SHARE, TWIG_SEGMENT_SHARES, TWIG_SPREAD, twigChance, nextShare)) {
+			branches.push(twig);
+			const twigletReach = seed.reach * TWIG_LENGTH_SHARE * TWIGLET_LENGTH_SHARE;
+			branches.push(...sproutsAlong(twig, twigletReach, TWIGLET_SEGMENT_SHARES, TWIGLET_SPREAD, TWIGLET_CHANCE, nextShare));
+		}
 	}
 	return branches;
 }
@@ -49,31 +63,40 @@ function growBranch(
 	heading: Vector3,
 	segmentShares: number[],
 	reach: number,
+	wobbleSpread: number,
 	nextShare: () => number
 ): DendriteBranch {
-	const points = [origin.clone()];
+	const controlPoints = [origin.clone()];
 	const walker = heading.clone();
 	for (const share of segmentShares) {
-		wobble(walker, TRUNK_WOBBLE, nextShare);
-		points.push(points[points.length - 1].clone().addScaledVector(walker, reach * share));
+		wobble(walker, wobbleSpread, nextShare);
+		controlPoints.push(controlPoints[controlPoints.length - 1].clone().addScaledVector(walker, reach * share));
 	}
-	return { points };
+	return { points: smoothed(controlPoints) };
 }
 
-function twigsAlong(
-	trunk: DendriteBranch,
+function smoothed(controlPoints: Vector3[]): Vector3[] {
+	const sampleCount = controlPoints.length * SAMPLES_PER_CONTROL_POINT;
+	return new CatmullRomCurve3(controlPoints, false, 'centripetal').getPoints(sampleCount);
+}
+
+function sproutsAlong(
+	parent: DendriteBranch,
 	reach: number,
+	segmentShares: number[],
+	spread: number,
+	chance: number,
 	nextShare: () => number
 ): DendriteBranch[] {
-	const twigs: DendriteBranch[] = [];
-	for (let jointIndex = 1; jointIndex < trunk.points.length - 1; jointIndex += 1) {
-		if (nextShare() > TWIG_CHANCE) continue;
-		const heading = trunk.points[jointIndex + 1].clone().sub(trunk.points[jointIndex]).normalize();
-		wobble(heading, TWIG_SPREAD, nextShare);
-		const twigReach = reach * TWIG_LENGTH_SHARE;
-		twigs.push(growBranch(trunk.points[jointIndex], heading, TWIG_SEGMENT_SHARES, twigReach, nextShare));
+	const sprouts: DendriteBranch[] = [];
+	const jointStride = SAMPLES_PER_CONTROL_POINT;
+	for (let jointIndex = jointStride; jointIndex < parent.points.length - 1; jointIndex += jointStride) {
+		if (nextShare() > chance) continue;
+		const heading = parent.points[jointIndex + 1].clone().sub(parent.points[jointIndex]).normalize();
+		wobble(heading, spread, nextShare);
+		sprouts.push(growBranch(parent.points[jointIndex], heading, segmentShares, reach, spread / 2, nextShare));
 	}
-	return twigs;
+	return sprouts;
 }
 
 function randomDirection(nextShare: () => number): Vector3 {

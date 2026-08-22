@@ -3,7 +3,7 @@ import { createAmbientNeuralWeb, type AmbientNeuralWeb } from './ambientNeuralWe
 import { createFiringPulses, type FiringPulses } from './firingPulses';
 import { createGlowTexture } from './glowTexture';
 import { createMaterialBank, type MaterialBank } from './materialBank';
-import { createMembraneBank, type MembraneBank } from './membraneBank';
+import { createCellSkinBank, type CellSkinBank } from './cellSkinBank';
 import { createNeuronField, type NeuronField } from './neuronField';
 import { createNucleusLabels, disposeNucleusLabels } from './nucleusLabels';
 import { createSettleFlashes, type SettleFlashes } from './settleFlash';
@@ -20,7 +20,7 @@ export type ConstellationScene = {
 	ambient: AmbientNeuralWeb;
 	flashes: SettleFlashes;
 	bank: MaterialBank;
-	membranes: MembraneBank;
+	skins: CellSkinBank;
 	rebuild: (model: ConstellationModel) => void;
 	dispose: () => void;
 };
@@ -31,9 +31,9 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 
 	const glowTexture = createGlowTexture();
 	const bank = createMaterialBank(glowTexture);
-	const membranes = createMembraneBank();
+	const skins = createCellSkinBank();
 	const backdrop = createStarBackdrop();
-	const ambient = createAmbientNeuralWeb();
+	const ambient = createAmbientNeuralWeb(glowTexture);
 	const flashes = createSettleFlashes(glowTexture);
 	scene.add(backdrop.points, ambient.group, flashes.group);
 
@@ -43,7 +43,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 	let labels: Group;
 
 	function mountModel(mountedModel: ConstellationModel): void {
-		field = createNeuronField(mountedModel, bank, membranes);
+		field = createNeuronField(mountedModel, bank, skins);
 		web = createSynapseWeb(mountedModel, bank);
 		pulses = createFiringPulses(web.curves, glowTexture);
 		labels = createNucleusLabels(mountedModel.nuclei);
@@ -71,7 +71,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		ambient.dispose();
 		flashes.dispose();
 		bank.dispose();
-		membranes.dispose();
+		skins.dispose();
 		glowTexture.dispose();
 	}
 
@@ -89,7 +89,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		ambient,
 		flashes,
 		bank,
-		membranes,
+		skins,
 		rebuild,
 		dispose
 	};

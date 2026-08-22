@@ -1,17 +1,23 @@
 import { AdditiveBlending, Color, ShaderMaterial } from 'three';
+import { exposeOpacityAsUniform } from './uniformOpacity';
 
 const MEMBRANE_VERTEX_SHADER = `
 	uniform float timeSeconds;
 	varying float rimShare;
 
-	const float WOBBLE_SHARE = 0.06;
-	const float WOBBLE_SPEED = 1.3;
-	const vec3 WOBBLE_PHASE = vec3(9.0, 7.0, 8.0);
+	const float SWELL_SHARE = 0.025;
+	const float RIPPLE_SHARE = 0.02;
+	const vec3 SWELL_GRAIN = vec3(2.0, 1.5, 1.8);
+	const vec3 RIPPLE_GRAIN = vec3(9.0, 7.0, 8.0);
 	const float RIM_TIGHTNESS = 2.2;
 
+	float breathing(vec3 point) {
+		return SWELL_SHARE * sin(timeSeconds * 0.9 + dot(point, SWELL_GRAIN))
+			+ RIPPLE_SHARE * sin(timeSeconds * 1.3 - dot(point, RIPPLE_GRAIN));
+	}
+
 	void main() {
-		float wobble = sin(timeSeconds * WOBBLE_SPEED + dot(position, WOBBLE_PHASE));
-		vec3 swollen = position * (1.0 + WOBBLE_SHARE * wobble);
+		vec3 swollen = position * (1.0 + breathing(position));
 		vec4 viewPosition = modelViewMatrix * vec4(swollen, 1.0);
 		vec3 viewNormal = normalize(normalMatrix * normal);
 		float facingShare = abs(dot(normalize(-viewPosition.xyz), viewNormal));
@@ -25,7 +31,7 @@ const MEMBRANE_FRAGMENT_SHADER = `
 	uniform float membraneOpacity;
 	varying float rimShare;
 
-	const float INTERIOR_HAZE = 0.08;
+	const float INTERIOR_HAZE = 0.06;
 
 	void main() {
 		gl_FragColor = vec4(membraneColour, (INTERIOR_HAZE + rimShare) * membraneOpacity);
@@ -46,19 +52,10 @@ export class MembraneMaterial extends ShaderMaterial {
 			blending: AdditiveBlending,
 			depthWrite: false
 		});
-		this.exposeOpacityAsUniform();
+		exposeOpacityAsUniform(this, 'membraneOpacity');
 	}
 
 	setTime(timeSeconds: number): void {
 		this.uniforms.timeSeconds.value = timeSeconds;
-	}
-
-	private exposeOpacityAsUniform(): void {
-		Object.defineProperty(this, 'opacity', {
-			get: () => this.uniforms.membraneOpacity.value as number,
-			set: (value: number) => {
-				this.uniforms.membraneOpacity.value = value;
-			}
-		});
 	}
 }

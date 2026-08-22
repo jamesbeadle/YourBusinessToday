@@ -7,7 +7,8 @@ import {
 	LineSegments,
 	Points,
 	PointsMaterial,
-	Vector3
+	Vector3,
+	type Texture
 } from 'three';
 import { sampleInsideBrain } from './brainShape';
 import { SILVER } from './constellationPalette';
@@ -15,7 +16,7 @@ import { SILVER } from './constellationPalette';
 const AMBIENT_NEURON_COUNT = 850;
 const NEIGHBOUR_LINK_COUNT = 2;
 const LONGEST_LINK = 1.2;
-const POINT_SIZE = 0.05;
+const POINT_SIZE = 0.09;
 const FULL_POINT_OPACITY = 0.5;
 const FULL_LINE_OPACITY = 0.11;
 const DIMMED_SHARE = 0.35;
@@ -26,16 +27,18 @@ export type AmbientNeuralWeb = {
 	dispose: () => void;
 };
 
-export function createAmbientNeuralWeb(): AmbientNeuralWeb {
+export function createAmbientNeuralWeb(glowTexture: Texture): AmbientNeuralWeb {
 	const anchors = Array.from({ length: AMBIENT_NEURON_COUNT }, () =>
 		sampleInsideBrain(Math.random)
 	);
 	const pointsGeometry = new BufferGeometry().setFromPoints(anchors);
 	const pointsMaterial = new PointsMaterial({
+		map: glowTexture,
 		color: SILVER,
 		size: POINT_SIZE,
 		transparent: true,
 		opacity: FULL_POINT_OPACITY,
+		blending: AdditiveBlending,
 		depthWrite: false
 	});
 	const linesGeometry = new BufferGeometry();

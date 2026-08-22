@@ -1,5 +1,7 @@
 import { Color, Group, Scene } from 'three';
-import { createAmbientNeuralWeb, type AmbientNeuralWeb } from './ambientNeuralWeb';
+import { createAmbientNeuralWeb, type AmbientNeuralWeb, type ClearZone } from './ambientNeuralWeb';
+import { membraneRadiusOf } from './cellSoma';
+import { neuronProportions, nucleusProportions } from './neuronProportions';
 import { createFiringPulses, type FiringPulses } from './firingPulses';
 import { createGlowTexture } from './glowTexture';
 import { createMaterialBank, type MaterialBank } from './materialBank';
@@ -11,6 +13,8 @@ import { createStarBackdrop } from './starBackdrop';
 import { createSynapseWeb, type SynapseWeb } from './synapseWeb';
 import { NIGHT_SKY } from './constellationPalette';
 import type { ConstellationModel } from './constellationTypes';
+
+const CLEARANCE_SHARE = 2.2;
 
 export type ConstellationScene = {
 	scene: Scene;
@@ -47,6 +51,7 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		web = createSynapseWeb(mountedModel, bank);
 		pulses = createFiringPulses(web.curves, glowTexture);
 		labels = createNucleusLabels(mountedModel.nuclei);
+		ambient.keepClearOf(cellZonesOf(mountedModel));
 		scene.add(field.group, web.group, pulses.group, labels);
 	}
 
@@ -93,4 +98,13 @@ export function assembleConstellationScene(model: ConstellationModel): Constella
 		rebuild,
 		dispose
 	};
+}
+
+function cellZonesOf(model: ConstellationModel): ClearZone[] {
+	const neuronClearance = membraneRadiusOf(neuronProportions) * CLEARANCE_SHARE;
+	const nucleusClearance = membraneRadiusOf(nucleusProportions) * CLEARANCE_SHARE;
+	return [
+		...model.neurons.map((neuron) => ({ centre: neuron.position, radius: neuronClearance })),
+		...model.nuclei.map((nucleus) => ({ centre: nucleus.position, radius: nucleusClearance }))
+	];
 }

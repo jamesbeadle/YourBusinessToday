@@ -74,6 +74,7 @@ export function createMaterialBank(glowTexture: Texture): MaterialBank {
 		return remember(`strand:${contextKey}:${colour}:${fullOpacity}`, contextKey, fullOpacity, () => {
 			return new LineBasicMaterial({
 				color: colour,
+				vertexColors: true,
 				transparent: true,
 				opacity: fullOpacity,
 				blending: AdditiveBlending,

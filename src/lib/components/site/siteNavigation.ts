@@ -31,10 +31,15 @@ export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {
 	return groups;
 }
 
+const adminLinks: NavigationLink[] = [
+	{ href: '/accounting', label: 'Accounting' },
+	{ href: '/admin', label: 'Admin' }
+];
+
 function managementLinks(access: NavigationAccess): NavigationLink[] {
 	return [
 		{ href: '/projects', label: 'Projects' },
-		...(access.isAdmin ? [{ href: '/admin', label: 'Admin' }] : [])
+		...(access.isAdmin ? adminLinks : [])
 	];
 }
 

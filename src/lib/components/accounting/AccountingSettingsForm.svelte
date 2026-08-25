@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BankDetailsFields from './BankDetailsFields.svelte';
 	import FormField from './FormField.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
@@ -24,9 +25,7 @@
 	<FormField label="Email">
 		<input name="companyEmail" type="email" value={settings.companyEmail} class={inputClasses} />
 	</FormField>
-	<FormField label="Payment instructions (bank details, shown at the foot of every invoice)">
-		<textarea name="paymentInstructions" rows="3" class={inputClasses}>{settings.paymentInstructions}</textarea>
-	</FormField>
+	<BankDetailsFields {settings} />
 	<h2 class="font-display text-lg font-medium">Numbering and periods</h2>
 	<div class="grid gap-4 sm:grid-cols-3">
 		<FormField label="Invoice prefix">

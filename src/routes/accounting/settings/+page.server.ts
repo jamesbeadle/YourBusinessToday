@@ -19,6 +19,9 @@ export const actions: Actions = {
 					companyAddress: readText(formData, 'companyAddress'),
 					companyEmail: readText(formData, 'companyEmail'),
 					paymentInstructions: readText(formData, 'paymentInstructions'),
+					bankAccountName: readText(formData, 'bankAccountName'),
+					bankAccountNumber: readText(formData, 'bankAccountNumber'),
+					bankSortCode: readText(formData, 'bankSortCode'),
 					paymentTermsDays: readWholeNumberField(formData, 'paymentTermsDays', 'Payment terms'),
 					financialYearStartMonth: readWholeNumberField(formData, 'financialYearStartMonth', 'Year start'),
 					invoicePrefix: readRequiredText(formData, 'invoicePrefix', 'Invoice prefix')

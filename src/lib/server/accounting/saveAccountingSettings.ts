@@ -5,6 +5,9 @@ export type AccountingSettingsInput = {
 	companyAddress: string;
 	companyEmail: string;
 	paymentInstructions: string;
+	bankAccountName: string;
+	bankAccountNumber: string;
+	bankSortCode: string;
 	paymentTermsDays: number;
 	financialYearStartMonth: number;
 	invoicePrefix: string;
@@ -21,6 +24,9 @@ export async function saveAccountingSettings(
 			company_address: settings.companyAddress,
 			company_email: settings.companyEmail,
 			payment_instructions: settings.paymentInstructions,
+			bank_account_name: settings.bankAccountName,
+			bank_account_number: settings.bankAccountNumber,
+			bank_sort_code: settings.bankSortCode,
 			payment_terms_days: settings.paymentTermsDays,
 			financial_year_start_month: settings.financialYearStartMonth,
 			invoice_prefix: settings.invoicePrefix,

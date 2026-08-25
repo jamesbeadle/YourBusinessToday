@@ -1,5 +1,7 @@
 <script lang="ts">
+	import InvoiceBrandBar from './InvoiceBrandBar.svelte';
 	import InvoiceDocumentLines from './InvoiceDocumentLines.svelte';
+	import InvoicePaymentDetails from './InvoicePaymentDetails.svelte';
 	import { formatIsoDate } from '$lib/data/accounting/accountingPeriods';
 	import { formatMoney } from '$lib/data/accounting/money';
 	import type { AccountingSettings } from '$lib/server/accounting/getAccountingSettings';
@@ -15,6 +17,7 @@
 	class="flex flex-col gap-10 rounded-2xl bg-map-paper p-12 text-map-ink shadow-2xl
 		print:rounded-none print:p-0 print:shadow-none"
 >
+	<InvoiceBrandBar companyName={settings.companyName} />
 	<header class="flex items-start justify-between gap-8">
 		<div class="whitespace-pre-line">
 			<p class="font-display text-2xl font-medium">{settings.companyName}</p>
@@ -60,15 +63,8 @@
 			{/if}
 		</dl>
 	</section>
-	{#if invoice.notes || settings.paymentInstructions}
-		<footer class="flex flex-col gap-4 border-t border-map-grid pt-6 text-sm whitespace-pre-line">
-			{#if invoice.notes}<p>{invoice.notes}</p>{/if}
-			{#if settings.paymentInstructions}
-				<div>
-					<p class="font-display text-xs tracking-widest uppercase opacity-60">Payment</p>
-					<p>{settings.paymentInstructions}</p>
-				</div>
-			{/if}
-		</footer>
-	{/if}
+	<footer class="flex flex-col gap-4 border-t border-map-grid pt-6 text-sm">
+		{#if invoice.notes}<p class="whitespace-pre-line">{invoice.notes}</p>{/if}
+		<InvoicePaymentDetails {settings} {invoiceNumber} />
+	</footer>
 </article>

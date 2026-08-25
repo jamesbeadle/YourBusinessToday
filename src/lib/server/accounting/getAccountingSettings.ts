@@ -5,6 +5,9 @@ export type AccountingSettings = {
 	companyAddress: string;
 	companyEmail: string;
 	paymentInstructions: string;
+	bankAccountName: string;
+	bankAccountNumber: string;
+	bankSortCode: string;
 	paymentTermsDays: number;
 	financialYearStartMonth: number;
 	invoicePrefix: string;
@@ -19,6 +22,9 @@ export async function getAccountingSettings(supabase: SupabaseClient): Promise<A
 		companyAddress: data.company_address,
 		companyEmail: data.company_email,
 		paymentInstructions: data.payment_instructions,
+		bankAccountName: data.bank_account_name,
+		bankAccountNumber: data.bank_account_number,
+		bankSortCode: data.bank_sort_code,
 		paymentTermsDays: data.payment_terms_days,
 		financialYearStartMonth: data.financial_year_start_month,
 		invoicePrefix: data.invoice_prefix,

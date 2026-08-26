@@ -3,6 +3,7 @@
 	import InvoiceStatusBadge from './InvoiceStatusBadge.svelte';
 	import { formatIsoDate } from '$lib/data/accounting/accountingPeriods';
 	import { formatMoney } from '$lib/data/accounting/money';
+	import { canEditInvoice } from '$lib/data/accounting/invoiceStatus';
 	import type { InvoiceSummary } from '$lib/server/accounting/getInvoiceList';
 
 	let { invoices, emptyMessage }: { invoices: InvoiceSummary[]; emptyMessage: string } = $props();
@@ -22,6 +23,7 @@
 					<th class="px-5 py-3 text-right">Total</th>
 					<th class="px-5 py-3 text-right">Outstanding</th>
 					<th class="px-5 py-3">Status</th>
+					<th class="px-5 py-3"><span class="sr-only">Open</span></th>
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-hairline">
@@ -40,6 +42,11 @@
 							{formatMoney(invoice.total - invoice.amountPaid)}
 						</td>
 						<td class="px-5 py-3"><InvoiceStatusBadge status={invoice.status} /></td>
+						<td class="px-5 py-3 text-right">
+							<a href={`/accounting/invoices/${invoice.id}`} class="font-display text-signal hover:underline">
+								{canEditInvoice(invoice.status) ? 'Edit' : 'View'}
+							</a>
+						</td>
 					</tr>
 				{/each}
 			</tbody>

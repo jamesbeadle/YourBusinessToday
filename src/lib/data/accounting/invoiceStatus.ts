@@ -21,3 +21,7 @@ export function isInvoiceOutstanding(status: InvoiceStatus): boolean {
 export function canEditInvoice(status: InvoiceStatus): boolean {
 	return status === 'draft';
 }
+
+export function canDeleteInvoice(status: InvoiceStatus): boolean {
+	return status === 'draft' || status === 'void';
+}

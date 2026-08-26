@@ -5,6 +5,7 @@
 	import { enhance } from '$app/forms';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { formatMoney } from '$lib/data/accounting/money';
+	import { canDeleteInvoice } from '$lib/data/accounting/invoiceStatus';
 	import {
 		dangerButtonClasses,
 		panelClasses,
@@ -18,7 +19,8 @@
 	const tracker = new FormTracker();
 	let isPaymentModalOpen = $state(false);
 	const outstanding = $derived(invoice.total - invoice.amountPaid);
-	const canVoid = $derived(invoice.status !== 'void' && invoice.payments.length === 0);
+	const canVoid = $derived(invoice.status === 'issued' && invoice.payments.length === 0);
+	const canDelete = $derived(canDeleteInvoice(invoice.status));
 </script>
 
 <section class={panelClasses}>
@@ -43,6 +45,11 @@
 		{#if canVoid}
 			<form method="POST" action="?/void" use:enhance={tracker.submit()}>
 				<button type="submit" class={dangerButtonClasses}>Void</button>
+			</form>
+		{/if}
+		{#if canDelete}
+			<form method="POST" action="?/delete" use:enhance={tracker.submit()}>
+				<button type="submit" class={dangerButtonClasses}>Delete</button>
 			</form>
 		{/if}
 	</div>

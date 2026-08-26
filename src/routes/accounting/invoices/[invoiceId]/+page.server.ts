@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { updateInvoiceDetails } from '$lib/server/accounting/createInvoice';
+import { deleteInvoice } from '$lib/server/accounting/deleteInvoice';
 import { activeClients, getClients } from '$lib/server/accounting/getClients';
 import { activeCostCentres, getCostCentres } from '$lib/server/accounting/getCostCentres';
 import { getInvoice } from '$lib/server/accounting/getInvoice';
@@ -80,6 +81,15 @@ export const actions: Actions = {
 				}),
 			'Payment recorded.'
 		);
+	},
+	delete: async ({ locals, params }) => {
+		const result = await runAccountingCommand(
+			locals,
+			() => deleteInvoice(locals.supabase, params.invoiceId),
+			'Invoice deleted.'
+		);
+		if ('message' in result) redirect(303, '/accounting/invoices');
+		return result;
 	},
 	void: async ({ locals, params }) => {
 		const result = await runAccountingCommand(

@@ -24,10 +24,5 @@
 		:global(body) {
 			background: white;
 		}
-		:global(header),
-		:global(footer),
-		:global(nav) {
-			display: none !important;
-		}
 	}
 </style>

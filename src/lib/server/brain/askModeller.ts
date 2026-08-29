@@ -1,7 +1,7 @@
 import { answerTool, readPagesTool } from './modellerAnswerTools';
 import { modellerQueryPrompt } from './modellerQueryPrompt';
 import { parseBrainAnswer } from './parseBrainAnswer';
-import { readPagesResultMessage, toolUseNamed } from './readPagesExchange';
+import { readPagesResultMessage, toolUseNamed, toolUsesNamed } from './readPagesExchange';
 import { renderDomainModelIndex } from './getBrainPageIndex';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import type { AnthropicMessage } from '$lib/server/anthropic/anthropicTypes';
@@ -30,12 +30,15 @@ export async function askModeller(
 		tools: [readPagesTool, answerTool],
 		maxTokens: maxAnswerTokens
 	});
-	const readRequest = toolUseNamed(firstResponse.content, readPagesTool.name);
-	if (readRequest === undefined) {
+	const hasImmediateAnswer = toolUseNamed(firstResponse.content, answerTool.name) !== undefined;
+	const readRequests = hasImmediateAnswer
+		? []
+		: toolUsesNamed(firstResponse.content, readPagesTool.name);
+	if (readRequests.length === 0) {
 		return parseBrainAnswer(toolUseNamed(firstResponse.content, answerTool.name)?.input);
 	}
 	messages.push({ role: 'assistant', content: firstResponse.content });
-	messages.push(await readPagesResultMessage(supabase, brainId, readRequest));
+	messages.push(await readPagesResultMessage(supabase, brainId, readRequests));
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,

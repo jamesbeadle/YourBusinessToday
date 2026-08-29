@@ -1,10 +1,10 @@
 import { answerTool, readPagesTool } from '../brain/modellerAnswerTools';
 import { hiveMindQueryPrompt } from './hiveMindQueryPrompt';
-import { hivePagesResultMessage, pagesReadByMember, readHivePages } from './readHivePagesExchange';
+import { pagesReadByMember, readHivePages } from './readHivePagesExchange';
 import { parseBrainAnswer } from '../brain/parseBrainAnswer';
 import { renderHiveMindIndex, type HiveSpecialistModel } from './getHiveModelIndex';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
-import { toolUseNamed } from '../brain/readPagesExchange';
+import { toolUseNamed, toolUsesNamed } from '../brain/readPagesExchange';
 import type { AnthropicMessage } from '$lib/server/anthropic/anthropicTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -29,13 +29,16 @@ export async function askHiveMind(
 		tools: [readPagesTool, answerTool],
 		maxTokens: maxAnswerTokens
 	});
-	const readRequest = toolUseNamed(firstResponse.content, readPagesTool.name);
-	if (readRequest === undefined) {
+	const hasImmediateAnswer = toolUseNamed(firstResponse.content, answerTool.name) !== undefined;
+	const readRequests = hasImmediateAnswer
+		? []
+		: toolUsesNamed(firstResponse.content, readPagesTool.name);
+	if (readRequests.length === 0) {
 		return consultationFrom(firstResponse.content, new Map());
 	}
-	const pages = await readHivePages(supabase, readRequest);
+	const exchange = await readHivePages(supabase, readRequests);
 	messages.push({ role: 'assistant', content: firstResponse.content });
-	messages.push(hivePagesResultMessage(readRequest, pages));
+	messages.push(exchange.resultMessage);
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,
@@ -43,7 +46,7 @@ export async function askHiveMind(
 		forcedToolName: answerTool.name,
 		maxTokens: maxAnswerTokens
 	});
-	return consultationFrom(secondResponse.content, pagesReadByMember(pages));
+	return consultationFrom(secondResponse.content, pagesReadByMember(exchange.pages));
 }
 
 function consultationFrom(

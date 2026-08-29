@@ -10,11 +10,31 @@ export type HivePageRead = {
 	body: string;
 };
 
+export type HivePagesExchange = { resultMessage: AnthropicMessage; pages: HivePageRead[] };
+
 export async function readHivePages(
 	supabase: SupabaseClient,
-	readRequest: AnthropicToolUseBlock
+	readRequests: AnthropicToolUseBlock[]
+): Promise<HivePagesExchange> {
+	const resultBlocks = [];
+	const pagesRead: HivePageRead[] = [];
+	for (const readRequest of readRequests) {
+		const requestedKeys = parseRequestedSlugs(readRequest.input);
+		const pages = await fetchHivePages(supabase, requestedKeys);
+		pagesRead.push(...pages);
+		resultBlocks.push({
+			type: 'tool_result',
+			tool_use_id: readRequest.id,
+			content: renderPages(requestedKeys, pages)
+		});
+	}
+	return { resultMessage: { role: 'user', content: resultBlocks }, pages: pagesRead };
+}
+
+async function fetchHivePages(
+	supabase: SupabaseClient,
+	pageKeys: string[]
 ): Promise<HivePageRead[]> {
-	const pageKeys = parseRequestedSlugs(readRequest.input);
 	if (pageKeys.length === 0) return [];
 	const { data, error } = await supabase.rpc('hive_mind_read_pages', { page_keys: pageKeys });
 	if (error !== null) throw error;
@@ -25,23 +45,6 @@ export async function readHivePages(
 		title: row.title as string,
 		body: row.body as string
 	}));
-}
-
-export function hivePagesResultMessage(
-	readRequest: AnthropicToolUseBlock,
-	pages: HivePageRead[]
-): AnthropicMessage {
-	const requestedKeys = parseRequestedSlugs(readRequest.input);
-	return {
-		role: 'user',
-		content: [
-			{
-				type: 'tool_result',
-				tool_use_id: readRequest.id,
-				content: renderPages(requestedKeys, pages)
-			}
-		]
-	};
 }
 
 export function pagesReadByMember(pages: HivePageRead[]): Map<string, number> {

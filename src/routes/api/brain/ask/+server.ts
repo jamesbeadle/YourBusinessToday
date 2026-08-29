@@ -12,6 +12,8 @@ import type { BrainConversationTurn } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 
+export const config = { maxDuration: 300 };
+
 const longestRememberedExchange = 12;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
@@ -50,9 +52,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	} catch (failure) {
 		console.error('Brain question failed', failure);
 		await refundForBrainQuestion(locals.supabase);
-		error(502, 'That question failed — your credits have been refunded');
+		error(502, `That question failed (credits refunded): ${questionFailureSummary(failure)}`);
 	}
 };
+
+function questionFailureSummary(failure: unknown): string {
+	if (failure instanceof Error) return failure.message.slice(0, 300);
+	return 'Unknown failure';
+}
 
 function readQuestion(payload: { question?: unknown }): string {
 	const question = typeof payload.question === 'string' ? payload.question.trim() : '';

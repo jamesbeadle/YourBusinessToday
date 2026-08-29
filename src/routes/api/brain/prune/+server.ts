@@ -7,6 +7,8 @@ import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
 
+const failureSummaryLimit = 300;
+
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to manage your domain brain');
@@ -26,9 +28,14 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	} catch (failure) {
 		console.error('Brain prune failed', failure);
 		await refundForBrainPrune(locals.supabase);
-		error(502, 'Pruning the model failed — your credits have been refunded');
+		error(502, `Pruning failed (credits refunded): ${failureSummary(failure)}`);
 	}
 };
+
+function failureSummary(failure: unknown): string {
+	if (failure instanceof Error) return failure.message.slice(0, failureSummaryLimit);
+	return 'Unknown failure';
+}
 
 function readBrainId(payload: unknown): string {
 	const brainId = (payload as { brainId?: unknown }).brainId;

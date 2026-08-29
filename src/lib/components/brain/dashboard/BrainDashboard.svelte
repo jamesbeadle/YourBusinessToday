@@ -7,6 +7,7 @@
 	import DomainModelIndex from '../DomainModelIndex.svelte';
 	import HiveMindPanel from './HiveMindPanel.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
+	import PruneKnowledgeButton from '../PruneKnowledgeButton.svelte';
 	import ReviewPanel from '../review/ReviewPanel.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
@@ -130,6 +131,14 @@
 					</div>
 				{:else if activeSection === 'model'}
 					<div class="min-h-0 flex-1 overflow-y-auto">
+						{#if isOwner}
+							<div class="px-4 pt-4">
+								<PruneKnowledgeButton
+									brainId={brain.id}
+									onOutOfCredits={() => (isOutOfCredits = true)}
+								/>
+							</div>
+						{/if}
 						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
 					</div>
 				{:else if activeSection === 'review'}

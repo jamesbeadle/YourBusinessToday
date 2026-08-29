@@ -15,6 +15,7 @@
 		if (event.kind === 'source_removed')
 			return String(event.detail.logLine ?? `Removed ${String(event.detail.filename ?? 'a source')}`);
 		if (event.kind === 'brain_exported') return 'Exported the brain as Markdown';
+		if (event.kind === 'model_pruned') return String(event.detail.logLine ?? 'Pruned the model');
 		if (event.kind === 'edition_published')
 			return `Published edition: ${String(event.detail.editionName ?? '')}`;
 		return `Answered: ${String(event.detail.question ?? '')}`;

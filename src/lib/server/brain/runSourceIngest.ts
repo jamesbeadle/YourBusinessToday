@@ -9,6 +9,7 @@ import { retireSupersededPages } from './retireSupersededPages';
 import { saveBrainContextWrites } from './saveBrainContextWrites';
 import { saveBrainPageWrites } from './saveBrainPageWrites';
 import { sourceContentBlock } from './sourceContentBlock';
+import { sweepEmptyBrainContexts } from './sweepEmptyBrainContexts';
 import type { StoredBrainSource } from './findBrainSource';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -30,6 +31,7 @@ export async function runSourceIngest(
 	);
 	const appliedPageWrites = await saveBrainPageWrites(supabase, source.brainId, record.pageWrites);
 	await retireSupersededPages(supabase, source, record.pageRetires, index);
+	await sweepEmptyBrainContexts(supabase, source.brainId, source.id);
 	await recordContextEvents(supabase, source, appliedContextWrites);
 	await recordPageEvents(supabase, source, appliedPageWrites);
 	await recordBrainEvent(supabase, {

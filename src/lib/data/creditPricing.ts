@@ -2,6 +2,7 @@ export const creditsPerReply = 10;
 export const creditsPerBrainIngest = 50;
 export const creditsPerBrainUnlearn = 50;
 export const creditsPerBrainQuestion = 10;
+export const creditsPerBrainPrune = 25;
 export const creditsPerHiveMindQuestion = 25;
 export const hiveMindEarningsPool = 12;
 

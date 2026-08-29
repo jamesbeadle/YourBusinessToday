@@ -2,7 +2,7 @@ import { faceConversationPrompt } from './faceConversationPrompt';
 import { readPagesTool } from './modellerAnswerTools';
 import { speakTool } from './faceConversationTools';
 import { parseSpokenReply } from './parseSpokenReply';
-import { readPagesResultMessage, toolUseNamed } from './readPagesExchange';
+import { readPagesResultMessage, toolUseNamed, toolUsesNamed } from './readPagesExchange';
 import { renderDomainModelIndex } from './getBrainPageIndex';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import type { AnthropicMessage } from '$lib/server/anthropic/anthropicTypes';
@@ -27,12 +27,15 @@ export async function converseWithFace(
 		tools: [readPagesTool, speakTool],
 		maxTokens: maxReplyTokens
 	});
-	const readRequest = toolUseNamed(firstResponse.content, readPagesTool.name);
-	if (readRequest === undefined) {
+	const hasImmediateReply = toolUseNamed(firstResponse.content, speakTool.name) !== undefined;
+	const readRequests = hasImmediateReply
+		? []
+		: toolUsesNamed(firstResponse.content, readPagesTool.name);
+	if (readRequests.length === 0) {
 		return parseSpokenReply(toolUseNamed(firstResponse.content, speakTool.name)?.input);
 	}
 	messages.push({ role: 'assistant', content: firstResponse.content });
-	messages.push(await readPagesResultMessage(supabase, brainId, readRequest));
+	messages.push(await readPagesResultMessage(supabase, brainId, readRequests));
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,

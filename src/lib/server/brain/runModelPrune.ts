@@ -5,7 +5,7 @@ import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { modellerPrunePrompt } from './modellerPrunePrompt';
 import { parsePruneRecord } from './parsePruneRecord';
 import { pruneModelTool } from './pruneModelTool';
-import { readPagesResultMessage, toolUseNamed } from './readPagesExchange';
+import { readPagesResultMessage, toolUseNamed, toolUsesNamed } from './readPagesExchange';
 import { readPagesTool } from './modellerAnswerTools';
 import { recordBrainEvent } from './recordBrainEvent';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
@@ -98,14 +98,12 @@ async function auditModel(
 	const tools = [readPagesTool, pruneModelTool];
 	for (let round = 0; round < maxReadRounds; round += 1) {
 		const response = await requestAnthropic({ system, messages, tools, maxTokens: maxPruneTokens });
-		const readRequest = toolUseNamed(response.content, readPagesTool.name);
-		if (readRequest === undefined) {
-			const record = parsePruneRecord(toolUseNamed(response.content, pruneModelTool.name)?.input);
-			if (record !== null) return record;
-			break;
-		}
+		const record = parsePruneRecord(toolUseNamed(response.content, pruneModelTool.name)?.input);
+		if (record !== null) return record;
+		const readRequests = toolUsesNamed(response.content, readPagesTool.name);
+		if (readRequests.length === 0) break;
 		messages.push({ role: 'assistant', content: response.content });
-		messages.push(await readPagesResultMessage(supabase, brainId, readRequest));
+		messages.push(await readPagesResultMessage(supabase, brainId, readRequests));
 	}
 	const finalResponse = await requestAnthropic({
 		system,

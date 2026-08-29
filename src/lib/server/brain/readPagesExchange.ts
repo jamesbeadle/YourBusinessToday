@@ -5,7 +5,11 @@ import type { BrainPage } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export function toolUseNamed(content: unknown[], name: string): AnthropicToolUseBlock | undefined {
-	return content.find(
+	return toolUsesNamed(content, name)[0];
+}
+
+export function toolUsesNamed(content: unknown[], name: string): AnthropicToolUseBlock[] {
+	return content.filter(
 		(block): block is AnthropicToolUseBlock =>
 			(block as AnthropicToolUseBlock).type === 'tool_use' &&
 			(block as AnthropicToolUseBlock).name === name
@@ -15,16 +19,23 @@ export function toolUseNamed(content: unknown[], name: string): AnthropicToolUse
 export async function readPagesResultMessage(
 	supabase: SupabaseClient,
 	brainId: string,
-	readRequest: AnthropicToolUseBlock
+	readRequests: AnthropicToolUseBlock[]
 ): Promise<AnthropicMessage> {
+	const resultBlocks = [];
+	for (const readRequest of readRequests) {
+		resultBlocks.push(await resultBlockFor(supabase, brainId, readRequest));
+	}
+	return { role: 'user', content: resultBlocks };
+}
+
+async function resultBlockFor(
+	supabase: SupabaseClient,
+	brainId: string,
+	readRequest: AnthropicToolUseBlock
+) {
 	const slugs = parseRequestedSlugs(readRequest.input);
 	const pages = await getBrainPagesBySlugs(supabase, brainId, slugs);
-	return {
-		role: 'user',
-		content: [
-			{ type: 'tool_result', tool_use_id: readRequest.id, content: renderPages(slugs, pages) }
-		]
-	};
+	return { type: 'tool_result', tool_use_id: readRequest.id, content: renderPages(slugs, pages) };
 }
 
 function renderPages(requestedSlugList: string[], pages: BrainPage[]): string {

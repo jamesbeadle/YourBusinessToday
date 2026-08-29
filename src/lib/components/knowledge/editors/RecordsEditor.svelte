@@ -40,7 +40,7 @@
 		<h3 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Records</h3>
 		{#if records.length === 0}
 			<p class="text-sm text-chalk/40">
-				No records yet — each one conforms to a type your bound Domain Brains define.
+				No records yet — each one conforms to a type your bound expertise brains define.
 			</p>
 		{:else}
 			<ul class="flex flex-col divide-y divide-hairline">
@@ -54,7 +54,7 @@
 		<h3 class="font-display text-sm tracking-widest text-chalk/50 uppercase">New record</h3>
 		{#if schemaTypes.length === 0}
 			<p class="text-sm text-caution">
-				Bind this brain to a Domain Brain with node types, and its types become forms here.
+				Bind this brain to an expertise brain with node types, and its types become forms here.
 			</p>
 		{:else}
 			<label class="flex flex-col gap-1">

@@ -12,6 +12,8 @@ import type { HiveContributor, HiveMember } from '$lib/data/hiveTypes';
 import type { HiveEarningsShare } from '$lib/server/hive/splitHiveMindEarnings';
 import type { RequestHandler } from './$types';
 
+export const config = { maxDuration: 300 };
+
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to ask the Hive Mind');

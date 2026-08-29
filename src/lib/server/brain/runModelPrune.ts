@@ -33,7 +33,7 @@ export async function runModelPrune(
 	brainId: string
 ): Promise<PruneOutcome> {
 	const brain = await getDomainBrain(supabase, brainId);
-	if (brain === null) throw new Error('That domain brain no longer exists');
+	if (brain === null) throw new Error('That expertise brain no longer exists');
 	const sweptBefore = await sweepEmptyBrainContexts(supabase, brainId);
 	const contexts = await getBrainContexts(supabase, brainId);
 	const index = await getBrainPageIndex(supabase, brainId);

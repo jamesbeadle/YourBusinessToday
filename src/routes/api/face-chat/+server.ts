@@ -15,13 +15,15 @@ import type { RequestHandler } from './$types';
 const longestConversation = 12;
 const longestTurnLength = 2000;
 
+export const config = { maxDuration: 300 };
+
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to talk to your domain brain');
+	if (user === null) error(401, 'Sign in to talk to your expertise brain');
 
 	const turns = await readTurns(request);
 	const brain = await getLatestDomainBrain(locals.supabase);
-	if (brain === null) error(404, 'Create a domain brain in your workspace first');
+	if (brain === null) error(404, 'Create a expertise brain in your workspace first');
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');

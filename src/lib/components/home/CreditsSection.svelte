@@ -7,12 +7,12 @@
 		<div class="flex flex-col gap-4">
 			<h2 class="font-display text-3xl font-medium">Pay as you go</h2>
 			<p class="max-w-prose text-chalk/70">
-				No subscriptions. Buy credits once and spend them across any tool in the ecosystem —
+				No subscriptions. Buy credits once and spend them across any service —
 				today that's conversations with the mapping agent; tomorrow it's transition plans,
 				agents on shift, and new clients in your pipeline.
 			</p>
 			<p class="max-w-prose text-chalk/70">
-				Top up whenever you're running low. Everything you've built — your profile, your map —
+				Top up whenever you're running low. Everything you've built — your brain, your map —
 				stays yours either way.
 			</p>
 			<a
@@ -31,7 +31,7 @@
 					<dd class="font-display">{creditsPerReply} credits each</dd>
 				</div>
 				<div class="flex items-baseline justify-between gap-4">
-					<dt class="text-chalk/80">Live Workflow Map updates</dt>
+					<dt class="text-chalk/80">Live Process Map updates</dt>
 					<dd class="font-display text-go">Included</dd>
 				</div>
 			</dl>

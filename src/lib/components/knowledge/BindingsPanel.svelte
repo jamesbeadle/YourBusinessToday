@@ -14,10 +14,10 @@
 
 <div class="flex flex-col gap-2">
 	<p class="text-xs text-chalk/50">
-		Bound Domain Brains guide and validate what this brain stores.
+		Bound expertise brains guide and validate what this brain stores.
 	</p>
 	{#if domainBrains.length === 0}
-		<p class="text-sm text-chalk/40">This knowledge base has no Domain Brains yet.</p>
+		<p class="text-sm text-chalk/40">This knowledge base has no expertise brains yet.</p>
 	{/if}
 	<ul class="flex flex-col divide-y divide-hairline">
 		{#each domainBrains as domainBrain (domainBrain.id)}

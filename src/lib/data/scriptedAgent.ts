@@ -10,7 +10,7 @@ const followUpQuestions = [
 ];
 
 const closingMessage =
-	'Brilliant. I have enough to start sketching your Workflow Map — every role a line, every task a ' +
+	'Brilliant. I have enough to start sketching your Process Map — every role a line, every task a ' +
 	'station, every handover an interchange. Take a look at the demo map to see where this is heading.';
 
 export const agentReplyDelayMilliseconds = 1400;

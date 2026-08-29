@@ -68,7 +68,7 @@
 			onfocus={noteListening}
 			oninput={noteListening}
 			onblur={noteResting}
-			placeholder="Ask your Domain Brain…"
+			placeholder="Ask your expertise brain…"
 			aria-label="Your message to the face"
 			class="border-etch bg-platform/75 text-slate placeholder:text-slate/45 focus:border-slate/45
 				w-full rounded-full border px-4 py-2 text-sm backdrop-blur outline-none"

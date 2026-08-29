@@ -1,14 +1,11 @@
 import type { SubmitFunction } from '@sveltejs/kit';
-import { pendingSaves } from '$lib/client/pendingSaves.svelte';
 
 const fallbackErrorMessage = 'Something went wrong — please try again.';
 
 /**
  * Per-form save state: exposes isSaving while a submission is in flight,
  * blocks double submits, and captures the server's fail() message (or a
- * fallback) into errorMessage for inline display. Every submission also
- * registers with the global pendingSaves counter so the app-wide
- * SavingOverlay appears for any database action.
+ * fallback) into errorMessage for inline display.
  */
 export class FormTracker {
 	isSaving = $state(false);
@@ -28,7 +25,6 @@ export class FormTracker {
 			}
 			this.isSaving = true;
 			this.errorMessage = null;
-			pendingSaves.begin();
 			return async ({ update, result }) => {
 				try {
 					const succeeded = result.type !== 'failure' && result.type !== 'error';
@@ -47,7 +43,6 @@ export class FormTracker {
 					}
 				} finally {
 					this.isSaving = false;
-					pendingSaves.end();
 				}
 			};
 		};

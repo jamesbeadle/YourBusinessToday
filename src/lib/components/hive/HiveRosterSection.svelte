@@ -10,14 +10,14 @@
 		<div class="flex flex-col gap-2">
 			<h2 class="font-display text-3xl font-medium">The specialists inside</h2>
 			<p class="max-w-prose text-chalk/70">
-				Every specialist is a reviewed snapshot of a real Domain Brain — a business that has
+				Every specialist is a reviewed snapshot of a real expertise brain — a business that has
 				articulated its domain well enough to advise others. The more a specialty shapes the
 				hive's answers, the more its owner earns.
 			</p>
 		</div>
 		{#if members.length === 0}
 			<p class="mt-10 text-sm text-chalk/60">
-				No specialists yet — yours could be the first. Apply from your Domain Brain below.
+				No specialists yet — yours could be the first. Apply from your expertise brain below.
 			</p>
 		{:else}
 			<div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

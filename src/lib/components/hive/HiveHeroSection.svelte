@@ -10,7 +10,7 @@
 		Every specialist. One answer.
 	</h1>
 	<p class="max-w-prose text-lg text-chalk/70">
-		Domain Brains that pass review join the hive as specialists — snapshots of what real
+		Expertise brains that pass review join the hive as specialists — snapshots of what real
 		businesses actually know. Ask one question and the hive consults every specialty that can
 		help, tells you whose expertise is speaking, and pays those specialists for it.
 	</p>

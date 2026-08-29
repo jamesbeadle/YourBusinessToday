@@ -18,7 +18,7 @@
 		<p class="font-display text-sm tracking-widest text-signal uppercase">The market</p>
 		<h1 class="font-display text-3xl font-medium">Buy domain knowledge</h1>
 		<p class="max-w-prose text-chalk/70">
-			Domain brains other people have built and put up for sale. Buy an edition to keep a
+			Expertise brains other people have built and put up for sale. Buy an edition to keep a
 			frozen copy forever, or subscribe for live access as the brain keeps learning. Questions
 			you ask cost your own credits, just like your own brains.
 		</p>
@@ -28,7 +28,7 @@
 	{/if}
 	{#if data.listings.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			Nothing is on the market yet — when someone lists a domain brain for sale, it appears
+			Nothing is on the market yet — when someone lists a expertise brain for sale, it appears
 			here. You can sell your own from a brain's dashboard.
 		</p>
 	{:else}

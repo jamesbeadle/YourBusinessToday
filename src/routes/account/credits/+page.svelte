@@ -13,7 +13,7 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Credits</h1>
 		<p class="max-w-prose text-chalk/70">
-			Credits pay for the Domain Brain — ingesting documents and holding conversations grounded
+			Credits pay for the expertise brain — ingesting documents and holding conversations grounded
 			in your own records.
 		</p>
 	</div>

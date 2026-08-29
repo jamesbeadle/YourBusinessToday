@@ -62,7 +62,7 @@
 			</a>
 		{:else if !hasSpecialists}
 			<p class="text-sm text-chalk/60">
-				The hive has no specialists yet — the first approved Domain Brains will appear here.
+				The hive has no specialists yet — the first approved expertise brains will appear here.
 			</p>
 		{:else}
 			<form onsubmit={askHive} class="flex flex-col gap-3 sm:flex-row">

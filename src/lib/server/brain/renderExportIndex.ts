@@ -10,12 +10,12 @@ export function renderExportIndex(
 	if (strays.length > 0) {
 		sections.push(['## Model-level pages', '', ...strays.map((page) => renderPageLine(page, ''))].join('\n'));
 	}
-	return ['# Domain Brain — index', '', ...sections].join('\n') + '\n';
+	return ['# Expertise brain — index', '', ...sections].join('\n') + '\n';
 }
 
 export function renderExportLog(events: BrainEvent[]): string {
 	const lines = events.map((event) => `- ${event.createdAt} — ${describeEvent(event)}`);
-	return ['# Domain Brain — log', '', ...lines].join('\n') + '\n';
+	return ['# Expertise brain — log', '', ...lines].join('\n') + '\n';
 }
 
 function renderContextSection(context: BrainContext, pages: BrainPageSummary[]): string {

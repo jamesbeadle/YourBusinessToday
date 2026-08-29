@@ -68,7 +68,7 @@
 
 <DangerConfirmModal
 	title="Delete this entity?"
-	description={`Everything inside ${entityName} — every domain brain and every workflow map —
+	description={`Everything inside ${entityName} — every expertise brain and every process map —
 		is deleted with it. This cannot be undone.`}
 	action="?/deleteEntity"
 	fields={{}}

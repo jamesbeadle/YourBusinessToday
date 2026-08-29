@@ -2,7 +2,7 @@
 	<title>What we're building — Your Business Today</title>
 	<meta
 		name="description"
-		content="Why Your Business Today exists: one living profile of your business, and an ecosystem of AI tools that work from it."
+		content="Why Your Business Today exists: a brain for your business — expertise, experience, and process — and the services that run on it."
 	/>
 </svelte:head>
 
@@ -31,8 +31,8 @@
 		work flows from enquiry to invoice, and what good looks like when it ships.
 	</p>
 	<p class="text-chalk/80">
-		The first tool in the ecosystem builds that profile while giving you something valuable in
-		its own right. The Workflow Map interviews you about how your company really runs and draws
+		The first conversation builds that profile while giving you something valuable in
+		its own right. The Process Map interviews you about how your company really runs and draws
 		it live — every role a line, every task a station, every handover an interchange, in the
 		visual language of a transit map. Most owners have never seen their business on one page.
 		The reaction is usually the same: “that's the first time I've actually seen it.”
@@ -45,17 +45,18 @@
 		looks like for every one of them, because the map already says so.
 	</p>
 	<p class="text-chalk/80">
-		That's the route we're building on top of the profile. The Workflow Map captures what
-		your business does; the Domain Brain models what it knows — every document your company
-		files, read into a structured model of your business, so any question about a client, a
-		supplier, or a project gets an answer grounded in your own records, and the whole model
-		is yours to export as Markdown whenever you want it elsewhere. The Workforce runs what you hand over: it reads
-		the map to see which tasks can run themselves, plans the order, and puts agents on shift —
-		doing the work, escalating to a human when they should, reporting in live on the very map
-		you drew. And because a business that runs itself still needs feeding, the Prospector
-		finds who you serve next — businesses that look like your best clients, scored,
-		contactable, and ready to export or work right here. What it does, what it knows, what it
-		runs, who it serves next.
+		That's the route we're building on top of the profile. YBT builds your business a brain
+		that remembers three ways: your expertise — every document your company files, read into
+		a structured model of what you know, in your own language, yours to export as Markdown
+		whenever you want it elsewhere; your experience — the record of every job, event, and
+		decision, kept in the terms your expertise defines; and your process — how the work
+		moves, drawn live as a map. Services run on that brain. The Workforce reads your process
+		to see which tasks can run themselves, plans the order, and puts agents on shift — doing
+		the work, escalating to a human when they should, reporting in live on the very map you
+		drew. And because a business that runs itself still needs feeding, the Prospector learns
+		from your experience what your best clients look like and finds who you serve next —
+		scored, contactable, and ready to export or work right here. What you know, what you've
+		done, how you work — and everything that runs on knowing it.
 	</p>
 	<h2 class="font-display text-2xl font-medium">The deal we're offering</h2>
 	<p class="text-chalk/80">

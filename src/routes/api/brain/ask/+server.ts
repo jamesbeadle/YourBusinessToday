@@ -18,12 +18,12 @@ const longestRememberedExchange = 12;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to talk to your domain brain');
+	if (user === null) error(401, 'Sign in to talk to your expertise brain');
 
 	const payload = await request.json();
 	const question = readQuestion(payload);
 	const brain = await getDomainBrain(locals.supabase, readBrainId(payload));
-	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain === null) error(404, 'That expertise brain could not be found');
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
@@ -69,7 +69,7 @@ function readQuestion(payload: { question?: unknown }): string {
 
 function readBrainId(payload: { brainId?: unknown }): string {
 	const brainId = typeof payload.brainId === 'string' ? payload.brainId : '';
-	if (brainId === '') error(400, 'A domain brain is required');
+	if (brainId === '') error(400, 'A expertise brain is required');
 	return brainId;
 }
 

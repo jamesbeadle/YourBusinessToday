@@ -26,9 +26,9 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const name = readField(formData, 'name');
 		const domainGoal = readField(formData, 'domainGoal');
-		if (name === '') return fail(400, { message: 'A domain brain needs a name.' });
+		if (name === '') return fail(400, { message: 'A expertise brain needs a name.' });
 		if (domainGoal === '') {
-			return fail(400, { message: 'A domain brain needs a goal — say what domain it should articulate.' });
+			return fail(400, { message: 'A expertise brain needs a goal — say what domain it should articulate.' });
 		}
 		const brainId = await createDomainBrain(locals.supabase, params.entityId, name, domainGoal);
 		redirect(303, `/workspace/${params.entityId}/domains/${brainId}`);

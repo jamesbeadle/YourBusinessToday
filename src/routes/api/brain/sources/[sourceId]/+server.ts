@@ -13,7 +13,7 @@ export const config = { maxDuration: 300 };
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to manage your domain brain');
+	if (user === null) error(401, 'Sign in to manage your expertise brain');
 
 	const source = await findBrainSource(locals.supabase, params.sourceId);
 	if (source === null) error(404, 'That document could not be found');

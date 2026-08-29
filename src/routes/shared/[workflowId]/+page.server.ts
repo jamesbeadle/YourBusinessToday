@@ -6,7 +6,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireUser(locals);
 	const model = await getSharedMap(locals.supabase, params.workflowId);
-	if (model === null) error(404, 'This workflow map is not shared with you');
+	if (model === null) error(404, 'This process map is not shared with you');
 	const summaries = await getSharedWorkflowSummaries(locals.supabase);
 	const summary = summaries.find((candidate) => candidate.workflowId === params.workflowId);
 	return {

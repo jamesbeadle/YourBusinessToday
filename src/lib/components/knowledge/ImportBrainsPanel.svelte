@@ -15,11 +15,11 @@
 
 <section class="flex flex-col gap-3 rounded-2xl border border-hairline bg-carriage p-5">
 	<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">
-		Your existing domain brains
+		Your existing workspace brains
 	</h2>
 	<p class="text-sm text-chalk/60">
 		These brains live in your workspace but aren't filed in a knowledge base yet. File one and it
-		appears as a DDD Model domain brain.
+		appears as a Trade Playbook — an expertise brain.
 	</p>
 	<ul class="flex flex-col divide-y divide-hairline">
 		{#each unfiledBrains as brain (brain.id)}

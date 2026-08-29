@@ -1,28 +1,48 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import BrainTemplatePicker from '$lib/components/knowledge/BrainTemplatePicker.svelte';
 	import NewBrainDetailsForm from '$lib/components/knowledge/NewBrainDetailsForm.svelte';
-	import TypePickerCard from '$lib/components/knowledge/TypePickerCard.svelte';
-	import { brainTypesFor, categoryLabels } from '$lib/data/knowledge/brainTypeCatalog';
+	import {
+		advancedTypesFor,
+		engineDefinitionFor,
+		type BrainTemplate
+	} from '$lib/data/knowledge/brainTemplates';
+	import { kindForCategory } from '$lib/data/knowledge/knowledgeKinds';
 	import type { BrainCategory, BrainType } from '$lib/data/knowledge/knowledgeTypes';
 
 	let { data } = $props();
 
 	const category = $derived(categoryFromQuery(page.url.searchParams.get('category')));
-	const typeChoices = $derived(brainTypesFor(category));
+	const kind = $derived(kindForCategory(category));
 
-	let selectedType = $state<BrainType | null>(null);
+	let selectedTemplate = $state<BrainTemplate | null>(null);
+	let selectedAdvancedType = $state<BrainType | null>(null);
 
 	const selectedDefinition = $derived(
-		typeChoices.find((definition) => definition.type === selectedType) ?? null
+		selectedTemplate === null
+			? (advancedTypesFor(category).find(
+					(definition) => definition.type === selectedAdvancedType
+				) ?? null)
+			: engineDefinitionFor(selectedTemplate)
 	);
 
 	function categoryFromQuery(value: string | null): BrainCategory {
 		return value === 'instance' ? 'instance' : 'domain';
 	}
+
+	function selectTemplate(template: BrainTemplate): void {
+		selectedTemplate = template;
+		selectedAdvancedType = null;
+	}
+
+	function selectAdvancedType(type: BrainType): void {
+		selectedAdvancedType = type;
+		selectedTemplate = null;
+	}
 </script>
 
 <svelte:head>
-	<title>New {categoryLabels[category]} — {data.knowledgeBase.name}</title>
+	<title>New {kind.label} — {data.knowledgeBase.name}</title>
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
@@ -33,26 +53,28 @@
 			{data.knowledgeBase.name}
 		</a>
 		<span class="mx-2">/</span>
-		<span class="text-chalk/80">New {categoryLabels[category]}</span>
+		<span class="text-chalk/80">New {kind.label}</span>
 	</nav>
 	<header class="flex flex-col gap-2">
-		<h1 class="font-display text-3xl font-medium">Choose a {categoryLabels[category]} type</h1>
+		<h1 class="font-display text-3xl font-medium">{kind.question}</h1>
 		<p class="max-w-prose text-chalk/70">
 			{category === 'domain'
-				? 'Each type structures knowledge a different way. Pick the shape that matches how you think about this domain.'
-				: 'Each type captures and retrieves knowledge differently. Pick the one that matches how this data arrives.'}
+				? 'Pick what you want to capture. Each template holds a different part of what your business knows.'
+				: 'Pick what you want to record. Each template captures what happens in your business a different way.'}
 		</p>
 	</header>
-	<div class="grid gap-3 md:grid-cols-2">
-		{#each typeChoices as definition (definition.type)}
-			<TypePickerCard
-				{definition}
-				isSelected={selectedType === definition.type}
-				onSelect={() => (selectedType = definition.type)}
-			/>
-		{/each}
-	</div>
+	<BrainTemplatePicker
+		{category}
+		selectedTemplateId={selectedTemplate?.id ?? null}
+		{selectedAdvancedType}
+		onSelectTemplate={selectTemplate}
+		onSelectAdvancedType={selectAdvancedType}
+	/>
 	{#if selectedDefinition !== null}
-		<NewBrainDetailsForm definition={selectedDefinition} domainBrains={data.domainBrains} />
+		<NewBrainDetailsForm
+			definition={selectedDefinition}
+			domainBrains={data.domainBrains}
+			templateName={selectedTemplate?.name ?? null}
+		/>
 	{/if}
 </div>

@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>New domain brain — {data.entity.name} — Your Business Today</title>
+	<title>New expertise brain — {data.entity.name} — Your Business Today</title>
 </svelte:head>
 
 <div class="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
@@ -32,7 +32,7 @@
 		</a>
 		<header class="flex flex-wrap items-end justify-between gap-4">
 			<div class="flex max-w-2xl flex-col gap-2">
-				<p class="font-display text-sm tracking-widest text-signal uppercase">New domain brain</p>
+				<p class="font-display text-sm tracking-widest text-signal uppercase">New expertise brain</p>
 				<h1 class="font-display text-3xl font-medium">What should it know?</h1>
 				<p class="text-chalk/70">
 					Every template is a ready-made goal that tunes the brain for its domain. Pick one, feed

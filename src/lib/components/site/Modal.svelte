@@ -21,8 +21,7 @@
 
 {#if isOpen}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-night/80 p-6
-			backdrop-blur-sm"
+		class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-night/80 p-6"
 	>
 		<div
 			role="dialog"

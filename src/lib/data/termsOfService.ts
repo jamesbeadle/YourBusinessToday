@@ -2,14 +2,14 @@ import type { LegalDocument } from './legalDocument';
 
 export const termsOfService: LegalDocument = {
 	title: 'Terms of service',
-	metaDescription: 'The terms that govern your use of Your Business Today — accounts, credits, your content, and the tools in the ecosystem.',
+	metaDescription: 'The terms that govern your use of Your Business Today — accounts, credits, your content, and the services that run on your knowledge.',
 	lastUpdatedOn: '21 August 2026',
 	sections: [
 		{
 			heading: 'Who we are',
 			paragraphs: [
 				'Your Business Today is operated by Your Business Today Ltd, a company registered in England and Wales (“we”, “us”). You can reach us at consulting@yourbusiness.today.',
-				'These terms govern your use of yourbusiness.today and every tool in the ecosystem, including the Workflow Map, the Domain Brain, the Market, and the Hive Mind. By creating an account you agree to them. If you are using the service on behalf of a business, you confirm you have authority to bind that business.'
+				'These terms govern your use of yourbusiness.today and every part of the service, including process maps, expertise brains, the Market, and the Hive Mind. By creating an account you agree to them. If you are using the service on behalf of a business, you confirm you have authority to bind that business.'
 			]
 		},
 		{
@@ -36,7 +36,7 @@ export const termsOfService: LegalDocument = {
 			heading: 'Your content',
 			paragraphs: [
 				'Everything you put into the service — documents you upload, answers you give the interviewer, and the maps and models built from them — remains yours. You grant us the licence we need to host, process, and display that content in order to run the service for you, and for nothing else.',
-				'Your content is never sold, never pooled with other customers’ content, and never used to train models for anyone else. You can export your Domain Brain as Markdown at any time, free of charge.',
+				'Your content is never sold, never pooled with other customers’ content, and never used to train models for anyone else. You can export your expertise brain as Markdown at any time, free of charge.',
 				'You are responsible for having the right to upload what you upload, including any personal data it contains about other people.'
 			]
 		},
@@ -49,7 +49,7 @@ export const termsOfService: LegalDocument = {
 		{
 			heading: 'The Market and the Hive Mind',
 			paragraphs: [
-				'The Market lets you offer editions of a Domain Brain to other users for credits. When you list an edition you confirm you have the right to sell its content, and you grant buyers the access described in your listing. We may remove listings that break these terms or the law.',
+				'The Market lets you offer editions of a expertise brain to other users for credits. When you list an edition you confirm you have the right to sell its content, and you grant buyers the access described in your listing. We may remove listings that break these terms or the law.',
 				'The Hive Mind lets approved specialists offer paid answers from their brains, with a share of each question’s credits going to the specialist. Applications are reviewed by us and may be accepted or declined at our discretion. Earnings are paid in credits.'
 			]
 		},

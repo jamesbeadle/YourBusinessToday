@@ -14,6 +14,8 @@ import type { RequestHandler } from './$types';
 
 const longestRememberedExchange = 12;
 
+export const config = { maxDuration: 300 };
+
 export const POST: RequestHandler = async ({ request, params }) => {
 	const { supabase, brain, tokenHash } = await resolveApiCaller(request, params.brainId);
 

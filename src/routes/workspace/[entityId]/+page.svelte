@@ -32,19 +32,19 @@
 	/>
 	{#if activeTab === 'domains'}
 		<EntityFeaturePanel
-			title="Domain brains"
+			title="Expertise brains"
 			description="Each brain reads the documents you feed it and distils them into an abstract
 				model of one domain — the concepts, not the examples."
-			emptyMessage="No domain brains yet — pick a template or state your own goal, then start
+			emptyMessage="No expertise brains yet — pick a template or state your own goal, then start
 				feeding it documents."
-			createLabel="New domain brain"
+			createLabel="New expertise brain"
 			createHref={`/workspace/${data.entity.id}/domains/new`}
 			rows={data.domainBrains}
 			hrefFor={(id) => `/workspace/${data.entity.id}/domains/${id}`}
 		/>
 	{:else}
 		<EntityFeaturePanel
-			title="Workflow maps"
+			title="Process maps"
 			description="Talk to the agent about how the work flows and watch each workflow drawn as a
 				transit map."
 			emptyMessage="No workflows yet — name one and start describing how the work moves."

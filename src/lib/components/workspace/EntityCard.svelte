@@ -16,7 +16,7 @@
 	>
 		<p class="font-display text-lg font-medium">{entity.name}</p>
 		<p class="text-sm text-chalk/60">
-			{countLabel(entity.domainBrainCount, 'domain brain', 'domain brains')} ·
+			{countLabel(entity.domainBrainCount, 'expertise brain', 'expertise brains')} ·
 			{countLabel(entity.workflowCount, 'workflow', 'workflows')}
 		</p>
 	</a>

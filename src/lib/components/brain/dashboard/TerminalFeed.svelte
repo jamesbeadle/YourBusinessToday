@@ -24,7 +24,7 @@
 </script>
 
 <p class="mb-3 text-xs text-chalk/35">
-	domain brain · {creditsPerBrainQuestion} credits a question · drop a file or paste a link to
+	expertise brain · {creditsPerBrainQuestion} credits a question · drop a file or paste a link to
 	ingest ({creditsPerBrainIngest} credits)
 </p>
 <div class="flex flex-col gap-3">

@@ -14,7 +14,9 @@
 		isFirst,
 		isLast,
 		shouldIncludeDone,
-		onChangeStatus
+		onChangeStatus,
+		isExpanded,
+		onToggleDetail
 	}: {
 		task: GlobalTask;
 		listReorder: ListReorder;
@@ -23,6 +25,8 @@
 		isLast: boolean;
 		shouldIncludeDone: boolean;
 		onChangeStatus: (task: GlobalTask) => void;
+		isExpanded: boolean;
+		onToggleDetail: (task: GlobalTask) => void;
 	} = $props();
 
 	const isDone = $derived(task.status === 'done');
@@ -47,13 +51,17 @@
 		/>
 		<span class="min-w-8 text-right font-display text-sm text-chalk/40">{positionNumber}</span>
 		<div class="min-w-0 flex-1 basis-40">
-			<a
-				href={`/projects/${task.projectId}/tasks/${task.id}`}
-				class="block truncate font-display transition hover:text-go"
+			<button
+				type="button"
+				onclick={() => onToggleDetail(task)}
+				class="flex w-full items-center gap-1.5 text-left font-display transition hover:text-go"
 			>
-				{#if task.isUserStory}<span title="User story" class="text-caution">◆</span>{/if}
-				{task.title}
-			</a>
+				<span class="truncate">
+					{#if task.isUserStory}<span title="User story" class="text-caution">◆</span>{/if}
+					{task.title}
+				</span>
+				<span class="shrink-0 text-xs text-chalk/40">{isExpanded ? '▴' : '▾'}</span>
+			</button>
 			<a
 				href={`/projects/${task.projectId}`}
 				class="block truncate text-xs text-chalk/50 transition hover:text-go"

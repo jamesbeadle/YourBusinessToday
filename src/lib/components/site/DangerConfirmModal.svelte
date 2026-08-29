@@ -42,7 +42,7 @@
 <svelte:window onkeydown={closeOnEscape} />
 
 {#if isOpen}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-night/80 p-6 backdrop-blur-sm">
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-night/80 p-6">
 		<div
 			role="alertdialog"
 			aria-modal="true"

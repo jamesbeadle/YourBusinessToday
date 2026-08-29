@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const user = await requireUser(locals);
 	const brain = await getDomainBrain(locals.supabase, params.domainId);
 	if (brain === null || brain.entityId !== params.entityId) {
-		error(404, 'That domain brain is not in this entity');
+		error(404, 'That expertise brain is not in this entity');
 	}
 	const accessRole = await resolveBrainAccessRole(locals.supabase, brain, user.id);
 	const isOwner = accessRole === 'owner';
@@ -55,7 +55,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const domainGoal = String(formData.get('domainGoal') ?? '').trim();
 		if (domainGoal === '') {
-			return fail(400, { message: 'A domain brain needs a goal — say what it should articulate.' });
+			return fail(400, { message: 'A expertise brain needs a goal — say what it should articulate.' });
 		}
 		await updateDomainBrainGoal(locals.supabase, brain.id, domainGoal);
 		return {};
@@ -87,8 +87,8 @@ async function requireOwnedBrain(
 	const user = await requireUser(locals);
 	const brain = await getDomainBrain(locals.supabase, params.domainId);
 	if (brain === null || brain.entityId !== params.entityId) {
-		error(404, 'That domain brain is not in this entity');
+		error(404, 'That expertise brain is not in this entity');
 	}
-	if (brain.ownerId !== user.id) error(403, 'Only the owner can change this domain brain');
+	if (brain.ownerId !== user.id) error(403, 'Only the owner can change this expertise brain');
 	return brain;
 }

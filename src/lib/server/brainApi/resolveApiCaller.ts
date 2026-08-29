@@ -32,7 +32,7 @@ export async function resolveApiCaller(
 	if (data.brain_id !== brainId) error(403, 'This API token belongs to a different brain');
 
 	const brain = await getDomainBrain(supabase, brainId);
-	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain === null) error(404, 'That expertise brain could not be found');
 
 	await supabase
 		.from('brain_api_tokens')

@@ -3,7 +3,7 @@
 
 	const steps = [
 		{
-			title: 'Apply from your Domain Brain',
+			title: 'Apply from your expertise brain',
 			detail:
 				'Open your brain in the workspace, say what your specialty can advise on, and submit it for review.'
 		},

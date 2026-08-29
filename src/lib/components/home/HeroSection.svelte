@@ -8,13 +8,12 @@
 			Welcome to Your Business Today
 		</p>
 		<h1 class="font-display text-4xl leading-tight font-medium md:text-6xl">
-			AI tools that actually<br />know your business.
+			YBT builds your<br />business a brain.
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
-			Tell YBT about your business once, and every tool in the ecosystem works from that
-			understanding — the Workflow Map captures what your business does, the Domain Brain
-			models what it knows, the Hive Mind shares what specialists know, the Workforce runs
-			what you hand over, and the Prospector finds who you serve next.
+			Three kinds of knowledge, one living profile. Your expertise sets the rules of your
+			trade, your experience records every job done within them, and your process shows how
+			the work flows. Tell YBT once, and every service starts already briefed.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a

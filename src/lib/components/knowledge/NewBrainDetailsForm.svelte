@@ -7,8 +7,13 @@
 
 	let {
 		definition,
-		domainBrains
-	}: { definition: BrainTypeDefinition; domainBrains: KbBrainSummary[] } = $props();
+		domainBrains,
+		templateName = null
+	}: {
+		definition: BrainTypeDefinition;
+		domainBrains: KbBrainSummary[];
+		templateName?: string | null;
+	} = $props();
 
 	const tracker = new FormTracker();
 	const canBindDomains = $derived(definition.category === 'instance' && domainBrains.length > 0);
@@ -24,7 +29,7 @@
 	class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-5"
 >
 	<input type="hidden" name="brainType" value={definition.type} />
-	<h2 class="font-display text-lg font-medium">New {definition.label} brain</h2>
+	<h2 class="font-display text-lg font-medium">New {templateName ?? definition.label} brain</h2>
 	<label class="flex flex-col gap-1">
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Name</span>
 		<input
@@ -48,7 +53,7 @@
 	{#if canBindDomains}
 		<fieldset class="flex flex-col gap-2">
 			<legend class="font-display text-sm tracking-widest text-chalk/50 uppercase">
-				Guided by which domain brains?
+				Guided by which expertise brains?
 			</legend>
 			{#each domainBrains as domainBrain (domainBrain.id)}
 				<label class="flex items-center gap-2 text-sm text-chalk/80">

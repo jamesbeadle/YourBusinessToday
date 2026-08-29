@@ -47,7 +47,7 @@
 		</form>
 	</section>
 	<section class="flex flex-col gap-2 border-t border-hairline pt-6">
-		<h3 class="font-display text-sm text-signal">Delete this domain brain</h3>
+		<h3 class="font-display text-sm text-signal">Delete this expertise brain</h3>
 		<p class="text-xs leading-relaxed text-chalk/60">
 			Everything it has learned goes with it — every page, bounded context, source document,
 			conversation, and log entry. Starting again means feeding it documents from scratch.
@@ -58,18 +58,18 @@
 			class="self-start rounded-full border border-signal/60 px-4 py-2 font-display text-sm
 				text-signal transition hover:bg-signal hover:text-night"
 		>
-			Delete domain brain
+			Delete expertise brain
 		</button>
 	</section>
 </div>
 
 <DangerConfirmModal
-	title="Delete this domain brain?"
+	title="Delete this expertise brain?"
 	description={`${brain.name} and everything it has learned — every page, context, source
 		document, and conversation — is deleted with it. This cannot be undone.`}
 	action="?/deleteDomainBrain"
 	fields={{}}
-	submitLabel="Delete domain brain"
+	submitLabel="Delete expertise brain"
 	confirmWord="DELETE"
 	bind:isOpen={isDeleteModalOpen}
 />

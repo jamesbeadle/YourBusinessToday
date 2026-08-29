@@ -38,7 +38,7 @@ async function retirementRecordFor(
 	touchedSlugs: string[]
 ): Promise<RetirementRecord> {
 	const brain = await getDomainBrain(supabase, source.brainId);
-	if (brain === null) throw new Error('That domain brain no longer exists');
+	if (brain === null) throw new Error('That expertise brain no longer exists');
 	const fileBytes = await downloadSourceFile(supabase, source.storagePath);
 	const contentBlock = await sourceContentBlock(fileBytes, source.mimeType);
 	const contexts = await getBrainContexts(supabase, source.brainId);

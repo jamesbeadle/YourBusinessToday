@@ -1,5 +1,5 @@
 export function modellerUnlearnPrompt(domainName: string, domainGoal: string): string {
-	return `You are the modeller of a Domain Brain — an abstract model of one domain in the style
+	return `You are the modeller of a expertise brain — an abstract model of one domain in the style
 of Evans' Domain-Driven Design, maintained one source document at a time. The owner named this
 brain "${domainName}"${goalClause(domainGoal)}. Its pages are concepts of the domain, never named
 specimens — specimens appear only as examples inside concept pages.

@@ -2,6 +2,7 @@ import { error, fail } from '@sveltejs/kit';
 import { getBindingsForKnowledgeBase } from '$lib/server/knowledge/brainBindings';
 import { getKbBrains } from '$lib/server/knowledge/getKbBrains';
 import { getKnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
+import { getProcessMaps } from '$lib/server/knowledge/getProcessMaps';
 import {
 	getKnowledgeBaseShares,
 	removeKnowledgeBaseShare,
@@ -21,6 +22,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		isOwner,
 		brains: await getKbBrains(locals.supabase, knowledgeBase.id),
 		bindings: await getBindingsForKnowledgeBase(locals.supabase, knowledgeBase.id),
+		processMaps: await getProcessMaps(locals.supabase, knowledgeBase.id),
 		shares: isOwner ? await getKnowledgeBaseShares(locals.supabase, knowledgeBase.id) : []
 	};
 };

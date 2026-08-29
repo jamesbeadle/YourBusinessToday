@@ -13,7 +13,7 @@
 	<title>The Hive Mind — Your Business Today</title>
 	<meta
 		name="description"
-		content="Ask one question and consult every approved specialist Domain Brain at once — direct answers on things only specialists know, with the specialists paid for articulating their domain."
+		content="Ask one question and consult every approved specialist expertise brain at once — direct answers on things only specialists know, with the specialists paid for articulating their domain."
 	/>
 </svelte:head>
 

@@ -23,11 +23,12 @@
 		</svg>
 		<div class="flex flex-col gap-4">
 			<p class="font-display text-sm tracking-widest text-go uppercase">Live now</p>
-			<h2 class="font-display text-3xl font-medium">Start with the Workflow Map</h2>
+			<h2 class="font-display text-3xl font-medium">Start with your process</h2>
 			<p class="max-w-prose text-chalk/70">
-				The first tool in the ecosystem, and the foundation of your business profile. Answer the
-				agent's questions and watch your company drawn live — every role a line, every task a
-				station, every handover an interchange. Share it with anyone by email.
+				The fastest way to give YBT the whole picture. Answer the agent's questions and watch
+				how your business works drawn live — every role a line, every task a station, every
+				handover an interchange. The same conversation that draws your map is what builds your
+				expertise and experience too.
 			</p>
 			<div class="flex flex-wrap gap-4">
 				<a
@@ -35,7 +36,7 @@
 					class="rounded-full bg-go px-6 py-3 font-display text-sm font-medium text-night
 						transition hover:brightness-110"
 				>
-					Map your business
+					Map your process
 				</a>
 				<a
 					href="/project"

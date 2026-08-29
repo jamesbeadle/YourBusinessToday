@@ -29,7 +29,7 @@
 	<h2 class="font-display text-xl font-medium">Your map is being drawn</h2>
 	<p class="text-sm text-chalk/70">
 		Every role you describe becomes a line, every task a station. Once the agent has enough to
-		work with, your Workflow Map appears here.
+		work with, your Process Map appears here.
 	</p>
 	<p class="text-sm text-chalk/70">
 		Wondering what it will look like?

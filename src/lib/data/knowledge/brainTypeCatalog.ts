@@ -1,5 +1,6 @@
 import { domainBrainTypes } from './domainBrainTypes';
 import { instanceBrainTypes } from './instanceBrainTypes';
+import { kindForCategory } from './knowledgeKinds';
 import type {
 	BrainCategory,
 	BrainType,
@@ -10,13 +11,13 @@ import type {
 export const brainTypeCatalog: BrainTypeDefinition[] = [...domainBrainTypes, ...instanceBrainTypes];
 
 export const categoryAccents: Record<BrainCategory, string> = {
-	domain: '#9db6ff',
-	instance: '#8fe6bd'
+	domain: kindForCategory('domain').accent,
+	instance: kindForCategory('instance').accent
 };
 
 export const categoryLabels: Record<BrainCategory, string> = {
-	domain: 'Domain Brain',
-	instance: 'Instance Brain'
+	domain: 'Expertise Brain',
+	instance: 'Experience Brain'
 };
 
 export function brainTypesFor(category: BrainCategory): BrainTypeDefinition[] {

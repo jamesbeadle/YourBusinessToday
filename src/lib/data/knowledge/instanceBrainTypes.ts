@@ -60,9 +60,9 @@ export const instanceBrainTypes: BrainTypeDefinition[] = [
 		type: 'typed_records',
 		category: 'instance',
 		label: 'Typed Records',
-		tagline: 'Structured instances of your Domain Brain types',
+		tagline: 'Structured instances of your expertise brain types',
 		description:
-			'Concrete records that conform to the node types a bound Domain Brain defines — forms generated from the schema, data validated by it.',
+			'Concrete records that conform to the node types a bound expertise brain defines — forms generated from the schema, data validated by it.',
 		editor: 'records',
 		defaultPipeline: 'structured_query',
 		isRecommended: false

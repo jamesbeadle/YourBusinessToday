@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BrainCard from './BrainCard.svelte';
-	import { categoryAccents } from '$lib/data/knowledge/brainTypeCatalog';
+	import { kindForCategory } from '$lib/data/knowledge/knowledgeKinds';
 	import type { BrainCategory, KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 
 	let {
@@ -15,37 +15,38 @@
 		boundCounts?: Record<string, number>;
 	} = $props();
 
-	const accent = $derived(categoryAccents[category]);
-	const isDomain = $derived(category === 'domain');
-	const title = $derived(isDomain ? 'Domain Brains' : 'Instance Brains');
+	const kind = $derived(kindForCategory(category));
+	const isExpertise = $derived(category === 'domain');
 	const explainer = $derived(
-		isDomain
-			? 'Abstract structure: the types, rules, and models your knowledge conforms to.'
-			: 'Populated data: the notes, records, events, and facts that fill the structures.'
+		isExpertise
+			? 'What you know — the rules, language, and models of your trade.'
+			: 'What you’ve done — every job, event, and decision, recorded in the terms your expertise defines.'
 	);
 	const emptyInvitation = $derived(
-		isDomain
-			? 'No structure yet. Start with an Ontology / Schema brain — it’s the recommended default.'
-			: 'No data yet. Atomic Notes is the quickest way to start capturing knowledge.'
+		isExpertise
+			? 'Nothing here yet. Start with a Trade Playbook — what your business knows, modelled properly.'
+			: 'Nothing recorded yet. Start with a Project Log and capture jobs as they happen.'
 	);
 </script>
 
 <section
 	class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage/50 p-5"
-	style={`border-top: 3px solid ${accent}`}
+	style={`border-top: 3px solid ${kind.accent}`}
 >
 	<header class="flex flex-wrap items-start justify-between gap-3">
 		<div class="flex flex-col gap-1">
-			<h2 class="font-display text-xl font-medium" style={`color: ${accent}`}>{title}</h2>
+			<h2 class="font-display text-xl font-medium" style={`color: ${kind.accent}`}>
+				{kind.label}
+			</h2>
 			<p class="max-w-prose text-sm text-chalk/60">{explainer}</p>
 		</div>
 		<a
 			href={`/knowledge/${knowledgeBaseId}/brains/new?category=${category}`}
 			class="rounded-full px-5 py-2 font-display text-sm font-medium text-night transition
 				hover:brightness-110"
-			style={`background-color: ${accent}`}
+			style={`background-color: ${kind.accent}`}
 		>
-			Create {isDomain ? 'Domain' : 'Instance'} Brain
+			Add {kind.label}
 		</a>
 	</header>
 	{#if brains.length === 0}

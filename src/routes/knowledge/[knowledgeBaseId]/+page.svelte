@@ -3,11 +3,11 @@
 	import BrainGlyph from '$lib/components/knowledge/BrainGlyph.svelte';
 	import BrainSection from '$lib/components/knowledge/BrainSection.svelte';
 	import KnowledgeBaseSharePanel from '$lib/components/knowledge/KnowledgeBaseSharePanel.svelte';
-	import Modal from '$lib/components/site/Modal.svelte';
+	import ProcessSection from '$lib/components/knowledge/ProcessSection.svelte';
 
 	let { data } = $props();
 
-	let isShareModalOpen = $state(false);
+	let isSharePanelOpen = $state(false);
 
 	const domainBrains = $derived(data.brains.filter((brain) => brain.category === 'domain'));
 	const instanceBrains = $derived(data.brains.filter((brain) => brain.category === 'instance'));
@@ -46,11 +46,11 @@
 			<div class="flex items-center gap-2">
 				<button
 					type="button"
-					onclick={() => (isShareModalOpen = true)}
+					onclick={() => (isSharePanelOpen = !isSharePanelOpen)}
 					class="rounded-full border border-hairline px-5 py-2 font-display text-sm
 						text-chalk/80 transition hover:border-signal hover:text-signal"
 				>
-					Share
+					{isSharePanelOpen ? 'Close sharing' : 'Share'}
 				</button>
 				<form method="POST" action="?/setArchived" use:enhance>
 					<input type="hidden" name="isArchived" value={String(!data.knowledgeBase.isArchived)} />
@@ -65,7 +65,13 @@
 			</div>
 		{/if}
 	</header>
-	<div class="grid gap-6 lg:grid-cols-2">
+	{#if isSharePanelOpen && data.isOwner}
+		<section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-5">
+			<h2 class="font-display text-lg font-medium">Share this knowledge base</h2>
+			<KnowledgeBaseSharePanel shares={data.shares} />
+		</section>
+	{/if}
+	<div class="grid gap-6 lg:grid-cols-3">
 		<BrainSection
 			knowledgeBaseId={data.knowledgeBase.id}
 			category="domain"
@@ -77,9 +83,6 @@
 			brains={instanceBrains}
 			{boundCounts}
 		/>
+		<ProcessSection processMaps={data.processMaps} />
 	</div>
 </div>
-
-<Modal title="Share this knowledge base" bind:isOpen={isShareModalOpen}>
-	<KnowledgeBaseSharePanel shares={data.shares} />
-</Modal>

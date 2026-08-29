@@ -4,8 +4,8 @@
 			<h2 class="font-display text-3xl font-medium">Share once. Benefit everywhere.</h2>
 			<p class="max-w-prose text-chalk/70">
 				Everything you tell YBT — your roles, your workflows, your customers, your numbers —
-				builds one living business profile. It is the reason our tools don't feel like generic
-				AI: they answer as something that has actually met your business.
+				builds one living brain. It is the reason our services don't feel like generic AI:
+				they answer as something that has actually met your business.
 			</p>
 			<p class="max-w-prose text-chalk/70">
 				The profile compounds. The map you draw today plans your AI handover tomorrow, and
@@ -34,11 +34,11 @@
 				</li>
 				<li class="flex items-center gap-3 text-sm text-chalk/80">
 					<span class="h-2 w-2 shrink-0 rounded-full bg-go"></span>
-					YBT keeps it as a living business profile
+					YBT remembers it as expertise, experience, and process
 				</li>
 				<li class="flex items-center gap-3 text-sm text-chalk/80">
 					<span class="h-2 w-2 shrink-0 rounded-full bg-caution"></span>
-					Every tool — current and future — starts already briefed
+					Every service — current and future — starts already briefed
 				</li>
 			</ul>
 		</div>

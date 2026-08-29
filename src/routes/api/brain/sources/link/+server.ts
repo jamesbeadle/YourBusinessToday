@@ -6,15 +6,15 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to add links to your domain brain');
+	if (user === null) error(401, 'Sign in to add links to your expertise brain');
 
 	const payload = await request.json();
 	const brainId = typeof payload.brainId === 'string' ? payload.brainId : '';
 	const pageUrl = typeof payload.url === 'string' ? payload.url.trim() : '';
-	if (brainId === '' || pageUrl === '') error(400, 'A domain brain and a link are required');
+	if (brainId === '' || pageUrl === '') error(400, 'A expertise brain and a link are required');
 
 	const brain = await getDomainBrain(locals.supabase, brainId);
-	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain === null) error(404, 'That expertise brain could not be found');
 
 	const page = await readLinkedPage(pageUrl);
 	const text = `Source link: ${pageUrl}\n\n${page.text}`;

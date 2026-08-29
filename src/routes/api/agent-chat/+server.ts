@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { fileHarvestedKnowledge } from '$lib/server/agent/fileHarvestedKnowledge';
 import { getLatestWorkflowMap } from '$lib/server/maps/getLatestWorkflowMap';
 import { getSessionConversation } from '$lib/server/agent/getSessionConversation';
 import { getWorkflow } from '$lib/server/entities/getWorkflow';
@@ -7,6 +8,8 @@ import { replyFromAgent } from '$lib/server/agent/replyFromAgent';
 import { saveWorkflowMap } from '$lib/server/maps/saveWorkflowMap';
 import { spendForAgentReply } from '$lib/server/agent/spendForAgentReply';
 import type { RequestHandler } from './$types';
+
+export const config = { maxDuration: 300 };
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
@@ -39,6 +42,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (JSON.stringify(agentTurn.map) !== JSON.stringify(currentMap)) {
 		await saveWorkflowMap(locals.supabase, workflow.id, agentTurn.map);
 	}
+	await fileHarvestedKnowledge(locals.supabase, workflow.entityId, agentTurn.harvest);
 
 	return json({
 		reply: agentTurn.reply,

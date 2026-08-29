@@ -7,7 +7,7 @@
 		<div class="flex items-center gap-3">
 			<BrandWordmark fontSize={18} />
 			<p class="text-sm text-chalk/60">
-				Your Business Today — an ecosystem of AI tools that know your business.
+				Your Business Today — a brain for your business.
 			</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-6">

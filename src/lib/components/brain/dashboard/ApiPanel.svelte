@@ -22,7 +22,7 @@
 	const baseUrl = $derived(`${page.url.origin}/api/v1/brains/${brainId}`);
 	const agentBriefing = $derived(
 		[
-			`This is my domain brain — a curated model of one domain, organised as`,
+			`This is my expertise brain — a curated model of one domain, organised as`,
 			`bounded contexts of markdown pages. Use it as my second brain.`,
 			``,
 			`Base URL: ${baseUrl}`,

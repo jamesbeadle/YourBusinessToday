@@ -11,11 +11,11 @@ const failureSummaryLimit = 300;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to manage your domain brain');
+	if (user === null) error(401, 'Sign in to manage your expertise brain');
 
 	const payload = await request.json();
 	const brain = await getDomainBrain(locals.supabase, readBrainId(payload));
-	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain === null) error(404, 'That expertise brain could not be found');
 	if (brain.ownerId !== user.id) error(403, 'Only the owner can prune the model');
 
 	const spend = await spendForBrainPrune(locals.supabase);

@@ -1,53 +1,20 @@
-const workflowHandoverSchema = {
-	type: 'object',
-	required: ['toRole'],
-	properties: {
-		toRole: { type: 'string' },
-		failureNote: {
-			type: 'string',
-			description: 'What goes wrong or gets delayed at this handover, in the owner’s words.'
-		}
-	}
+import { workflowModelSchema } from './workflowModelSchema';
+
+const expertiseFactSchema = {
+	type: 'string',
+	description:
+		'One durable rule, term, or constraint of the trade, stated as a standalone sentence.'
 };
 
-const workflowTaskSchema = {
+const experienceEventSchema = {
 	type: 'object',
-	required: ['name', 'summary', 'inputs', 'outputs', 'handovers', 'provenance'],
+	required: ['title'],
 	properties: {
-		name: { type: 'string' },
-		summary: { type: 'string' },
-		inputs: { type: 'array', items: { type: 'string' } },
-		outputs: { type: 'array', items: { type: 'string' } },
-		handovers: { type: 'array', items: workflowHandoverSchema },
-		provenance: {
+		title: { type: 'string', description: 'What happened, short, starting with a verb.' },
+		note: { type: 'string', description: 'The detail in the owner’s own words.' },
+		occurredAt: {
 			type: 'string',
-			enum: ['stated', 'inferred'],
-			description: 'stated once the owner has said or confirmed it; inferred until then.'
-		},
-		businessOutput: { type: 'string' }
-	}
-};
-
-const workflowModelSchema = {
-	type: 'object',
-	required: ['businessName', 'externalInputs', 'roles'],
-	properties: {
-		businessName: { type: 'string' },
-		externalInputs: {
-			type: 'array',
-			items: { type: 'string' },
-			description: 'Things that arrive from outside the business and start work off.'
-		},
-		roles: {
-			type: 'array',
-			items: {
-				type: 'object',
-				required: ['name', 'tasks'],
-				properties: {
-					name: { type: 'string' },
-					tasks: { type: 'array', items: workflowTaskSchema }
-				}
-			}
+			description: 'ISO date if the owner said when it happened; omit otherwise.'
 		}
 	}
 };
@@ -56,13 +23,27 @@ export const workspaceUpdateTool = {
 	name: 'update_workspace',
 	description:
 		'Return your conversational reply to the business owner together with the complete ' +
-		'updated Workflow Map model reflecting everything learned so far.',
+		'updated Process Map model, plus any expertise and experience harvested this turn.',
 	input_schema: {
 		type: 'object',
 		required: ['reply', 'map'],
 		properties: {
 			reply: { type: 'string', description: 'Your next question or remark, under 120 words.' },
-			map: workflowModelSchema
+			map: workflowModelSchema,
+			expertiseFacts: {
+				type: 'array',
+				items: expertiseFactSchema,
+				description:
+					'Durable trade knowledge NEWLY stated in the owner’s latest message — rules, ' +
+					'standards, vocabulary. Empty when the message adds none.'
+			},
+			experienceEvents: {
+				type: 'array',
+				items: experienceEventSchema,
+				description:
+					'Things that actually happened, NEWLY stated in the owner’s latest message — ' +
+					'jobs, incidents, decisions. Empty when the message adds none.'
+			}
 		}
 	}
 };

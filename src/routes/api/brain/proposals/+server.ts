@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 	const payload = await request.json();
 	const brain = await getDomainBrain(locals.supabase, readText(payload.brainId));
-	if (brain === null) error(404, 'That domain brain could not be found');
+	if (brain === null) error(404, 'That expertise brain could not be found');
 	if (brain.ownerId !== user.id) error(403, 'Only the owner reviews changes');
 
 	const approvedIds = readIds(payload.approvedIds);

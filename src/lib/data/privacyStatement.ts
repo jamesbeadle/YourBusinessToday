@@ -25,7 +25,7 @@ export const privacyStatement: LegalDocument = {
 		{
 			heading: 'How we use it',
 			paragraphs: [
-				'We use your information to run the service you asked for: signing you in, drawing your map, maintaining your Domain Brain, answering your questions from your own records, fulfilling credit purchases, delivering shares and marketplace access, and sending service notifications. The legal basis for almost all of this is performing our contract with you; keeping the service secure and improving it rests on our legitimate interests.',
+				'We use your information to run the service you asked for: signing you in, drawing your map, maintaining your expertise brain, answering your questions from your own records, fulfilling credit purchases, delivering shares and marketplace access, and sending service notifications. The legal basis for almost all of this is performing our contract with you; keeping the service secure and improving it rests on our legitimate interests.',
 				'We do not use your information for advertising, and we do not sell it to anyone.'
 			]
 		},
@@ -60,7 +60,7 @@ export const privacyStatement: LegalDocument = {
 		{
 			heading: 'Your rights',
 			paragraphs: [
-				'Under UK data protection law you can ask us for a copy of your information, ask us to correct it, delete it, or restrict how we use it, object to our use of it, and receive it in a portable form — the Domain Brain export exists precisely for that. Contact us and we will respond within a month.',
+				'Under UK data protection law you can ask us for a copy of your information, ask us to correct it, delete it, or restrict how we use it, object to our use of it, and receive it in a portable form — the expertise brain export exists precisely for that. Contact us and we will respond within a month.',
 				'If you are unhappy with how we handle your information you can complain to the Information Commissioner’s Office at ico.org.uk.'
 			]
 		},

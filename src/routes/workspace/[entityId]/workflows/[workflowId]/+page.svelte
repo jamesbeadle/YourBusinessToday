@@ -24,7 +24,7 @@
 		← Back to the entity
 	</a>
 	<header class="flex flex-col gap-2">
-		<p class="font-display text-sm tracking-widest text-signal uppercase">Workflow map</p>
+		<p class="font-display text-sm tracking-widest text-signal uppercase">Process map</p>
 		<h1 class="font-display text-3xl font-medium">{data.workflow.name}</h1>
 		<p class="max-w-prose text-chalk/70">
 			The map redraws itself with every answer you give — every role a line, every task a

@@ -20,7 +20,7 @@
 			<h1 class="font-display text-3xl font-medium">Everything you're building</h1>
 			<p class="max-w-prose text-chalk/70">
 				An entity is anything you want YBT to understand — a company, a family history, a
-				fleet of boat engines. Each entity holds its own domain brains and workflow maps.
+				fleet of boat engines. Each entity holds its own expertise brains and process maps.
 			</p>
 		</div>
 		<button
@@ -49,7 +49,7 @@
 							<span class="font-display text-base text-chalk transition group-hover:text-signal">
 								{shared.brainName}
 							</span>
-							<span class="text-xs text-chalk/50">{shared.entityName} · shared domain brain</span>
+							<span class="text-xs text-chalk/50">{shared.entityName} · shared expertise brain</span>
 						</a>
 					</li>
 				{/each}
@@ -64,7 +64,7 @@
 								{sharedWorkflow.workflowName}
 							</span>
 							<span class="text-xs text-chalk/50">
-								{sharedWorkflow.entityName} · workflow map shared by {sharedWorkflow.ownerEmail}
+								{sharedWorkflow.entityName} · process map shared by {sharedWorkflow.ownerEmail}
 							</span>
 						</a>
 					</li>

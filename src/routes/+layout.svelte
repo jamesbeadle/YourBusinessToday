@@ -1,8 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import NavigationProgressBar from '$lib/components/site/NavigationProgressBar.svelte';
-	import SavingOverlay from '$lib/components/site/SavingOverlay.svelte';
-	import SiteFooter from '$lib/components/site/SiteFooter.svelte';
+		import SiteFooter from '$lib/components/site/SiteFooter.svelte';
 	import SiteHeader from '$lib/components/site/SiteHeader.svelte';
 	import { SlowNavigation } from '$lib/client/slowNavigation.svelte';
 
@@ -12,7 +11,6 @@
 </script>
 
 <NavigationProgressBar />
-<SavingOverlay />
 
 <div class="flex min-h-screen flex-col">
 	<SiteHeader

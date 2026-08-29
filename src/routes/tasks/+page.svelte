@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GlobalTaskFilter from '$lib/components/tasks/GlobalTaskFilter.svelte';
+	import GlobalTaskDetail from '$lib/components/tasks/GlobalTaskDetail.svelte';
 	import GlobalTaskPagination from '$lib/components/tasks/GlobalTaskPagination.svelte';
 	import GlobalTaskRow from '$lib/components/tasks/GlobalTaskRow.svelte';
 	import TasksPageHeader from '$lib/components/tasks/TasksPageHeader.svelte';
@@ -16,6 +17,11 @@
 
 	let isStatusModalOpen = $state(false);
 	let statusTask = $state<GlobalTask | null>(null);
+	let expandedTaskId = $state<string | null>(null);
+
+	function toggleDetail(task: GlobalTask) {
+		expandedTaskId = expandedTaskId === task.id ? null : task.id;
+	}
 
 	function openStatusModal(task: GlobalTask) {
 		statusTask = task;
@@ -61,7 +67,12 @@
 					isLast={data.taskPage.firstTaskNumber + taskIndex === data.taskPage.taskCount}
 					shouldIncludeDone={data.shouldIncludeDone}
 					onChangeStatus={openStatusModal}
+					isExpanded={expandedTaskId === task.id}
+					onToggleDetail={toggleDetail}
 				/>
+				{#if expandedTaskId === task.id}
+					<GlobalTaskDetail {task} />
+				{/if}
 			{/each}
 		</ol>
 		<GlobalTaskPagination

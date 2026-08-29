@@ -1,12 +1,13 @@
 <script lang="ts">
 	import BrainGlyph from './BrainGlyph.svelte';
-	import { categoryAccents, findBrainType } from '$lib/data/knowledge/brainTypeCatalog';
+	import { findBrainType } from '$lib/data/knowledge/brainTypeCatalog';
+	import { kindForCategory } from '$lib/data/knowledge/knowledgeKinds';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 
 	let { brain, boundCount = 0 }: { brain: KbBrainSummary; boundCount?: number } = $props();
 
 	const definition = $derived(findBrainType(brain.brainType));
-	const accent = $derived(categoryAccents[brain.category]);
+	const kind = $derived(kindForCategory(brain.category));
 </script>
 
 <li>
@@ -19,14 +20,15 @@
 		<div class="flex min-w-0 flex-col gap-1">
 			<p class="truncate font-display text-base font-medium">{brain.name}</p>
 			<p class="flex flex-wrap items-center gap-2 text-xs text-chalk/50">
-				<span
-					class="rounded-full border px-2 py-0.5"
-					style={`border-color: ${accent}66; color: ${accent}`}
-				>
-					{definition?.label ?? brain.brainType}
-				</span>
+			<span
+				class="rounded-full border px-2 py-0.5"
+				style={`border-color: ${kind.accent}66; color: ${kind.accent}`}
+			>
+				{kind.label}
+			</span>
+				<span>{definition?.label ?? brain.brainType}</span>
 				{#if brain.category === 'instance' && boundCount > 0}
-					<span>bound to {boundCount} domain {boundCount === 1 ? 'brain' : 'brains'}</span>
+					<span>draws on {boundCount} expertise {boundCount === 1 ? 'brain' : 'brains'}</span>
 				{/if}
 			</p>
 			{#if brain.description !== ''}

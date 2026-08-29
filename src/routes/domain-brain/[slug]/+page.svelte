@@ -1,1 +1,1 @@
-<!-- Domain brain pages now live inside workspace entities; the load redirects before rendering -->
+<!-- Expertise brain pages now live inside workspace entities; the load redirects before rendering -->

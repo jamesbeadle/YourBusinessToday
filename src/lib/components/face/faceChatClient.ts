@@ -5,7 +5,7 @@ export type FaceChatOutcome =
 	| { kind: 'refusal'; message: string };
 
 const refusalMessages: Record<number, string> = {
-	401: 'Sign in to talk to your Domain Brain.',
+	401: 'Sign in to talk to your expertise brain.',
 	402: 'You are out of credits — top up to keep talking.',
 	403: 'This account is currently restricted.'
 };

@@ -9,10 +9,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireUser(locals);
 	const brain = await getDomainBrain(locals.supabase, params.domainId);
 	if (brain === null || brain.entityId !== params.entityId) {
-		error(404, 'That domain brain is not in this entity');
+		error(404, 'That expertise brain is not in this entity');
 	}
 	const page = await getBrainPage(locals.supabase, brain.id, params.slug);
-	if (page === null) error(404, 'That page is not in this domain brain');
+	if (page === null) error(404, 'That page is not in this expertise brain');
 	const contexts = await getBrainContexts(locals.supabase, brain.id);
 	const context = contexts.find((candidate) => candidate.slug === page.contextSlug) ?? null;
 	return { brain, page, contextName: context?.name ?? null };

@@ -7,17 +7,17 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
-	if (user === null) error(401, 'Sign in to sell your domain brain');
+	if (user === null) error(401, 'Sign in to sell your expertise brain');
 
 	const payload = await request.json();
 	const brainId = readText(payload.brainId);
 	const headline = readText(payload.headline);
-	if (brainId === '') error(400, 'A domain brain is required');
+	if (brainId === '') error(400, 'A expertise brain is required');
 	if (headline === '') error(400, 'A listing needs a headline');
 
 	const brain = await getDomainBrain(locals.supabase, brainId);
 	if (brain === null || brain.ownerId !== user.id) {
-		error(403, 'Only the owner can sell this domain brain');
+		error(403, 'Only the owner can sell this expertise brain');
 	}
 
 	const editionPrice = readPrice(payload.editionPriceCredits);
@@ -44,7 +44,7 @@ export const PATCH: RequestHandler = async ({ locals, request }) => {
 	const payload = await request.json();
 	const brainId = readText(payload.brainId);
 	const listing = await getListingForBrain(locals.supabase, brainId);
-	if (listing === null) error(404, 'This domain brain has no listing yet');
+	if (listing === null) error(404, 'This expertise brain has no listing yet');
 
 	const brain = await getDomainBrain(locals.supabase, brainId);
 	if (brain === null || brain.ownerId !== user.id) {

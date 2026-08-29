@@ -10,12 +10,12 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const payload = await request.json();
 	const brainId = readText(payload.brainId);
 	const name = readText(payload.name);
-	if (brainId === '') error(400, 'A domain brain is required');
+	if (brainId === '') error(400, 'A expertise brain is required');
 	if (name === '') error(400, 'Give the token a name so you can recognise it later');
 
 	const brain = await getDomainBrain(locals.supabase, brainId);
 	if (brain === null || brain.ownerId !== user.id) {
-		error(403, 'Only the owner can create API tokens for this domain brain');
+		error(403, 'Only the owner can create API tokens for this expertise brain');
 	}
 	const minted = await createBrainApiToken(locals.supabase, brainId, name);
 	return json(minted);

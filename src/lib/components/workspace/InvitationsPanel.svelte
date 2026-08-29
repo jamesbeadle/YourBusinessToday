@@ -18,7 +18,7 @@
 	}
 
 	function describe(invite: ReceivedInvite): string {
-		const scopeLabel = invite.scope === 'entity' ? 'everything in' : 'the domain brain';
+		const scopeLabel = invite.scope === 'entity' ? 'everything in' : 'the expertise brain';
 		return `invited you to collaborate on ${scopeLabel} “${invite.targetName}”`;
 	}
 </script>

@@ -24,8 +24,8 @@
 				<p class="line-clamp-2 text-sm text-chalk/60">{knowledgeBase.description}</p>
 			{/if}
 			<p class="mt-auto pt-1 text-xs text-chalk/50">
-				{countLabel(knowledgeBase.domainBrainCount, 'domain brain', 'domain brains')} ·
-				{countLabel(knowledgeBase.instanceBrainCount, 'instance brain', 'instance brains')} ·
+				{countLabel(knowledgeBase.domainBrainCount, 'expertise brain', 'expertise brains')} ·
+				{countLabel(knowledgeBase.instanceBrainCount, 'experience brain', 'experience brains')} ·
 				updated {updatedOn}
 				{#if knowledgeBase.isArchived}· archived{/if}
 			</p>

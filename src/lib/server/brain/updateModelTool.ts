@@ -8,7 +8,7 @@ const domainBlockKinds = [
 	'context_map'
 ];
 
-const contextWriteSchema = {
+export const contextWriteSchema = {
 	type: 'object',
 	required: ['slug', 'name', 'summary'],
 	properties: {

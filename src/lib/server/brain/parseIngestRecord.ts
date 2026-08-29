@@ -34,7 +34,7 @@ function isEmptyHanded(record: IngestRecord): boolean {
 	return record.sourceSummary === '' && record.logLine === '';
 }
 
-function parsePageRetires(candidate: unknown, pageWrites: BrainPageWrite[]): string[] {
+export function parsePageRetires(candidate: unknown, pageWrites: BrainPageWrite[]): string[] {
 	if (!Array.isArray(candidate)) return [];
 	const writtenSlugs = pageWrites.map((write) => write.slug);
 	const slugs = candidate
@@ -44,7 +44,7 @@ function parsePageRetires(candidate: unknown, pageWrites: BrainPageWrite[]): str
 	return [...new Set(slugs)];
 }
 
-function parseContextWrites(candidate: unknown): BrainContextWrite[] {
+export function parseContextWrites(candidate: unknown): BrainContextWrite[] {
 	if (!Array.isArray(candidate)) return [];
 	return candidate.slice(0, maxContextWrites).flatMap(parseContextWrite);
 }

@@ -1,5 +1,8 @@
 import { createBrainItem } from '$lib/server/knowledge/createBrainItem';
-import { createKbBrain } from '$lib/server/knowledge/createKbBrain';
+import { fileExperienceEvents } from '$lib/server/knowledge/experienceWriter';
+import { findOrCreateHarvestBrain } from './harvestBrains';
+import { findPrimaryExpertiseBrain } from '$lib/server/knowledge/interviewContext';
+import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
 import type { HarvestedKnowledge } from './parseHarvest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -20,50 +23,14 @@ export async function fileHarvestToKnowledgeBase(
 	harvest: HarvestedKnowledge
 ): Promise<void> {
 	if (harvest.expertiseFacts.length > 0) {
-		const factsBrainId = await findOrCreateBrain(supabase, knowledgeBaseId, 'rules');
+		const factsBrainId = await findOrCreateHarvestBrain(supabase, knowledgeBaseId, 'rules');
 		await fileFacts(supabase, factsBrainId, harvest.expertiseFacts);
 	}
 	if (harvest.experienceEvents.length > 0) {
-		const eventsBrainId = await findOrCreateBrain(supabase, knowledgeBaseId, 'episodic_log');
-		await fileEvents(supabase, eventsBrainId, harvest.experienceEvents);
+		const eventsBrainId = await findOrCreateHarvestBrain(supabase, knowledgeBaseId, 'episodic_log');
+		const knownTerms = await expertiseTermsFor(supabase, knowledgeBaseId);
+		await fileExperienceEvents(supabase, eventsBrainId, harvest.experienceEvents, knownTerms);
 	}
-}
-
-const harvestBrainBlueprints = {
-	rules: {
-		category: 'domain',
-		name: 'Rules & Standards',
-		description: 'Trade knowledge harvested from your interview conversations.'
-	},
-	episodic_log: {
-		category: 'instance',
-		name: 'Interview Log',
-		description: 'Events harvested from your interview conversations.'
-	}
-} as const;
-
-async function findOrCreateBrain(
-	supabase: SupabaseClient,
-	knowledgeBaseId: string,
-	brainType: keyof typeof harvestBrainBlueprints
-): Promise<string> {
-	const { data, error } = await supabase
-		.from('kb_brains')
-		.select('id')
-		.eq('knowledge_base_id', knowledgeBaseId)
-		.eq('brain_type', brainType)
-		.order('created_at')
-		.limit(1);
-	if (error !== null) throw error;
-	if (data !== null && data.length > 0) return data[0].id;
-	const blueprint = harvestBrainBlueprints[brainType];
-	return createKbBrain(supabase, {
-		knowledgeBaseId,
-		category: blueprint.category,
-		brainType,
-		name: blueprint.name,
-		description: blueprint.description
-	});
 }
 
 async function linkedKnowledgeBaseIds(
@@ -79,6 +46,16 @@ async function linkedKnowledgeBaseIds(
 	return [...new Set(knowledgeBaseIds)];
 }
 
+async function expertiseTermsFor(
+	supabase: SupabaseClient,
+	knowledgeBaseId: string
+): Promise<string[]> {
+	const primary = await findPrimaryExpertiseBrain(supabase, knowledgeBaseId);
+	if (primary === null) return [];
+	const pageIndex = await getBrainPageIndex(supabase, primary.domainBrainId);
+	return pageIndex.map((page) => page.title);
+}
+
 async function fileFacts(
 	supabase: SupabaseClient,
 	factsBrainId: string,
@@ -86,21 +63,5 @@ async function fileFacts(
 ): Promise<void> {
 	for (const fact of facts) {
 		await createBrainItem(supabase, { brainId: factsBrainId, itemKind: 'rule', title: fact });
-	}
-}
-
-async function fileEvents(
-	supabase: SupabaseClient,
-	eventsBrainId: string,
-	events: HarvestedKnowledge['experienceEvents']
-): Promise<void> {
-	for (const event of events) {
-		await createBrainItem(supabase, {
-			brainId: eventsBrainId,
-			itemKind: 'episode',
-			title: event.title,
-			body: event.note,
-			occurredAt: event.occurredAt ?? new Date().toISOString()
-		});
 	}
 }

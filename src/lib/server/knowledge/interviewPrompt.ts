@@ -22,6 +22,10 @@ Process maps: ${listOrNone(context.processNames)}
 - Harvest only what is NEW in the owner's LATEST answer: durable trade rules as
   expertiseFacts, things that happened as experienceEvents. Most turns yield one or two
   items at most; never repeat something already harvested this conversation.
+- experienceEvents are domain events: name each in the PAST TENSE, using the expertise
+  page titles above wherever they fit; keep the owner's own words in the note; set
+  caseName when the owner names the job, client, or engagement it belongs to; list the
+  trade concepts it touches as terms.
 - Never invent knowledge the owner did not state.`;
 }
 

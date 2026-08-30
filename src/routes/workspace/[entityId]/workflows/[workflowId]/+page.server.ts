@@ -3,6 +3,7 @@ import { addMapViewer } from '$lib/server/maps/addMapViewer';
 import { getConversationHistory } from '$lib/server/agent/getConversationHistory';
 import { getLatestWorkflowMap } from '$lib/server/maps/getLatestWorkflowMap';
 import { getMapViewers } from '$lib/server/maps/getMapViewers';
+import { findEntityKnowledgeBaseId } from '$lib/server/knowledge/findEntityKnowledgeBase';
 import { getWorkflow } from '$lib/server/entities/getWorkflow';
 import { removeMapViewer } from '$lib/server/maps/removeMapViewer';
 import { requireUser } from '$lib/server/auth/requireUser';
@@ -19,11 +20,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		author: turn.author,
 		text: turn.body
 	}));
+	const knowledgeBaseId = await findEntityKnowledgeBaseId(locals.supabase, workflow.entityId);
 	return {
 		workflow,
 		messages,
 		latestMap: await getLatestWorkflowMap(locals.supabase, workflow.id),
-		viewers: await getMapViewers(locals.supabase, workflow.id)
+		viewers: await getMapViewers(locals.supabase, workflow.id),
+		backHref: knowledgeBaseId === null ? '/knowledge-base' : `/knowledge-base/${knowledgeBaseId}`
 	};
 };
 

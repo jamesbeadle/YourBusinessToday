@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 	const turns = await readTurns(request);
 	const brain = await getLatestDomainBrain(locals.supabase);
-	if (brain === null) error(404, 'Create an expertise brain in your workspace first');
+	if (brain === null) error(404, 'Create an expertise brain in your knowledge base first');
 	const spend = await spendForBrainQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');

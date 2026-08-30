@@ -14,11 +14,8 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-10">
-	<a
-		href={`/workspace/${data.entity.id}`}
-		class="font-display text-sm text-chalk/60 transition hover:text-chalk"
-	>
-		← Back to {data.entity.name}
+	<a href="/knowledge-base" class="font-display text-sm text-chalk/60 transition hover:text-chalk">
+		← Back to the knowledge base
 	</a>
 	<header class="flex flex-col gap-2">
 		<p class="font-display text-sm tracking-widest text-signal uppercase">New Expertise Brain</p>
@@ -30,7 +27,7 @@
 	</header>
 	<form
 		method="POST"
-		action={`/workspace/${data.entity.id}?/createDomainBrain`}
+		action="?/createDomainBrain"
 		use:enhance={tracker.submit()}
 		class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-5"
 	>

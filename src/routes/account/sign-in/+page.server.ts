@@ -3,7 +3,7 @@ import { beginGoogleSignIn } from '$lib/server/auth/beginGoogleSignIn';
 import { beginMicrosoftSignIn } from '$lib/server/auth/beginMicrosoftSignIn';
 import type { Actions, PageServerLoad } from './$types';
 
-const destinationAfterAuth = '/workspace';
+const destinationAfterAuth = '/knowledge-base';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const { user } = await locals.safeGetSession();

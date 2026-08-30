@@ -16,7 +16,7 @@
 	</p>
 	{#if editorHref === null}
 		<p class="text-sm text-caution">
-			The linked Trade Playbook could not be found — it may have been deleted from your workspace.
+			The linked expertise brain could not be found — it may have been deleted.
 		</p>
 	{:else}
 		<a

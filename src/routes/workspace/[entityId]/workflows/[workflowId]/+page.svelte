@@ -18,10 +18,10 @@
 
 <div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
 	<a
-		href={`/workspace/${data.workflow.entityId}`}
+		href={data.backHref}
 		class="font-display text-sm text-chalk/60 transition hover:text-chalk"
 	>
-		← Back to the entity
+		← Back to the knowledge base
 	</a>
 	<header class="flex flex-col gap-2">
 		<p class="font-display text-sm tracking-widest text-signal uppercase">Process map</p>

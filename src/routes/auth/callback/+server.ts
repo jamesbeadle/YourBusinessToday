@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 const signInPath = '/account/sign-in';
-const defaultDestination = '/workspace';
+const defaultDestination = '/knowledge-base';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	const code = url.searchParams.get('code');

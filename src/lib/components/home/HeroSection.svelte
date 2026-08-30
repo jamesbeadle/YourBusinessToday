@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SecondBrainMark from './SecondBrainMark.svelte';
+	import BrandWordmark from '../site/BrandWordmark.svelte';
 </script>
 
 <section class="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
@@ -34,6 +34,6 @@
 		</div>
 	</div>
 	<div class="hidden items-center justify-center md:flex" aria-hidden="true">
-		<SecondBrainMark />
+		<BrandWordmark fontSize={150} />
 	</div>
 </section>

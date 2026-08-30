@@ -17,4 +17,5 @@
 	conversation={data.conversation}
 	knowledgeBases={data.knowledgeBases}
 	filedKnowledgeBaseName={data.filedKnowledgeBaseName}
+	backHref={data.backHref}
 />

@@ -30,7 +30,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		pageLinks: await getBrainPageLinks(locals.supabase, brain.id),
 		conversation: await getBrainConversationThread(locals.supabase, brain.id, 'brain'),
 		knowledgeBases: filing === null ? await getKnowledgeBaseList(locals.supabase) : [],
-		filedKnowledgeBaseName: filing?.knowledgeBaseName ?? null
+		filedKnowledgeBaseName: filing?.knowledgeBaseName ?? null,
+		backHref:
+			filing === null ? '/knowledge-base' : `/knowledge-base/${filing.knowledgeBaseId}`
 	};
 };
 

@@ -28,7 +28,8 @@
 		pageLinks,
 		conversation,
 		knowledgeBases,
-		filedKnowledgeBaseName
+		filedKnowledgeBaseName,
+		backHref
 	}: {
 		brain: DomainBrain;
 		accessRole: BrainAccessRole;
@@ -38,6 +39,7 @@
 		conversation: BrainConversationThread;
 		knowledgeBases: KnowledgeBaseSummary[];
 		filedKnowledgeBaseName: string | null;
+		backHref: string;
 	} = $props();
 
 	const isOwner = $derived(accessRole === 'owner');
@@ -114,10 +116,10 @@
 					justify-between px-4 py-2"
 			>
 				<a
-					href={`/workspace/${brain.entityId}`}
+					href={backHref}
 					class="pointer-events-auto font-display text-xs text-chalk/50 transition hover:text-chalk"
 				>
-					← {brain.name}
+					← {filedKnowledgeBaseName ?? 'Knowledge Base'}
 				</a>
 				{#if isOwner}
 					<a

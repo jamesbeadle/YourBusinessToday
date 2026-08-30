@@ -3,6 +3,7 @@ import { createKnowledgeBase } from '$lib/server/knowledge/createKnowledgeBase';
 import { getKnowledgeBaseList } from '$lib/server/knowledge/getKnowledgeBaseList';
 import { getReceivedInvites } from '$lib/server/sharing/workspaceInvites';
 import { getSecondBrainRegister } from '$lib/server/knowledge/getSecondBrainRegister';
+import { seedKnowledgeBaseBrains } from '$lib/server/knowledge/seedKnowledgeBaseBrains';
 import { getSharedBrains } from '$lib/server/sharing/getSharedBrains';
 import { getSharedWorkflowSummaries } from '$lib/server/maps/getSharedMaps';
 import { requireUser } from '$lib/server/auth/requireUser';
@@ -27,6 +28,7 @@ export const actions: Actions = {
 		const description = String(formData.get('description') ?? '').trim();
 		if (name === '') return fail(400, { message: 'A knowledge base needs a name.' });
 		const knowledgeBaseId = await createKnowledgeBase(locals.supabase, name, description);
+		await seedKnowledgeBaseBrains(locals.supabase, knowledgeBaseId, name);
 		redirect(303, `/knowledge-base/${knowledgeBaseId}`);
 	}
 };

@@ -11,12 +11,20 @@
 	let {
 		workflowId,
 		initialMessages,
-		onMapUpdate
+		onMapUpdate,
+		frame = 'card'
 	}: {
 		workflowId: string;
 		initialMessages: ChatMessage[];
 		onMapUpdate: (model: WorkflowModel) => void;
+		frame?: 'card' | 'panel';
 	} = $props();
+
+	const frameClasses = $derived(
+		frame === 'card'
+			? 'flex h-[32rem] flex-col overflow-hidden rounded-2xl border border-hairline bg-carriage'
+			: 'flex min-h-0 flex-1 flex-col overflow-hidden bg-night'
+	);
 
 	const sessionId = crypto.randomUUID();
 	let messages = $state<ChatMessage[]>(seedMessages(initialMessages));
@@ -63,9 +71,7 @@
 	});
 </script>
 
-<section
-	class="flex h-[32rem] flex-col overflow-hidden rounded-2xl border border-hairline bg-carriage"
->
+<section class={frameClasses}>
 	<div bind:this={threadElement} class="flex flex-1 flex-col gap-3 overflow-y-auto p-5 text-sm">
 		{#each messages as message (message.id)}
 			<ChatMessageBubble {message} />

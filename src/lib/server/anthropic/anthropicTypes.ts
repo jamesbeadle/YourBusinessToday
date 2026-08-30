@@ -13,6 +13,14 @@ export type AnthropicResponse = {
 	stop_reason: string;
 };
 
+export function textFrom(response: AnthropicResponse): string {
+	return response.content
+		.filter((block): block is AnthropicTextBlock => block.type === 'text')
+		.map((block) => block.text)
+		.join('\n')
+		.trim();
+}
+
 export function toolUseFrom(response: AnthropicResponse, toolName: string): unknown | undefined {
 	const block = response.content.find(
 		(candidate): candidate is AnthropicToolUseBlock =>

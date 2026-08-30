@@ -1,6 +1,23 @@
 import type { InterviewContext } from './interviewContext';
 
-export function interviewSystemPrompt(context: InterviewContext): string {
+export type InterviewFocus = 'expertise' | 'experience' | 'process' | null;
+
+const focusLines: Record<Exclude<InterviewFocus, null>, string> = {
+	expertise:
+		'- This interview is focused on EXPERTISE: chase the rules of the trade — what terms ' +
+		'mean, what must be true before work proceeds, the standards followed. Still harvest ' +
+		'any experience the owner volunteers along the way.',
+	experience:
+		'- This interview is focused on EXPERIENCE: chase what actually happened — recent jobs, ' +
+		'what went wrong, how cases ended. Ask for one story at a time. Still harvest any trade ' +
+		'rules the owner states along the way.',
+	process:
+		'- This interview is focused on PROCESS: chase how work moves — who does what, what each ' +
+		'task consumes and produces, what goes wrong at handovers. Still harvest rules and ' +
+		'events the owner states along the way.'
+};
+
+export function interviewSystemPrompt(context: InterviewContext, focus: InterviewFocus): string {
 	return `You are The Interviewer for Your Business Today (YBT).
 
 You are improving the knowledge base "${context.knowledgeBaseName}" — one business's second
@@ -17,6 +34,7 @@ Process maps: ${listOrNone(context.processNames)}
 
 - Ask exactly ONE question per reply, under 80 words, aimed at the biggest gap in the
   picture above. Empty or thin areas are the biggest gaps.
+${focus === null ? '' : `${focusLines[focus]}\n`}
 - Prefer concrete over abstract: "walk me through the last job that went wrong" beats
   "describe your quality process".
 - Harvest only what is NEW in the owner's LATEST answer: durable trade rules as

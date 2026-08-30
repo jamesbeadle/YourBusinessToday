@@ -1,50 +1,92 @@
 <script lang="ts">
+	import ItemBrainCanvas from '$lib/components/knowledge/ItemBrainCanvas.svelte';
+	import SectionPanel from '$lib/components/brain/dashboard/SectionPanel.svelte';
+	import SectionRail from '$lib/components/brain/dashboard/SectionRail.svelte';
 	import ShareMapPanel from '$lib/components/workspace/ShareMapPanel.svelte';
 	import WorkspaceChat from '$lib/components/workspace/WorkspaceChat.svelte';
 	import WorkspaceMap from '$lib/components/workspace/WorkspaceMap.svelte';
 	import WorkspaceMapNotice from '$lib/components/workspace/WorkspaceMapNotice.svelte';
+	import { findKnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 	import { hasMapContent, type WorkflowModel } from '$lib/data/workflowModel';
+	import { onMount } from 'svelte';
+	import type { SectionKey } from '$lib/components/brain/dashboard/railIcons';
 
 	let { data } = $props();
 
 	let model = $state<WorkflowModel>(data.latestMap);
+	let activeSection = $state<SectionKey | null>(null);
 
+	const sections: SectionKey[] = ['interview', 'map', 'share'];
+	const processKind = findKnowledgeKind('process');
 	const isMapDrawn = $derived(hasMapContent(model));
+	const taskCount = $derived(model.roles.flatMap((role) => role.tasks).length);
+
+	onMount(() => {
+		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'interview';
+	});
+
+	function toggleSection(section: SectionKey): void {
+		activeSection = activeSection === section ? null : section;
+	}
 </script>
 
 <svelte:head>
 	<title>{data.workflow.name} — Your Business Today</title>
 </svelte:head>
 
-<div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
-	<a
-		href={data.backHref}
-		class="font-display text-sm text-chalk/60 transition hover:text-chalk"
-	>
-		← Back to the knowledge base
-	</a>
-	<header class="flex flex-col gap-2">
-		<p class="font-display text-sm tracking-widest text-signal uppercase">Process map</p>
-		<h1 class="font-display text-3xl font-medium">{data.workflow.name}</h1>
-		<p class="max-w-prose text-chalk/70">
-			The map redraws itself with every answer you give — every role a line, every task a
-			station, every handover an interchange.
-		</p>
-	</header>
-	{#if isMapDrawn}
-		<WorkspaceMap {model} />
-	{/if}
-	<div class="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-		<WorkspaceChat
-			workflowId={data.workflow.id}
-			initialMessages={data.messages}
-			onMapUpdate={(updatedModel) => (model = updatedModel)}
-		/>
-		<div class="flex flex-col gap-6">
-			{#if !isMapDrawn}
-				<WorkspaceMapNotice creditBalance={data.creditBalance} />
+<div class="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-night lg:flex-row">
+	<div class="order-2 lg:order-1 lg:contents">
+		<SectionRail {sections} {activeSection} onSelect={toggleSection} />
+	</div>
+	<div class="relative order-1 flex min-h-0 min-w-0 flex-1 lg:order-2">
+		{#if activeSection === 'interview' || activeSection === 'share'}
+			<SectionPanel section={activeSection} onClose={() => (activeSection = null)}>
+				{#if activeSection === 'interview'}
+					<WorkspaceChat
+						workflowId={data.workflow.id}
+						initialMessages={data.messages}
+						onMapUpdate={(updatedModel) => (model = updatedModel)}
+						frame="panel"
+					/>
+				{:else}
+					<div class="min-h-0 flex-1 overflow-y-auto p-4">
+						<ShareMapPanel viewers={data.viewers} />
+					</div>
+				{/if}
+			</SectionPanel>
+		{/if}
+		<div class="relative min-w-0 flex-1">
+			{#if activeSection === 'map'}
+				<div class="absolute inset-0 z-20 overflow-y-auto bg-night p-4">
+					{#if isMapDrawn}
+						<WorkspaceMap {model} />
+					{:else}
+						<WorkspaceMapNotice creditBalance={data.creditBalance} />
+					{/if}
+				</div>
 			{/if}
-			<ShareMapPanel viewers={data.viewers} />
+			<ItemBrainCanvas
+				seed={data.workflow.id}
+				accent={processKind.accent}
+				itemCount={taskCount}
+			/>
+			<div class="pointer-events-none absolute top-4 left-4 z-10 flex flex-col gap-0.5">
+				<h1 class="font-display text-lg font-medium text-chalk">{data.workflow.name}</h1>
+				<p
+					class="font-display text-[10px] tracking-widest uppercase"
+					style={`color: ${processKind.accent}`}
+				>
+					Process brain
+				</p>
+			</div>
+			<div class="absolute inset-x-0 bottom-0 z-10 flex items-center px-4 py-2">
+				<a
+					href={data.backHref}
+					class="font-display text-xs text-chalk/50 transition hover:text-chalk"
+				>
+					← Knowledge Base
+				</a>
+			</div>
 		</div>
 	</div>
 </div>

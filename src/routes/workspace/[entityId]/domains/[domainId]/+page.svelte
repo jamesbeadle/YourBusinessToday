@@ -16,6 +16,7 @@
 	pageLinks={data.pageLinks}
 	conversation={data.conversation}
 	knowledgeBases={data.knowledgeBases}
+	filedKnowledgeBaseId={data.filedKnowledgeBaseId}
 	filedKnowledgeBaseName={data.filedKnowledgeBaseName}
 	backHref={data.backHref}
 />

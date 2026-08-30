@@ -1,5 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { askInterviewer, type InterviewTurnInput } from '$lib/server/knowledge/interviewAgent';
+import type { InterviewFocus } from '$lib/server/knowledge/interviewPrompt';
 import {
 	buildInterviewContext,
 	findPrimaryExpertiseBrain
@@ -19,7 +20,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to be interviewed');
 
-	const { knowledgeBaseId, conversation } = await readInterviewRequest(request);
+	const { knowledgeBaseId, conversation, focus } = await readInterviewRequest(request);
 	const knowledgeBase = await getKnowledgeBase(locals.supabase, knowledgeBaseId);
 	if (knowledgeBase === null) error(404, 'That knowledge base could not be found');
 
@@ -34,7 +35,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		knowledgeBase.name,
 		primary
 	);
-	const turn = await askInterviewer(conversation, context);
+	const turn = await askInterviewer(conversation, context, focus);
 	await fileHarvestToKnowledgeBase(locals.supabase, knowledgeBase.id, turn.harvest);
 	return json({
 		reply: turn.reply,
@@ -43,13 +44,24 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	});
 };
 
-async function readInterviewRequest(
-	request: Request
-): Promise<{ knowledgeBaseId: string; conversation: InterviewTurnInput[] }> {
+async function readInterviewRequest(request: Request): Promise<{
+	knowledgeBaseId: string;
+	conversation: InterviewTurnInput[];
+	focus: InterviewFocus;
+}> {
 	const payload = await request.json();
 	const knowledgeBaseId = typeof payload.knowledgeBaseId === 'string' ? payload.knowledgeBaseId : '';
 	if (knowledgeBaseId === '') error(400, 'A knowledge base is required');
-	return { knowledgeBaseId, conversation: parseConversation(payload.conversation) };
+	return {
+		knowledgeBaseId,
+		conversation: parseConversation(payload.conversation),
+		focus: parseFocus(payload.focusKind)
+	};
+}
+
+function parseFocus(value: unknown): InterviewFocus {
+	if (value === 'expertise' || value === 'experience' || value === 'process') return value;
+	return null;
 }
 
 function parseConversation(value: unknown): InterviewTurnInput[] {

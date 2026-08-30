@@ -24,28 +24,7 @@
 			class="rounded-full border-2 p-1 transition group-hover:scale-105"
 			style={`border-color: ${slot.accent}66; background-color: ${slot.accent}11`}
 		>
-			{#if slot.category === null}
-				<svg viewBox="0 0 40 40" width="56" height="56" aria-hidden="true">
-					<polyline
-						points="6,14 22,14 32,24"
-						fill="none"
-						stroke={slot.accent}
-						stroke-width="3"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-					<polyline
-						points="8,30 18,30 26,20 34,20"
-						fill="none"
-						stroke="var(--color-go)"
-						stroke-width="3"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			{:else}
-				<BrainGlyph seed={slot.id} category={slot.category} size={56} />
-			{/if}
+			<BrainGlyph seed={slot.id} accent={slot.accent} size={56} />
 		</span>
 	{/if}
 	<span class="line-clamp-2 font-display text-xs text-chalk/80 transition group-hover:text-chalk">

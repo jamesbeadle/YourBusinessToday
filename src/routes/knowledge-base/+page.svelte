@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ImportBrainsPanel from '$lib/components/knowledge/ImportBrainsPanel.svelte';
 	import InvitationsPanel from '$lib/components/workspace/InvitationsPanel.svelte';
 	import NewKnowledgeBaseForm from '$lib/components/knowledge/NewKnowledgeBaseForm.svelte';
 	import SecondBrainRegister from '$lib/components/knowledge/SecondBrainRegister.svelte';
@@ -66,8 +65,5 @@
 	{/if}
 	{#if data.sharedBrains.length > 0 || data.sharedWorkflows.length > 0}
 		<SharedWithYouSection sharedBrains={data.sharedBrains} sharedWorkflows={data.sharedWorkflows} />
-	{/if}
-	{#if data.unfiledBrains.length > 0 && data.knowledgeBases.length > 0}
-		<ImportBrainsPanel unfiledBrains={data.unfiledBrains} knowledgeBases={data.knowledgeBases} />
 	{/if}
 </div>

@@ -8,12 +8,13 @@
 			Welcome to Your Business Today
 		</p>
 		<h1 class="font-display text-4xl leading-tight font-medium md:text-6xl">
-			Your business,<br />with a second brain.
+			Consultants who<br />know your business.
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
-			YBT builds a second brain for your business and keeps it current. It knows the rules of
-			your trade, remembers every job you've done, and understands how your work flows — so
-			every answer it gives is grounded in your business, not the internet's.
+			YBT is a business consultancy. We learn how your business really runs — the rules of
+			your trade, the jobs you've done, the way your work flows — and turn that understanding
+			into answers, plans, and services that fit your business, not a template. The second
+			brain we build along the way is yours to keep.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
@@ -21,7 +22,7 @@
 				class="rounded-full bg-signal px-7 py-3 font-display text-sm font-medium text-night
 					transition hover:brightness-110"
 			>
-				Build yours
+				Start the conversation
 			</a>
 			<a
 				href="/vision"

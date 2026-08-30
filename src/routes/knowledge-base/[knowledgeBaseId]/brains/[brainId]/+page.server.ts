@@ -4,6 +4,7 @@ import { createBrainItem } from '$lib/server/knowledge/createBrainItem';
 import { deleteBrainItem } from '$lib/server/knowledge/deleteBrainItem';
 import { deleteKbBrain } from '$lib/server/knowledge/deleteKbBrain';
 import { getBrainDetail } from '$lib/server/knowledge/getBrainDetail';
+import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { parseBrainItemForm } from '$lib/server/knowledge/parseBrainItemForm';
 import { updateKbBrain } from '$lib/server/knowledge/updateKbBrain';
 import { parseRetrievalConfig } from '$lib/data/knowledge/retrievalConfig';
@@ -15,8 +16,19 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const user = await requireUser(locals);
 	const detail = await getBrainDetail(locals.supabase, params.knowledgeBaseId, params.brainId);
 	if (detail === null) error(404, 'That brain is not in this knowledge base');
+	await redirectExpertiseToModeller(locals, detail.brain.domainBrainId);
 	return { ...detail, isOwner: detail.knowledgeBase.ownerId === user.id };
 };
+
+async function redirectExpertiseToModeller(
+	locals: App.Locals,
+	domainBrainId: string | null
+): Promise<void> {
+	if (domainBrainId === null) return;
+	const domainBrain = await getDomainBrain(locals.supabase, domainBrainId);
+	if (domainBrain === null) return;
+	redirect(302, `/workspace/${domainBrain.entityId}/domains/${domainBrain.id}`);
+}
 
 export const actions: Actions = {
 	createItem: async ({ locals, params, request }) => {

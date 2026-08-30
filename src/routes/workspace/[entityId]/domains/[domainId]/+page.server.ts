@@ -1,5 +1,9 @@
 import { error, fail, redirect } from '@sveltejs/kit';
+import { createKbBrain } from '$lib/server/knowledge/createKbBrain';
 import { deleteDomainBrain } from '$lib/server/entities/deleteDomainBrain';
+import { findBrainFiling } from '$lib/server/knowledge/findBrainFiling';
+import { getKnowledgeBaseList } from '$lib/server/knowledge/getKnowledgeBaseList';
+import { touchKnowledgeBase } from '$lib/server/knowledge/updateKnowledgeBase';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainConversationThread } from '$lib/server/brain/getBrainConversation';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
@@ -17,13 +21,16 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (brain === null || brain.entityId !== params.entityId) {
 		error(404, 'That expertise brain is not in this entity');
 	}
+	const filing = await findBrainFiling(locals.supabase, brain.id);
 	return {
 		brain,
 		accessRole: await resolveBrainAccessRole(locals.supabase, brain, user.id),
 		contexts: await getBrainContexts(locals.supabase, brain.id),
 		pageIndex: await getBrainPageIndex(locals.supabase, brain.id),
 		pageLinks: await getBrainPageLinks(locals.supabase, brain.id),
-		conversation: await getBrainConversationThread(locals.supabase, brain.id, 'brain')
+		conversation: await getBrainConversationThread(locals.supabase, brain.id, 'brain'),
+		knowledgeBases: filing === null ? await getKnowledgeBaseList(locals.supabase) : [],
+		filedKnowledgeBaseName: filing?.knowledgeBaseName ?? null
 	};
 };
 
@@ -36,6 +43,24 @@ export const actions: Actions = {
 			return fail(400, { message: 'An expertise brain needs a goal — say what it should articulate.' });
 		}
 		await updateDomainBrainGoal(locals.supabase, brain.id, domainGoal);
+		return {};
+	},
+	fileIntoKnowledgeBase: async ({ locals, params, request }) => {
+		const brain = await requireOwnedBrain(locals, params);
+		const formData = await request.formData();
+		const knowledgeBaseId = String(formData.get('knowledgeBaseId') ?? '');
+		if (knowledgeBaseId === '') return fail(400, { message: 'Pick a knowledge base.' });
+		const filing = await findBrainFiling(locals.supabase, brain.id);
+		if (filing !== null) return fail(400, { message: 'This brain is already filed.' });
+		await createKbBrain(locals.supabase, {
+			knowledgeBaseId,
+			category: 'domain',
+			brainType: 'ddd_model',
+			name: brain.name,
+			description: brain.domainGoal,
+			domainBrainId: brain.id
+		});
+		await touchKnowledgeBase(locals.supabase, knowledgeBaseId);
 		return {};
 	},
 	deleteDomainBrain: async ({ locals, params }) => {

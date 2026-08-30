@@ -35,3 +35,9 @@ export function dataFrom(item: { data: Record<string, unknown> }, key: string): 
 	const value = item.data[key];
 	return typeof value === 'string' ? value : '';
 }
+
+export function dataListFrom(item: { data: Record<string, unknown> }, key: string): string[] {
+	const value = item.data[key];
+	if (!Array.isArray(value)) return [];
+	return value.filter((entry): entry is string => typeof entry === 'string');
+}

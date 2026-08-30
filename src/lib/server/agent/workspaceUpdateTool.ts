@@ -6,15 +6,31 @@ const expertiseFactSchema = {
 		'One durable rule, term, or constraint of the trade, stated as a standalone sentence.'
 };
 
-const experienceEventSchema = {
+export const experienceEventSchema = {
 	type: 'object',
 	required: ['title'],
 	properties: {
-		title: { type: 'string', description: 'What happened, short, starting with a verb.' },
+		title: {
+			type: 'string',
+			description:
+				'The event named in the PAST TENSE, in the trade’s own terms — ' +
+				'"Variation order signed off", never "sign-off process".'
+		},
 		note: { type: 'string', description: 'The detail in the owner’s own words.' },
 		occurredAt: {
 			type: 'string',
 			description: 'ISO date if the owner said when it happened; omit otherwise.'
+		},
+		caseName: {
+			type: 'string',
+			description:
+				'The job, client, or engagement this event belongs to, exactly as the owner names ' +
+				'it — "the Hartley job". Omit when no case is named.'
+		},
+		terms: {
+			type: 'array',
+			items: { type: 'string' },
+			description: 'The trade concepts this event touches, named as the playbook names them.'
 		}
 	}
 };

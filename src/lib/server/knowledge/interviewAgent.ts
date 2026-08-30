@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { experienceEventSchema } from '$lib/server/agent/workspaceUpdateTool';
 import { parseHarvest, type HarvestedKnowledge } from '$lib/server/agent/parseHarvest';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import { toolUseFrom } from '$lib/server/anthropic/anthropicTypes';
@@ -32,15 +33,7 @@ const interviewUpdateTool = {
 			},
 			experienceEvents: {
 				type: 'array',
-				items: {
-					type: 'object',
-					required: ['title'],
-					properties: {
-						title: { type: 'string' },
-						note: { type: 'string' },
-						occurredAt: { type: 'string' }
-					}
-				},
+				items: experienceEventSchema,
 				description: 'Things that happened, NEWLY stated in the latest answer. Usually empty.'
 			}
 		}

@@ -51,7 +51,9 @@ the owner's LATEST message adds beyond the map:
 - expertiseFacts: durable rules of the trade — regulations quoted, standards followed,
   what a term means, what must be true before work proceeds. One standalone sentence each.
 - experienceEvents: things that actually happened — a job that went wrong, a client story,
-  a decision made. Title starts with a verb; the note keeps the owner's own words.
+  a decision made. Name each event in the PAST TENSE in the trade's own terms; the note
+  keeps the owner's own words. Set caseName whenever the owner names the job, client, or
+  engagement it belongs to, and list the trade concepts it touches as terms.
 - Harvest only what is NEW in the latest message. Never repeat a fact or event already
   harvested earlier in the conversation. Most turns yield nothing — empty arrays are the
   normal case, not a failure.`;

@@ -1,12 +1,22 @@
 <script lang="ts">
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
+	import FileIntoKnowledgeBasePanel from './FileIntoKnowledgeBasePanel.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { enhance } from '$app/forms';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
+	import type { KnowledgeBaseSummary } from '$lib/data/knowledge/knowledgeTypes';
 
-	let { brain }: { brain: DomainBrain } = $props();
+	let {
+		brain,
+		knowledgeBases,
+		filedKnowledgeBaseName
+	}: {
+		brain: DomainBrain;
+		knowledgeBases: KnowledgeBaseSummary[];
+		filedKnowledgeBaseName: string | null;
+	} = $props();
 
 	const tracker = new FormTracker();
 	let isDeleteModalOpen = $state(false);
@@ -46,6 +56,7 @@
 			</SubmitButton>
 		</form>
 	</section>
+	<FileIntoKnowledgeBasePanel {knowledgeBases} {filedKnowledgeBaseName} />
 	<section class="flex flex-col gap-2 border-t border-hairline pt-6">
 		<h3 class="font-display text-sm text-signal">Delete this expertise brain</h3>
 		<p class="text-xs leading-relaxed text-chalk/60">

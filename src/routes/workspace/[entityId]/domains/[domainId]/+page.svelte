@@ -15,4 +15,6 @@
 	pageIndex={data.pageIndex}
 	pageLinks={data.pageLinks}
 	conversation={data.conversation}
+	knowledgeBases={data.knowledgeBases}
+	filedKnowledgeBaseName={data.filedKnowledgeBaseName}
 />

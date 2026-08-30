@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import type { BrainAccessRole } from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
+	import type { KnowledgeBaseSummary } from '$lib/data/knowledge/knowledgeTypes';
 	import type {
 		BrainContext,
 		BrainConversationThread,
@@ -25,7 +26,9 @@
 		contexts,
 		pageIndex,
 		pageLinks,
-		conversation
+		conversation,
+		knowledgeBases,
+		filedKnowledgeBaseName
 	}: {
 		brain: DomainBrain;
 		accessRole: BrainAccessRole;
@@ -33,6 +36,8 @@
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
 		conversation: BrainConversationThread;
+		knowledgeBases: KnowledgeBaseSummary[];
+		filedKnowledgeBaseName: string | null;
 	} = $props();
 
 	const isOwner = $derived(accessRole === 'owner');
@@ -91,7 +96,7 @@
 						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
 					</div>
 				{:else}
-					<BrainSettingsPanel {brain} />
+					<BrainSettingsPanel {brain} {knowledgeBases} {filedKnowledgeBaseName} />
 				{/if}
 			</SectionPanel>
 		{/if}

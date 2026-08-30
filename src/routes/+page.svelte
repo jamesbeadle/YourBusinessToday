@@ -7,10 +7,10 @@
 </script>
 
 <svelte:head>
-	<title>Your Business Today — a second brain for your business</title>
+	<title>Your Business Today — consultants who know your business</title>
 	<meta
 		name="description"
-		content="YBT builds your business a second brain — the rules of your trade, the record of every job, and the way your work flows, all from one conversation. Query it, share it, and put it to work through Trade Talk and the Marketplace."
+		content="YBT is a business consultancy that learns how your business really runs and puts that knowledge to work. Along the way we build you a second brain — the rules of your trade, the record of every job, the way your work flows — and it stays yours."
 	/>
 </svelte:head>
 

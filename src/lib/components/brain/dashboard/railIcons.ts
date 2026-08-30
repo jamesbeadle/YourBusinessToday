@@ -10,19 +10,11 @@ export type SectionKey =
 	| 'api'
 	| 'settings';
 
-export const readerSections: SectionKey[] = ['terminal', 'model', 'log'];
+export const readerSections: SectionKey[] = ['terminal', 'model'];
 
-export const memberSections: SectionKey[] = ['terminal', 'sources', 'model', 'log'];
+export const memberSections: SectionKey[] = ['terminal', 'model'];
 
-export const ownerSections: SectionKey[] = [
-	...memberSections,
-	'review',
-	'share',
-	'sell',
-	'hive',
-	'api',
-	'settings'
-];
+export const ownerSections: SectionKey[] = [...memberSections, 'settings'];
 
 export const sectionLabels: Record<SectionKey, string> = {
 	terminal: 'Terminal',
@@ -32,7 +24,7 @@ export const sectionLabels: Record<SectionKey, string> = {
 	review: 'Review changes',
 	share: 'Sharing',
 	sell: 'Sell on the market',
-	hive: 'Hive Mind',
+	hive: 'Trade Talk',
 	api: 'API access',
 	settings: 'Settings'
 };

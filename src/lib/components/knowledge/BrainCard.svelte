@@ -12,7 +12,7 @@
 
 <li>
 	<a
-		href={`/knowledge/${brain.knowledgeBaseId}/brains/${brain.id}`}
+		href={`/knowledge-base/${brain.knowledgeBaseId}/brains/${brain.id}`}
 		class="flex gap-4 rounded-2xl border border-hairline bg-carriage p-4 transition
 			hover:border-signal/60"
 	>

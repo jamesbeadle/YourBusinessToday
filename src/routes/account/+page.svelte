@@ -3,6 +3,7 @@
 	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
+	import RevenueSharePanel from '$lib/components/account/RevenueSharePanel.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 
@@ -66,6 +67,7 @@
 			Top up
 		</a>
 	</div>
+	<RevenueSharePanel earnings={data.tradeTalkEarnings} />
 	<PurchaseHistoryTable purchases={data.purchases} />
 </div>
 

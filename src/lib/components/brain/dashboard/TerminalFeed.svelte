@@ -1,7 +1,6 @@
 <script lang="ts">
 	import IngestWorkingLine from './IngestWorkingLine.svelte';
 	import TerminalTurn from './TerminalTurn.svelte';
-	import { creditsPerBrainIngest, creditsPerBrainQuestion } from '$lib/data/creditPricing';
 	import type { BrainConversationMessage, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
@@ -24,8 +23,7 @@
 </script>
 
 <p class="mb-3 text-xs text-chalk/35">
-	expertise brain · {creditsPerBrainQuestion} credits a question · drop a file or paste a link to
-	ingest ({creditsPerBrainIngest} credits)
+	query your brain · answers grounded in this brain's own model · credits scale with the work
 </p>
 <div class="flex flex-col gap-3">
 	{#each messages as message (message.id)}

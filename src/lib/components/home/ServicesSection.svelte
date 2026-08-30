@@ -13,7 +13,7 @@
 				knowledge grows.
 			</p>
 		</div>
-		<div class="mt-10 grid gap-6 md:grid-cols-3">
+		<div class="mt-10 grid gap-6 md:grid-cols-2">
 			{#each knowledgeServices as service (service.id)}
 				<ServiceCard {service} />
 			{/each}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BrandWordmark from '../site/BrandWordmark.svelte';
+	import SecondBrainMark from './SecondBrainMark.svelte';
 </script>
 
 <section class="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
@@ -8,12 +8,12 @@
 			Welcome to Your Business Today
 		</p>
 		<h1 class="font-display text-4xl leading-tight font-medium md:text-6xl">
-			YBT builds your<br />business a brain.
+			Your business,<br />with a second brain.
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
-			Three kinds of knowledge, one living profile. Your expertise sets the rules of your
-			trade, your experience records every job done within them, and your process shows how
-			the work flows. Tell YBT once, and every service starts already briefed.
+			YBT builds a second brain for your business and keeps it current. It knows the rules of
+			your trade, remembers every job you've done, and understands how your work flows — so
+			every answer it gives is grounded in your business, not the internet's.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
@@ -21,7 +21,7 @@
 				class="rounded-full bg-signal px-7 py-3 font-display text-sm font-medium text-night
 					transition hover:brightness-110"
 			>
-				Get started
+				Build yours
 			</a>
 			<a
 				href="/vision"
@@ -33,6 +33,6 @@
 		</div>
 	</div>
 	<div class="hidden items-center justify-center md:flex" aria-hidden="true">
-		<BrandWordmark fontSize={150} />
+		<SecondBrainMark />
 	</div>
 </section>

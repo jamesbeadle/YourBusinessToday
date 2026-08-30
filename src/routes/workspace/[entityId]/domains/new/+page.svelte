@@ -1,77 +1,67 @@
 <script lang="ts">
-	import TemplateCategorySection from '$lib/components/workspace/templates/TemplateCategorySection.svelte';
-	import TemplateCreateModal from '$lib/components/workspace/templates/TemplateCreateModal.svelte';
-	import {
-		brainTemplateCategories,
-		scratchBrainTemplate,
-		type BrainTemplate
-	} from '$lib/data/brainTemplates';
+	import { enhance } from '$app/forms';
+	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import { FormTracker } from '$lib/client/formTracker.svelte';
 
 	let { data } = $props();
 
-	let selectedTemplate = $state<BrainTemplate>(scratchBrainTemplate);
-	let isCreateModalOpen = $state(false);
-
-	function openTemplate(template: BrainTemplate) {
-		selectedTemplate = template;
-		isCreateModalOpen = true;
-	}
+	const tracker = new FormTracker();
 </script>
 
 <svelte:head>
-	<title>New expertise brain — {data.entity.name} — Your Business Today</title>
+	<title>New Expertise Brain — {data.entity.name} — Your Business Today</title>
 </svelte:head>
 
-<div class="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-10">
-	<div class="flex flex-col gap-6">
-		<a
-			href={`/workspace/${data.entity.id}`}
-			class="font-display text-sm text-chalk/60 transition hover:text-chalk"
-		>
-			← Back to {data.entity.name}
-		</a>
-		<header class="flex flex-wrap items-end justify-between gap-4">
-			<div class="flex max-w-2xl flex-col gap-2">
-				<p class="font-display text-sm tracking-widest text-signal uppercase">New expertise brain</p>
-				<h1 class="font-display text-3xl font-medium">What should it know?</h1>
-				<p class="text-chalk/70">
-					Every template is a ready-made goal that tunes the brain for its domain. Pick one, feed
-					it your documents, then ask it anything — or write your own goal from scratch.
-				</p>
-			</div>
-			<button
-				type="button"
-				onclick={() => openTemplate(scratchBrainTemplate)}
-				class="rounded-full border border-signal/60 px-6 py-2.5 font-display text-sm text-signal
-					transition hover:bg-signal hover:text-night"
-			>
-				Start from scratch
-			</button>
-		</header>
-	</div>
-	{#each brainTemplateCategories as category (category.slug)}
-		<TemplateCategorySection {category} onSelect={openTemplate} />
-	{/each}
-	<button
-		type="button"
-		onclick={() => openTemplate(scratchBrainTemplate)}
-		class="group flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2
-			border-dashed border-hairline p-6 text-left transition hover:border-signal/60"
+<div class="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-10">
+	<a
+		href={`/workspace/${data.entity.id}`}
+		class="font-display text-sm text-chalk/60 transition hover:text-chalk"
 	>
-		<span class="flex flex-col gap-1">
-			<span class="font-display text-base font-medium text-chalk">Building something else?</span>
-			<span class="text-sm text-chalk/60">
-				Start from scratch — name the domain, state its goal, and the brain will follow it.
-			</span>
-		</span>
-		<span class="font-display text-sm text-signal transition group-hover:translate-x-0.5">
-			Start from scratch →
-		</span>
-	</button>
+		← Back to {data.entity.name}
+	</a>
+	<header class="flex flex-col gap-2">
+		<p class="font-display text-sm tracking-widest text-signal uppercase">New Expertise Brain</p>
+		<h1 class="font-display text-3xl font-medium">What should it know?</h1>
+		<p class="max-w-prose text-chalk/70">
+			Name the domain and state its goal in your own words — the brain reads everything you
+			feed it with that goal in mind.
+		</p>
+	</header>
+	<form
+		method="POST"
+		action={`/workspace/${data.entity.id}?/createDomainBrain`}
+		use:enhance={tracker.submit()}
+		class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-5"
+	>
+		<label class="flex flex-col gap-1">
+			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Name</span>
+			<input
+				name="name"
+				required
+				placeholder="The knowledge of the business"
+				class="rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
+					focus:border-signal"
+			/>
+		</label>
+		<label class="flex flex-col gap-1">
+			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Domain goal</span>
+			<textarea
+				name="domainGoal"
+				rows="3"
+				placeholder="Understand how this business quotes, delivers, and gets paid — in its own language."
+				class="rounded-xl border border-hairline bg-night px-4 py-2.5 text-chalk outline-none
+					focus:border-signal"
+			></textarea>
+		</label>
+		<FormErrorNote message={tracker.errorMessage} />
+		<SubmitButton
+			isSaving={tracker.isSaving}
+			savingLabel="Creating…"
+			class="self-end rounded-full bg-signal px-6 py-2.5 font-display text-sm font-medium
+				text-night transition hover:brightness-110"
+		>
+			Create brain
+		</SubmitButton>
+	</form>
 </div>
-
-<TemplateCreateModal
-	entityId={data.entity.id}
-	template={selectedTemplate}
-	bind:isOpen={isCreateModalOpen}
-/>

@@ -7,7 +7,9 @@ import {
 	refundForHiveMindQuestion,
 	spendForHiveMindQuestion
 } from '$lib/server/hive/spendForHiveMindQuestion';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import { splitHiveMindEarnings } from '$lib/server/hive/splitHiveMindEarnings';
+import { tradeTalkDepthCreditsFor } from '$lib/data/creditPricing';
 import type { HiveContributor, HiveMember } from '$lib/data/hiveTypes';
 import type { HiveEarningsShare } from '$lib/server/hive/splitHiveMindEarnings';
 import type { RequestHandler } from './$types';
@@ -30,6 +32,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		const specialists = await getHiveModelIndex(locals.supabase, members);
 		const consultation = await askHiveMind(locals.supabase, specialists, question);
 		const shares = splitHiveMindEarnings(consultation.pagesReadCounts);
+		const depthBalance = await chargeForDepth(locals, consultation.pagesReadCounts);
 		await recordHiveMindQuestion(
 			locals.supabase,
 			question,
@@ -40,7 +43,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({
 			answerMarkdown: consultation.answerMarkdown,
 			contributors: contributorsFrom(members, shares),
-			creditBalance: spend.creditBalance
+			creditBalance: depthBalance ?? spend.creditBalance
 		});
 	} catch (failure) {
 		console.error('Hive Mind question failed', failure);
@@ -48,6 +51,18 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		error(502, 'That question failed — your credits have been refunded');
 	}
 };
+
+async function chargeForDepth(
+	locals: App.Locals,
+	pagesReadCounts: Map<string, number>
+): Promise<number | null> {
+	const totalPagesRead = [...pagesReadCounts.values()].reduce((total, count) => total + count, 0);
+	const depthCost = tradeTalkDepthCreditsFor(totalPagesRead);
+	if (depthCost === 0) return null;
+	const depthSpend = await spendCredits(locals.supabase, depthCost, 'trade_talk_depth');
+	if (typeof depthSpend === 'string') return null;
+	return depthSpend.creditBalance;
+}
 
 function readQuestion(payload: { question?: unknown }): string {
 	const question = typeof payload.question === 'string' ? payload.question.trim() : '';

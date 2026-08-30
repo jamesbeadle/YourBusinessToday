@@ -11,7 +11,14 @@ export async function fileHarvestedKnowledge(
 	if (harvest.expertiseFacts.length === 0 && harvest.experienceEvents.length === 0) return;
 	const knowledgeBaseIds = await linkedKnowledgeBaseIds(supabase, entityId);
 	if (knowledgeBaseIds.length === 0) return;
-	const knowledgeBaseId = knowledgeBaseIds[0];
+	await fileHarvestToKnowledgeBase(supabase, knowledgeBaseIds[0], harvest);
+}
+
+export async function fileHarvestToKnowledgeBase(
+	supabase: SupabaseClient,
+	knowledgeBaseId: string,
+	harvest: HarvestedKnowledge
+): Promise<void> {
 	if (harvest.expertiseFacts.length > 0) {
 		const factsBrainId = await findOrCreateBrain(supabase, knowledgeBaseId, 'rules');
 		await fileFacts(supabase, factsBrainId, harvest.expertiseFacts);

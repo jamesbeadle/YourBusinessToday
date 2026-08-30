@@ -10,12 +10,12 @@
 </script>
 
 <svelte:head>
-	<title>Market — Your Business Today</title>
+	<title>Marketplace — Your Business Today</title>
 </svelte:head>
 
 <div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
 	<header class="flex flex-col gap-2">
-		<p class="font-display text-sm tracking-widest text-signal uppercase">The market</p>
+		<p class="font-display text-sm tracking-widest text-signal uppercase">Marketplace</p>
 		<h1 class="font-display text-3xl font-medium">Buy domain knowledge</h1>
 		<p class="max-w-prose text-chalk/70">
 			Expertise brains other people have built and put up for sale. Buy an edition to keep a
@@ -28,12 +28,12 @@
 	{/if}
 	{#if data.listings.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			Nothing is on the market yet — when someone lists a expertise brain for sale, it appears
+			Nothing is on the marketplace yet — when someone lists an expertise brain for sale, it appears
 			here. You can sell your own from a brain's dashboard.
 		</p>
 	{:else}
 		<section class="flex flex-col gap-3">
-			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">On the market</h2>
+			<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">On the marketplace</h2>
 			<ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each data.listings as listing (listing.id)}
 					<li><MarketListingCard {listing} isMine={listing.ownerId === data.viewerId} /></li>

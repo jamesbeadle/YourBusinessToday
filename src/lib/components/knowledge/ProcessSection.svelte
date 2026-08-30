@@ -3,12 +3,12 @@
 	import { findKnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 	import type { ProcessMapSummary } from '$lib/server/knowledge/getProcessMaps';
 
-	let { processMaps }: { processMaps: ProcessMapSummary[] } = $props();
+	let {
+		knowledgeBaseId,
+		processMaps
+	}: { knowledgeBaseId: string; processMaps: ProcessMapSummary[] } = $props();
 
 	const kind = findKnowledgeKind('process');
-	const workspaceHref = $derived(
-		processMaps.length > 0 ? `/workspace/${processMaps[0].entityId}` : '/workspace'
-	);
 </script>
 
 <section
@@ -25,7 +25,7 @@
 			</p>
 		</div>
 		<a
-			href={workspaceHref}
+			href={`/knowledge-base/${knowledgeBaseId}/brains/new?kind=process`}
 			class="rounded-full px-5 py-2 font-display text-sm font-medium text-night transition
 				hover:brightness-110"
 			style={`background-color: ${kind.accent}`}
@@ -35,8 +35,8 @@
 	</header>
 	{#if processMaps.length === 0}
 		<p class="rounded-xl border border-dashed border-hairline p-6 text-center text-sm text-chalk/50">
-			Nothing mapped yet. Talk to the agent in your workspace and your process draws itself —
-			it appears here once this knowledge base links to that business.
+			Nothing mapped yet. Add a Process Brain and talk to the agent — your process draws
+			itself as a map while you answer.
 		</p>
 	{:else}
 		<ul class="flex flex-col gap-3">

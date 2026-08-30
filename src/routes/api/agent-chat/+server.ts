@@ -1,5 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { fileHarvestedKnowledge } from '$lib/server/agent/fileHarvestedKnowledge';
+import { harvestCreditsFor } from '$lib/data/creditPricing';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import { getLatestWorkflowMap } from '$lib/server/maps/getLatestWorkflowMap';
 import { getSessionConversation } from '$lib/server/agent/getSessionConversation';
 import { getWorkflow } from '$lib/server/entities/getWorkflow';
@@ -43,6 +45,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		await saveWorkflowMap(locals.supabase, workflow.id, agentTurn.map);
 	}
 	await fileHarvestedKnowledge(locals.supabase, workflow.entityId, agentTurn.harvest);
+	await chargeForHarvest(locals, agentTurn.harvest);
 
 	return json({
 		reply: agentTurn.reply,
@@ -50,6 +53,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		creditBalance: spend.creditBalance
 	});
 };
+
+async function chargeForHarvest(
+	locals: App.Locals,
+	harvest: { expertiseFacts: string[]; experienceEvents: unknown[] }
+): Promise<void> {
+	const itemCount = harvest.expertiseFacts.length + harvest.experienceEvents.length;
+	const harvestCost = harvestCreditsFor(itemCount);
+	if (harvestCost === 0) return;
+	await spendCredits(locals.supabase, harvestCost, 'knowledge_harvest').catch(() => undefined);
+}
 
 async function readChatRequest(
 	request: Request

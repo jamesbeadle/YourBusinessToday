@@ -1,7 +1,8 @@
 import { error, json } from '@sveltejs/kit';
 import { findBrainSource, markSourceStatus } from '$lib/server/brain/findBrainSource';
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
-import { refundForBrainIngest, spendForBrainIngest } from '$lib/server/brain/spendForBrainWork';
+import { ingestCreditsFor } from '$lib/data/creditPricing';
+import { refundCredits, spendCredits } from '$lib/server/credits/spendCredits';
 import { runSourceIngest } from '$lib/server/brain/runSourceIngest';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { runProposedIngest } from '$lib/server/sharing/runProposedIngest';
@@ -20,7 +21,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (source === null) error(404, 'That document could not be found');
 	if (source.status === 'ingested') error(409, 'That document is already in the brain');
 
-	const spend = await spendForBrainIngest(locals.supabase, sourceId);
+	const ingestCost = ingestCreditsFor(source.byteCount);
+	const spend = await spendCredits(locals.supabase, ingestCost, 'brain_ingest_sized');
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
@@ -32,7 +34,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	} catch (failure) {
 		console.error('Brain ingest failed', failure);
 		await markSourceStatus(locals.supabase, sourceId, 'failed', failureSummary(failure));
-		await refundForBrainIngest(locals.supabase);
+		await refundCredits(locals.supabase, ingestCost, 'brain_ingest_sized');
 		error(502, 'Reading that document failed — your credits have been refunded');
 	}
 	return json({ creditBalance: await getCreditBalance(locals.supabase), isProposal });

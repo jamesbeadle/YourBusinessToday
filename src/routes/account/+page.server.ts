@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { getDisplayName } from '$lib/server/auth/getDisplayName';
 import { getPurchaseHistory } from '$lib/server/credits/getPurchaseHistory';
+import { getTradeTalkEarnings } from '$lib/server/credits/getTradeTalkEarnings';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { saveDisplayName } from '$lib/server/auth/saveDisplayName';
 import type { Actions, PageServerLoad } from './$types';
@@ -9,7 +10,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	await requireUser(locals);
 	return {
 		purchases: await getPurchaseHistory(locals.supabase),
-		displayName: await getDisplayName(locals.supabase)
+		displayName: await getDisplayName(locals.supabase),
+		tradeTalkEarnings: await getTradeTalkEarnings(locals.supabase)
 	};
 };
 

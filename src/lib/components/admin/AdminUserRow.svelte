@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AdminActionsMenu from '$lib/components/admin/AdminActionsMenu.svelte';
 	import GrantCreditsModal from '$lib/components/admin/GrantCreditsModal.svelte';
+	import UserModelSelect from '$lib/components/admin/UserModelSelect.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user }: { user: AdminUserSummary } = $props();
@@ -26,7 +27,10 @@
 		</p>
 		<p class="text-xs text-chalk/50">{user.credits} credits</p>
 	</div>
-	<AdminActionsMenu {user} onGrantCredits={() => (isGrantModalOpen = true)} />
+	<div class="flex items-center gap-3">
+		<UserModelSelect {user} />
+		<AdminActionsMenu {user} onGrantCredits={() => (isGrantModalOpen = true)} />
+	</div>
 	{#if isGrantModalOpen}
 		<GrantCreditsModal {user} onClose={() => (isGrantModalOpen = false)} />
 	{/if}

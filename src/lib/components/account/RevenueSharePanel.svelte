@@ -26,6 +26,7 @@
 	</div>
 	<p class="text-sm text-chalk/60">
 		Every time a Trade Talk answer draws on a knowledge base you own, your share lands here as
-		credits. Cash payouts arrive with our Stripe rollout — your running total already counts.
+		credits. Cash payouts arrive with our Stripe rollout — add your payout details below so
+		you're ready on day one.
 	</p>
 </div>

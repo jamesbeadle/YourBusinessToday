@@ -12,6 +12,7 @@ import { isKnownSiteModel } from '$lib/data/siteModels';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
 import { setAccountRestriction } from '$lib/server/admin/setAccountRestriction';
 import { setSiteModel } from '$lib/server/admin/setSiteModel';
+import { setUserModel } from '$lib/server/admin/setUserModel';
 import { setStaffAccess } from '$lib/server/admin/setStaffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -34,6 +35,23 @@ export const actions: Actions = {
 		}
 		await setSiteModel(locals.supabase, modelId);
 		return { message: `The site now runs on ${modelId}.` };
+	},
+	setUserModel: async ({ locals, request }) => {
+		await requireAdmin(locals);
+		const formData = await request.formData();
+		const targetEmail = String(formData.get('targetEmail') ?? '');
+		const modelId = String(formData.get('modelId') ?? '');
+		if (targetEmail === '') return fail(400, { message: 'A user is required.' });
+		if (modelId !== '' && !isKnownSiteModel(modelId)) {
+			return fail(400, { message: 'Choose one of the listed models.' });
+		}
+		await setUserModel(locals.supabase, targetEmail, modelId);
+		return {
+			message:
+				modelId === ''
+					? `${targetEmail} now follows the site model.`
+					: `${targetEmail} now runs on ${modelId}.`
+		};
 	},
 	grantCredits: async ({ locals, request }) => {
 		await requireAdmin(locals);

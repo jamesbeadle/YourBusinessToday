@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { getUserModelOverride } from '$lib/server/anthropic/getUserModelOverride';
+import { runWithModelResolver } from '$lib/server/anthropic/modelContext';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -21,8 +23,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return { session: sessionData.session, user: userData.user };
 	};
 
-	return resolve(event, {
-		filterSerializedResponseHeaders: (headerName) =>
-			headerName === 'content-range' || headerName === 'x-supabase-api-version'
-	});
+	let overrideLookup: Promise<string | null> | null = null;
+	const resolveModelOverride = () => {
+		overrideLookup = overrideLookup ?? getUserModelOverride(event.locals.supabase);
+		return overrideLookup;
+	};
+
+	return runWithModelResolver(resolveModelOverride, () =>
+		resolve(event, {
+			filterSerializedResponseHeaders: (headerName) =>
+				headerName === 'content-range' || headerName === 'x-supabase-api-version'
+		})
+	);
 };

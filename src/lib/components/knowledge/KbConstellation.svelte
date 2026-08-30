@@ -1,6 +1,8 @@
 <script lang="ts">
-	import KbConstellationNode from './KbConstellationNode.svelte';
-	import { buildConstellationSlots } from './constellationSlots';
+	import { goto } from '$app/navigation';
+	import { buildConstellationSlots, type ConstellationSlot } from './constellationSlots';
+	import { createKbGalaxy } from './kb3d/createKbGalaxy';
+	import { untrack } from 'svelte';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 	import type { ProcessMapSummary } from '$lib/server/knowledge/getProcessMaps';
 
@@ -15,42 +17,41 @@
 	} = $props();
 
 	const slots = $derived(buildConstellationSlots(knowledgeBaseId, brains, processMaps));
-	const addHref = $derived(`/knowledge-base/${knowledgeBaseId}/brains/new`);
-	const slotCount = $derived(Math.max(slots.length, 3));
 
-	function slotPosition(slotIndex: number): { x: number; y: number } {
-		const angle = -Math.PI / 2 + (2 * Math.PI * slotIndex) / slotCount;
-		return { x: 50 + 36 * Math.cos(angle), y: 50 + 34 * Math.sin(angle) };
+	let containerElement = $state<HTMLDivElement>();
+	let canvasElement = $state<HTMLCanvasElement>();
+
+	function openSlot(slot: ConstellationSlot): void {
+		goto(slot.href);
 	}
+
+	$effect(() => {
+		void slots;
+		if (canvasElement === undefined || containerElement === undefined) return;
+		const galaxy = createKbGalaxy(
+			canvasElement,
+			containerElement,
+			untrack(() => slots),
+			openSlot
+		);
+		return () => galaxy.destroy();
+	});
 </script>
 
-<div class="relative h-full w-full overflow-hidden">
-	<svg class="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-		{#each slots as slot, slotIndex (slot.kindLabel + slot.id)}
-			<line
-				x1="50"
-				y1="50"
-				x2={slotPosition(slotIndex).x}
-				y2={slotPosition(slotIndex).y}
-				stroke={slot.accent}
-				stroke-width="0.15"
-				opacity={slot.variant === 'ghost' ? 0.25 : 0.5}
-			/>
-		{/each}
-	</svg>
-	<span
-		class="absolute top-1/2 left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full
-			bg-chalk shadow-[0_0_18px_4px_rgba(238,241,248,0.35)]"
-		aria-hidden="true"
-	></span>
-	{#each slots as slot, slotIndex (slot.kindLabel + slot.id)}
-		<KbConstellationNode {slot} x={slotPosition(slotIndex).x} y={slotPosition(slotIndex).y} />
-	{/each}
+<div bind:this={containerElement} class="relative h-full w-full overflow-hidden bg-night">
+	<canvas bind:this={canvasElement} class="block h-full w-full"></canvas>
 	<a
-		href={addHref}
-		class="absolute right-4 top-4 z-10 rounded-full border border-hairline px-4 py-1.5 font-display
-			text-xs text-chalk/60 transition hover:border-signal hover:text-signal"
+		href={`/knowledge-base/${knowledgeBaseId}/brains/new`}
+		class="absolute top-4 right-4 z-10 rounded-full border border-hairline bg-night/60 px-4
+			py-1.5 font-display text-xs text-chalk/60 backdrop-blur-none transition
+			hover:border-signal hover:text-signal"
 	>
 		+ Add a second brain
 	</a>
+	<p
+		class="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 font-display text-[10px]
+			tracking-widest text-chalk/25 uppercase"
+	>
+		drag to orbit · click a brain to open it
+	</p>
 </div>

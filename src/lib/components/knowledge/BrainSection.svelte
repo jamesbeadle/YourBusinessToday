@@ -24,8 +24,8 @@
 	);
 	const emptyInvitation = $derived(
 		isExpertise
-			? 'Nothing here yet. Start with a Trade Playbook — what your business knows, modelled properly.'
-			: 'Nothing recorded yet. Start with a Project Log and capture jobs as they happen.'
+			? 'Nothing here yet. Add an Expertise Brain and teach it the rules of your trade.'
+			: 'Nothing recorded yet. Add an Experience Brain and capture jobs as they happen.'
 	);
 </script>
 
@@ -41,7 +41,7 @@
 			<p class="max-w-prose text-sm text-chalk/60">{explainer}</p>
 		</div>
 		<a
-			href={`/knowledge/${knowledgeBaseId}/brains/new?category=${category}`}
+			href={`/knowledge-base/${knowledgeBaseId}/brains/new?kind=${kind.kind}`}
 			class="rounded-full px-5 py-2 font-display text-sm font-medium text-night transition
 				hover:brightness-110"
 			style={`background-color: ${kind.accent}`}

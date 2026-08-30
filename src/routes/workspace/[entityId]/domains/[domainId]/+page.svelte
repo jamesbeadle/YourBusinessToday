@@ -14,15 +14,5 @@
 	contexts={data.contexts}
 	pageIndex={data.pageIndex}
 	pageLinks={data.pageLinks}
-	sources={data.sources}
-	events={data.events}
 	conversation={data.conversation}
-	proposals={data.proposals}
-	shares={data.shares}
-	invites={data.invites}
-	listing={data.listing}
-	editions={data.editions}
-	sales={data.sales}
-	hive={data.hive}
-	apiTokens={data.apiTokens}
 />

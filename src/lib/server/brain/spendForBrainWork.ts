@@ -2,13 +2,6 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type BrainSpend = { creditBalance: number } | 'insufficient_credits' | 'account_restricted';
 
-export async function spendForBrainIngest(
-	supabase: SupabaseClient,
-	sourceId: string
-): Promise<BrainSpend> {
-	return spendThrough(supabase, 'spend_for_brain_ingest', { source_identifier: sourceId });
-}
-
 export async function spendForBrainQuestion(supabase: SupabaseClient): Promise<BrainSpend> {
 	return spendThrough(supabase, 'spend_for_brain_question', {});
 }
@@ -36,11 +29,6 @@ export async function refundForBrainUnlearn(supabase: SupabaseClient): Promise<v
 
 export async function refundForBrainQuestion(supabase: SupabaseClient): Promise<void> {
 	const { error } = await supabase.rpc('refund_for_brain_question', {});
-	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
-}
-
-export async function refundForBrainIngest(supabase: SupabaseClient): Promise<void> {
-	const { error } = await supabase.rpc('refund_for_brain_ingest', {});
 	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
 }
 

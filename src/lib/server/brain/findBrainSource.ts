@@ -7,6 +7,7 @@ export type StoredBrainSource = {
 	mimeType: string;
 	storagePath: string;
 	status: string;
+	byteCount: number;
 };
 
 export async function findBrainSource(
@@ -15,7 +16,7 @@ export async function findBrainSource(
 ): Promise<StoredBrainSource | null> {
 	const { data, error } = await supabase
 		.from('brain_sources')
-		.select('id, brain_id, filename, mime_type, storage_path, status')
+		.select('id, brain_id, filename, mime_type, storage_path, status, byte_count')
 		.eq('id', sourceId)
 		.maybeSingle();
 	if (error !== null) throw error;
@@ -26,7 +27,8 @@ export async function findBrainSource(
 		filename: data.filename,
 		mimeType: data.mime_type,
 		storagePath: data.storage_path,
-		status: data.status
+		status: data.status,
+		byteCount: data.byte_count ?? 0
 	};
 }
 

@@ -49,7 +49,7 @@ export const termsOfService: LegalDocument = {
 		{
 			heading: 'The Market and the Hive Mind',
 			paragraphs: [
-				'The Market lets you offer editions of a expertise brain to other users for credits. When you list an edition you confirm you have the right to sell its content, and you grant buyers the access described in your listing. We may remove listings that break these terms or the law.',
+				'The Market lets you offer editions of an expertise brain to other users for credits. When you list an edition you confirm you have the right to sell its content, and you grant buyers the access described in your listing. We may remove listings that break these terms or the law.',
 				'The Hive Mind lets approved specialists offer paid answers from their brains, with a share of each question’s credits going to the specialist. Applications are reviewed by us and may be accepted or declined at our discretion. Earnings are paid in credits.'
 			]
 		},

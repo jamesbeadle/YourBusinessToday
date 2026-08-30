@@ -17,7 +17,6 @@
 			<a href="/privacy" class="text-sm text-chalk/60 transition hover:text-chalk">
 				Privacy statement
 			</a>
-			<p class="font-display text-xs tracking-widest text-chalk/40 uppercase">Early access</p>
 		</div>
 	</div>
 </footer>

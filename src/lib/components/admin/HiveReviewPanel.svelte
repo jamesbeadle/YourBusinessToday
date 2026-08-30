@@ -7,12 +7,12 @@
 
 <section class="flex flex-col gap-4">
 	<div class="flex items-baseline justify-between gap-3">
-		<h2 class="font-display text-xl font-medium">Hive Mind applications</h2>
+		<h2 class="font-display text-xl font-medium">Trade Talk applications</h2>
 		<a
-			href="/hive-mind"
+			href="/trade-talk"
 			class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
 		>
-			View the hive
+			View Trade Talk
 		</a>
 	</div>
 	{#if applications.length === 0}

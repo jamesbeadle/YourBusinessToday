@@ -1,7 +1,6 @@
 <script lang="ts">
 	import IngestProgressLabel from './IngestProgressLabel.svelte';
 	import { acceptedUploadExtensions, uploadLimitDescription } from '$lib/data/brainUploadRules';
-	import { creditsPerBrainIngest } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
 	import { uploadSourceFile } from './uploadSourceFile';
 
@@ -47,7 +46,7 @@
 		{#if isUploading}
 			<IngestProgressLabel />
 		{:else}
-			Add a document — {creditsPerBrainIngest} credits
+			Add a document — credits scale with its size
 		{/if}
 	</button>
 	<p class="text-xs text-chalk/50">{uploadLimitDescription()}</p>

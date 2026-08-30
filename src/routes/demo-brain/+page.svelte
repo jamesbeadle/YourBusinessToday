@@ -26,13 +26,13 @@
 			<p class="font-display text-sm tracking-widest text-signal uppercase">Demo brain</p>
 			<h1 class="font-display text-3xl font-medium">A construction firm, as a brain</h1>
 			<p class="max-w-prose text-chalk/70">
-				This is what a expertise brain looks like once the modeller has read a firm’s documents —
+				This is what an expertise brain looks like once the modeller has read a firm’s documents —
 				four bounded contexts, the things they track, the language they speak. Drag to orbit,
 				click a lobe to dive in, click a neuron to read its page.
 			</p>
 		</div>
 		<a
-			href="/workspace"
+			href="/knowledge-base"
 			class="rounded-full border border-hairline px-5 py-2 font-display text-sm text-chalk/80
 				transition hover:border-chalk/40 hover:text-chalk"
 		>

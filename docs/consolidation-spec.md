@@ -118,3 +118,20 @@ As a **user being interviewed**, I want one conversation to build all three kind
 ## Out of Scope
 
 A fourth knowledge type; any schema migration driven purely by renaming; changes to `/accounting`, `/tasks` internals, or the Hive Mind review flow beyond copy; deleting any existing brain type or user data.
+
+
+## V2 Restructure — 2026-08-30
+
+Directed by Nigel and shipped in full. The generic structure is now named the **second brain**; the three kinds (Expertise, Experience, Process) are its only types.
+
+**Navigation and routes.** Workspace left the nav and its index redirects to the knowledge base; `/knowledge` became `/knowledge-base` (old links redirect); Market is labelled **Marketplace**; the Hive Mind is now **Trade Talk** at `/trade-talk`. Early access left the footer.
+
+**Homepage.** Rebuilt: hero ("Your business, with a second brain") with the three-node SecondBrainMark; the three-kinds section; "Talk about your business. That's it." — a generic business section showing one answer filed three ways; an up-to-date benefits section; services (Trade Talk, Marketplace, Workforce, Prospector). Demos and pay-as-you-go removed.
+
+**Knowledge base.** The index is a register of every second brain grouped by knowledge base — type chip in its kind colour, related entity, click-through — plus invitations, shared-with-you, and unfiled-brain filing absorbed from the old workspace page. The knowledge base detail page is the hub: the three brain sections, then the workbench — the Interview (asks pertinent questions from the KB's own gaps, files every answer as expertise/experience), Source documents, Review changes, Sell on the marketplace, Trade Talk, API access, and the log at the bottom. Sharing stays at knowledge-base level. Brain-level pages keep only the constellation, a query-only terminal ("query your brain"), the model, and settings (goal + delete); ingest moved up to the knowledge base.
+
+**Creation.** New-brain flow offers exactly the three kinds, colour-distinguished; Expertise creates the DDD-modelled brain (the existing one), Experience an episodic store, Process a workflow map. The 16-type template catalog and the non-business workspace template gallery were removed.
+
+**Trade Talk.** Full rebrand with trade-first copy; a revenue-share panel in the account shows credits earned when answers draw on your knowledge base, ahead of Stripe payouts.
+
+**Dynamic pricing.** Migration `0028_dynamic_credits.sql` (MUST be run once) adds `spend_credits_for` / `refund_credits_for`. Ingest is priced by document size, Trade Talk by pages consulted beyond the included depth, interview turns and harvest filings by items written; rates live in `creditPricing.ts` so margins stay in one place. Fixed-price copy across the site now says credits scale with the work.

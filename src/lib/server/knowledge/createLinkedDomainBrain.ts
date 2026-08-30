@@ -12,7 +12,7 @@ export async function createLinkedDomainBrain(
 	return createDomainBrain(supabase, entityId, brainName, domainGoal);
 }
 
-async function findOrCreateEntity(
+export async function findOrCreateEntity(
 	supabase: SupabaseClient,
 	entityName: string
 ): Promise<string> {

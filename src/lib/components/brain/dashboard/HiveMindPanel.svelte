@@ -15,16 +15,16 @@
 
 <div class="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto p-4">
 	<section class="flex flex-col gap-2">
-		<h3 class="font-display text-sm text-chalk">The Hive Mind</h3>
+		<h3 class="font-display text-sm text-chalk">Trade Talk</h3>
 		<p class="text-xs leading-relaxed text-chalk/60">
-			Approved brains join <a href="/hive-mind" class="text-signal underline">the hive</a> as
+			Approved knowledge bases join <a href="/trade-talk" class="text-signal underline">Trade Talk</a> as
 			frozen snapshots that anyone can consult for credits — and every answer your pages shape
 			pays credits straight onto your balance.
 		</p>
 	</section>
 	{#if hive.membership !== null}
 		<section class="flex flex-col gap-2 rounded-2xl border border-go/60 bg-carriage p-4">
-			<p class="font-display text-xs text-go">In the hive</p>
+			<p class="font-display text-xs text-go">In Trade Talk</p>
 			<p class="text-sm text-chalk/80">
 				Consulted {hive.membership.questionCount}
 				{hive.membership.questionCount === 1 ? 'time' : 'times'} · {hive.membership.creditsEarned}
@@ -67,7 +67,7 @@
 					required
 					rows="4"
 					placeholder="e.g. “Twenty years of marine diesel servicing — ask us anything about keeping old engines running.”"
-					aria-label="Hive Mind pitch"
+					aria-label="Trade Talk pitch"
 					class="min-w-0 resize-none rounded-2xl border border-hairline bg-carriage px-4 py-2.5
 						text-sm text-chalk outline-none placeholder:text-chalk/40 focus:border-signal"
 					>{hive.application?.pitch ?? ''}</textarea

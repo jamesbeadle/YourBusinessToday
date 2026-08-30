@@ -17,7 +17,7 @@ export type NavigationAccess = {
 export const primaryNavigationLinks: NavigationLink[] = [
 	{ href: '/', label: 'Home' },
 	{ href: '/workspace', label: 'Workspace' },
-	{ href: '/knowledge', label: 'Knowledge Base' },
+	{ href: '/knowledge-base', label: 'Knowledge Base' },
 	{ href: '/market', label: 'Market' },
 	{ href: '/hive-mind', label: 'Hive Mind' }
 ];

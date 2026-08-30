@@ -29,7 +29,7 @@
 		use:commandBox={text}
 		onkeydown={sendOnEnter}
 		rows="1"
-		placeholder="ask about a client, a supplier, a project…"
+		placeholder="query your brain…"
 		class="w-full resize-y bg-transparent text-chalk placeholder-chalk/30 outline-none"
 	></textarea>
 </form>

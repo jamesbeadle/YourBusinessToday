@@ -1,39 +1,22 @@
 <script lang="ts">
-	import ApiPanel from './ApiPanel.svelte';
-	import BrainActivityLog from '../BrainActivityLog.svelte';
 	import BrainConstellation from '../BrainConstellation.svelte';
 	import BrainSettingsPanel from './BrainSettingsPanel.svelte';
 	import BrainTerminal from './BrainTerminal.svelte';
 	import DomainModelIndex from '../DomainModelIndex.svelte';
-	import HiveMindPanel from './HiveMindPanel.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
 	import PruneKnowledgeButton from '../PruneKnowledgeButton.svelte';
-	import ReviewPanel from '../review/ReviewPanel.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
-	import SellPanel from './SellPanel.svelte';
-	import SharePanel from './SharePanel.svelte';
-	import SourcesPanel from '../SourcesPanel.svelte';
 	import { fetchBrainPage } from '../constellation/fetchBrainPage';
 	import { memberSections, ownerSections, readerSections, type SectionKey } from './railIcons';
 	import { onMount } from 'svelte';
-	import type { BrainChangeProposal, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
-	import type {
-		BrainAccessRole,
-		BrainEdition,
-		BrainListing,
-		ListingSales
-	} from '$lib/data/marketTypes';
-	import type { BrainApiToken } from '$lib/data/brainApiTypes';
+	import type { BrainAccessRole } from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
-	import type { HiveBrainStatus } from '$lib/data/hiveTypes';
 	import type {
 		BrainContext,
 		BrainConversationThread,
-		BrainEvent,
 		BrainPageLink,
-		BrainPageSummary,
-		BrainSource
+		BrainPageSummary
 	} from '$lib/data/brainTypes';
 
 	let {
@@ -42,34 +25,14 @@
 		contexts,
 		pageIndex,
 		pageLinks,
-		sources,
-		events,
-		conversation,
-		proposals,
-		shares,
-		invites,
-		listing,
-		editions,
-		sales,
-		hive,
-		apiTokens
+		conversation
 	}: {
 		brain: DomainBrain;
 		accessRole: BrainAccessRole;
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
-		sources: BrainSource[];
-		events: BrainEvent[];
 		conversation: BrainConversationThread;
-		proposals: BrainChangeProposal[];
-		shares: WorkspaceShare[];
-		invites: WorkspaceInvite[];
-		listing: BrainListing | null;
-		editions: BrainEdition[];
-		sales: ListingSales | null;
-		hive: HiveBrainStatus | null;
-		apiTokens: BrainApiToken[];
 	} = $props();
 
 	const isOwner = $derived(accessRole === 'owner');
@@ -101,12 +64,7 @@
 
 <div class="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-night lg:flex-row">
 	<div class="order-2 lg:order-1 lg:contents">
-		<SectionRail
-			{sections}
-			{activeSection}
-			badgeCounts={{ review: proposals.length }}
-			onSelect={toggleSection}
-		/>
+		<SectionRail {sections} {activeSection} onSelect={toggleSection} />
 	</div>
 	<div class="relative order-1 flex min-h-0 min-w-0 flex-1 lg:order-2">
 		{#if activeSection !== null}
@@ -120,15 +78,6 @@
 						{pageBasePath}
 						onOutOfCredits={() => (isOutOfCredits = true)}
 					/>
-				{:else if activeSection === 'sources'}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						<SourcesPanel
-							brainId={brain.id}
-							{isOwner}
-							{sources}
-							onOutOfCredits={() => (isOutOfCredits = true)}
-						/>
-					</div>
 				{:else if activeSection === 'model'}
 					<div class="min-h-0 flex-1 overflow-y-auto">
 						{#if isOwner}
@@ -141,30 +90,8 @@
 						{/if}
 						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
 					</div>
-				{:else if activeSection === 'review'}
-					<ReviewPanel brainId={brain.id} {proposals} />
-				{:else if activeSection === 'share'}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						<SharePanel brainId={brain.id} entityId={brain.entityId} {shares} {invites} />
-					</div>
-				{:else if activeSection === 'sell'}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						<SellPanel brainId={brain.id} {listing} {editions} {sales} />
-					</div>
-				{:else if activeSection === 'hive'}
-					{#if hive !== null}
-						<HiveMindPanel {hive} />
-					{/if}
-				{:else if activeSection === 'api'}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						<ApiPanel brainId={brain.id} tokens={apiTokens} />
-					</div>
-				{:else if activeSection === 'settings'}
-					<BrainSettingsPanel {brain} />
 				{:else}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						<BrainActivityLog {events} {pageBasePath} />
-					</div>
+					<BrainSettingsPanel {brain} />
 				{/if}
 			</SectionPanel>
 		{/if}

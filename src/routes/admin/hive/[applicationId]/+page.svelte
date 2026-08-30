@@ -14,7 +14,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.application.brainName} — Hive review — Your Business Today</title>
+	<title>{data.application.brainName} — Trade Talk review — Your Business Today</title>
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
@@ -30,7 +30,7 @@
 	</div>
 	<section class="flex flex-col gap-3 rounded-2xl border border-hairline p-5">
 		<p class="text-sm text-chalk/60">
-			Below is the brain exactly as approval would freeze it into the hive snapshot — it is
+			Below is the brain exactly as approval would freeze it into the Trade Talk snapshot — it is
 			visible only to admins.
 		</p>
 		<HiveDecisionForms applicationId={data.application.applicationId} />

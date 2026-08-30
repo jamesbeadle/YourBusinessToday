@@ -1,6 +1,5 @@
 <script lang="ts">
 	import IngestProgressLabel from './IngestProgressLabel.svelte';
-	import { creditsPerBrainIngest } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
 	import { rereadSource } from './rereadSource';
 	import type { BrainSource } from '$lib/data/brainTypes';
@@ -39,7 +38,7 @@
 	</span>
 {:else if isConfirming}
 	<span class="flex items-center gap-2 font-display text-xs">
-		<span class="text-caution">Re-read — {creditsPerBrainIngest} credits?</span>
+		<span class="text-caution">Re-read — credits scale with its size?</span>
 		<button
 			type="button"
 			onclick={requestReread}
@@ -59,7 +58,7 @@
 	<button
 		type="button"
 		onclick={requestReread}
-		title={`Read this document again with the current modeller — ${creditsPerBrainIngest} credits`}
+		title="Read this document again with the current modeller — credits scale with its size"
 		class="font-display text-xs text-chalk/70 underline transition hover:text-chalk"
 	>
 		Re-read

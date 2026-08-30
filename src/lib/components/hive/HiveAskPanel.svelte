@@ -2,7 +2,7 @@
 	import AgentTypingIndicator from '../chat/AgentTypingIndicator.svelte';
 	import HiveAnswerCard from './HiveAnswerCard.svelte';
 	import OutOfCreditsNotice from '../workspace/OutOfCreditsNotice.svelte';
-	import { creditsPerHiveMindQuestion } from '$lib/data/creditPricing';
+	import { creditsPerTradeTalkQuestion } from '$lib/data/creditPricing';
 	import { invalidateAll } from '$app/navigation';
 	import type { HiveAnswer } from '$lib/data/hiveTypes';
 
@@ -47,9 +47,9 @@
 <section class="mx-auto max-w-6xl px-6 pb-16">
 	<div class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6 md:p-8">
 		<div>
-			<h2 class="font-display text-xl font-medium">Ask the hive</h2>
+			<h2 class="font-display text-xl font-medium">Ask the trades</h2>
 			<p class="text-sm text-chalk/60">
-				One question consults every specialist — {creditsPerHiveMindQuestion} credits.
+				One question consults every trade — from {creditsPerTradeTalkQuestion} credits, scaling with how many brains weigh in.
 			</p>
 		</div>
 		{#if !isSignedIn}
@@ -62,14 +62,14 @@
 			</a>
 		{:else if !hasSpecialists}
 			<p class="text-sm text-chalk/60">
-				The hive has no specialists yet — the first approved expertise brains will appear here.
+				No trades are talking yet — the first approved second brains will appear here.
 			</p>
 		{:else}
 			<form onsubmit={askHive} class="flex flex-col gap-3 sm:flex-row">
 				<input
 					bind:value={draft}
 					placeholder="Ask something only a specialist would know…"
-					aria-label="Ask the Hive Mind"
+					aria-label="Ask Trade Talk"
 					class="flex-1 rounded-full border border-hairline bg-night px-5 py-3 text-chalk
 						outline-none placeholder:text-chalk/40 focus:border-signal"
 				/>
@@ -79,7 +79,7 @@
 					class="rounded-full bg-signal px-6 py-3 font-display text-sm font-medium text-night
 						transition hover:brightness-110 disabled:opacity-40"
 				>
-					{isThinking ? 'Consulting…' : 'Ask the hive'}
+					{isThinking ? 'Consulting…' : 'Ask the trades'}
 				</button>
 			</form>
 			{#if isThinking}

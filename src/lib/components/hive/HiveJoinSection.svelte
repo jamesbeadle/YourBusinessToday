@@ -1,30 +1,30 @@
 <script lang="ts">
-	import { creditsPerHiveMindQuestion, hiveMindEarningsPool } from '$lib/data/creditPricing';
+	import { hiveMindEarningsPool } from '$lib/data/creditPricing';
 
 	const steps = [
 		{
-			title: 'Apply from your expertise brain',
+			title: 'Apply from your knowledge base',
 			detail:
-				'Open your brain in the workspace, say what your specialty can advise on, and submit it for review.'
+				'Open your knowledge base, find Trade Talk, say what your trade can advise on, and submit it for review.'
 		},
 		{
 			title: 'Pass review, join as a snapshot',
 			detail:
-				'The Your Business Today team reviews every application. Approval freezes a snapshot of your model — the hive answers from the snapshot, never your live brain, and you can re-apply any time to refresh it.'
+				'The Your Business Today team reviews every application. Approval freezes a snapshot of your knowledge — Trade Talk answers from the snapshot, never your live brain, and you can re-apply any time to refresh it.'
 		},
 		{
-			title: 'Earn every time you are consulted',
+			title: 'Earn a revenue share when consulted',
 			detail:
-				`Of every ${creditsPerHiveMindQuestion}-credit question, ${hiveMindEarningsPool} credits are shared among the specialists whose pages shaped the answer — paid straight onto your credit balance, in proportion to how much of your model was used.`
+				`From every question, ${hiveMindEarningsPool} credits are shared among the trades whose brains shaped the answer — a revenue share paid onto your credit balance, in proportion to how much of your knowledge was used. Your running total lives in your account.`
 		}
 	];
 </script>
 
 <section class="mx-auto max-w-6xl px-6 py-16">
 	<div class="flex flex-col gap-2">
-		<h2 class="font-display text-3xl font-medium">Put your expertise in the hive</h2>
+		<h2 class="font-display text-3xl font-medium">Put your trade in the conversation</h2>
 		<p class="max-w-prose text-chalk/70">
-			A business directory tells people you exist. The hive lets them draw on what you know —
+			A business directory tells people you exist. Trade Talk lets them draw on what you know —
 			and pays you for having articulated it.
 		</p>
 	</div>
@@ -38,10 +38,10 @@
 		{/each}
 	</div>
 	<a
-		href="/workspace"
+		href="/knowledge-base"
 		class="mt-8 inline-block rounded-full bg-signal px-7 py-3 font-display text-sm font-medium
 			text-night transition hover:brightness-110"
 	>
-		Open your workspace
+		Open your knowledge base
 	</a>
 </section>

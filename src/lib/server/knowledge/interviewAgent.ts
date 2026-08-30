@@ -3,7 +3,7 @@ import { experienceEventSchema } from '$lib/server/agent/workspaceUpdateTool';
 import { parseHarvest, type HarvestedKnowledge } from '$lib/server/agent/parseHarvest';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
 import { toolUseFrom } from '$lib/server/anthropic/anthropicTypes';
-import { interviewSystemPrompt } from './interviewPrompt';
+import { interviewSystemPrompt, type InterviewFocus } from './interviewPrompt';
 import type { InterviewContext } from './interviewContext';
 
 export type InterviewTurnInput = { author: 'agent' | 'user'; text: string };
@@ -42,13 +42,14 @@ const interviewUpdateTool = {
 
 export async function askInterviewer(
 	conversation: InterviewTurnInput[],
-	context: InterviewContext
+	context: InterviewContext,
+	focus: InterviewFocus = null
 ): Promise<InterviewTurn> {
 	if (!env.ANTHROPIC_API_KEY) {
 		return { reply: 'The interviewer is offline right now — try again shortly.', harvest: emptyHarvest };
 	}
 	const response = await requestAnthropic({
-		system: interviewSystemPrompt(context),
+		system: interviewSystemPrompt(context, focus),
 		messages: conversation.map((turn) => ({
 			role: turn.author === 'agent' ? ('assistant' as const) : ('user' as const),
 			content: turn.text

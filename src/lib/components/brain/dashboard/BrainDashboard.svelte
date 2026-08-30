@@ -1,10 +1,7 @@
 <script lang="ts">
 	import BrainConstellation from '../BrainConstellation.svelte';
-	import BrainSettingsPanel from './BrainSettingsPanel.svelte';
-	import BrainTerminal from './BrainTerminal.svelte';
-	import DomainModelIndex from '../DomainModelIndex.svelte';
+	import BrainDashboardPanels from './BrainDashboardPanels.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
-	import PruneKnowledgeButton from '../PruneKnowledgeButton.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
 	import { fetchBrainPage } from '../constellation/fetchBrainPage';
@@ -28,6 +25,7 @@
 		pageLinks,
 		conversation,
 		knowledgeBases,
+		filedKnowledgeBaseId,
 		filedKnowledgeBaseName,
 		backHref
 	}: {
@@ -38,6 +36,7 @@
 		pageLinks: BrainPageLink[];
 		conversation: BrainConversationThread;
 		knowledgeBases: KnowledgeBaseSummary[];
+		filedKnowledgeBaseId: string | null;
 		filedKnowledgeBaseName: string | null;
 		backHref: string;
 	} = $props();
@@ -76,30 +75,20 @@
 	<div class="relative order-1 flex min-h-0 min-w-0 flex-1 lg:order-2">
 		{#if activeSection !== null}
 			<SectionPanel section={activeSection} onClose={() => (activeSection = null)}>
-				{#if activeSection === 'terminal'}
-					<BrainTerminal
-						brainId={brain.id}
-						conversationId={conversation.conversationId}
-						messages={conversation.messages}
-						{pageIndex}
-						{pageBasePath}
-						onOutOfCredits={() => (isOutOfCredits = true)}
-					/>
-				{:else if activeSection === 'model'}
-					<div class="min-h-0 flex-1 overflow-y-auto">
-						{#if isOwner}
-							<div class="px-4 pt-4">
-								<PruneKnowledgeButton
-									brainId={brain.id}
-									onOutOfCredits={() => (isOutOfCredits = true)}
-								/>
-							</div>
-						{/if}
-						<DomainModelIndex {contexts} {pageIndex} {pageBasePath} onSelectPage={openPageInBrain} />
-					</div>
-				{:else}
-					<BrainSettingsPanel {brain} {knowledgeBases} {filedKnowledgeBaseName} />
-				{/if}
+				<BrainDashboardPanels
+					section={activeSection}
+					{brain}
+					{conversation}
+					{contexts}
+					{pageIndex}
+					{pageBasePath}
+					{knowledgeBases}
+					{filedKnowledgeBaseId}
+					{filedKnowledgeBaseName}
+					{isOwner}
+					onOutOfCredits={() => (isOutOfCredits = true)}
+					onSelectPage={openPageInBrain}
+				/>
 			</SectionPanel>
 		{/if}
 		<div class="relative min-w-0 flex-1">

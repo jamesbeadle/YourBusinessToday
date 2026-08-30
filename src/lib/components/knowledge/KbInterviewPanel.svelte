@@ -3,9 +3,19 @@
 	import ChatComposer from '../chat/ChatComposer.svelte';
 	import ChatMessageBubble from '../chat/ChatMessageBubble.svelte';
 	import OutOfCreditsNotice from '../workspace/OutOfCreditsNotice.svelte';
+	import {
+		defaultInterviewIntro,
+		fetchInterviewReply,
+		interviewOpeningLine,
+		type InterviewKind
+	} from './interviewRequest';
 	import type { ChatMessage } from '$lib/data/chatTypes';
 
-	let { knowledgeBaseId }: { knowledgeBaseId: string } = $props();
+	let {
+		knowledgeBaseId,
+		focusKind = null,
+		intro = defaultInterviewIntro
+	}: { knowledgeBaseId: string; focusKind?: InterviewKind; intro?: string } = $props();
 
 	let messages = $state<ChatMessage[]>([]);
 	let isAgentTyping = $state(false);
@@ -16,8 +26,6 @@
 	function appendMessage(author: ChatMessage['author'], text: string) {
 		messages.push({ id: messages.length, author, text });
 	}
-
-	const openingLine = "Let's begin — ask me your first question.";
 
 	async function startInterview() {
 		hasStarted = true;
@@ -32,25 +40,20 @@
 	async function requestNextQuestion() {
 		isAgentTyping = true;
 		const conversation = [
-			{ author: 'user', text: openingLine },
+			{ author: 'user', text: interviewOpeningLine },
 			...messages.map((message) => ({ author: message.author, text: message.text }))
 		];
-		const response = await fetch('/api/knowledge-base/interview', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ knowledgeBaseId, conversation })
-		});
+		const result = await fetchInterviewReply(knowledgeBaseId, focusKind, conversation);
 		isAgentTyping = false;
-		if (response.status === 402) {
+		if (result.status === 'out_of_credits') {
 			isOutOfCredits = true;
 			return;
 		}
-		if (!response.ok) {
+		if (result.status === 'error') {
 			appendMessage('agent', 'Something went wrong on my end — please try that again.');
 			return;
 		}
-		const payload = await response.json();
-		appendMessage('agent', payload.reply);
+		appendMessage('agent', result.reply);
 	}
 
 	$effect(() => {
@@ -62,10 +65,7 @@
 
 {#if !hasStarted}
 	<div class="flex flex-col items-start gap-3">
-		<p class="text-sm text-chalk/60">
-			The interviewer reads what this knowledge base already holds, finds the biggest gap, and
-			asks about exactly that. Every answer is filed into the right brains as you talk.
-		</p>
+		<p class="text-sm text-chalk/60">{intro}</p>
 		<button
 			type="button"
 			onclick={startInterview}

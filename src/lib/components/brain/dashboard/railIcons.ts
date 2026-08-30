@@ -1,7 +1,10 @@
 export type SectionKey =
+	| 'interview'
 	| 'terminal'
 	| 'sources'
 	| 'model'
+	| 'contents'
+	| 'map'
 	| 'log'
 	| 'review'
 	| 'share'
@@ -12,14 +15,23 @@ export type SectionKey =
 
 export const readerSections: SectionKey[] = ['terminal', 'model'];
 
-export const memberSections: SectionKey[] = ['terminal', 'model'];
+export const memberSections: SectionKey[] = ['interview', 'terminal', 'model'];
 
 export const ownerSections: SectionKey[] = [...memberSections, 'settings'];
 
+export const kindReaderSections: SectionKey[] = ['terminal', 'contents'];
+
+export const kindMemberSections: SectionKey[] = ['interview', 'terminal', 'contents'];
+
+export const kindOwnerSections: SectionKey[] = [...kindMemberSections, 'settings'];
+
 export const sectionLabels: Record<SectionKey, string> = {
+	interview: 'The interview',
 	terminal: 'Terminal',
 	sources: 'Source documents',
 	model: 'The model',
+	contents: 'Contents',
+	map: 'The map',
 	log: 'The log',
 	review: 'Review changes',
 	share: 'Sharing',
@@ -30,6 +42,7 @@ export const sectionLabels: Record<SectionKey, string> = {
 };
 
 export const sectionIconPaths: Record<SectionKey, string[]> = {
+	interview: ['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', 'M8 9h8', 'M8 13h5'],
 	terminal: ['M4 17l6-5-6-5', 'M12 19h8'],
 	sources: ['M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8z', 'M14 3v5h5'],
 	model: [
@@ -40,6 +53,8 @@ export const sectionIconPaths: Record<SectionKey, string[]> = {
 		'M9.4 16.4 6.6 8.9',
 		'M11.8 17.2 16.8 9.8'
 	],
+	contents: ['M21 8v13H3V8', 'M1 3h22v5H1z', 'M10 12h4'],
+	map: ['M9 20l-6-2V4l6 2 6-2 6 2v14l-6-2z', 'M9 6v14', 'M15 4v14'],
 	log: ['M8 6h13', 'M8 12h13', 'M8 18h13', 'M3 6h.01', 'M3 12h.01', 'M3 18h.01'],
 	review: [
 		'M6 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',

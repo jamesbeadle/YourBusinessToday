@@ -69,6 +69,7 @@ export const FIBRE_FRAGMENT_SHADER = `
 	uniform vec3 spanColour;
 	uniform vec3 tipColour;
 	uniform float dimShare;
+	uniform float brightness;
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
 	varying float reach;
@@ -90,7 +91,8 @@ export const FIBRE_FRAGMENT_SHADER = `
 		vec3 tint = tintAlong(reach);
 		vec3 shaded = shadeCell(tint, normal, towardsEye);
 		vec3 thread = mix(tint, vec3(1.0), THREAD_WHITENESS);
-		gl_FragColor = vec4(mix(shaded, thread, THREAD_GLOW * threadShare), dimShare);
+		vec3 lit = mix(shaded, thread, THREAD_GLOW * threadShare);
+		gl_FragColor = vec4(lit * brightness, dimShare);
 		#include <fog_fragment>
 		#include <colorspace_fragment>
 	}

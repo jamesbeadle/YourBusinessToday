@@ -7,7 +7,11 @@ const PADDING_PIXELS = 16;
 const SCREEN_LABEL_HEIGHT = 0.032;
 const LABEL_OPACITY = 0.85;
 
-export function createTextSprite(text: string, colourCss: string): Sprite {
+export function createTextSprite(
+	text: string,
+	colourCss: string,
+	screenHeightShare = SCREEN_LABEL_HEIGHT
+): Sprite {
 	const canvas = document.createElement('canvas');
 	const context = canvas.getContext('2d');
 	if (context === null) return new Sprite();
@@ -30,7 +34,7 @@ export function createTextSprite(text: string, colourCss: string): Sprite {
 	});
 	const sprite = new Sprite(material);
 	const aspect = canvas.width / canvas.height;
-	sprite.scale.set(SCREEN_LABEL_HEIGHT * aspect, SCREEN_LABEL_HEIGHT, 1);
+	sprite.scale.set(screenHeightShare * aspect, screenHeightShare, 1);
 	return sprite;
 }
 

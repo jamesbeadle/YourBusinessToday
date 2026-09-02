@@ -7,6 +7,8 @@ export type SharedCellUniforms = {
 	viewportHeightPixels: IUniform<number>;
 };
 
+export type ContextUniforms = { dimShare: IUniform<number>; brightness: IUniform<number> };
+
 export function createSharedCellUniforms(): SharedCellUniforms {
 	return { timeSeconds: { value: 0 }, viewportHeightPixels: { value: 1 } };
 }

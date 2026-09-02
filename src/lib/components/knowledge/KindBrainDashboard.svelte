@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ItemBrainCanvas from './ItemBrainCanvas.svelte';
+	import RegionBrain from '../brain/RegionBrain.svelte';
 	import KindBrainPanelContent from './KindBrainPanelContent.svelte';
 	import SectionPanel from '../brain/dashboard/SectionPanel.svelte';
 	import SectionRail from '../brain/dashboard/SectionRail.svelte';
@@ -65,7 +66,11 @@
 			</SectionPanel>
 		{/if}
 		<div class="relative min-w-0 flex-1">
-			<ItemBrainCanvas seed={brain.id} accent={kind.accent} itemCount={items.length} />
+			{#if kind.kind === 'experience'}
+				<RegionBrain {items} seed={brain.id} />
+			{:else}
+				<ItemBrainCanvas seed={brain.id} accent={kind.accent} itemCount={items.length} />
+			{/if}
 			<div class="pointer-events-none absolute top-4 left-4 z-10 flex flex-col gap-0.5">
 				<h1 class="font-display text-lg font-medium text-chalk">{brain.name}</h1>
 				<p

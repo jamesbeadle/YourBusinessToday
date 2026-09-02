@@ -1,10 +1,11 @@
-import type { IUniform, Material } from 'three';
-import { createSharedCellUniforms } from './cellShading';
+import type { Material } from 'three';
+import { createSharedCellUniforms, type ContextUniforms } from './cellShading';
 import { FibreMaterial, type FibreTints } from './fibreMaterial';
 import { DIMMED_OPACITY_SHARE } from './materialBank';
 import { SomaMaterial } from './somaMaterial';
 
 const IN_FOCUS_SHARE = 1;
+const FULL_BRIGHTNESS = 1;
 
 type CellEntry = { material: Material; contextKey: string };
 
@@ -13,6 +14,7 @@ export type CellMaterialBank = {
 	dendritesFor: (slug: string, colour: number, contextKey: string) => FibreMaterial;
 	axonFor: (strandKey: string, tints: FibreTints, contextKey: string) => FibreMaterial;
 	setFocus: (contextKey: string | null) => void;
+	setBrightness: (contextKey: string, brightness: number) => void;
 	tick: (timeSeconds: number) => void;
 	fitToViewport: (heightPixels: number) => void;
 	dispose: () => void;
@@ -21,14 +23,14 @@ export type CellMaterialBank = {
 export function createCellMaterialBank(): CellMaterialBank {
 	const shared = createSharedCellUniforms();
 	const entries = new Map<string, CellEntry>();
-	const dimSharesByContext = new Map<string, IUniform<number>>();
+	const contexts = new Map<string, ContextUniforms>();
 
-	function dimShareFor(contextKey: string): IUniform<number> {
-		const known = dimSharesByContext.get(contextKey);
+	function contextFor(contextKey: string): ContextUniforms {
+		const known = contexts.get(contextKey);
 		if (known !== undefined) return known;
-		const dimShare = { value: IN_FOCUS_SHARE };
-		dimSharesByContext.set(contextKey, dimShare);
-		return dimShare;
+		const uniforms = { dimShare: { value: IN_FOCUS_SHARE }, brightness: { value: FULL_BRIGHTNESS } };
+		contexts.set(contextKey, uniforms);
+		return uniforms;
 	}
 
 	function remember<MaterialType extends Material>(
@@ -45,33 +47,37 @@ export function createCellMaterialBank(): CellMaterialBank {
 
 	function somaFor(colour: number, contextKey: string): SomaMaterial {
 		return remember(`soma:${contextKey}:${colour}`, contextKey, () => {
-			return new SomaMaterial(colour, shared, dimShareFor(contextKey));
+			return new SomaMaterial(colour, shared, contextFor(contextKey));
 		});
 	}
 
 	function dendritesFor(slug: string, colour: number, contextKey: string): FibreMaterial {
 		return remember(`dendrites:${slug}:${colour}`, contextKey, () => {
 			const tints = { root: colour, span: colour, tip: colour };
-			return new FibreMaterial(tints, 'rootedInSoma', shared, dimShareFor(contextKey));
+			return new FibreMaterial(tints, 'rootedInSoma', shared, contextFor(contextKey));
 		});
 	}
 
 	function axonFor(strandKey: string, tints: FibreTints, contextKey: string): FibreMaterial {
 		return remember(`axon:${strandKey}:${tints.root}:${tints.tip}`, contextKey, () => {
-			return new FibreMaterial(tints, 'anchoredAtBothEnds', shared, dimShareFor(contextKey));
+			return new FibreMaterial(tints, 'anchoredAtBothEnds', shared, contextFor(contextKey));
 		});
 	}
 
 	function setFocus(contextKey: string | null): void {
-		for (const [key, dimShare] of dimSharesByContext) {
+		for (const [key, uniforms] of contexts) {
 			const isInFocus = contextKey === null || key === contextKey;
-			dimShare.value = isInFocus ? IN_FOCUS_SHARE : DIMMED_OPACITY_SHARE;
+			uniforms.dimShare.value = isInFocus ? IN_FOCUS_SHARE : DIMMED_OPACITY_SHARE;
 		}
 		for (const entry of entries.values()) {
 			const isInFocus = contextKey === null || entry.contextKey === contextKey;
 			entry.material.transparent = !isInFocus;
 			entry.material.depthWrite = isInFocus;
 		}
+	}
+
+	function setBrightness(contextKey: string, brightness: number): void {
+		contextFor(contextKey).brightness.value = brightness;
 	}
 
 	function tick(timeSeconds: number): void {
@@ -87,5 +93,5 @@ export function createCellMaterialBank(): CellMaterialBank {
 		entries.clear();
 	}
 
-	return { somaFor, dendritesFor, axonFor, setFocus, tick, fitToViewport, dispose };
+	return { somaFor, dendritesFor, axonFor, setFocus, setBrightness, tick, fitToViewport, dispose };
 }

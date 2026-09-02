@@ -1,5 +1,5 @@
-import { Color, ShaderMaterial, type IUniform } from 'three';
-import { fogUniforms, type SharedCellUniforms } from './cellShading';
+import { Color, ShaderMaterial } from 'three';
+import { fogUniforms, type ContextUniforms, type SharedCellUniforms } from './cellShading';
 import { FIBRE_FRAGMENT_SHADER, FIBRE_VERTEX_SHADER } from './fibreShaders';
 
 export type FibreTints = { root: number; span: number; tip: number };
@@ -13,14 +13,15 @@ export class FibreMaterial extends ShaderMaterial {
 		tints: FibreTints,
 		anchoring: FibreAnchoring,
 		shared: SharedCellUniforms,
-		dimShare: IUniform<number>
+		context: ContextUniforms
 	) {
 		super({
 			uniforms: {
 				...fogUniforms(),
 				timeSeconds: shared.timeSeconds,
 				viewportHeightPixels: shared.viewportHeightPixels,
-				dimShare,
+				dimShare: context.dimShare,
+				brightness: context.brightness,
 				growthShare: { value: 1 },
 				growthOrigin: { value: 0 },
 				anchoredAtBothEnds: { value: anchoring === 'anchoredAtBothEnds' ? 1 : 0 },

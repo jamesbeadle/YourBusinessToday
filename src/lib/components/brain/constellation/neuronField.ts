@@ -1,7 +1,7 @@
 import { Group, IcosahedronGeometry, Mesh, MeshBasicMaterial, type Vector3 } from 'three';
 import { nucleusColourOf } from './bodyColours';
 import { connectionDirectionsOf } from './connectionDirections';
-import { detailShareFor } from './dendriteTree';
+import { detailShareFor } from './dendriteDetail';
 import { createNeuronBody, type NeuronBody } from './neuronBody';
 import { kindColours } from './constellationPalette';
 import { neuronProportions, nucleusProportions, type BodyProportions } from './neuronProportions';

@@ -9,6 +9,8 @@ const FULL_TURN_RADIANS = Math.PI * 2;
 const EXCITEMENT_FLARE = 0.9;
 const EXCITEMENT_FADE_PER_SECOND = 2.6;
 
+export type SomaProportions = Pick<BodyProportions, 'somaRadius' | 'glowScale'>;
+
 export type CellSoma = {
 	core: Mesh;
 	glow: Sprite;
@@ -22,13 +24,13 @@ export type SomaSeed = {
 	position: Vector3;
 	colour: number;
 	contextKey: string;
-	proportions: BodyProportions;
+	proportions: SomaProportions;
 	somaGeometry: BufferGeometry;
 	bank: MaterialBank;
 	cells: CellMaterialBank;
 };
 
-export function somaRadiusOf(slug: string, proportions: BodyProportions): number {
+export function somaRadiusOf(slug: string, proportions: SomaProportions): number {
 	return proportions.somaRadius * somaSizeShareOf(slug);
 }
 

@@ -1,5 +1,10 @@
-import { Color, ShaderMaterial, type IUniform } from 'three';
-import { CELL_SHADING_GLSL, fogUniforms, type SharedCellUniforms } from './cellShading';
+import { Color, ShaderMaterial } from 'three';
+import {
+	CELL_SHADING_GLSL,
+	fogUniforms,
+	type ContextUniforms,
+	type SharedCellUniforms
+} from './cellShading';
 
 const SOMA_VERTEX_SHADER = `
 	#include <fog_pars_vertex>
@@ -21,10 +26,15 @@ const SOMA_VERTEX_SHADER = `
 
 	void main() {
 		dimpleShare = organicDimples(position);
-		vec3 dimpled = position + normal * (DIMPLE_DEPTH * dimpleShare);
-		vec4 mvPosition = modelViewMatrix * vec4(dimpled, 1.0);
+		vec4 modelPoint = vec4(position + normal * (DIMPLE_DEPTH * dimpleShare), 1.0);
+		vec3 modelNormal = normal;
+		#ifdef USE_INSTANCING
+			modelPoint = instanceMatrix * modelPoint;
+			modelNormal = mat3(instanceMatrix) * modelNormal;
+		#endif
+		vec4 mvPosition = modelViewMatrix * modelPoint;
 		viewPosition = mvPosition.xyz;
-		viewNormal = normalize(normalMatrix * normal);
+		viewNormal = normalize(normalMatrix * modelNormal);
 		gl_Position = projectionMatrix * mvPosition;
 		#include <fog_vertex>
 	}
@@ -35,6 +45,7 @@ const SOMA_FRAGMENT_SHADER = `
 	${CELL_SHADING_GLSL}
 	uniform vec3 cellColour;
 	uniform float dimShare;
+	uniform float brightness;
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
 	varying float dimpleShare;
@@ -49,19 +60,20 @@ const SOMA_FRAGMENT_SHADER = `
 		vec3 shaded = shadeCell(cellColour, normal, towardsEye) * (1.0 + DIMPLE_SHADE * dimpleShare);
 		float nucleusShare = pow(max(0.0, dot(normal, towardsEye)), NUCLEUS_TIGHTNESS) * NUCLEUS_BRIGHTNESS;
 		vec3 withNucleus = mix(shaded, vec3(1.0), nucleusShare);
-		gl_FragColor = vec4(withNucleus, dimShare);
+		gl_FragColor = vec4(withNucleus * brightness, dimShare);
 		#include <fog_fragment>
 		#include <colorspace_fragment>
 	}
 `;
 
 export class SomaMaterial extends ShaderMaterial {
-	constructor(colour: number, shared: SharedCellUniforms, dimShare: IUniform<number>) {
+	constructor(colour: number, shared: SharedCellUniforms, context: ContextUniforms) {
 		super({
 			uniforms: {
 				...fogUniforms(),
 				timeSeconds: shared.timeSeconds,
-				dimShare,
+				dimShare: context.dimShare,
+				brightness: context.brightness,
 				cellColour: { value: new Color(colour) }
 			},
 			vertexShader: SOMA_VERTEX_SHADER,

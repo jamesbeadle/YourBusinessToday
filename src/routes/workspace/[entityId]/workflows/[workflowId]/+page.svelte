@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ItemBrainCanvas from '$lib/components/knowledge/ItemBrainCanvas.svelte';
+	import FlowBrain from '$lib/components/brain/FlowBrain.svelte';
 	import SectionPanel from '$lib/components/brain/dashboard/SectionPanel.svelte';
 	import SectionRail from '$lib/components/brain/dashboard/SectionRail.svelte';
 	import ShareMapPanel from '$lib/components/workspace/ShareMapPanel.svelte';
@@ -19,7 +19,6 @@
 	const sections: SectionKey[] = ['interview', 'map', 'share'];
 	const processKind = findKnowledgeKind('process');
 	const isMapDrawn = $derived(hasMapContent(model));
-	const taskCount = $derived(model.roles.flatMap((role) => role.tasks).length);
 
 	onMount(() => {
 		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'interview';
@@ -65,11 +64,7 @@
 					{/if}
 				</div>
 			{/if}
-			<ItemBrainCanvas
-				seed={data.workflow.id}
-				accent={processKind.accent}
-				itemCount={taskCount}
-			/>
+			<FlowBrain {model} seed={data.workflow.id} />
 			<div class="pointer-events-none absolute top-4 left-4 z-10 flex flex-col gap-0.5">
 				<h1 class="font-display text-lg font-medium text-chalk">{data.workflow.name}</h1>
 				<p

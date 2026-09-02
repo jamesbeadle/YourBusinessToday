@@ -2,6 +2,7 @@ import { downloadSourceFile } from './downloadSourceFile';
 import { getBrainContexts } from './getBrainContexts';
 import { getBrainPageIndex } from './getBrainPageIndex';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
+import { routeSourceToBrains } from './routeSourceToBrains';
 import { ingestSource } from './ingestSource';
 import { markSourceStatus } from './findBrainSource';
 import { recordBrainEvent } from './recordBrainEvent';
@@ -34,10 +35,16 @@ export async function runSourceIngest(
 	await sweepEmptyBrainContexts(supabase, source.brainId, source.id);
 	await recordContextEvents(supabase, source, appliedContextWrites);
 	await recordPageEvents(supabase, source, appliedPageWrites);
+	const routing = await routeSourceToBrains(supabase, source, contentBlock);
 	await recordBrainEvent(supabase, {
 		brainId: source.brainId,
 		kind: 'source_ingested',
-		detail: { filename: source.filename, logLine: record.logLine },
+		detail: {
+			filename: source.filename,
+			logLine: `${record.logLine}${routing.logLine}`,
+			experienceEpisodes: routing.experienceEpisodes,
+			processTasks: routing.processTasks
+		},
 		sourceId: source.id
 	});
 	await markSourceStatus(supabase, source.id, 'ingested', record.sourceSummary);

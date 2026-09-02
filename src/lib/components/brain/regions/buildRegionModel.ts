@@ -3,22 +3,13 @@ import { regionCentresFor } from './regionLayout';
 import { sectionHueAt, UNFILED_TINT } from './regionPalette';
 import { randomDirection } from '../constellation/branchSeeds';
 import { shareStreamFrom } from '../constellation/pseudoRandom';
-import { groupByCases, type CaseGroup } from '$lib/components/knowledge/editors/caseGrouping';
-import { dataFrom } from '$lib/components/knowledge/editors/editorFields';
+import { dormantSeed, seedFromCase, unfiledSeed, type RegionSeed } from './regionSeeds';
+import { groupByCases } from '$lib/components/knowledge/editors/caseGrouping';
 import type { KbBrainItem } from '$lib/data/knowledge/knowledgeTypes';
 import type { BrainRegion, RegionModel, RegionNeuron } from './regionTypes';
 
-const UNFILED_REGION_ID = 'unfiled';
 const SMALLEST_RADIUS = 0.5;
 const CROWDED_EPISODE_SPREAD = 0.35;
-
-type RegionSeed = {
-	id: string;
-	name: string;
-	caption: string;
-	isUnfiled: boolean;
-	episodes: KbBrainItem[];
-};
 
 export function buildRegionModel(items: KbBrainItem[], seedText: string): RegionModel {
 	const grouped = groupByCases(items);
@@ -26,6 +17,7 @@ export function buildRegionModel(items: KbBrainItem[], seedText: string): Region
 		.toSorted((first, second) => first.caseFile.createdAt.localeCompare(second.caseFile.createdAt))
 		.map(seedFromCase);
 	if (grouped.caselessEpisodes.length > 0) seeds.push(unfiledSeed(grouped.caselessEpisodes));
+	if (seeds.length === 0) seeds.push(dormantSeed());
 	const anchors = regionCentresFor(seeds.length, seedText);
 	const territories = territoriesFor(
 		seeds.map((seed, index) => ({
@@ -41,32 +33,6 @@ export function buildRegionModel(items: KbBrainItem[], seedText: string): Region
 			return regionFrom(seed, territories[index], colour);
 		})
 	};
-}
-
-function seedFromCase(group: CaseGroup): RegionSeed {
-	const status = dataFrom(group.caseFile, 'status');
-	const count = episodeCountLabel(group.episodes.length);
-	return {
-		id: group.caseFile.id,
-		name: group.caseFile.title,
-		caption: status === '' ? count : `${count} · ${status}`,
-		isUnfiled: false,
-		episodes: group.episodes
-	};
-}
-
-function unfiledSeed(episodes: KbBrainItem[]): RegionSeed {
-	return {
-		id: UNFILED_REGION_ID,
-		name: 'Unfiled',
-		caption: `${episodeCountLabel(episodes.length)} not yet in a case`,
-		isUnfiled: true,
-		episodes
-	};
-}
-
-function episodeCountLabel(count: number): string {
-	return `${count} ${count === 1 ? 'episode' : 'episodes'}`;
 }
 
 function regionFrom(seed: RegionSeed, territory: Territory, colour: number): BrainRegion {

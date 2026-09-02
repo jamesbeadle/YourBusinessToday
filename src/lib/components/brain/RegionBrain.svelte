@@ -22,7 +22,7 @@
 
 	const model = $derived(buildRegionModel(items, seed));
 	const hint = $derived(
-		model.regions.length === 0
+		items.length === 0
 			? 'no experiences filed yet · the interview fills this brain'
 			: 'hover a section to light it up · click to fly in'
 	);

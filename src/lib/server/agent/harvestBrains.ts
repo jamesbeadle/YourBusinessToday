@@ -16,11 +16,11 @@ const harvestBrainBlueprints = {
 
 export type HarvestBrainType = keyof typeof harvestBrainBlueprints;
 
-export async function findOrCreateHarvestBrain(
+export async function findHarvestBrain(
 	supabase: SupabaseClient,
 	knowledgeBaseId: string,
 	brainType: HarvestBrainType
-): Promise<string> {
+): Promise<string | null> {
 	const { data, error } = await supabase
 		.from('kb_brains')
 		.select('id')
@@ -29,7 +29,16 @@ export async function findOrCreateHarvestBrain(
 		.order('created_at')
 		.limit(1);
 	if (error !== null) throw error;
-	if (data !== null && data.length > 0) return data[0].id;
+	return data !== null && data.length > 0 ? (data[0].id as string) : null;
+}
+
+export async function findOrCreateHarvestBrain(
+	supabase: SupabaseClient,
+	knowledgeBaseId: string,
+	brainType: HarvestBrainType
+): Promise<string> {
+	const existingId = await findHarvestBrain(supabase, knowledgeBaseId, brainType);
+	if (existingId !== null) return existingId;
 	const blueprint = harvestBrainBlueprints[brainType];
 	return createKbBrain(supabase, {
 		knowledgeBaseId,

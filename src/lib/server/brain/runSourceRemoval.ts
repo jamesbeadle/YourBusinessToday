@@ -10,6 +10,7 @@ import { recordBrainEvent } from './recordBrainEvent';
 import { saveBrainPageWrites } from './saveBrainPageWrites';
 import { sourceContentBlock } from './sourceContentBlock';
 import { unlearnSource } from './unlearnSource';
+import { forgetSourceEpisodes } from '$lib/server/knowledge/forgetDocumentEpisodes';
 import type { RetirementRecord } from './parseRetirementRecord';
 import type { StoredBrainSource } from './findBrainSource';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -29,6 +30,7 @@ export async function runSourceRemoval(
 		record.contextDeletes
 	);
 	await recordRemovalEvents(supabase, source, rewrites, deletedSlugs, deletedContexts, record);
+	await forgetSourceEpisodes(supabase, source.brainId, source.filename);
 	await deleteBrainSource(supabase, source);
 }
 

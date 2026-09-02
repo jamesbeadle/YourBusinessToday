@@ -6,7 +6,8 @@ export async function fileExperienceEvents(
 	supabase: SupabaseClient,
 	brainId: string,
 	events: HarvestedEvent[],
-	knownTerms: string[]
+	knownTerms: string[],
+	provenance = 'stated'
 ): Promise<void> {
 	const casesByName = await existingCases(supabase, brainId);
 	const knownTermSet = new Set(knownTerms.map((term) => term.toLowerCase()));
@@ -18,7 +19,7 @@ export async function fileExperienceEvents(
 			body: event.note,
 			occurredAt: event.occurredAt ?? new Date().toISOString(),
 			parentItemId: await caseIdFor(supabase, brainId, casesByName, event.caseName),
-			data: episodeDataFor(event.terms, knownTermSet)
+			data: episodeDataFor(event.terms, knownTermSet, provenance)
 		});
 	}
 }
@@ -57,10 +58,14 @@ async function caseIdFor(
 	return caseId;
 }
 
-function episodeDataFor(terms: string[], knownTermSet: Set<string>): Record<string, unknown> {
+function episodeDataFor(
+	terms: string[],
+	knownTermSet: Set<string>,
+	provenance: string
+): Record<string, unknown> {
 	return {
 		terms: terms.filter((term) => knownTermSet.has(term.toLowerCase())),
 		newTerms: terms.filter((term) => !knownTermSet.has(term.toLowerCase())),
-		provenance: 'stated'
+		provenance
 	};
 }

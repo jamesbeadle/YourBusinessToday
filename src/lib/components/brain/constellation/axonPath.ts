@@ -8,12 +8,12 @@ import type { Synapse } from './constellationTypes';
 
 const RING_COUNT = 40;
 const HANDLE_SHARE = 0.32;
-const CROSSLINK_OUTWARD_LIFT = 0.12;
+const CROSSLINK_OUTWARD_LIFT = 0.09;
 const ROOT_DEPTH_SHARE = 0.6;
-const HILLOCK_RADIUS_SHARE = 0.34;
-const HILLOCK_LENGTH_SHARE = 1.1;
-const ARRIVAL_RADIUS_SHARE = 0.24;
-const ARRIVAL_LENGTH_SHARE = 0.8;
+const HILLOCK_RADIUS_SHARE = 0.2;
+const HILLOCK_LENGTH_SHARE = 0.9;
+const ARRIVAL_RADIUS_SHARE = 0.14;
+const ARRIVAL_LENGTH_SHARE = 0.7;
 const MEANDER_SHARE = 0.03;
 const FULL_TURN_RADIANS = Math.PI * 2;
 

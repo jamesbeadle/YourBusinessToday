@@ -5,8 +5,8 @@ import { distancesAlong } from './pathDistances';
 export const JOINT_STRIDE = 3;
 const TAPER_POWER = 1.5;
 const CLOSING_CONE_SHARE = 1.5;
-const COLLAR_SWELL = 0.9;
-const COLLAR_LENGTH_SHARE = 2.5;
+const COLLAR_SWELL = 0.8;
+const COLLAR_LENGTH_SHARE = 2.2;
 
 export type GrownBranch = { points: Vector3[]; radii: number[]; reaches: number[] };
 

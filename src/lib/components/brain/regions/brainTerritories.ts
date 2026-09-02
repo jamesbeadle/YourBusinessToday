@@ -15,6 +15,7 @@ export type TerritoryClaim = { episodeCount: number; isUnfiled: boolean; anchor:
 export type Territory = { centre: Vector3; radius: number; samples: Vector3[] };
 
 export function territoriesFor(claims: TerritoryClaim[], seedText: string): Territory[] {
+	if (claims.length === 0) return [];
 	const nextShare = shareStreamFrom(`${seedText}:territories`);
 	const episodeTotal = claims.reduce((sum, claim) => sum + claim.episodeCount, 0);
 	const sampleCount = Math.min(TISSUE_CAP, TISSUE_BASE_COUNT + TISSUE_PER_EPISODE * episodeTotal);

@@ -1,21 +1,20 @@
 import { Mesh, Sprite, Vector3, type BufferGeometry } from 'three';
-import { STRAND_DOCK_SHARE } from './membraneMaterial';
 import { shareStreamFrom } from './pseudoRandom';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
-import type { CellSkinBank } from './cellSkinBank';
+import type { CellMaterialBank } from './cellMaterialBank';
 
-const CORE_RADIUS_SHARE = 0.6;
-const MEMBRANE_RADIUS_SHARE = 1.5;
 const SOMA_SQUASH_SPREAD = 0.35;
 const FULL_TURN_RADIANS = Math.PI * 2;
+const EXCITEMENT_FLARE = 0.9;
+const EXCITEMENT_FADE_PER_SECOND = 2.6;
 
 export type CellSoma = {
 	core: Mesh;
-	membrane: Mesh;
 	glow: Sprite;
 	setGrowth: (flareShare: number) => void;
-	glowPulse: (pulse: number) => void;
+	glowPulse: (pulse: number, deltaSeconds: number) => void;
+	excite: () => void;
 };
 
 export type SomaSeed = {
@@ -24,58 +23,43 @@ export type SomaSeed = {
 	colour: number;
 	contextKey: string;
 	proportions: BodyProportions;
-	connectionDirections: Vector3[];
 	somaGeometry: BufferGeometry;
-	membraneGeometry: BufferGeometry;
 	bank: MaterialBank;
-	skins: CellSkinBank;
+	cells: CellMaterialBank;
 };
 
-export function membraneRadiusOf(slug: string, proportions: BodyProportions): number {
-	return proportions.somaRadius * somaSizeShareOf(slug) * MEMBRANE_RADIUS_SHARE;
-}
-
-export function strandDockRadiusOf(slug: string, proportions: BodyProportions): number {
-	return membraneRadiusOf(slug, proportions) * STRAND_DOCK_SHARE;
+export function somaRadiusOf(slug: string, proportions: BodyProportions): number {
+	return proportions.somaRadius * somaSizeShareOf(slug);
 }
 
 export function createCellSoma(seed: SomaSeed): CellSoma {
-	const { slug, position, colour, contextKey, proportions, bank, skins } = seed;
-	const somaRadius = proportions.somaRadius * somaSizeShareOf(slug);
+	const { slug, position, colour, contextKey, proportions, bank, cells } = seed;
+	const somaRadius = somaRadiusOf(slug, proportions);
 	const nextShare = shareStreamFrom(`${slug}:soma`);
 
-	const core = new Mesh(seed.somaGeometry, skins.somaFor(colour, contextKey));
+	const core = new Mesh(seed.somaGeometry, cells.somaFor(colour, contextKey));
 	core.position.copy(position);
 	core.rotation.set(spin(nextShare), spin(nextShare), spin(nextShare));
-
-	const membrane = new Mesh(
-		seed.membraneGeometry,
-		skins.membraneFor(slug, colour, contextKey, seed.connectionDirections)
-	);
-	membrane.position.copy(position);
 
 	const glow = new Sprite(bank.glowFor(colour, contextKey));
 	glow.position.copy(position);
 
 	let flareShare = 1;
-
-	function resize(): void {
-		core.scale.setScalar(somaRadius * CORE_RADIUS_SHARE * flareShare);
-		membrane.scale.setScalar(somaRadius * MEMBRANE_RADIUS_SHARE * flareShare);
-	}
+	let excitement = 0;
 
 	function setGrowth(grownFlareShare: number): void {
 		flareShare = grownFlareShare;
-		resize();
+		core.scale.setScalar(somaRadius * flareShare);
 	}
 
-	function glowPulse(pulse: number): void {
-		glow.scale.setScalar(proportions.glowScale * flareShare * pulse);
+	function glowPulse(pulse: number, deltaSeconds: number): void {
+		excitement *= Math.exp(-EXCITEMENT_FADE_PER_SECOND * deltaSeconds);
+		glow.scale.setScalar(proportions.glowScale * flareShare * (pulse + EXCITEMENT_FLARE * excitement));
 	}
 
-	resize();
-	glowPulse(1);
-	return { core, membrane, glow, setGrowth, glowPulse };
+	setGrowth(1);
+	glowPulse(1, 0);
+	return { core, glow, setGrowth, glowPulse, excite: () => (excitement = 1) };
 }
 
 function somaSizeShareOf(slug: string): number {

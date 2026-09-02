@@ -1,12 +1,14 @@
-import { Color, ShaderMaterial } from 'three';
-import { exposeOpacityAsUniform } from './uniformOpacity';
+import { Color, ShaderMaterial, type IUniform } from 'three';
+import { CELL_SHADING_GLSL, fogUniforms, type SharedCellUniforms } from './cellShading';
 
 const SOMA_VERTEX_SHADER = `
+	#include <fog_pars_vertex>
 	uniform float timeSeconds;
-	varying float facingShare;
+	varying vec3 viewNormal;
+	varying vec3 viewPosition;
 	varying float dimpleShare;
 
-	const float DIMPLE_DEPTH = 0.06;
+	const float DIMPLE_DEPTH = 0.07;
 	const vec3 COARSE_GRAIN = vec3(7.0, 3.0, 5.0);
 	const vec3 MEDIUM_GRAIN = vec3(-4.0, 9.0, 6.0);
 	const vec3 FINE_GRAIN = vec3(6.0, -5.0, 11.0);
@@ -20,48 +22,51 @@ const SOMA_VERTEX_SHADER = `
 	void main() {
 		dimpleShare = organicDimples(position);
 		vec3 dimpled = position + normal * (DIMPLE_DEPTH * dimpleShare);
-		vec4 viewPosition = modelViewMatrix * vec4(dimpled, 1.0);
-		vec3 viewNormal = normalize(normalMatrix * normal);
-		facingShare = max(0.0, dot(normalize(-viewPosition.xyz), viewNormal));
-		gl_Position = projectionMatrix * viewPosition;
+		vec4 mvPosition = modelViewMatrix * vec4(dimpled, 1.0);
+		viewPosition = mvPosition.xyz;
+		viewNormal = normalize(normalMatrix * normal);
+		gl_Position = projectionMatrix * mvPosition;
+		#include <fog_vertex>
 	}
 `;
 
 const SOMA_FRAGMENT_SHADER = `
-	uniform vec3 somaColour;
-	uniform float somaOpacity;
-	varying float facingShare;
+	#include <fog_pars_fragment>
+	${CELL_SHADING_GLSL}
+	uniform vec3 cellColour;
+	uniform float dimShare;
+	varying vec3 viewNormal;
+	varying vec3 viewPosition;
 	varying float dimpleShare;
 
-	const float RIM_DARKNESS = 0.35;
-	const float DIMPLE_SHADE = 0.22;
+	const float DIMPLE_SHADE = 0.16;
 	const float NUCLEUS_TIGHTNESS = 3.5;
-	const float NUCLEUS_BRIGHTNESS = 0.85;
+	const float NUCLEUS_BRIGHTNESS = 0.8;
 
 	void main() {
-		float lit = RIM_DARKNESS + (1.0 - RIM_DARKNESS) * facingShare;
-		vec3 membraneTone = somaColour * lit * (1.0 + DIMPLE_SHADE * dimpleShare);
-		float nucleusShare = pow(facingShare, NUCLEUS_TIGHTNESS) * NUCLEUS_BRIGHTNESS;
-		gl_FragColor = vec4(mix(membraneTone, vec3(1.0), nucleusShare), somaOpacity);
+		vec3 normal = faceTowardsEye(normalize(viewNormal));
+		vec3 towardsEye = normalize(-viewPosition);
+		vec3 shaded = shadeCell(cellColour, normal, towardsEye) * (1.0 + DIMPLE_SHADE * dimpleShare);
+		float nucleusShare = pow(max(0.0, dot(normal, towardsEye)), NUCLEUS_TIGHTNESS) * NUCLEUS_BRIGHTNESS;
+		vec3 withNucleus = mix(shaded, vec3(1.0), nucleusShare);
+		gl_FragColor = vec4(withNucleus, dimShare);
+		#include <fog_fragment>
+		#include <colorspace_fragment>
 	}
 `;
 
 export class SomaMaterial extends ShaderMaterial {
-	constructor(colour: number) {
+	constructor(colour: number, shared: SharedCellUniforms, dimShare: IUniform<number>) {
 		super({
 			uniforms: {
-				somaColour: { value: new Color(colour) },
-				somaOpacity: { value: 1 },
-				timeSeconds: { value: 0 }
+				...fogUniforms(),
+				timeSeconds: shared.timeSeconds,
+				dimShare,
+				cellColour: { value: new Color(colour) }
 			},
 			vertexShader: SOMA_VERTEX_SHADER,
 			fragmentShader: SOMA_FRAGMENT_SHADER,
-			transparent: true
+			fog: true
 		});
-		exposeOpacityAsUniform(this, 'somaOpacity');
-	}
-
-	setTime(timeSeconds: number): void {
-		this.uniforms.timeSeconds.value = timeSeconds;
 	}
 }

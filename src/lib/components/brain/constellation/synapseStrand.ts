@@ -1,24 +1,16 @@
-import {
-	BufferAttribute,
-	BufferGeometry,
-	CubicBezierCurve3,
-	Line,
-	Vector3,
-	type LineBasicMaterial
-} from 'three';
+import { CatmullRomCurve3, Mesh, type Vector3 } from 'three';
+import { axonPathOf, type AxonEnds } from './axonPath';
+import { fibreGeometryFrom } from './fibreGeometry';
 import { strandHeadingsOf } from './synapseHeadings';
+import type { FibreMaterial } from './fibreMaterial';
 import type { Synapse } from './constellationTypes';
 
-const POINTS_PER_CURVE = 24;
-const HANDLE_SHARE = 0.32;
-const CROSSLINK_OUTWARD_LIFT = 0.12;
-const JOIN_BRIGHTNESS = 1;
-const SPAN_BRIGHTNESS = 0.55;
-const JOIN_FADE_SHARE = 0.2;
+const AXON_RADIAL_SEGMENTS = 8;
+const PULSE_SAMPLE_COUNT = 32;
 
 export type SynapseStrand = {
-	line: Line;
-	points: Vector3[];
+	mesh: Mesh;
+	pulsePoints: Vector3[];
 	contextKey: string;
 	touches: (slug: string) => boolean;
 	orientFrom: (slug: string) => void;
@@ -29,55 +21,25 @@ export type SynapseStrand = {
 export function createSynapseStrand(
 	synapse: Synapse,
 	contextKey: string,
-	material: LineBasicMaterial,
-	dockRadiusFor: (slug: string) => number
+	material: FibreMaterial,
+	ends: AxonEnds
 ): SynapseStrand {
-	const span = synapse.from.distanceTo(synapse.to);
-	const { leaving, arriving } = strandHeadingsOf(synapse);
-	const start = synapse.from.clone().addScaledVector(leaving, dockRadiusFor(synapse.fromSlug));
-	const end = synapse.to.clone().addScaledVector(arriving, dockRadiusFor(synapse.toSlug));
-	const outwardLift = synapse.kind === 'crosslink' ? span * CROSSLINK_OUTWARD_LIFT : 0;
-	const startHandle = handleFrom(start, leaving, span, outwardLift);
-	const endHandle = handleFrom(end, arriving, span, outwardLift);
-	const points = new CubicBezierCurve3(start, startHandle, endHandle, end).getPoints(POINTS_PER_CURVE);
-	const geometry = new BufferGeometry().setFromPoints(points);
-	geometry.setAttribute('color', new BufferAttribute(joinBrightness(points.length), 3));
-	const line = new Line(geometry, material);
+	const path = axonPathOf(synapse, strandHeadingsOf(synapse), ends);
+	const geometry = fibreGeometryFrom(path, AXON_RADIAL_SEGMENTS);
+	const mesh = new Mesh(geometry, material);
+	const pulsePoints = new CatmullRomCurve3(path.points).getSpacedPoints(PULSE_SAMPLE_COUNT);
 
 	function orientFrom(slug: string): void {
-		if (slug !== synapse.toSlug) return;
-		points.reverse();
-		geometry.setFromPoints(points);
-	}
-
-	function setGrowth(share: number): void {
-		geometry.setDrawRange(0, Math.round(points.length * share));
+		material.growFrom(slug === synapse.toSlug ? 'tip' : 'root');
 	}
 
 	return {
-		line,
-		points,
+		mesh,
+		pulsePoints,
 		contextKey,
 		touches: (slug) => slug === synapse.fromSlug || slug === synapse.toSlug,
 		orientFrom,
-		setGrowth,
+		setGrowth: material.setGrowth.bind(material),
 		dispose: () => geometry.dispose()
 	};
-}
-
-function handleFrom(anchor: Vector3, heading: Vector3, span: number, outwardLift: number): Vector3 {
-	const handle = anchor.clone().addScaledVector(heading, span * HANDLE_SHARE);
-	if (outwardLift === 0) return handle;
-	return handle.addScaledVector(handle.clone().normalize(), outwardLift);
-}
-
-function joinBrightness(pointCount: number): Float32Array {
-	const brightness = new Float32Array(pointCount * 3);
-	for (let index = 0; index < pointCount; index += 1) {
-		const share = index / (pointCount - 1);
-		const distanceFromJoin = Math.min(share, 1 - share) / JOIN_FADE_SHARE;
-		const tone = JOIN_BRIGHTNESS + (SPAN_BRIGHTNESS - JOIN_BRIGHTNESS) * Math.min(1, distanceFromJoin);
-		brightness.set([tone, tone, tone], index * 3);
-	}
-	return brightness;
 }

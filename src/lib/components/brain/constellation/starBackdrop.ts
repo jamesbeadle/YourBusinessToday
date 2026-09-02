@@ -21,7 +21,8 @@ export function createStarBackdrop(): StarBackdrop {
 		size: STAR_SIZE,
 		transparent: true,
 		opacity: STAR_OPACITY,
-		depthWrite: false
+		depthWrite: false,
+		fog: false
 	});
 	const points = new Points(geometry, material);
 

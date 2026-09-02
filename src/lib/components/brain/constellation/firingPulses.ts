@@ -1,15 +1,13 @@
-import { AdditiveBlending, Group, Sprite, SpriteMaterial, type Texture } from 'three';
-import { CHALK } from './constellationPalette';
+import { Group, type Texture } from 'three';
+import { createCometMaterials, createPulseComet, type PulseComet } from './pulseComet';
 import type { SampledCurve } from './synapseWeb';
 
 const PULSE_LIMIT = 20;
 const PULSES_PER_CURVE = 0.4;
-const PULSE_SCALE = 0.15;
 const SLOWEST_SPEED = 0.2;
 const SPEED_SPREAD = 0.35;
-const PULSE_OPACITY = 0.75;
 
-type Pulse = { sprite: Sprite; curve: SampledCurve; progress: number; speed: number };
+type Pulse = { comet: PulseComet; curve: SampledCurve; progress: number; speed: number };
 
 export type FiringPulses = {
 	group: Group;
@@ -18,16 +16,13 @@ export type FiringPulses = {
 	dispose: () => void;
 };
 
-export function createFiringPulses(curves: SampledCurve[], glowTexture: Texture): FiringPulses {
+export function createFiringPulses(
+	curves: SampledCurve[],
+	glowTexture: Texture,
+	onArrive: (slug: string) => void
+): FiringPulses {
 	const group = new Group();
-	const material = new SpriteMaterial({
-		map: glowTexture,
-		color: CHALK,
-		transparent: true,
-		opacity: PULSE_OPACITY,
-		blending: AdditiveBlending,
-		depthWrite: false
-	});
+	const materials = createCometMaterials(glowTexture);
 	let focusKey: string | null = null;
 
 	function curvesInFocus(): SampledCurve[] {
@@ -41,27 +36,29 @@ export function createFiringPulses(curves: SampledCurve[], glowTexture: Texture)
 		return pool[Math.floor(Math.random() * pool.length)];
 	}
 
+	function fire(pulse: Pulse): void {
+		pulse.progress = 0;
+		pulse.curve = randomCurve();
+		pulse.comet.settleOn(pulse.curve.colour);
+	}
+
 	const pulseCount = Math.min(PULSE_LIMIT, Math.ceil(curves.length * PULSES_PER_CURVE));
 	const pulses: Pulse[] = Array.from({ length: pulseCount }, () => {
-		const sprite = new Sprite(material);
-		sprite.scale.setScalar(PULSE_SCALE);
-		group.add(sprite);
-		return {
-			sprite,
-			curve: randomCurve(),
-			progress: Math.random(),
-			speed: SLOWEST_SPEED + Math.random() * SPEED_SPREAD
-		};
+		const comet = createPulseComet(materials);
+		group.add(comet.group);
+		const curve = randomCurve();
+		comet.settleOn(curve.colour);
+		return { comet, curve, progress: Math.random(), speed: SLOWEST_SPEED + Math.random() * SPEED_SPREAD };
 	});
 
 	function update(deltaSeconds: number): void {
 		for (const pulse of pulses) {
 			pulse.progress += pulse.speed * deltaSeconds;
 			if (pulse.progress >= 1) {
-				pulse.progress = 0;
-				pulse.curve = randomCurve();
+				onArrive(pulse.curve.arrivesAt);
+				fire(pulse);
 			}
-			placeAlongCurve(pulse);
+			pulse.comet.placeAlong(pulse.curve.points, pulse.progress);
 		}
 	}
 
@@ -69,18 +66,5 @@ export function createFiringPulses(curves: SampledCurve[], glowTexture: Texture)
 		focusKey = contextKey;
 	}
 
-	function dispose(): void {
-		material.dispose();
-	}
-
-	return { group, update, setFocus, dispose };
-}
-
-function placeAlongCurve(pulse: Pulse): void {
-	const points = pulse.curve.points;
-	const exactIndex = pulse.progress * (points.length - 1);
-	const lowerIndex = Math.floor(exactIndex);
-	const upperIndex = Math.min(points.length - 1, lowerIndex + 1);
-	const blend = exactIndex - lowerIndex;
-	pulse.sprite.position.lerpVectors(points[lowerIndex], points[upperIndex], blend);
+	return { group, update, setFocus, dispose: materials.dispose };
 }

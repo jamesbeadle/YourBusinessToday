@@ -8,7 +8,7 @@ import { neuronProportions, nucleusProportions } from './neuronProportions';
 import type { CellMaterialBank } from './cellMaterialBank';
 import type { ConstellationModel, Synapse, SynapseKind } from './constellationTypes';
 
-const FIBRE_RADIUS_BY_KIND: Record<SynapseKind, number> = { dendrite: 0.011, crosslink: 0.008 };
+const FIBRE_RADIUS_BY_KIND: Record<SynapseKind, number> = { dendrite: 0.005, crosslink: 0.0035 };
 
 export type SampledCurve = {
 	points: Vector3[];

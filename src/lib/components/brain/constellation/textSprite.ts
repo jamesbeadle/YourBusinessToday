@@ -25,7 +25,8 @@ export function createTextSprite(text: string, colourCss: string): Sprite {
 		opacity: LABEL_OPACITY,
 		sizeAttenuation: false,
 		depthTest: false,
-		depthWrite: false
+		depthWrite: false,
+		fog: false
 	});
 	const sprite = new Sprite(material);
 	const aspect = canvas.width / canvas.height;

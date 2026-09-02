@@ -1,21 +1,14 @@
-import {
-	Group,
-	LineSegments,
-	Mesh,
-	type BufferGeometry,
-	type MeshBasicMaterial,
-	type Vector3
-} from 'three';
+import { Group, Mesh, type BufferGeometry, type MeshBasicMaterial, type Vector3 } from 'three';
 import { createCellSoma } from './cellSoma';
-import { growDendrites } from './dendriteBranching';
+import { growDendriteTree } from './dendriteTree';
+import { mergedFibreGeometry } from './fibreGeometry';
 import { clampShare, flare } from './growthShares';
-import { revealWireframe, wireframeFrom } from './neuronWireframe';
 import { shareStreamFrom } from './pseudoRandom';
 import type { BodyProportions } from './neuronProportions';
 import type { MaterialBank } from './materialBank';
-import type { CellSkinBank } from './cellSkinBank';
+import type { CellMaterialBank } from './cellMaterialBank';
 
-const DENDRITE_OPACITY = 0.7;
+const DENDRITE_RADIAL_SEGMENTS = 5;
 const SOMA_PHASE_END = 0.4;
 const DENDRITE_PHASE_START = 0.25;
 
@@ -26,7 +19,8 @@ export type NeuronBody = {
 	colour: number;
 	twinklePhase: number;
 	setGrowth: (share: number) => void;
-	glowPulse: (pulse: number) => void;
+	glowPulse: (pulse: number, deltaSeconds: number) => void;
+	excite: () => void;
 	dispose: () => void;
 };
 
@@ -37,38 +31,43 @@ export type BodySeed = {
 	contextKey: string;
 	proportions: BodyProportions;
 	connectionDirections: Vector3[];
+	detailShare: number;
 	somaGeometry: BufferGeometry;
-	membraneGeometry: BufferGeometry;
 	hitGeometry: BufferGeometry;
 	hitMaterial: MeshBasicMaterial;
 	bank: MaterialBank;
-	skins: CellSkinBank;
+	cells: CellMaterialBank;
 	userData: Record<string, string>;
 };
 
 export function createNeuronBody(seed: BodySeed): NeuronBody {
-	const { position, colour, contextKey, proportions, bank } = seed;
-	const nextShare = shareStreamFrom(seed.slug);
+	const { slug, position, colour, contextKey, proportions, bank, cells } = seed;
+	const nextShare = shareStreamFrom(slug);
 
 	const soma = createCellSoma({
-		slug: seed.slug,
+		slug,
 		position,
 		colour,
 		contextKey,
 		proportions,
-		connectionDirections: seed.connectionDirections,
 		somaGeometry: seed.somaGeometry,
-		membraneGeometry: seed.membraneGeometry,
 		bank,
-		skins: seed.skins
+		cells
 	});
 
-	const branches = growDendrites(seed.slug, seed.connectionDirections, proportions, nextShare);
-	const wireframe = wireframeFrom(branches, position);
-	const dendrites = new LineSegments(
-		wireframe.geometry,
-		bank.dendriteFor(colour, contextKey, DENDRITE_OPACITY)
+	const tree = growDendriteTree(
+		slug,
+		seed.connectionDirections,
+		proportions,
+		seed.detailShare,
+		nextShare
 	);
+	const dendriteMaterial = cells.dendritesFor(slug, colour, contextKey);
+	const dendrites = new Mesh(
+		mergedFibreGeometry(tree, DENDRITE_RADIAL_SEGMENTS),
+		dendriteMaterial
+	);
+	dendrites.position.copy(position);
 
 	const hitTarget = new Mesh(seed.hitGeometry, seed.hitMaterial);
 	hitTarget.position.copy(position);
@@ -76,12 +75,12 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 	hitTarget.userData = seed.userData;
 
 	const group = new Group();
-	group.add(soma.core, soma.membrane, soma.glow, dendrites, hitTarget);
+	group.add(soma.core, soma.glow, dendrites, hitTarget);
 
 	function setGrowth(share: number): void {
 		soma.setGrowth(flare(clampShare(share / SOMA_PHASE_END)));
 		const dendriteShare = clampShare((share - DENDRITE_PHASE_START) / (1 - DENDRITE_PHASE_START));
-		revealWireframe(wireframe, dendriteShare);
+		dendriteMaterial.setGrowth(dendriteShare);
 	}
 
 	return {
@@ -92,6 +91,7 @@ export function createNeuronBody(seed: BodySeed): NeuronBody {
 		twinklePhase: position.x + position.y * 7,
 		setGrowth,
 		glowPulse: soma.glowPulse,
-		dispose: () => wireframe.geometry.dispose()
+		excite: soma.excite,
+		dispose: () => dendrites.geometry.dispose()
 	};
 }

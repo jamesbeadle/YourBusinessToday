@@ -1,14 +1,15 @@
 import { Group, IcosahedronGeometry, Mesh, MeshBasicMaterial, type Vector3 } from 'three';
+import { nucleusColourOf } from './bodyColours';
 import { connectionDirectionsOf } from './connectionDirections';
+import { detailShareFor } from './dendriteTree';
 import { createNeuronBody, type NeuronBody } from './neuronBody';
-import { CHALK, SIGNAL, kindColours } from './constellationPalette';
+import { kindColours } from './constellationPalette';
 import { neuronProportions, nucleusProportions, type BodyProportions } from './neuronProportions';
 import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
-import type { CellSkinBank } from './cellSkinBank';
+import type { CellMaterialBank } from './cellMaterialBank';
 import type { ConstellationModel } from './constellationTypes';
 
 const SOMA_DETAIL = 10;
-const MEMBRANE_DETAIL = 16;
 const HIT_DETAIL = 1;
 const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;
@@ -17,23 +18,23 @@ export type NeuronField = {
 	group: Group;
 	hitTargets: Mesh[];
 	bodyFor: (slug: string) => NeuronBody | undefined;
-	twinkle: (timeSeconds: number) => void;
+	twinkle: (timeSeconds: number, deltaSeconds: number) => void;
 	dispose: () => void;
 };
 
 export function createNeuronField(
 	model: ConstellationModel,
 	bank: MaterialBank,
-	skins: CellSkinBank
+	cells: CellMaterialBank
 ): NeuronField {
 	const group = new Group();
 	const hitTargets: Mesh[] = [];
 	const bodies = new Map<string, NeuronBody>();
 	const somaGeometry = new IcosahedronGeometry(1, SOMA_DETAIL);
-	const membraneGeometry = new IcosahedronGeometry(1, MEMBRANE_DETAIL);
 	const hitGeometry = new IcosahedronGeometry(1, HIT_DETAIL);
 	const hitMaterial = new MeshBasicMaterial({ visible: false });
 	const directionsBySlug = connectionDirectionsOf(model);
+	const detailShare = detailShareFor(model.neurons.length);
 
 	function grow(
 		slug: string,
@@ -50,12 +51,12 @@ export function createNeuronField(
 			contextKey,
 			proportions,
 			connectionDirections: directionsBySlug.get(slug) ?? [],
+			detailShare,
 			somaGeometry,
-			membraneGeometry,
 			hitGeometry,
 			hitMaterial,
 			bank,
-			skins,
+			cells,
 			userData
 		});
 		bodies.set(slug, body);
@@ -70,22 +71,21 @@ export function createNeuronField(
 		});
 	}
 	for (const nucleus of model.nuclei) {
-		const colour = nucleus.isCoreDomain ? SIGNAL : CHALK;
-		grow(nucleus.slug, nucleus.position, colour, nucleus.slug, nucleusProportions, {
+		grow(nucleus.slug, nucleus.position, nucleusColourOf(nucleus), nucleus.slug, nucleusProportions, {
 			nucleusSlug: nucleus.slug
 		});
 	}
 
-	function twinkle(timeSeconds: number): void {
+	function twinkle(timeSeconds: number, deltaSeconds: number): void {
 		for (const body of bodies.values()) {
-			body.glowPulse(1 + TWINKLE_SHARE * Math.sin(timeSeconds * TWINKLE_SPEED + body.twinklePhase));
+			const shimmer = TWINKLE_SHARE * Math.sin(timeSeconds * TWINKLE_SPEED + body.twinklePhase);
+			body.glowPulse(1 + shimmer, deltaSeconds);
 		}
 	}
 
 	function dispose(): void {
 		for (const body of bodies.values()) body.dispose();
 		somaGeometry.dispose();
-		membraneGeometry.dispose();
 		hitGeometry.dispose();
 		hitMaterial.dispose();
 	}

@@ -5,8 +5,8 @@ export const CHALK = 0xeef1f8;
 export const SIGNAL = 0xff4d5e;
 export const SILVER = 0xc9d2e6;
 export const STARLIGHT = 0x6c7694;
-export const DENDRITE = 0xaeb8d2;
-export const CROSSLINK = 0xd8dff0;
+export const DENDRITE = 0xc3ccdf;
+export const CROSSLINK = 0xdde3f2;
 
 export const kindColours: Record<DomainBlockKind, number> = {
 	entity: 0x9db6ff,

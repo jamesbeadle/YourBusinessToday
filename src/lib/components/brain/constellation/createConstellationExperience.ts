@@ -37,19 +37,19 @@ export function createConstellationExperience(
 	const controls = createOrbitRig(stage.camera, canvas);
 	const director = createFocusDirector({ camera: stage.camera, controls, view, model, isAnimated });
 	const growth = createGrowthChoreographer({
-		bodyFor: (slug) => view.field.bodyFor(slug),
-		strandsTouching: (slug) => view.web.strandsTouching(slug),
+		bodyFor: (slug) => view.mounted.field.bodyFor(slug),
+		strandsTouching: (slug) => view.mounted.web.strandsTouching(slug),
 		flashes: view.flashes,
 		isAnimated
 	});
 	const detachPointer = attachExperienceInput({
 		canvas,
 		camera: stage.camera,
-		hitTargetsFor: () => view.field.hitTargets,
+		hitTargetsFor: () => view.mounted.field.hitTargets,
 		callbacks,
 		director
 	});
-	view.pulses.group.visible = isAnimated;
+	view.mounted.pulses.group.visible = isAnimated;
 	if (options.shouldCascadeInitialModel) growth.plan(bodySlugsOf(model));
 	const resizeObserver = fitStageTo(stage, container);
 	let knownModel = model;
@@ -59,9 +59,10 @@ export function createConstellationExperience(
 		controls.update();
 		growth.update(deltaSeconds);
 		view.flashes.update(deltaSeconds);
-		if (isAnimated) view.field.twinkle(timeSeconds);
-		if (isAnimated) view.skins.tick(timeSeconds);
-		if (isAnimated) view.pulses.update(deltaSeconds);
+		if (isAnimated) view.mounted.field.twinkle(timeSeconds, deltaSeconds);
+		if (isAnimated) view.cells.tick(timeSeconds);
+		view.cells.fitToViewport(canvas.height);
+		if (isAnimated) view.mounted.pulses.update(deltaSeconds);
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
@@ -72,7 +73,7 @@ export function createConstellationExperience(
 		const newcomers = newcomerSlugs(knownModel, updatedModel);
 		knownModel = updatedModel;
 		view.rebuild(updatedModel);
-		view.pulses.group.visible = isAnimated;
+		view.mounted.pulses.group.visible = isAnimated;
 		director.refresh(updatedModel);
 		growth.plan(newcomers);
 	}

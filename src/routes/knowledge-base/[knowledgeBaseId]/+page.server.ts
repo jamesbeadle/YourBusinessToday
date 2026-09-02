@@ -1,5 +1,6 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { applyToHiveMind } from '$lib/server/hive/applyToHiveMind';
+import { deleteKnowledgeBase } from '$lib/server/knowledge/deleteKnowledgeBase';
 import { findPrimaryExpertiseBrain } from '$lib/server/knowledge/interviewContext';
 import { getKbBrains } from '$lib/server/knowledge/getKbBrains';
 import { getKnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
@@ -36,6 +37,15 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const isArchived = String(formData.get('isArchived')) === 'true';
 		await updateKnowledgeBase(locals.supabase, params.knowledgeBaseId, { isArchived });
+	},
+	deleteKnowledgeBase: async ({ locals, params }) => {
+		const user = await requireUser(locals);
+		const knowledgeBase = await getKnowledgeBase(locals.supabase, params.knowledgeBaseId);
+		if (knowledgeBase === null || knowledgeBase.ownerId !== user.id) {
+			return fail(403, { message: 'Only the owner can delete a knowledge base.' });
+		}
+		await deleteKnowledgeBase(locals.supabase, knowledgeBase.id);
+		redirect(303, '/knowledge-base');
 	},
 	shareKnowledgeBase: async ({ locals, params, request }) => {
 		await requireUser(locals);

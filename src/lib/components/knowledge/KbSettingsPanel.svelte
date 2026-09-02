@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { enhance } from '$app/forms';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
@@ -7,6 +8,7 @@
 	let { knowledgeBase }: { knowledgeBase: KnowledgeBase } = $props();
 
 	const tracker = new FormTracker();
+	let isDeleteModalOpen = $state(false);
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
@@ -37,4 +39,32 @@
 			</SubmitButton>
 		</form>
 	</section>
+	<section class="flex flex-col gap-2 border-t border-hairline pt-5">
+		<h3 class="font-display text-sm text-signal">Delete this knowledge base</h3>
+		<p class="text-xs leading-relaxed text-chalk/60">
+			Everything goes with it — every second brain, everything they have learned, every source
+			document, process map, share, and log entry. Archiving is the gentler option if you might
+			want it back.
+		</p>
+		<button
+			type="button"
+			onclick={() => (isDeleteModalOpen = true)}
+			class="self-start rounded-full border border-signal/60 px-4 py-2 font-display text-sm
+				text-signal transition hover:bg-signal hover:text-night"
+		>
+			Delete knowledge base
+		</button>
+	</section>
 </div>
+
+<DangerConfirmModal
+	title="Delete this knowledge base?"
+	description={`${knowledgeBase.name} and all three of its second brains — everything they have
+		learned, every source document, process map, and share — are deleted with it. This cannot
+		be undone.`}
+	action="?/deleteKnowledgeBase"
+	fields={{}}
+	submitLabel="Delete knowledge base"
+	confirmWord="DELETE"
+	bind:isOpen={isDeleteModalOpen}
+/>

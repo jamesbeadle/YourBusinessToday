@@ -1,8 +1,8 @@
 import { AdditiveBlending, BufferGeometry, Points, PointsMaterial, type Texture } from 'three';
 import type { BrainRegion, RegionNeuron } from './regionTypes';
 
-const EPISODE_GLOW_SIZE = 0.4;
-const TISSUE_GLOW_SIZE = 0.17;
+const EPISODE_GLOW_SIZE = 0.3;
+const TISSUE_GLOW_SIZE = 0.12;
 const HAZE_SIZE = 1.7;
 const IDLE_GLOW_OPACITY = 0.55;
 const LIT_GLOW_OPACITY = 0.85;

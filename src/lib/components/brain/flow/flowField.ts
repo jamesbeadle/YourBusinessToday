@@ -7,7 +7,7 @@ import type { MaterialBank } from '../constellation/materialBank';
 import type { CellMaterialBank } from '../constellation/cellMaterialBank';
 import type { FlowEdge, FlowHover, FlowModel } from './flowTypes';
 
-const SOMA_DETAIL = 6;
+const SOMA_DETAIL = 3;
 const HIT_DETAIL = 1;
 const GAP_BRIGHTNESS = 0.55;
 

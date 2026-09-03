@@ -9,7 +9,7 @@ import { WHOLE_MODEL_KEY, type MaterialBank } from './materialBank';
 import type { CellMaterialBank } from './cellMaterialBank';
 import type { ConstellationModel } from './constellationTypes';
 
-const SOMA_DETAIL = 10;
+const SOMA_DETAIL = 4;
 const HIT_DETAIL = 1;
 const TWINKLE_SHARE = 0.12;
 const TWINKLE_SPEED = 1.6;

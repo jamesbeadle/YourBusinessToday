@@ -13,8 +13,8 @@ import { createTissueGlow } from './tissueGlow';
 import type { CellMaterialBank } from '../constellation/cellMaterialBank';
 import type { BrainRegion, RegionNeuron } from './regionTypes';
 
-const EPISODE_SOMA_RADIUS = 0.045;
-const TISSUE_SOMA_RADIUS = 0.018;
+const EPISODE_SOMA_RADIUS = 0.022;
+const TISSUE_SOMA_RADIUS = 0.009;
 const SOMA_SIZE_SPREAD = 0.3;
 const FULL_TURN_RADIANS = Math.PI * 2;
 

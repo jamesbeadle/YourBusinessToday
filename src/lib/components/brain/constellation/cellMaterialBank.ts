@@ -7,7 +7,6 @@ import { SomaMaterial } from './somaMaterial';
 const IN_FOCUS_SHARE = 1;
 const FULL_BRIGHTNESS = 1;
 
-type CellEntry = { material: Material; contextKey: string };
 
 export type CellMaterialBank = {
 	somaFor: (colour: number, contextKey: string) => SomaMaterial;
@@ -22,7 +21,7 @@ export type CellMaterialBank = {
 
 export function createCellMaterialBank(): CellMaterialBank {
 	const shared = createSharedCellUniforms();
-	const entries = new Map<string, CellEntry>();
+	const entries = new Map<string, Material>();
 	const contexts = new Map<string, ContextUniforms>();
 
 	function contextFor(contextKey: string): ContextUniforms {
@@ -33,33 +32,29 @@ export function createCellMaterialBank(): CellMaterialBank {
 		return uniforms;
 	}
 
-	function remember<MaterialType extends Material>(
-		key: string,
-		contextKey: string,
-		create: () => MaterialType
-	): MaterialType {
+	function remember<MaterialType extends Material>(key: string, create: () => MaterialType): MaterialType {
 		const existing = entries.get(key);
-		if (existing !== undefined) return existing.material as MaterialType;
+		if (existing !== undefined) return existing as MaterialType;
 		const material = create();
-		entries.set(key, { material, contextKey });
+		entries.set(key, material);
 		return material;
 	}
 
 	function somaFor(colour: number, contextKey: string): SomaMaterial {
-		return remember(`soma:${contextKey}:${colour}`, contextKey, () => {
+		return remember(`soma:${contextKey}:${colour}`, () => {
 			return new SomaMaterial(colour, shared, contextFor(contextKey));
 		});
 	}
 
 	function dendritesFor(slug: string, colour: number, contextKey: string): FibreMaterial {
-		return remember(`dendrites:${slug}:${colour}`, contextKey, () => {
+		return remember(`dendrites:${slug}:${colour}`, () => {
 			const tints = { root: colour, span: colour, tip: colour };
 			return new FibreMaterial(tints, 'rootedInSoma', shared, contextFor(contextKey));
 		});
 	}
 
 	function axonFor(strandKey: string, tints: FibreTints, contextKey: string): FibreMaterial {
-		return remember(`axon:${strandKey}:${tints.root}:${tints.tip}`, contextKey, () => {
+		return remember(`axon:${strandKey}:${tints.root}:${tints.tip}`, () => {
 			return new FibreMaterial(tints, 'anchoredAtBothEnds', shared, contextFor(contextKey));
 		});
 	}
@@ -68,11 +63,6 @@ export function createCellMaterialBank(): CellMaterialBank {
 		for (const [key, uniforms] of contexts) {
 			const isInFocus = contextKey === null || key === contextKey;
 			uniforms.dimShare.value = isInFocus ? IN_FOCUS_SHARE : DIMMED_OPACITY_SHARE;
-		}
-		for (const entry of entries.values()) {
-			const isInFocus = contextKey === null || entry.contextKey === contextKey;
-			entry.material.transparent = !isInFocus;
-			entry.material.depthWrite = isInFocus;
 		}
 	}
 
@@ -89,7 +79,7 @@ export function createCellMaterialBank(): CellMaterialBank {
 	}
 
 	function dispose(): void {
-		for (const entry of entries.values()) entry.material.dispose();
+		for (const material of entries.values()) material.dispose();
 		entries.clear();
 	}
 

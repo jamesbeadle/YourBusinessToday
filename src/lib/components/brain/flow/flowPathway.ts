@@ -18,14 +18,14 @@ import type { FlowEdge, FlowEdgeKind } from './flowTypes';
 
 const RADIAL_SEGMENTS = 6;
 const PULSE_SAMPLE_COUNT = 40;
-const STUB_END_RADIUS = 0.012;
+const STUB_END_RADIUS = 0.006;
 export const FLOW_CONTEXT_KEY = 'flow';
 export const GAP_CONTEXT_KEY = 'gaps';
 const FIBRE_RADIUS_BY_KIND: Record<FlowEdgeKind, number> = {
-	flow: 0.009,
-	handover: 0.011,
-	deadEnd: 0.004,
-	orphan: 0.004
+	flow: 0.0035,
+	handover: 0.0042,
+	deadEnd: 0.002,
+	orphan: 0.002
 };
 
 export type FlowPathway = {

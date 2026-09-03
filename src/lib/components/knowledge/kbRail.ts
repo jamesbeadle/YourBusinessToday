@@ -7,6 +7,7 @@ export type KbSectionKey =
 	| 'documents'
 	| 'review'
 	| 'share'
+	| 'chatbots'
 	| 'sell'
 	| 'tradeTalk'
 	| 'api'
@@ -14,6 +15,12 @@ export type KbSectionKey =
 	| 'settings';
 
 const interviewIconPaths = ['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'];
+const chatbotIconPaths = [
+	'M12 2v4',
+	'M5 10a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z',
+	'M9 13h.01M15 13h.01',
+	'M2 13h3M19 13h3'
+];
 
 const kbRailItems: Record<KbSectionKey, RailItem> = {
 	interview: { key: 'interview', label: 'The interview', iconPaths: interviewIconPaths },
@@ -21,6 +28,7 @@ const kbRailItems: Record<KbSectionKey, RailItem> = {
 	documents: { key: 'documents', label: 'Source documents', iconPaths: sectionIconPaths.sources },
 	review: { key: 'review', label: 'Review changes', iconPaths: sectionIconPaths.review },
 	share: { key: 'share', label: 'Sharing', iconPaths: sectionIconPaths.share },
+	chatbots: { key: 'chatbots', label: 'Chatbots', iconPaths: chatbotIconPaths },
 	sell: { key: 'sell', label: 'Sell on the marketplace', iconPaths: sectionIconPaths.sell },
 	tradeTalk: { key: 'tradeTalk', label: 'Trade Talk', iconPaths: sectionIconPaths.hive },
 	api: { key: 'api', label: 'API access', iconPaths: sectionIconPaths.api },
@@ -34,6 +42,7 @@ const ownerKeys: KbSectionKey[] = [
 	'documents',
 	'review',
 	'share',
+	'chatbots',
 	'sell',
 	'tradeTalk',
 	'api',

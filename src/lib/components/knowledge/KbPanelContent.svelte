@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ApiPanel from '../brain/dashboard/ApiPanel.svelte';
+	import ChatbotsPanel from '../chatbots/ChatbotsPanel.svelte';
 	import BrainActivityLog from '../brain/BrainActivityLog.svelte';
 	import HiveMindPanel from '../brain/dashboard/HiveMindPanel.svelte';
 	import KbBrainsPanel from './KbBrainsPanel.svelte';
@@ -9,6 +10,7 @@
 	import ReviewPanel from '../brain/review/ReviewPanel.svelte';
 	import SellPanel from '../brain/dashboard/SellPanel.svelte';
 	import SourcesPanel from '../brain/SourcesPanel.svelte';
+	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 	import type { KbSectionKey } from './kbRail';
 	import type { KbWorkbenchData } from '$lib/server/knowledge/kbWorkbenchData';
@@ -23,6 +25,7 @@
 		brains,
 		processMaps,
 		shares,
+		chatbots,
 		workbench,
 		onOutOfCredits
 	}: {
@@ -32,6 +35,7 @@
 		brains: KbBrainSummary[];
 		processMaps: ProcessMapSummary[];
 		shares: KnowledgeBaseShare[];
+		chatbots: ChatbotSummary[];
 		workbench: KbWorkbenchData;
 		onOutOfCredits: () => void;
 	} = $props();
@@ -65,6 +69,10 @@
 {:else if section === 'share'}
 	<div class="min-h-0 flex-1 overflow-y-auto p-4">
 		<KnowledgeBaseSharePanel {shares} />
+	</div>
+{:else if section === 'chatbots'}
+	<div class="min-h-0 flex-1 overflow-y-auto p-4">
+		<ChatbotsPanel {chatbots} />
 	</div>
 {:else if section === 'sell' && primaryBrain !== null}
 	<div class="min-h-0 flex-1 overflow-y-auto">

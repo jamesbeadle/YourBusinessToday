@@ -6,6 +6,7 @@
 	import RailPanel from '../shell/RailPanel.svelte';
 	import { kbRailItemsFor, kbSectionLabel, type KbSectionKey } from './kbRail';
 	import { onMount } from 'svelte';
+	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 	import type { KbWorkbenchData } from '$lib/server/knowledge/kbWorkbenchData';
 	import type { KnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
@@ -18,6 +19,7 @@
 		brains,
 		processMaps,
 		shares,
+		chatbots,
 		workbench
 	}: {
 		knowledgeBase: KnowledgeBase;
@@ -25,6 +27,7 @@
 		brains: KbBrainSummary[];
 		processMaps: ProcessMapSummary[];
 		shares: KnowledgeBaseShare[];
+		chatbots: ChatbotSummary[];
 		workbench: KbWorkbenchData;
 	} = $props();
 
@@ -62,6 +65,7 @@
 					{brains}
 					{processMaps}
 					{shares}
+					{chatbots}
 					{workbench}
 					onOutOfCredits={() => (isOutOfCredits = true)}
 				/>

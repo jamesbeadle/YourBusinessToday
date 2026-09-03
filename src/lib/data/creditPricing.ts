@@ -1,5 +1,6 @@
 export const creditsPerReply = 10;
 export const creditsPerBrainQuestion = 10;
+export const creditsPerChatbotQuestion = creditsPerBrainQuestion;
 export const creditsPerBrainPrune = 25;
 export const creditsPerBrainUnlearn = 50;
 export const creditsPerInterviewReply = 10;

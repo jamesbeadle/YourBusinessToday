@@ -1,4 +1,9 @@
+<script lang="ts">
+	let { next = '' }: { next?: string } = $props();
+</script>
+
 <form method="POST" action="?/signInWithMicrosoft">
+	<input type="hidden" name="next" value={next} />
 	<button
 		type="submit"
 		class="flex w-full items-center justify-center gap-3 rounded-full border border-hairline

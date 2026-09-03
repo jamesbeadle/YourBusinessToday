@@ -1,0 +1,64 @@
+import { error, json } from '@sveltejs/kit';
+import { askChatbot, type ChatbotTurn } from '$lib/server/chatbots/askChatbot';
+import { getChatbot } from '$lib/server/chatbots/getChatbot';
+import { getChatbotBrains } from '$lib/server/chatbots/getChatbotBrains';
+import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
+import { recordChatbotTurn } from '$lib/server/chatbots/recordChatbotTurn';
+import {
+	refundForChatbotQuestion,
+	spendForChatbotQuestion
+} from '$lib/server/chatbots/spendForChatbotQuestion';
+import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
+import type { RequestHandler } from './$types';
+
+const longestQuestion = 1000;
+const longestRememberedExchange = 12;
+
+const refusalMessages = {
+	chatbot_out_of_credits: 'This bot is out of credits — its owner needs to top it up',
+	allowance_exhausted: 'Your allowance for this period is used up',
+	chatbot_paused: 'This bot is paused',
+	not_a_member: "You're not a member of this bot"
+} as const;
+
+export const config = { maxDuration: 300 };
+
+export const POST: RequestHandler = async ({ request, params, locals }) => {
+	const { user } = await locals.safeGetSession();
+	if (user === null) error(401, 'Sign in to ask');
+	const chatbot = await getChatbot(locals.supabase, params.chatbotId);
+	if (chatbot === null) error(404, 'That bot does not exist');
+	const question = readQuestion(await request.json().catch(() => ({})));
+
+	// The spend RPC is the membership check: it runs as the service role
+	// with the member named by the session, so nothing is read or written
+	// on the member's behalf until it has passed.
+	const service = supabaseServiceClient();
+	const spend = await spendForChatbotQuestion(service, chatbot.id, user.id);
+	if (spend === 'not_a_member') error(403, refusalMessages[spend]);
+	if (typeof spend === 'string') error(402, refusalMessages[spend]);
+
+	try {
+		const conversation = await getChatbotConversation(locals.supabase, chatbot.id, user.id);
+		const brains = await getChatbotBrains(service, chatbot.knowledgeBaseId);
+		const priorTurns: ChatbotTurn[] = conversation.messages
+			.slice(-longestRememberedExchange)
+			.map((message) => ({ speaker: message.speaker, text: message.body }));
+		const answer = await askChatbot(service, chatbot.name, brains, [
+			...priorTurns,
+			{ speaker: 'member', text: question }
+		]);
+		await recordChatbotTurn(service, conversation.id, question, answer);
+		return json({ ...answer, allowanceRemaining: spend.allowanceRemaining });
+	} catch (failure) {
+		console.error('Chatbot question failed', failure);
+		await refundForChatbotQuestion(service, chatbot.id, user.id);
+		error(502, 'That question failed — nothing was taken from your allowance');
+	}
+};
+
+function readQuestion(payload: { question?: unknown }): string {
+	const question = typeof payload.question === 'string' ? payload.question.trim() : '';
+	if (question === '') error(400, 'A question is required');
+	return question.slice(0, longestQuestion);
+}

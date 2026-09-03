@@ -11,15 +11,16 @@ export function edgeSeedsOf(model: WorkflowModel, nodes: FlowNode[]): EdgeSeed[]
 	const producers = producersByArtefact(nodes);
 	const seeds: EdgeSeed[] = [];
 	for (const station of stations) {
+		const unfed: string[] = [];
 		for (const input of station.inputs) {
 			const feeders = (producers.get(input.toLowerCase()) ?? []).filter((node) => node.id !== station.id);
-			if (feeders.length === 0) seeds.push(stubSeed(station, input, 'orphan'));
+			if (feeders.length === 0) unfed.push(input);
 			for (const feeder of feeders) seeds.push(feedSeed(model, feeder, station, input));
 		}
-		for (const output of station.outputs) {
-			if (isConsumed(output, stations, station)) continue;
-			if (hasSink(nodes, station)) continue;
-			seeds.push(stubSeed(station, output, 'deadEnd'));
+		if (unfed.length > 0) seeds.push(stubSeed(station, unfed.join(', '), 'orphan'));
+		const unconsumed = station.outputs.filter((output) => !isConsumed(output, stations, station));
+		if (unconsumed.length > 0 && !hasSink(nodes, station)) {
+			seeds.push(stubSeed(station, unconsumed.join(', '), 'deadEnd'));
 		}
 	}
 	for (const sink of nodes.filter((node) => node.kind === 'sink')) {

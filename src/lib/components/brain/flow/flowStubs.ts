@@ -3,11 +3,11 @@ import { GAP_TINT } from './flowPalette';
 import type { EdgeSeed } from './flowEdges';
 import type { FlowEdge, FlowNode } from './flowTypes';
 
-const ORPHAN_STUB = new Vector3(0.12, 0.28, 0.55);
-const DEAD_END_STUB = new Vector3(-0.12, -0.22, -0.55);
+const ORPHAN_STUB = new Vector3(0.1, 0.22, 0.42);
+const DEAD_END_STUB = new Vector3(-0.1, -0.18, -0.42);
 
 export function stubSeed(station: FlowNode, artefact: string, kind: 'orphan' | 'deadEnd'): EdgeSeed {
-	const stubId = `${kind}:${station.id}:${artefact.toLowerCase()}`;
+	const stubId = `${kind}:${station.id}`;
 	return {
 		id: stubId,
 		kind,

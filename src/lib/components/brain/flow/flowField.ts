@@ -1,5 +1,5 @@
 import { Group, IcosahedronGeometry, Mesh, MeshBasicMaterial, Vector3, type Texture } from 'three';
-import { createFlowPathway, type FlowPathway } from './flowPathway';
+import { createFlowPathway, GAP_CONTEXT_KEY, type FlowPathway } from './flowPathway';
 import { createFlowStation, somaRadiusForNode, type FlowStation } from './flowStation';
 import { createLaneDressing } from './laneDressing';
 import { GAP_TINT } from './flowPalette';
@@ -9,6 +9,7 @@ import type { FlowEdge, FlowHover, FlowModel } from './flowTypes';
 
 const SOMA_DETAIL = 6;
 const HIT_DETAIL = 1;
+const GAP_BRIGHTNESS = 0.55;
 
 export type FlowField = {
 	group: Group;
@@ -50,6 +51,7 @@ export function createFlowField(
 		colourFor: (nodeId: string) => nodesById.get(nodeId)?.colour ?? GAP_TINT
 	};
 	const pathways = new Map<string, FlowPathway>();
+	cells.setBrightness(GAP_CONTEXT_KEY, GAP_BRIGHTNESS);
 	for (const edge of model.edges) {
 		const pathway = createFlowPathway(edge, pathwaySupplies);
 		pathways.set(edge.id, pathway);

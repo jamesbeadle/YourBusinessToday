@@ -1,6 +1,6 @@
-import { Color, ShaderMaterial } from 'three';
+import { AdditiveBlending, Color, ShaderMaterial } from 'three';
 import {
-	CELL_SHADING_GLSL,
+	LUMINOUS_GLSL,
 	fogUniforms,
 	type ContextUniforms,
 	type SharedCellUniforms
@@ -8,25 +8,11 @@ import {
 
 const SOMA_VERTEX_SHADER = `
 	#include <fog_pars_vertex>
-	uniform float timeSeconds;
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
-	varying float dimpleShare;
-
-	const float DIMPLE_DEPTH = 0.07;
-	const vec3 COARSE_GRAIN = vec3(7.0, 3.0, 5.0);
-	const vec3 MEDIUM_GRAIN = vec3(-4.0, 9.0, 6.0);
-	const vec3 FINE_GRAIN = vec3(6.0, -5.0, 11.0);
-
-	float organicDimples(vec3 point) {
-		return 0.5 * sin(dot(point, COARSE_GRAIN) + timeSeconds * 0.6)
-			+ 0.3 * sin(dot(point, MEDIUM_GRAIN) - timeSeconds * 0.4)
-			+ 0.2 * sin(dot(point, FINE_GRAIN) + timeSeconds * 0.9);
-	}
 
 	void main() {
-		dimpleShare = organicDimples(position);
-		vec4 modelPoint = vec4(position + normal * (DIMPLE_DEPTH * dimpleShare), 1.0);
+		vec4 modelPoint = vec4(position, 1.0);
 		vec3 modelNormal = normal;
 		#ifdef USE_INSTANCING
 			modelPoint = instanceMatrix * modelPoint;
@@ -42,26 +28,22 @@ const SOMA_VERTEX_SHADER = `
 
 const SOMA_FRAGMENT_SHADER = `
 	#include <fog_pars_fragment>
-	${CELL_SHADING_GLSL}
+	${LUMINOUS_GLSL}
 	uniform vec3 cellColour;
 	uniform float dimShare;
 	uniform float brightness;
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
-	varying float dimpleShare;
 
-	const float DIMPLE_SHADE = 0.16;
-	const float NUCLEUS_TIGHTNESS = 3.5;
-	const float NUCLEUS_BRIGHTNESS = 0.8;
+	const float CORE_SOFTNESS = 0.9;
+	const float CORE_WHITENESS = 0.85;
+	const float CORE_GLOW = 1.1;
 
 	void main() {
 		vec3 normal = faceTowardsEye(normalize(viewNormal));
 		vec3 towardsEye = normalize(-viewPosition);
-		vec3 shaded = shadeCell(cellColour, normal, towardsEye) * (1.0 + DIMPLE_SHADE * dimpleShare);
-		float nucleusShare = pow(max(0.0, dot(normal, towardsEye)), NUCLEUS_TIGHTNESS) * NUCLEUS_BRIGHTNESS;
-		vec3 withNucleus = mix(shaded, vec3(1.0), nucleusShare);
-		gl_FragColor = vec4(withNucleus * brightness, dimShare);
-		#include <fog_fragment>
+		vec4 lit = luminous(cellColour, normal, towardsEye, CORE_SOFTNESS, CORE_WHITENESS, CORE_GLOW * brightness);
+		gl_FragColor = vec4(lit.rgb, lit.a * dimShare);
 		#include <colorspace_fragment>
 	}
 `;
@@ -78,7 +60,10 @@ export class SomaMaterial extends ShaderMaterial {
 			},
 			vertexShader: SOMA_VERTEX_SHADER,
 			fragmentShader: SOMA_FRAGMENT_SHADER,
-			fog: true
+			fog: true,
+			transparent: true,
+			depthWrite: false,
+			blending: AdditiveBlending
 		});
 	}
 }

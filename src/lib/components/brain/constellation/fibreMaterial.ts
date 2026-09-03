@@ -1,4 +1,4 @@
-import { Color, ShaderMaterial } from 'three';
+import { AdditiveBlending, Color, ShaderMaterial } from 'three';
 import { fogUniforms, type ContextUniforms, type SharedCellUniforms } from './cellShading';
 import { FIBRE_FRAGMENT_SHADER, FIBRE_VERTEX_SHADER } from './fibreShaders';
 
@@ -31,7 +31,10 @@ export class FibreMaterial extends ShaderMaterial {
 			},
 			vertexShader: FIBRE_VERTEX_SHADER,
 			fragmentShader: FIBRE_FRAGMENT_SHADER,
-			fog: true
+			fog: true,
+			transparent: true,
+			depthWrite: false,
+			blending: AdditiveBlending
 		});
 	}
 

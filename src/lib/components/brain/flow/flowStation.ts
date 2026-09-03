@@ -6,10 +6,10 @@ import type { MaterialBank } from '../constellation/materialBank';
 import type { CellMaterialBank } from '../constellation/cellMaterialBank';
 import type { FlowNode } from './flowTypes';
 
-const stationProportions: SomaProportions = { somaRadius: 0.08, glowScale: 0.38 };
-const rootProportions: SomaProportions = { somaRadius: 0.06, glowScale: 0.3 };
+const stationProportions: SomaProportions = { somaRadius: 0.03, glowScale: 0.26 };
+const rootProportions: SomaProportions = { somaRadius: 0.024, glowScale: 0.2 };
 const HIT_RADIUS = 0.3;
-const LABEL_LIFT = 0.22;
+const LABEL_LIFT = 0.16;
 const LABEL_SCREEN_HEIGHT = 0.022;
 const IDLE_LABEL_OPACITY = 0.3;
 const LONGEST_LABEL = 26;

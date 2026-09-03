@@ -6,7 +6,7 @@ import type { BrainRegion, RegionNeuron } from './regionTypes';
 
 const NEIGHBOUR_LINK_COUNT = 2;
 const LONGEST_LINK = 0.36;
-const LINK_FIBRE_RADIUS = 0.0035;
+const LINK_FIBRE_RADIUS = 0.002;
 
 export type SomaRadiusFor = (neuron: RegionNeuron) => number;
 

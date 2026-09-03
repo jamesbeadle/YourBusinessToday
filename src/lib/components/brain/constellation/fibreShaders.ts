@@ -1,4 +1,4 @@
-import { CELL_SHADING_GLSL } from './cellShading';
+import { LUMINOUS_GLSL } from './cellShading';
 
 export const FIBRE_VERTEX_SHADER = `
 	#include <fog_pars_vertex>
@@ -12,12 +12,9 @@ export const FIBRE_VERTEX_SHADER = `
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
 	varying float reach;
-	varying float threadShare;
 
 	const float GROWTH_EDGE = 0.08;
-	const float THINNEST_PIXELS = 1.1;
-	const float THREAD_PIXELS = 1.5;
-	const float TUBE_PIXELS = 4.0;
+	const float THINNEST_PIXELS = 1.5;
 	const float SWAY_REACH = 0.012;
 	const vec3 SWAY_GRAIN = vec3(2.1, 2.7, 2.4);
 	const vec3 SWAY_PACE = vec3(0.7, 0.9, 0.8);
@@ -38,11 +35,6 @@ export const FIBRE_VERTEX_SHADER = `
 		return outward * (shownRadius / radius);
 	}
 
-	float threadShareOf(vec3 outward, float pixelSize) {
-		float widthPixels = 2.0 * length(outward) / pixelSize;
-		return 1.0 - smoothstep(THREAD_PIXELS, TUBE_PIXELS, widthPixels);
-	}
-
 	void main() {
 		reach = reachShare;
 		float distanceFromOrigin = mix(reachShare, 1.0 - reachShare, growthOrigin);
@@ -52,7 +44,6 @@ export const FIBRE_VERTEX_SHADER = `
 		vec3 worldSpine = (modelMatrix * vec4(spine, 1.0)).xyz;
 		float pixelSize = pixelSizeAt(modelViewMatrix * vec4(spine, 1.0));
 		vec3 outward = outwardAtLeastAPixel(position - spine, pixelSize);
-		threadShare = threadShareOf(position - spine, pixelSize);
 		vec3 grown = spine + outward * gate + swayAt(worldSpine, swayWeight);
 		vec4 mvPosition = modelViewMatrix * vec4(grown, 1.0);
 		viewPosition = mvPosition.xyz;
@@ -64,21 +55,24 @@ export const FIBRE_VERTEX_SHADER = `
 
 export const FIBRE_FRAGMENT_SHADER = `
 	#include <fog_pars_fragment>
-	${CELL_SHADING_GLSL}
+	${LUMINOUS_GLSL}
 	uniform vec3 rootColour;
 	uniform vec3 spanColour;
 	uniform vec3 tipColour;
 	uniform float dimShare;
 	uniform float brightness;
+	uniform float anchoredAtBothEnds;
 	varying vec3 viewNormal;
 	varying vec3 viewPosition;
 	varying float reach;
-	varying float threadShare;
 
 	const float ROOT_BLEND_END = 0.45;
 	const float TIP_BLEND_START = 0.55;
-	const float THREAD_GLOW = 0.65;
-	const float THREAD_WHITENESS = 0.45;
+	const float FILAMENT_SOFTNESS = 1.4;
+	const float FILAMENT_WHITENESS = 0.22;
+	const float FILAMENT_GLOW = 0.75;
+	const float TIP_FADE_START = 0.4;
+	const float TIP_FADE = 0.75;
 
 	vec3 tintAlong(float share) {
 		vec3 leavingRoot = mix(rootColour, spanColour, smoothstep(0.0, ROOT_BLEND_END, share));
@@ -88,12 +82,11 @@ export const FIBRE_FRAGMENT_SHADER = `
 	void main() {
 		vec3 normal = faceTowardsEye(normalize(viewNormal));
 		vec3 towardsEye = normalize(-viewPosition);
-		vec3 tint = tintAlong(reach);
-		vec3 shaded = shadeCell(tint, normal, towardsEye);
-		vec3 thread = mix(tint, vec3(1.0), THREAD_WHITENESS);
-		vec3 lit = mix(shaded, thread, THREAD_GLOW * threadShare);
-		gl_FragColor = vec4(lit * brightness, dimShare);
-		#include <fog_fragment>
+		float fadingTips = 1.0 - anchoredAtBothEnds;
+		float tipFade = 1.0 - TIP_FADE * fadingTips * smoothstep(TIP_FADE_START, 1.0, reach);
+		float glow = FILAMENT_GLOW * brightness * tipFade;
+		vec4 lit = luminous(tintAlong(reach), normal, towardsEye, FILAMENT_SOFTNESS, FILAMENT_WHITENESS, glow);
+		gl_FragColor = vec4(lit.rgb, lit.a * dimShare);
 		#include <colorspace_fragment>
 	}
 `;

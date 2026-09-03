@@ -1,8 +1,8 @@
-import { CHALK, SIGNAL, kindColours } from './constellationPalette';
+import { HALO, SIGNAL, kindColours } from './constellationPalette';
 import type { ConstellationModel, Nucleus } from './constellationTypes';
 
 export function nucleusColourOf(nucleus: Nucleus): number {
-	return nucleus.isCoreDomain ? SIGNAL : CHALK;
+	return nucleus.isCoreDomain ? SIGNAL : HALO;
 }
 
 export function bodyColoursOf(model: ConstellationModel): Map<string, number> {

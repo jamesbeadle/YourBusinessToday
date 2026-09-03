@@ -4,7 +4,7 @@ import type { PathwaySupplies } from './flowPathway';
 import type { FlowEdge } from './flowTypes';
 
 const SYNAPSE_HIT_RADIUS = 0.16;
-const SYNAPSE_SCALE = 0.22;
+const SYNAPSE_SCALE = 0.14;
 const IDLE_SYNAPSE_OPACITY = 0.55;
 
 export type SynapseBouton = {

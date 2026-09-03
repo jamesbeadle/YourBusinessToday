@@ -1,6 +1,4 @@
-import { UniformsLib, UniformsUtils, Vector3, type IUniform } from 'three';
-
-const KEY_LIGHT_DIRECTION = new Vector3(-0.35, 0.65, 0.68).normalize();
+import { UniformsLib, UniformsUtils, type IUniform } from 'three';
 
 export type SharedCellUniforms = {
 	timeSeconds: IUniform<number>;
@@ -17,30 +15,27 @@ export function fogUniforms(): Record<string, IUniform> {
 	return UniformsUtils.clone(UniformsLib.fog);
 }
 
-export const CELL_SHADING_GLSL = `
-	const vec3 KEY_LIGHT_DIRECTION = ${glslVector3(KEY_LIGHT_DIRECTION)};
-	const float AMBIENT_LIGHT = 0.18;
-	const float KEY_LIGHT = 0.55;
-	const float BACKLIGHT = 0.35;
-	const float RIM_TIGHTNESS = 2.2;
-	const float RIM_LIGHT = 0.95;
-	const float RIM_WHITENESS = 0.6;
-
-	vec3 shadeCell(vec3 cellColour, vec3 viewNormal, vec3 towardsEye) {
-		float lambert = max(0.0, dot(viewNormal, KEY_LIGHT_DIRECTION));
-		float backlit = pow(max(0.0, dot(-viewNormal, KEY_LIGHT_DIRECTION)), 2.0);
-		float facing = max(0.0, dot(viewNormal, towardsEye));
-		float rim = pow(1.0 - facing, RIM_TIGHTNESS);
-		vec3 rimColour = mix(cellColour, vec3(1.0), RIM_WHITENESS);
-		vec3 lit = cellColour * (AMBIENT_LIGHT + KEY_LIGHT * lambert + BACKLIGHT * backlit);
-		return lit + rimColour * (RIM_LIGHT * rim);
+export const LUMINOUS_GLSL = `
+	float fogFade() {
+		#ifdef USE_FOG
+			#ifdef FOG_EXP2
+				return exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
+			#else
+				return 1.0 - smoothstep(fogNear, fogFar, vFogDepth);
+			#endif
+		#else
+			return 1.0;
+		#endif
 	}
 
 	vec3 faceTowardsEye(vec3 viewNormal) {
 		return gl_FrontFacing ? viewNormal : -viewNormal;
 	}
-`;
 
-function glslVector3(vector: Vector3): string {
-	return `vec3(${vector.x.toFixed(5)}, ${vector.y.toFixed(5)}, ${vector.z.toFixed(5)})`;
-}
+	vec4 luminous(vec3 tint, vec3 viewNormal, vec3 towardsEye, float softness, float whiteness, float glow) {
+		float facing = max(0.0, dot(viewNormal, towardsEye));
+		float core = pow(facing, softness);
+		vec3 colour = mix(tint, vec3(1.0), whiteness * core * core);
+		return vec4(colour * (glow * fogFade()), core);
+	}
+`;

@@ -12,7 +12,7 @@ export async function recordConversationTurn(
 ): Promise<void> {
 	const owner = ownerId === undefined ? {} : { owner_id: ownerId };
 	const { error } = await supabase.from('brain_messages').insert([
-		{ conversation_id: conversationId, speaker: 'user', body: question, ...owner },
+		{ conversation_id: conversationId, speaker: 'user', body: question, cited_slugs: [], ...owner },
 		{
 			conversation_id: conversationId,
 			speaker: 'modeller',

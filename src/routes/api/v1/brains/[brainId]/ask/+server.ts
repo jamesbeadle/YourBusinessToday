@@ -8,6 +8,7 @@ import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
 import { refundForApiQuestion, spendForApiQuestion } from '$lib/server/brainApi/spendForApiQuestion';
 import { resolveApiCaller } from '$lib/server/brainApi/resolveApiCaller';
+import { cheapestModelId } from '$lib/data/modelLadder';
 import type { BrainConversationTurn } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
@@ -34,10 +35,16 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		const priorTurns = await rememberedTurns(supabase, conversationId);
 		const contexts = await getBrainContexts(supabase, brain.id);
 		const index = await getBrainPageIndex(supabase, brain.id);
-		const answer = await askModeller(supabase, brain.id, contexts, index, [
-			...priorTurns,
-			{ speaker: 'user', text: question }
-		]);
+		// Fixed 10-credit price, so the API runs on the cheapest rung until it
+		// is metered like session questions (docs/model-pricing.md).
+		const answer = await askModeller(
+			supabase,
+			brain.id,
+			contexts,
+			index,
+			[...priorTurns, { speaker: 'user', text: question }],
+			cheapestModelId
+		);
 		await recordConversationTurn(supabase, conversationId, question, answer, brain.ownerId);
 		await recordBrainEvent(supabase, {
 			brainId: brain.id,

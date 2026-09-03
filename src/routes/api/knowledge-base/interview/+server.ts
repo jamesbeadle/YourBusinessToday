@@ -5,7 +5,9 @@ import {
 	buildInterviewContext,
 	findPrimaryExpertiseBrain
 } from '$lib/server/knowledge/interviewContext';
-import { creditsPerInterviewReply } from '$lib/data/creditPricing';
+import { questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { fileHarvestToKnowledgeBase } from '$lib/server/agent/fileHarvestedKnowledge';
 import { getKnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
 import { spendCredits } from '$lib/server/credits/spendCredits';
@@ -24,7 +26,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const knowledgeBase = await getKnowledgeBase(locals.supabase, knowledgeBaseId);
 	if (knowledgeBase === null) error(404, 'That knowledge base could not be found');
 
-	const spend = await spendCredits(locals.supabase, creditsPerInterviewReply, 'kb_interview');
+	const reserve = questionFloorCreditsFor(await resolveRequestModel());
+	const spend = await spendCredits(locals.supabase, reserve, 'kb_interview');
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
@@ -40,7 +43,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	return json({
 		reply: turn.reply,
 		harvestedCount: turn.harvest.expertiseFacts.length + turn.harvest.experienceEvents.length,
-		creditBalance: spend.creditBalance
+		creditBalance: (await settleQuestionUsage(user.id, reserve, 'kb_interview')) ?? spend.creditBalance
 	});
 };
 

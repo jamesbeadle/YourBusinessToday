@@ -1,6 +1,8 @@
+import { rungFor } from './modelLadder';
+import type { AnthropicUsage, MeteredCall } from './anthropicUsage';
+
 export const creditsPerReply = 10;
 export const creditsPerBrainQuestion = 10;
-export const creditsPerChatbotQuestion = creditsPerBrainQuestion;
 export const creditsPerBrainPrune = 25;
 export const creditsPerBrainUnlearn = 50;
 export const creditsPerInterviewReply = 10;
@@ -13,6 +15,21 @@ const ingestCreditsPerExtraBlock = 10;
 const tradeTalkIncludedPages = 5;
 const tradeTalkCreditsPerExtraPage = 2;
 const harvestCreditsPerItem = 2;
+
+/**
+ * Model-priced questions. A credit is valued at the CHEAPEST pack rate
+ * (Scale: £12.99 for 3,000) so the margin holds whichever pack the buyer
+ * chose; costMarkup is the multiple of Anthropic's bill a question must
+ * return — James's floor is "100% on top", 3× leaves room for Stripe fees
+ * and refunded failures. Cache reads bill at a tenth of input, cache
+ * writes at a quarter more, per Anthropic's published rates.
+ */
+export const creditValuePence = 12.99 * 100 / 3000;
+export const usdToGbp = 0.74;
+export const costMarkup = 3;
+const cacheReadInputShare = 0.1;
+const cacheWriteInputShare = 1.25;
+const tokensPerMillion = 1_000_000;
 
 /**
  * Dynamic pricing: costs scale with the work a job actually causes — bytes
@@ -36,4 +53,29 @@ export function tradeTalkDepthCreditsFor(pagesRead: number): number {
 
 export function formatPenceAsPounds(pence: number): string {
 	return `£${(pence / 100).toFixed(2)}`;
+}
+
+export function questionFloorCreditsFor(modelId: string): number {
+	return rungFor(modelId).floorCredits;
+}
+
+export function usageCostPence(modelId: string, usage: AnthropicUsage): number {
+	const rung = rungFor(modelId);
+	const inputTokens =
+		usage.inputTokens +
+		usage.cacheReadTokens * cacheReadInputShare +
+		usage.cacheWriteTokens * cacheWriteInputShare;
+	const usd =
+		(inputTokens / tokensPerMillion) * rung.inputUsdPerMillionTokens +
+		(usage.outputTokens / tokensPerMillion) * rung.outputUsdPerMillionTokens;
+	return usd * usdToGbp * 100;
+}
+
+// What a finished question owes: the tier floor, or the marked-up bill if
+// that is higher — never less than the floor, so every call clears cost.
+export function questionCreditsFor(calls: MeteredCall[]): number {
+	if (calls.length === 0) return 0;
+	const billPence = calls.reduce((total, call) => total + usageCostPence(call.modelId, call.usage), 0);
+	const markedUp = Math.ceil((billPence * costMarkup) / creditValuePence);
+	return Math.max(questionFloorCreditsFor(calls[0].modelId), markedUp);
 }

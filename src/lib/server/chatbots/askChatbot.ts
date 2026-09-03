@@ -16,17 +16,18 @@ const maxAnswerTokens = 4000;
 
 export async function askChatbot(
 	supabase: SupabaseClient,
-	chatbotName: string,
+	chatbot: { name: string; modelId: string },
 	brains: ChatbotBrainModel[],
 	turns: ChatbotTurn[]
 ): Promise<ChatbotAnswer> {
-	const system = `${chatbotQueryPrompt(chatbotName)}\n\n## The knowledge base\n\n${renderChatbotIndex(brains)}`;
+	const system = `${chatbotQueryPrompt(chatbot.name)}\n\n## The knowledge base\n\n${renderChatbotIndex(brains)}`;
 	const messages = messagesFromTurns(turns);
 	const firstResponse = await requestAnthropic({
 		system,
 		messages,
 		tools: [readPagesTool, answerTool],
-		maxTokens: maxAnswerTokens
+		maxTokens: maxAnswerTokens,
+		model: chatbot.modelId
 	});
 	const hasImmediateAnswer = toolUseNamed(firstResponse.content, answerTool.name) !== undefined;
 	const readRequests = hasImmediateAnswer
@@ -40,7 +41,8 @@ export async function askChatbot(
 		messages,
 		tools: [readPagesTool, answerTool],
 		forcedToolName: answerTool.name,
-		maxTokens: maxAnswerTokens
+		maxTokens: maxAnswerTokens,
+		model: chatbot.modelId
 	});
 	return answerFrom(secondResponse.content);
 }

@@ -82,7 +82,7 @@ The bot's brains are *not* stored: they are `kb_brains where category = 'domain'
 3. `askChatbot(service, brains, turns)` is the Hive Mind loop over live brains: one system prompt rendering each brain's model index under a handle (`slugified kb_brain name + 4 hex of id`), page keys `handle/slug`, `readPagesTool` then a forced `answerTool`. Page reads group requested keys by handle and call `getBrainPagesBySlugs` per brain. The last 12 messages of the conversation are remembered, as elsewhere.
 4. Record the turn in `chatbot_conversations` / `chatbot_messages` (service client, ids supplied explicitly), return `{ conversationId, answerMarkdown, citedPageKeys, allowanceRemaining, poolRemaining }`. On failure `refund_for_chatbot_question(chatbot)` reverses step 1 and the endpoint returns 502 with the usual "credits refunded" line.
 
-`creditsPerChatbotQuestion` lives in `creditPricing.ts` and equals `creditsPerBrainQuestion`; both RPCs read the price as an argument so the constant has one home.
+Pricing moved to the model ladder on 2026-09-03: the reserve is the floor of the member's effective model (member override or the bot's `model_id`) and the answer settles against the pool through `settle_chatbot_question` — see docs/model-pricing.md.
 
 ## 6. Files
 

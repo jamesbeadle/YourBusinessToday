@@ -27,6 +27,7 @@
 				<tr>
 					<th class="py-2 font-normal">Email</th>
 					<th class="py-2 font-normal">Status</th>
+					<th class="py-2 font-normal">Model</th>
 					<th class="py-2 text-right font-normal">Allowance</th>
 					<th class="py-2 text-right font-normal">Spent</th>
 					<th class="py-2"></th>

@@ -1,8 +1,9 @@
 import { env } from '$env/dynamic/private';
 import { anthropicMessagesUrl, anthropicVersion } from './anthropicConstants';
-import { getSiteModel } from './getSiteModel';
-import { requestModelOverride } from './modelContext';
+import { recordMeteredCall } from './modelContext';
+import { resolveRequestModel } from './resolveRequestModel';
 import type { AnthropicMessage, AnthropicResponse, AnthropicTool } from './anthropicTypes';
+import type { AnthropicUsage } from '$lib/data/anthropicUsage';
 
 const failureDetailLimit = 300;
 
@@ -12,12 +13,16 @@ export type AnthropicRequest = {
 	tools: AnthropicTool[];
 	maxTokens: number;
 	forcedToolName?: string;
+	// Pins the model for callers that answer on someone else's behalf (a
+	// chatbot member's question runs on the bot's model, not the caller's).
+	model?: string;
 };
 
 export async function requestAnthropic(request: AnthropicRequest): Promise<AnthropicResponse> {
 	if ((env.ANTHROPIC_API_KEY ?? '') === '') {
 		throw new Error('ANTHROPIC_API_KEY is not set — add it to .env');
 	}
+	const model = request.model ?? (await resolveRequestModel());
 	const response = await fetch(anthropicMessagesUrl, {
 		method: 'POST',
 		headers: {
@@ -26,7 +31,7 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 			'anthropic-version': anthropicVersion
 		},
 		body: JSON.stringify({
-			model: (await requestModelOverride()) ?? (await getSiteModel()),
+			model,
 			max_tokens: request.maxTokens,
 			system: request.system,
 			tools: request.tools,
@@ -35,7 +40,18 @@ export async function requestAnthropic(request: AnthropicRequest): Promise<Anthr
 		})
 	});
 	if (!response.ok) throw new Error(await describeFailure(response));
-	return response.json();
+	const answer: AnthropicResponse = await response.json();
+	recordMeteredCall({ modelId: model, usage: usageFrom(answer) });
+	return answer;
+}
+
+function usageFrom(answer: AnthropicResponse): AnthropicUsage {
+	return {
+		inputTokens: answer.usage?.input_tokens ?? 0,
+		outputTokens: answer.usage?.output_tokens ?? 0,
+		cacheReadTokens: answer.usage?.cache_read_input_tokens ?? 0,
+		cacheWriteTokens: answer.usage?.cache_creation_input_tokens ?? 0
+	};
 }
 
 async function describeFailure(response: Response): Promise<string> {

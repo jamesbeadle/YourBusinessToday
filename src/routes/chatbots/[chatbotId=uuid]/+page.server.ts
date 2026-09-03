@@ -23,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	}
 	return {
 		chatbot,
-		membership: await getChatbotMembership(locals.supabase, chatbot.id, user.id),
+		membership: await getChatbotMembership(locals.supabase, chatbot.id, user.id, chatbot.modelId),
 		conversation: await getChatbotConversation(locals.supabase, chatbot.id, user.id)
 	};
 };

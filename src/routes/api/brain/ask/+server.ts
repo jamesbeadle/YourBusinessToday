@@ -7,9 +7,12 @@ import { getConversationMessages } from '$lib/server/brain/getBrainConversation'
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
-import { refundForBrainQuestion, spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
 import type { BrainConversationTurn } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { refundCredits, spendCredits } from '$lib/server/credits/spendCredits';
+import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
@@ -24,7 +27,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const question = readQuestion(payload);
 	const brain = await getDomainBrain(locals.supabase, readBrainId(payload));
 	if (brain === null) error(404, 'That expertise brain could not be found');
-	const spend = await spendForBrainQuestion(locals.supabase);
+	const reserve = questionFloorCreditsFor(await resolveRequestModel());
+	const spend = await spendCredits(locals.supabase, reserve, 'brain_question');
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
@@ -48,10 +52,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 				conversationId
 			}
 		});
-		return json({ conversationId, ...answer, creditBalance: spend.creditBalance });
+		const settledBalance = await settleQuestionUsage(user.id, reserve, 'brain_question');
+		return json({ conversationId, ...answer, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain question failed', failure);
-		await refundForBrainQuestion(locals.supabase);
+		await refundCredits(locals.supabase, reserve, 'brain_question');
 		error(502, `That question failed (credits refunded): ${questionFailureSummary(failure)}`);
 	}
 };

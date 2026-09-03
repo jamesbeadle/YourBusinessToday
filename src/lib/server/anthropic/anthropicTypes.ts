@@ -8,9 +8,18 @@ export type AnthropicMessage = { role: 'user' | 'assistant'; content: unknown };
 
 export type AnthropicTool = { name: string; description: string; input_schema: unknown };
 
+export type AnthropicUsageBlock = {
+	input_tokens?: number;
+	output_tokens?: number;
+	cache_read_input_tokens?: number;
+	cache_creation_input_tokens?: number;
+};
+
 export type AnthropicResponse = {
+	model: string;
 	content: AnthropicContentBlock[];
 	stop_reason: string;
+	usage?: AnthropicUsageBlock;
 };
 
 export function textFrom(response: AnthropicResponse): string {

@@ -3,12 +3,16 @@
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import ModelSlider from '$lib/components/site/ModelSlider.svelte';
+	import { rungFor } from '$lib/data/modelLadder';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 
 	let { chatbot }: { chatbot: ChatbotSummary } = $props();
 
 	const renameTracker = new FormTracker();
+	const modelTracker = new FormTracker();
+	let chosenModel = $state(chatbot.modelId);
 	let isDeleteModalOpen = $state(false);
 </script>
 
@@ -33,6 +37,30 @@
 			<SubmitButton isSaving={renameTracker.isSaving}>Rename</SubmitButton>
 		</div>
 		<FormErrorNote message={renameTracker.errorMessage} />
+	</form>
+	<form
+		method="POST"
+		action="?/setModel"
+		use:enhance={modelTracker.submit()}
+		class="flex flex-col gap-3 border-t border-hairline pt-5"
+	>
+		<div class="flex flex-col gap-1">
+			<h3 class="font-display text-sm text-chalk">Model</h3>
+			<p class="text-xs leading-relaxed text-chalk/60">
+				What the bot answers with. Each question reserves the model's floor from the pool and
+				settles to what the answer actually cost; you can override it per member in the table.
+			</p>
+		</div>
+		<ModelSlider bind:modelId={chosenModel} />
+		<FormErrorNote message={modelTracker.errorMessage} />
+		<SubmitButton
+			isSaving={modelTracker.isSaving}
+			disabled={rungFor(chosenModel).modelId === rungFor(chatbot.modelId).modelId}
+			class="self-start rounded-full bg-go px-5 py-2 font-display text-sm font-medium text-night
+				transition hover:brightness-110 disabled:opacity-40"
+		>
+			Save model
+		</SubmitButton>
 	</form>
 	<div class="flex flex-col gap-2 border-t border-hairline pt-5">
 		<h3 class="font-display text-sm text-signal">Delete this chatbot</h3>

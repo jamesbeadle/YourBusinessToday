@@ -7,7 +7,10 @@ import { getLatestConversationId } from '$lib/server/brain/getBrainConversation'
 import { getLatestDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
-import { spendForBrainQuestion } from '$lib/server/brain/spendForBrainWork';
+import { questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import type { FaceChatTurn } from '$lib/data/faceChatTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
@@ -24,7 +27,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const turns = await readTurns(request);
 	const brain = await getLatestDomainBrain(locals.supabase);
 	if (brain === null) error(404, 'Create an expertise brain in your knowledge base first');
-	const spend = await spendForBrainQuestion(locals.supabase);
+	const reserve = questionFloorCreditsFor(await resolveRequestModel());
+	const spend = await spendCredits(locals.supabase, reserve, 'brain_question');
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
@@ -48,7 +52,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			askedThrough: 'face'
 		}
 	});
-	return json({ ...spoken, creditBalance: spend.creditBalance });
+	const settledBalance = await settleQuestionUsage(user.id, reserve, 'brain_question');
+	return json({ ...spoken, creditBalance: settledBalance ?? spend.creditBalance });
 };
 
 async function faceConversationId(supabase: SupabaseClient, brainId: string): Promise<string> {

@@ -3,9 +3,13 @@ import { askChatbot, type ChatbotTurn } from '$lib/server/chatbots/askChatbot';
 import { getChatbot } from '$lib/server/chatbots/getChatbot';
 import { getChatbotBrains } from '$lib/server/chatbots/getChatbotBrains';
 import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
+import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership';
+import { meteredCallsSoFar } from '$lib/server/anthropic/modelContext';
+import { questionCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
 import { recordChatbotTurn } from '$lib/server/chatbots/recordChatbotTurn';
 import {
 	refundForChatbotQuestion,
+	settleChatbotQuestion,
 	spendForChatbotQuestion
 } from '$lib/server/chatbots/spendForChatbotQuestion';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
@@ -29,12 +33,15 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 	const chatbot = await getChatbot(locals.supabase, params.chatbotId);
 	if (chatbot === null) error(404, 'That bot does not exist');
 	const question = readQuestion(await request.json().catch(() => ({})));
+	const membership = await getChatbotMembership(locals.supabase, chatbot.id, user.id, chatbot.modelId);
+	if (membership === null) error(403, refusalMessages.not_a_member);
 
-	// The spend RPC is the membership check: it runs as the service role
-	// with the member named by the session, so nothing is read or written
-	// on the member's behalf until it has passed.
+	// The spend RPC is the membership check proper: it runs as the service
+	// role with the member named by the session, so nothing is read or
+	// written on the member's behalf until it has passed.
 	const service = supabaseServiceClient();
-	const spend = await spendForChatbotQuestion(service, chatbot.id, user.id);
+	const reserve = questionFloorCreditsFor(membership.modelId);
+	const spend = await spendForChatbotQuestion(service, chatbot.id, user.id, reserve);
 	if (spend === 'not_a_member') error(403, refusalMessages[spend]);
 	if (typeof spend === 'string') error(402, refusalMessages[spend]);
 
@@ -44,15 +51,23 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 		const priorTurns: ChatbotTurn[] = conversation.messages
 			.slice(-longestRememberedExchange)
 			.map((message) => ({ speaker: message.speaker, text: message.body }));
-		const answer = await askChatbot(service, chatbot.name, brains, [
-			...priorTurns,
-			{ speaker: 'member', text: question }
-		]);
+		const answer = await askChatbot(
+			service,
+			{ name: chatbot.name, modelId: membership.modelId },
+			brains,
+			[...priorTurns, { speaker: 'member', text: question }]
+		);
 		await recordChatbotTurn(service, conversation.id, question, answer);
-		return json({ ...answer, allowanceRemaining: spend.allowanceRemaining });
+		const owed = questionCreditsFor(meteredCallsSoFar());
+		const settled = await settleChatbotQuestion(service, chatbot.id, user.id, owed - reserve);
+		return json({
+			...answer,
+			creditsCharged: reserve + settled,
+			allowanceRemaining: spend.allowanceRemaining - settled
+		});
 	} catch (failure) {
 		console.error('Chatbot question failed', failure);
-		await refundForChatbotQuestion(service, chatbot.id, user.id);
+		await refundForChatbotQuestion(service, chatbot.id, user.id, reserve);
 		error(502, 'That question failed — nothing was taken from your allowance');
 	}
 };

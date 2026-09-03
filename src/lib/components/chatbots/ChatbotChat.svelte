@@ -5,7 +5,8 @@
 	import ChatbotMessageBubble from './ChatbotMessageBubble.svelte';
 	import ChatbotQuietState from './ChatbotQuietState.svelte';
 	import { askChatbotEndpoint } from './chatbotAsk';
-	import { creditsPerChatbotQuestion } from '$lib/data/creditPricing';
+	import { questionFloorCreditsFor } from '$lib/data/creditPricing';
+	import { rungFor } from '$lib/data/modelLadder';
 	import type { ChatbotMembership, ChatbotSpeaker, ChatbotSummary } from '$lib/data/chatbotTypes';
 	import type { ChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
 
@@ -20,6 +21,9 @@
 	} = $props();
 
 	type Line = { id: string; speaker: ChatbotSpeaker; body: string };
+
+	const creditsPerChatbotQuestion = questionFloorCreditsFor(membership.modelId);
+	const modelName = rungFor(membership.modelId).name;
 
 	let lines = $state<Line[]>(
 		conversation.messages.map((message) => ({
@@ -77,14 +81,17 @@
 
 <div class="mx-auto flex h-[calc(100dvh-3.5rem)] w-full max-w-3xl flex-col">
 	<header class="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
-		<h1 class="truncate font-display text-lg font-medium">{chatbot.name}</h1>
+		<div class="flex min-w-0 flex-col">
+			<h1 class="truncate font-display text-lg font-medium">{chatbot.name}</h1>
+			<p class="text-xs text-chalk/50">Claude {modelName} · from {creditsPerChatbotQuestion} credits a question</p>
+		</div>
 		<ChatbotAllowancePill {remaining} allowance={membership.allowanceCredits} />
 	</header>
 	<div bind:this={threadElement} class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
 		{#if lines.length === 0}
 			<p class="text-sm text-chalk/40">
-				Ask {chatbot.name} anything its knowledge base might know. Each question uses
-				{creditsPerChatbotQuestion} credits of your allowance.
+				Ask {chatbot.name} anything its knowledge base might know. Each question uses at least
+				{creditsPerChatbotQuestion} credits of your allowance — longer answers a little more.
 			</p>
 		{/if}
 		{#each lines as line (line.id)}

@@ -10,7 +10,7 @@ export async function recordChatbotTurn(
 	answer: ChatbotAnswer
 ): Promise<void> {
 	const { error } = await supabase.from('chatbot_messages').insert([
-		{ conversation_id: conversationId, speaker: 'member', body: question },
+		{ conversation_id: conversationId, speaker: 'member', body: question, cited_page_keys: [] },
 		{
 			conversation_id: conversationId,
 			speaker: 'bot',

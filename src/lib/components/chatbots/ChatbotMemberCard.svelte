@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MemberModelSelect from './MemberModelSelect.svelte';
 	import RemoveMemberButton from './RemoveMemberButton.svelte';
 	import type { ChatbotMember } from '$lib/data/chatbotTypes';
 
@@ -12,6 +13,9 @@
 	</div>
 	<div class="flex items-center justify-between gap-2 font-mono text-xs text-chalk/70">
 		<span>{member.spentCredits} of {member.allowanceCredits} credits spent</span>
-		<RemoveMemberButton memberId={member.id} />
+		<span class="flex items-center gap-2">
+			<MemberModelSelect memberId={member.id} modelId={member.modelId} />
+			<RemoveMemberButton memberId={member.id} />
+		</span>
 	</div>
 </div>

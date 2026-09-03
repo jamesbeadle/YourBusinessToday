@@ -5,6 +5,7 @@ export type ChatbotSummary = {
 	name: string;
 	poolCredits: number;
 	isPaused: boolean;
+	modelId: string;
 	memberCount: number;
 	createdAt: string;
 };
@@ -13,6 +14,7 @@ export type ChatbotMember = {
 	id: string;
 	invitedEmail: string;
 	hasJoined: boolean;
+	modelId: string | null;
 	allowanceCredits: number;
 	spentCredits: number;
 	joinedAt: string | null;
@@ -27,6 +29,8 @@ export type ChatbotTopUp = {
 export type ChatbotMembership = {
 	allowanceCredits: number;
 	spentCredits: number;
+	// The member's override, or the bot's own model when there is none.
+	modelId: string;
 };
 
 export type ChatbotSpeaker = 'member' | 'bot';

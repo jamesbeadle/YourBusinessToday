@@ -9,7 +9,13 @@ import {
 } from '$lib/server/hive/spendForHiveMindQuestion';
 import { spendCredits } from '$lib/server/credits/spendCredits';
 import { splitHiveMindEarnings } from '$lib/server/hive/splitHiveMindEarnings';
-import { tradeTalkDepthCreditsFor } from '$lib/data/creditPricing';
+import {
+	creditsPerTradeTalkQuestion,
+	questionFloorCreditsFor,
+	tradeTalkDepthCreditsFor
+} from '$lib/data/creditPricing';
+import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import type { HiveContributor, HiveMember } from '$lib/data/hiveTypes';
 import type { HiveEarningsShare } from '$lib/server/hive/splitHiveMindEarnings';
 import type { RequestHandler } from './$types';
@@ -27,6 +33,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const spend = await spendForHiveMindQuestion(locals.supabase);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
+	const reserve = await reserveModelFloor(locals);
 
 	try {
 		const specialists = await getHiveModelIndex(locals.supabase, members);
@@ -40,10 +47,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			consultation.citedPageKeys,
 			shares
 		);
+		const usageBalance = await settleQuestionUsage(user.id, reserve, 'hive_mind_question');
 		return json({
 			answerMarkdown: consultation.answerMarkdown,
 			contributors: contributorsFrom(members, shares),
-			creditBalance: depthBalance ?? spend.creditBalance
+			creditBalance: usageBalance ?? depthBalance ?? spend.creditBalance
 		});
 	} catch (failure) {
 		console.error('Hive Mind question failed', failure);
@@ -51,6 +59,18 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		error(502, 'That question failed — your credits have been refunded');
 	}
 };
+
+// spend_for_hive_mind_question takes the fixed 25 (12 of it the specialists'
+// pool); a dearer model tops the reserve up to its floor under the same reason.
+async function reserveModelFloor(locals: App.Locals): Promise<number> {
+	const floor = questionFloorCreditsFor(await resolveRequestModel());
+	const topUp = floor - creditsPerTradeTalkQuestion;
+	if (topUp <= 0) return creditsPerTradeTalkQuestion;
+	const spend = await spendCredits(locals.supabase, topUp, 'hive_mind_question');
+	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
+	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
+	return floor;
+}
 
 async function chargeForDepth(
 	locals: App.Locals,

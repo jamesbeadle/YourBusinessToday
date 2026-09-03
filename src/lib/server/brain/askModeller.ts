@@ -20,7 +20,10 @@ export async function askModeller(
 	brainId: string,
 	contexts: BrainContext[],
 	index: BrainPageSummary[],
-	turns: BrainConversationTurn[]
+	turns: BrainConversationTurn[],
+	// Pins the model for callers with no session to resolve one (the bearer
+	// API), so a dear site model never runs at a fixed cheap price.
+	model?: string
 ): Promise<BrainAnswer> {
 	const system = `${modellerQueryPrompt}\n\n## Model index\n\n${renderDomainModelIndex(contexts, index)}`;
 	const messages = messagesFromTurns(turns);
@@ -28,7 +31,8 @@ export async function askModeller(
 		system,
 		messages,
 		tools: [readPagesTool, answerTool],
-		maxTokens: maxAnswerTokens
+		maxTokens: maxAnswerTokens,
+		model
 	});
 	const hasImmediateAnswer = toolUseNamed(firstResponse.content, answerTool.name) !== undefined;
 	const readRequests = hasImmediateAnswer
@@ -44,7 +48,8 @@ export async function askModeller(
 		messages,
 		tools: [readPagesTool, answerTool],
 		forcedToolName: answerTool.name,
-		maxTokens: maxAnswerTokens
+		maxTokens: maxAnswerTokens,
+		model
 	});
 	return parseBrainAnswer(toolUseNamed(secondResponse.content, answerTool.name)?.input);
 }

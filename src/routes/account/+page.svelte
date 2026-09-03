@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
+	import ModelChoicePanel from '$lib/components/account/ModelChoicePanel.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
 	import PayoutDetailsPanel from '$lib/components/account/PayoutDetailsPanel.svelte';
@@ -68,6 +69,7 @@
 			Top up
 		</a>
 	</div>
+	<ModelChoicePanel modelId={data.modelId} adminPinnedModel={data.adminPinnedModel} />
 	<RevenueSharePanel earnings={data.tradeTalkEarnings} />
 	<PayoutDetailsPanel payoutDetails={data.payoutDetails} />
 	<PurchaseHistoryTable purchases={data.purchases} />

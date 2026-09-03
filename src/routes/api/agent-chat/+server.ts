@@ -1,6 +1,8 @@
 import { error, json } from '@sveltejs/kit';
 import { fileHarvestedKnowledge } from '$lib/server/agent/fileHarvestedKnowledge';
-import { harvestCreditsFor } from '$lib/data/creditPricing';
+import { creditsPerReply, harvestCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
 import { getLatestWorkflowMap } from '$lib/server/maps/getLatestWorkflowMap';
 import { getSessionConversation } from '$lib/server/agent/getSessionConversation';
@@ -23,6 +25,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const spend = await spendForAgentReply(locals.supabase, sessionId);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
+	const reserve = await reserveModelFloor(locals);
 
 	await recordAgentMessage(locals.supabase, {
 		sessionId,
@@ -46,13 +49,26 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	}
 	await fileHarvestedKnowledge(locals.supabase, workflow.entityId, agentTurn.harvest);
 	await chargeForHarvest(locals, agentTurn.harvest);
+	const usageBalance = await settleQuestionUsage(user.id, reserve, 'agent_reply');
 
 	return json({
 		reply: agentTurn.reply,
 		map: agentTurn.map,
-		creditBalance: spend.creditBalance
+		creditBalance: usageBalance ?? spend.creditBalance
 	});
 };
+
+// spend_for_agent_reply takes the fixed 10; a dearer model tops the reserve
+// up to its floor under the same reason, so settlement measures from the floor.
+async function reserveModelFloor(locals: App.Locals): Promise<number> {
+	const floor = questionFloorCreditsFor(await resolveRequestModel());
+	const topUp = floor - creditsPerReply;
+	if (topUp <= 0) return creditsPerReply;
+	const spend = await spendCredits(locals.supabase, topUp, 'agent_reply');
+	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
+	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
+	return floor;
+}
 
 async function chargeForHarvest(
 	locals: App.Locals,

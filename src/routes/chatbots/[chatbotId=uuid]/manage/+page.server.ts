@@ -8,7 +8,9 @@ import { removeChatbotMember } from '$lib/server/chatbots/removeChatbotMember';
 import { topUpChatbot } from '$lib/server/chatbots/topUpChatbot';
 import { updateChatbot } from '$lib/server/chatbots/updateChatbot';
 import { parseAllowances, parseCredits } from '$lib/server/chatbots/parseTopUpForm';
+import { isLadderModel } from '$lib/data/modelLadder';
 import { requireUser } from '$lib/server/auth/requireUser';
+import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
 import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -47,6 +49,28 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const isPaused = String(formData.get('isPaused')) === 'true';
 		await updateChatbot(locals.supabase, chatbot.id, { isPaused });
+	},
+	setModel: async ({ locals, params, request }) => {
+		const user = await requireUser(locals);
+		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const formData = await request.formData();
+		const modelId = String(formData.get('modelId') ?? '');
+		if (!isLadderModel(modelId)) return fail(400, { message: 'Pick a model from the slider.' });
+		await updateChatbot(locals.supabase, chatbot.id, { modelId });
+	},
+	setMemberModel: async ({ locals, params, request }) => {
+		const user = await requireUser(locals);
+		await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const formData = await request.formData();
+		const modelId = String(formData.get('modelId') ?? '');
+		if (modelId !== '' && !isLadderModel(modelId)) {
+			return fail(400, { message: 'That is not a model on the ladder.' });
+		}
+		await setMemberModel(
+			locals.supabase,
+			String(formData.get('memberId') ?? ''),
+			modelId === '' ? null : modelId
+		);
 	},
 	deleteChatbot: async ({ locals, params }) => {
 		const user = await requireUser(locals);

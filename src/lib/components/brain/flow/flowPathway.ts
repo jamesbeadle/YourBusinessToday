@@ -18,12 +18,14 @@ import type { FlowEdge, FlowEdgeKind } from './flowTypes';
 
 const RADIAL_SEGMENTS = 6;
 const PULSE_SAMPLE_COUNT = 40;
-const STUB_END_RADIUS = 0.015;
+const STUB_END_RADIUS = 0.012;
+export const FLOW_CONTEXT_KEY = 'flow';
+export const GAP_CONTEXT_KEY = 'gaps';
 const FIBRE_RADIUS_BY_KIND: Record<FlowEdgeKind, number> = {
 	flow: 0.009,
 	handover: 0.011,
-	deadEnd: 0.005,
-	orphan: 0.005
+	deadEnd: 0.004,
+	orphan: 0.004
 };
 
 export type FlowPathway = {
@@ -60,7 +62,8 @@ export function createFlowPathway(edge: FlowEdge, supplies: PathwaySupplies): Fl
 	});
 	const geometry = fibreGeometryFrom(path, RADIAL_SEGMENTS);
 	const tints = pathwayTints(edge, supplies.colourFor(edge.fromId), supplies.colourFor(edge.toId));
-	const fibre = new Mesh(geometry, supplies.cells.axonFor(edge.id, tints, 'flow'));
+	const contextKey = edge.kind === 'orphan' || edge.kind === 'deadEnd' ? GAP_CONTEXT_KEY : FLOW_CONTEXT_KEY;
+	const fibre = new Mesh(geometry, supplies.cells.axonFor(edge.id, tints, contextKey));
 	const pulsePoints = new CatmullRomCurve3(path.points).getSpacedPoints(PULSE_SAMPLE_COUNT);
 	const group = new Group();
 	group.add(fibre);

@@ -6,12 +6,13 @@ import type { MaterialBank } from '../constellation/materialBank';
 import type { CellMaterialBank } from '../constellation/cellMaterialBank';
 import type { FlowNode } from './flowTypes';
 
-const stationProportions: SomaProportions = { somaRadius: 0.1, glowScale: 0.42 };
+const stationProportions: SomaProportions = { somaRadius: 0.08, glowScale: 0.38 };
 const rootProportions: SomaProportions = { somaRadius: 0.06, glowScale: 0.3 };
 const HIT_RADIUS = 0.3;
 const LABEL_LIFT = 0.22;
 const LABEL_SCREEN_HEIGHT = 0.022;
-const IDLE_LABEL_OPACITY = 0.4;
+const IDLE_LABEL_OPACITY = 0.3;
+const LONGEST_LABEL = 26;
 const INFERRED_BRIGHTNESS = 0.5;
 const TWINKLE_SHARE = 0.1;
 const TWINKLE_SPEED = 1.6;
@@ -33,6 +34,11 @@ export type StationSupplies = {
 	bank: MaterialBank;
 	cells: CellMaterialBank;
 };
+
+function shortened(name: string): string {
+	if (name.length <= LONGEST_LABEL) return name;
+	return `${name.slice(0, LONGEST_LABEL - 1).trimEnd()}…`;
+}
 
 export function proportionsFor(node: FlowNode): SomaProportions {
 	return node.kind === 'station' ? stationProportions : rootProportions;
@@ -60,7 +66,7 @@ export function createFlowStation(node: FlowNode, supplies: StationSupplies): Fl
 	});
 	if (node.isInferred) supplies.cells.setBrightness(contextKey, INFERRED_BRIGHTNESS);
 
-	const label = createTextSprite(node.name.toUpperCase(), asCssColour(CHALK), LABEL_SCREEN_HEIGHT);
+	const label = createTextSprite(shortened(node.name).toUpperCase(), asCssColour(CHALK), LABEL_SCREEN_HEIGHT);
 	label.position.copy(node.position).add(new Vector3(0, LABEL_LIFT, 0));
 	label.material.opacity = IDLE_LABEL_OPACITY;
 

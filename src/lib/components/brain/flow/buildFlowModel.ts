@@ -1,6 +1,7 @@
 import { Vector3 } from 'three';
 import { edgeSeedsOf, placedEdge } from './flowEdges';
-import { depthsOf, laneCentres, placeNodes } from './flowLayout';
+import { depthsOf } from './flowDepths';
+import { laneCentres, placeNodes } from './flowLayout';
 import { laneHueAt, SINK_TINT, SOURCE_TINT } from './flowPalette';
 import type { WorkflowModel, WorkflowRole, WorkflowTask } from '$lib/data/workflowModel';
 import type { FlowLane, FlowModel, FlowNode } from './flowTypes';

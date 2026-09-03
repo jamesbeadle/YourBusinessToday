@@ -1,4 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
+import { createChatbot } from '$lib/server/chatbots/createChatbot';
+import { getChatbotsForKnowledgeBase } from '$lib/server/chatbots/getChatbotsForKnowledgeBase';
 import { applyToHiveMind } from '$lib/server/hive/applyToHiveMind';
 import { deleteKnowledgeBase } from '$lib/server/knowledge/deleteKnowledgeBase';
 import { findPrimaryExpertiseBrain } from '$lib/server/knowledge/interviewContext';
@@ -27,6 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		brains: await getKbBrains(locals.supabase, knowledgeBase.id),
 		processMaps: await getProcessMaps(locals.supabase, knowledgeBase.id),
 		shares: isOwner ? await getKnowledgeBaseShares(locals.supabase, knowledgeBase.id) : [],
+		chatbots: isOwner ? await getChatbotsForKnowledgeBase(locals.supabase, knowledgeBase.id) : [],
 		workbench: await loadKbWorkbenchData(locals.supabase, primary, isOwner)
 	};
 };
@@ -63,6 +66,18 @@ export const actions: Actions = {
 		await requireUser(locals);
 		const formData = await request.formData();
 		await removeKnowledgeBaseShare(locals.supabase, String(formData.get('shareId') ?? ''));
+	},
+	createChatbot: async ({ locals, params, request }) => {
+		const user = await requireUser(locals);
+		const knowledgeBase = await getKnowledgeBase(locals.supabase, params.knowledgeBaseId);
+		if (knowledgeBase === null || knowledgeBase.ownerId !== user.id) {
+			return fail(403, { message: 'Only the owner can create a chatbot.' });
+		}
+		const formData = await request.formData();
+		const name = String(formData.get('name') ?? '').trim();
+		if (name === '') return fail(400, { message: 'Give the chatbot a name.' });
+		const chatbotId = await createChatbot(locals.supabase, knowledgeBase.id, name);
+		redirect(303, `/chatbots/${chatbotId}/manage`);
 	},
 	applyToHiveMind: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);

@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { getChatbotsForMember } from '$lib/server/chatbots/getChatbotsForMember';
 import { createKnowledgeBase } from '$lib/server/knowledge/createKnowledgeBase';
 import { getKnowledgeBaseList } from '$lib/server/knowledge/getKnowledgeBaseList';
 import { getReceivedInvites } from '$lib/server/sharing/workspaceInvites';
@@ -16,7 +17,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		register: await getSecondBrainRegister(locals.supabase),
 		sharedBrains: await getSharedBrains(locals.supabase, user.id),
 		sharedWorkflows: await getSharedWorkflowSummaries(locals.supabase),
-		invitations: await getReceivedInvites(locals.supabase, user.email ?? '')
+		invitations: await getReceivedInvites(locals.supabase, user.email ?? ''),
+		memberChatbots: await getChatbotsForMember(locals.supabase, user.id)
 	};
 };
 

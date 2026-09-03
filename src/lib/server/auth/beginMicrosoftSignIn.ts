@@ -1,13 +1,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { callbackUrlFor } from './callbackUrlFor';
 
 export async function beginMicrosoftSignIn(
 	supabase: SupabaseClient,
-	origin: string
+	origin: string,
+	destination: string | null = null
 ): Promise<string> {
 	const { data, error } = await supabase.auth.signInWithOAuth({
 		provider: 'azure',
 		options: {
-			redirectTo: `${origin}/auth/callback?next=/workspace`,
+			redirectTo: callbackUrlFor(origin, destination),
 			scopes: 'openid profile email'
 		}
 	});

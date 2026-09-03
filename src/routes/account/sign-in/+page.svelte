@@ -17,8 +17,8 @@
 			{:else}
 				You've been invited to collaborate.
 			{/if}
-			Sign in with Google or Microsoft using the email address that received the invitation, and
-			you can accept it from your workspace.
+			Sign in with Google or Microsoft using the email address that received the invitation
+			{data.next === '' ? 'and you can accept it from your workspace' : "and you'll land straight on it"}.
 		</div>
 	{/if}
 	<div class="flex flex-col gap-2">
@@ -26,7 +26,7 @@
 		<p class="text-chalk/70">New here? Signing in creates your account.</p>
 	</div>
 	<div class="flex flex-col gap-3">
-		<GoogleSignInButton />
-		<MicrosoftSignInButton />
+		<GoogleSignInButton next={data.next} />
+		<MicrosoftSignInButton next={data.next} />
 	</div>
 </div>

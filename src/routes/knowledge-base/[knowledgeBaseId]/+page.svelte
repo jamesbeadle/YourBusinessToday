@@ -14,5 +14,6 @@
 	brains={data.brains}
 	processMaps={data.processMaps}
 	shares={data.shares}
+	chatbots={data.chatbots}
 	workbench={data.workbench}
 />

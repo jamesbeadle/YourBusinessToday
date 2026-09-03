@@ -2,6 +2,7 @@
 	import InvitationsPanel from '$lib/components/workspace/InvitationsPanel.svelte';
 	import NewKnowledgeBaseForm from '$lib/components/knowledge/NewKnowledgeBaseForm.svelte';
 	import SecondBrainRegister from '$lib/components/knowledge/SecondBrainRegister.svelte';
+	import YourChatbotsSection from '$lib/components/chatbots/YourChatbotsSection.svelte';
 	import SharedWithYouSection from '$lib/components/knowledge/SharedWithYouSection.svelte';
 
 	let { data } = $props();
@@ -62,6 +63,9 @@
 		</div>
 	{:else}
 		<SecondBrainRegister groups={data.register} />
+	{/if}
+	{#if data.memberChatbots.length > 0}
+		<YourChatbotsSection chatbots={data.memberChatbots} />
 	{/if}
 	{#if data.sharedBrains.length > 0 || data.sharedWorkflows.length > 0}
 		<SharedWithYouSection sharedBrains={data.sharedBrains} sharedWorkflows={data.sharedWorkflows} />

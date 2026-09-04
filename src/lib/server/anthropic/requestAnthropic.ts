@@ -13,6 +13,8 @@ export type AnthropicRequest = {
 	tools: AnthropicTool[];
 	maxTokens: number;
 	forcedToolName?: string;
+	// Makes the model reply through one of the tools rather than in prose.
+	mustUseTool?: boolean;
 	// Pins the model for callers that answer on someone else's behalf (a
 	// chatbot member's question runs on the bot's model, not the caller's).
 	model?: string;
@@ -60,6 +62,9 @@ async function describeFailure(response: Response): Promise<string> {
 }
 
 function toolChoiceFor(request: AnthropicRequest): Record<string, unknown> {
-	if (request.forcedToolName === undefined) return {};
-	return { tool_choice: { type: 'tool', name: request.forcedToolName } };
+	if (request.forcedToolName !== undefined) {
+		return { tool_choice: { type: 'tool', name: request.forcedToolName } };
+	}
+	if (request.mustUseTool === true) return { tool_choice: { type: 'any' } };
+	return {};
 }

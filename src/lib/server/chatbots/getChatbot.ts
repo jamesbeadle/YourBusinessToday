@@ -1,4 +1,4 @@
-import { chatbotColumns, toChatbotSummary, type ChatbotRow } from './chatbotRows';
+import { selectChatbots, toChatbotSummary, type ChatbotRow } from './chatbotRows';
 import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -7,11 +7,7 @@ export async function getChatbot(
 	supabase: SupabaseClient,
 	chatbotId: string
 ): Promise<ChatbotSummary | null> {
-	const { data, error } = await supabase
-		.from('chatbots')
-		.select(chatbotColumns)
-		.eq('id', chatbotId)
-		.maybeSingle();
+	const { data, error } = await selectChatbots(supabase).eq('id', chatbotId).maybeSingle();
 	if (error !== null) throw error;
 	if (data === null) return null;
 	return toChatbotSummary(data as unknown as ChatbotRow);

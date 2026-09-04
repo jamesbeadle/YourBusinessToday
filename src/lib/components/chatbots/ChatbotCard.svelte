@@ -23,6 +23,11 @@
 					Paused
 				</span>
 			{/if}
+			{#if chatbot.openQuestionCount > 0}
+				<span class="rounded-full border border-signal/50 px-2 py-0.5 text-[10px] text-signal">
+					{chatbot.openQuestionCount} unanswered
+				</span>
+			{/if}
 		</span>
 		<span class="text-xs text-chalk/50">{memberLabel}</span>
 	</span>

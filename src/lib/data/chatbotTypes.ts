@@ -7,6 +7,7 @@ export type ChatbotSummary = {
 	isPaused: boolean;
 	modelId: string;
 	memberCount: number;
+	openQuestionCount: number;
 	createdAt: string;
 };
 
@@ -46,6 +47,24 @@ export type ChatbotMessage = {
 export type ChatbotAnswer = {
 	answerMarkdown: string;
 	citedPageKeys: string[];
+	// What the knowledge base would need to answer this, or null when it did.
+	missingKnowledge: string | null;
+};
+
+export const longestTeachingAnswer = 4000;
+
+export type KnowledgeGapStatus = 'open' | 'answered' | 'dismissed';
+
+export type KnowledgeGap = {
+	id: string;
+	question: string;
+	missingKnowledge: string;
+	status: KnowledgeGapStatus;
+	askedByEmail: string | null;
+	timesAsked: number;
+	lastAskedAt: string;
+	answer: string | null;
+	resolvedAt: string | null;
 };
 
 export type MemberAllowance = { memberId: string; allowance: number };

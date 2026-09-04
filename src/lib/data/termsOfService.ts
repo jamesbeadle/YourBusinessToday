@@ -21,7 +21,7 @@ export const termsOfService: LegalDocument = {
 		{
 			heading: 'Your account',
 			paragraphs: [
-				'You can sign in with Google, Microsoft, or an email address and password. Your account is yours alone: keep your credentials secure, and tell us promptly if you believe someone else has used them. You are responsible for activity that happens under your account, you must be at least 18, and the information you give us must be accurate and kept up to date.'
+				'You can sign in with Google, or with an email address and password. Your account is yours alone: keep your credentials secure, and tell us promptly if you believe someone else has used them. You are responsible for activity that happens under your account, you must be at least 18, and the information you give us must be accurate and kept up to date.'
 			]
 		},
 		{

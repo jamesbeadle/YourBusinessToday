@@ -17,7 +17,7 @@ export const privacyStatement: LegalDocument = {
 			heading: 'What we collect',
 			paragraphs: ['We hold three kinds of information:'],
 			listItems: [
-				'Account details — your email address, display name, and which sign-in method you use (Google, Microsoft, or email and password).',
+				'Account details — your email address, display name, and which sign-in method you use (Google, or email and password).',
 				'Business content — the documents you upload, the answers you give the interviewer, and the maps, models, and conversations built from them.',
 				'Activity records — your credit purchases and spends, shares you create, notifications, and listings or applications you make on the Market or the Hive Mind. Card details go directly to Stripe; we never see or store them.'
 			]

@@ -1,7 +1,7 @@
 # The MCP Server — Architecture
 
 One endpoint that lets a client's own Claude raise, track and discuss feature requests
-against the systems we manage for them — without a browser, an email, or a login prompt in
+against the projects we run for them — without a browser, an email, or a login prompt in
 the middle of their work.
 
 It adds no domain. Every tool here is a second face on a command or query defined in
@@ -16,7 +16,7 @@ it there, not here.
 | Client contact | to raise a feature request from inside Claude, where I noticed the problem | the ask happens while I still remember the detail |
 | Client contact | to list my requests and their status without opening anything | I stop chasing |
 | Client contact | to read and reply to a thread on one of my requests | clarification costs one message, not one email chain |
-| Client contact | to see which systems I am allowed to raise requests against | I aim the request at the right thing |
+| Client contact | to see which of our projects I can raise requests against | I aim the request at the right one |
 
 Four stories, five tools. Nothing speculative: no tool exposes a client's invoices, our
 backlog, or anyone else's requests, because no story asks for it.
@@ -25,29 +25,31 @@ backlog, or anyone else's requests, because no story asks for it.
 
 | Tool | Maps to | Notes |
 | --- | --- | --- |
-| `list_my_systems` | `getContactPortal` | name, description and id of each active system for the caller's client |
-| `raise_feature_request` | `raiseFeatureRequest` | `systemId`, `title`, `want`, `benefit`; returns the reference |
-| `list_my_feature_requests` | `getContactPortal` | id, title, system, status, last activity |
+| `list_my_projects` | `getContactPortal` | id, name and repository of each project belonging to the caller's client |
+| `raise_feature_request` | `raiseFeatureRequest` | `projectId`, `title`, `want`, `benefit`; returns the reference |
+| `list_my_feature_requests` | `getContactPortal` | id, title, project, status, last activity |
 | `get_feature_request` | `getFeatureRequest` | the request, its decision note, and the thread |
 | `comment_on_feature_request` | `commentOnFeatureRequest` | one message into the thread |
 
 Tool descriptions are prose the client's Claude reads, so they name the domain plainly:
-"Raise a feature request against a system Jewel manages for your company." The caller is
-never asked for a client id — it is resolved from the token, and passing one is not
-possible. A tool that cannot address another company's data cannot leak it.
+"Raise a feature request against a project we build for your company." The caller is never
+asked for a client id — it is resolved from the token, and passing one is not possible. A
+`projectId` that belongs to another client, or to no client at all, is refused by the same
+command that serves the portal. A tool that cannot address another company's data cannot
+leak it.
 
 Raising a request costs no credits. It is our work queue, not their consumption.
 
 ## The route
 
 ```
-src/routes/api/mcp/+server.ts        POST — the whole protocol surface
-src/lib/server/mcp/readMcpRequest.ts  parse and validate one JSON-RPC message
-src/lib/server/mcp/mcpMethods.ts      initialize | tools/list | tools/call
-src/lib/server/mcp/mcpTools.ts        the registry: name, description, schema, run
-src/lib/server/mcp/tools/*.ts         one file per tool, each calling one command or query
+src/routes/api/mcp/+server.ts               POST — the whole protocol surface
+src/lib/server/mcp/readMcpRequest.ts        parse and validate one JSON-RPC message
+src/lib/server/mcp/mcpMethods.ts            initialize | tools/list | tools/call
+src/lib/server/mcp/mcpTools.ts              the registry: name, description, schema, run
+src/lib/server/mcp/tools/*.ts               one file per tool, each calling one command or query
 src/lib/server/mcp/resolveContactCaller.ts  the gate
-src/lib/server/mcp/mcpErrors.ts       JSON-RPC error codes as named constants
+src/lib/server/mcp/mcpErrors.ts             JSON-RPC error codes as named constants
 ```
 
 Streamable HTTP, JSON responses only — no SSE, no session id, no server-initiated
@@ -100,21 +102,26 @@ The client's Claude is an eager agent. Two limits, both named constants:
 Duplicate suppression is not a limit but a courtesy: if a contact raises a request whose
 title matches an open one of theirs, the tool returns the existing reference and says so.
 
+## Status
+
+Not built. Every command and query it needs now exists — `raiseFeatureRequest`,
+`commentOnFeatureRequest`, `getContactPortal`, `getRequestForContact` — and the portal calls
+them, so this server is the second face on code that is already running.
+
 ## Build order
 
 1. `client_api_tokens` migration and `/portal/access` — a contact can mint a token before
    there is anything to point it at.
 2. The route, `initialize` and `tools/list` behind the gate — connect it and see the tools
    listed, with nothing callable yet.
-3. `list_my_systems` and `list_my_feature_requests` — reads first, so the first live test
+3. `list_my_projects` and `list_my_feature_requests` — reads first, so the first live test
    cannot write anything.
 4. `raise_feature_request`, then `get_feature_request` and `comment_on_feature_request`.
 5. OAuth in front, when a non-technical client needs it.
 
 ## Open question
 
-Are these tools for the client's contacts only, or do we want the same server pointed at
-our own staff data later — our backlog, our clients, our projects? The two are different
-audiences with different gates and should not share a route. If we want both, this document
-covers `/api/mcp` for clients, and a staff server is a separate document with a separate
-endpoint.
+Are these tools for client contacts only, or do we want a server pointed at our own data
+later — the backlog, the pipeline, the triage queue? Different audience, different gates,
+so they should not share a route. This document covers `/api/mcp` for clients; a staff
+server would be a separate document and a separate endpoint.

@@ -12,18 +12,22 @@
 		creditBalance,
 		isAdmin,
 		isStaff,
+		isClientContact,
 		unreadNotificationCount
 	}: {
 		userEmail: string | null;
 		creditBalance: number | null;
 		isAdmin: boolean;
 		isStaff: boolean;
+		isClientContact: boolean;
 		unreadNotificationCount: number;
 	} = $props();
 
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
-	const menuGroups = $derived(buildMenuGroups({ isSignedIn, isProjectManager, isAdmin }));
+	const menuGroups = $derived(
+		buildMenuGroups({ isSignedIn, isProjectManager, isAdmin, isClientContact })
+	);
 
 	let isMobileMenuOpen = $state(false);
 

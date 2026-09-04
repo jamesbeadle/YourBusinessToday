@@ -7,6 +7,7 @@ import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership'
 import { meteredCallsSoFar } from '$lib/server/anthropic/modelContext';
 import { questionCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
 import { recordChatbotTurn } from '$lib/server/chatbots/recordChatbotTurn';
+import { recordKnowledgeGap } from '$lib/server/chatbots/recordKnowledgeGap';
 import {
 	refundForChatbotQuestion,
 	settleChatbotQuestion,
@@ -58,6 +59,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			[...priorTurns, { speaker: 'member', text: question }]
 		);
 		await recordChatbotTurn(service, conversation.id, question, answer);
+		await recordKnowledgeGap(service, chatbot.id, user.id, question, answer.missingKnowledge);
 		const owed = questionCreditsFor(meteredCallsSoFar());
 		const settled = await settleChatbotQuestion(service, chatbot.id, user.id, owed - reserve);
 		return json({

@@ -16,8 +16,12 @@ export class FormTracker {
 		this.errorMessage = null;
 	}
 
-	/** Build the use:enhance submit function. onSuccess runs as soon as the save is confirmed. */
-	submit(onSuccess?: () => void): SubmitFunction {
+	/**
+	 * Build the use:enhance submit function. onSuccess runs as soon as the save is
+	 * confirmed; shouldKeepFields leaves what was typed in place after the response,
+	 * for forms whose failure the user should be able to retry without retyping.
+	 */
+	submit(onSuccess?: () => void, options: { shouldKeepFields?: boolean } = {}): SubmitFunction {
 		return ({ cancel }) => {
 			if (this.isSaving) {
 				cancel();
@@ -33,7 +37,7 @@ export class FormTracker {
 					// running it first flashed a blanked-out form inside the still-open
 					// modal before the modal finally closed.
 					if (succeeded) onSuccess?.();
-					await update();
+					await update({ reset: options.shouldKeepFields !== true });
 					if (result.type === 'failure') {
 						const failureData = result.data as { message?: unknown } | undefined;
 						this.errorMessage =

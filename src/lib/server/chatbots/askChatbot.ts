@@ -1,6 +1,7 @@
-import { answerTool, readPagesTool } from '../brain/modellerAnswerTools';
+import { chatbotAnswerTool } from './chatbotAnswerTool';
 import { chatbotQueryPrompt } from './chatbotQueryPrompt';
-import { parseBrainAnswer } from '../brain/parseBrainAnswer';
+import { parseChatbotAnswer } from './parseChatbotAnswer';
+import { readPagesTool } from '../brain/modellerAnswerTools';
 import { readChatbotPages } from './readChatbotPages';
 import { renderChatbotIndex } from './renderChatbotIndex';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
@@ -25,11 +26,12 @@ export async function askChatbot(
 	const firstResponse = await requestAnthropic({
 		system,
 		messages,
-		tools: [readPagesTool, answerTool],
+		tools: [readPagesTool, chatbotAnswerTool],
 		maxTokens: maxAnswerTokens,
 		model: chatbot.modelId
 	});
-	const hasImmediateAnswer = toolUseNamed(firstResponse.content, answerTool.name) !== undefined;
+	const hasImmediateAnswer =
+		toolUseNamed(firstResponse.content, chatbotAnswerTool.name) !== undefined;
 	const readRequests = hasImmediateAnswer
 		? []
 		: toolUsesNamed(firstResponse.content, readPagesTool.name);
@@ -39,8 +41,8 @@ export async function askChatbot(
 	const secondResponse = await requestAnthropic({
 		system,
 		messages,
-		tools: [readPagesTool, answerTool],
-		forcedToolName: answerTool.name,
+		tools: [readPagesTool, chatbotAnswerTool],
+		forcedToolName: chatbotAnswerTool.name,
 		maxTokens: maxAnswerTokens,
 		model: chatbot.modelId
 	});
@@ -48,8 +50,7 @@ export async function askChatbot(
 }
 
 function answerFrom(content: unknown[]): ChatbotAnswer {
-	const answer = parseBrainAnswer(toolUseNamed(content, answerTool.name)?.input);
-	return { answerMarkdown: answer.answerMarkdown, citedPageKeys: answer.citedSlugs };
+	return parseChatbotAnswer(toolUseNamed(content, chatbotAnswerTool.name)?.input);
 }
 
 function messagesFromTurns(turns: ChatbotTurn[]): AnthropicMessage[] {

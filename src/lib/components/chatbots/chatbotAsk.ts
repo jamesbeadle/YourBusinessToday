@@ -20,7 +20,11 @@ export async function askChatbotEndpoint(
 		const payload = await response.json();
 		return {
 			kind: 'answered',
-			answer: { answerMarkdown: payload.answerMarkdown, citedPageKeys: payload.citedPageKeys },
+			answer: {
+				answerMarkdown: payload.answerMarkdown,
+				citedPageKeys: payload.citedPageKeys,
+				missingKnowledge: payload.missingKnowledge ?? null
+			},
 			allowanceRemaining: payload.allowanceRemaining
 		};
 	}

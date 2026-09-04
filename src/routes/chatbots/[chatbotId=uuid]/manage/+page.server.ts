@@ -1,6 +1,7 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
+import { answerQuestion, dismissQuestion } from './knowledgeGapActions';
 import { deleteChatbot } from '$lib/server/chatbots/deleteChatbot';
-import { getChatbot } from '$lib/server/chatbots/getChatbot';
+import { getChatbotKnowledgeGaps } from '$lib/server/chatbots/getChatbotKnowledgeGaps';
 import { getChatbotMembers } from '$lib/server/chatbots/getChatbotMembers';
 import { getChatbotTopUps } from '$lib/server/chatbots/getChatbotTopUps';
 import { inviteChatbotMember } from '$lib/server/chatbots/inviteChatbotMember';
@@ -9,35 +10,34 @@ import { topUpChatbot } from '$lib/server/chatbots/topUpChatbot';
 import { updateChatbot } from '$lib/server/chatbots/updateChatbot';
 import { parseAllowances, parseCredits } from '$lib/server/chatbots/parseTopUpForm';
 import { isLadderModel } from '$lib/data/modelLadder';
+import { requireOwnedChatbot } from '$lib/server/chatbots/requireOwnedChatbot';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
-import type { ChatbotSummary } from '$lib/data/chatbotTypes';
+import { teachingNoteCredits } from '$lib/server/chatbots/teachChatbotAnswer';
 import type { Actions, PageServerLoad } from './$types';
+
+// Answering a question reads it into the brain with Claude, which outlives
+// Vercel's default function limit.
+export const config = { maxDuration: 300 };
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const user = await requireUser(locals);
-	const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+	const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 	return {
 		chatbot,
 		members: await getChatbotMembers(locals.supabase, chatbot.id),
-		topUps: await getChatbotTopUps(locals.supabase, chatbot.id)
+		topUps: await getChatbotTopUps(locals.supabase, chatbot.id),
+		knowledgeGaps: await getChatbotKnowledgeGaps(locals.supabase, chatbot.id),
+		teachingCredits: teachingNoteCredits
 	};
 };
 
-async function requireOwnedChatbot(
-	locals: App.Locals,
-	chatbotId: string,
-	userId: string
-): Promise<ChatbotSummary> {
-	const chatbot = await getChatbot(locals.supabase, chatbotId);
-	if (chatbot === null || chatbot.ownerId !== userId) error(404, 'That chatbot is not yours to manage');
-	return chatbot;
-}
-
 export const actions: Actions = {
+	answerQuestion,
+	dismissQuestion,
 	rename: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const name = String(formData.get('name') ?? '').trim();
 		if (name === '') return fail(400, { message: 'The chatbot needs a name.' });
@@ -45,14 +45,14 @@ export const actions: Actions = {
 	},
 	setPaused: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const isPaused = String(formData.get('isPaused')) === 'true';
 		await updateChatbot(locals.supabase, chatbot.id, { isPaused });
 	},
 	setModel: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const modelId = String(formData.get('modelId') ?? '');
 		if (!isLadderModel(modelId)) return fail(400, { message: 'Pick a model from the slider.' });
@@ -60,7 +60,7 @@ export const actions: Actions = {
 	},
 	setMemberModel: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const modelId = String(formData.get('modelId') ?? '');
 		if (modelId !== '' && !isLadderModel(modelId)) {
@@ -74,13 +74,13 @@ export const actions: Actions = {
 	},
 	deleteChatbot: async ({ locals, params }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		await deleteChatbot(locals.supabase, chatbot.id);
 		redirect(303, `/knowledge-base/${chatbot.knowledgeBaseId}`);
 	},
 	inviteMember: async ({ locals, params, request, url }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const invitedEmail = String(formData.get('email') ?? '').trim();
 		if (invitedEmail === '') return fail(400, { message: 'Enter an email address to invite.' });
@@ -100,13 +100,13 @@ export const actions: Actions = {
 	},
 	removeMember: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		await removeChatbotMember(locals.supabase, String(formData.get('memberId') ?? ''));
 	},
 	topUp: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);
-		const chatbot = await requireOwnedChatbot(locals, params.chatbotId, user.id);
+		const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
 		const formData = await request.formData();
 		const credits = parseCredits(formData);
 		if (credits === null) return fail(400, { message: 'Enter how many credits to add.' });

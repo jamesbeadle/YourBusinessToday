@@ -18,6 +18,7 @@
 		creditBalance={data.creditBalance}
 		isAdmin={data.isAdmin}
 		isStaff={data.isStaff}
+		isClientContact={data.isClientContact}
 		unreadNotificationCount={data.unreadNotificationCount}
 	/>
 	<main

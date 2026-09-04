@@ -29,21 +29,26 @@ export async function createTask(
 	projectId: string,
 	seed: NewTaskSeed,
 	createdBy: string
-): Promise<void> {
+): Promise<string> {
 	const globalPriority =
 		seed.parentTaskId === null ? await getNextGlobalPriority(supabase, projectId) : null;
-	const { error } = await supabase.from('tasks').insert({
-		project_id: projectId,
-		parent_task_id: seed.parentTaskId,
-		phase_id: seed.phaseId,
-		title: seed.title,
-		details: seed.details,
-		due_date: seed.dueDate,
-		priority: await getNextSiblingPriority(supabase, projectId, seed.parentTaskId),
-		global_priority: globalPriority,
-		created_by: createdBy
-	});
+	const { data, error } = await supabase
+		.from('tasks')
+		.insert({
+			project_id: projectId,
+			parent_task_id: seed.parentTaskId,
+			phase_id: seed.phaseId,
+			title: seed.title,
+			details: seed.details,
+			due_date: seed.dueDate,
+			priority: await getNextSiblingPriority(supabase, projectId, seed.parentTaskId),
+			global_priority: globalPriority,
+			created_by: createdBy
+		})
+		.select('id')
+		.single();
 	if (error) throw error;
+	return data.id;
 }
 
 function emptyAsNull(value: string): string | null {

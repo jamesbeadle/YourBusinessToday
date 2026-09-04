@@ -1,6 +1,7 @@
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
 import { getProfileFlags } from '$lib/server/auth/getProfileFlags';
 import { getUnreadNotificationCount } from '$lib/server/notifications/getUnreadNotificationCount';
+import { resolveContactForAccount } from '$lib/server/clients/resolveContactForAccount';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
@@ -11,6 +12,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			creditBalance: null,
 			isAdmin: false,
 			isStaff: false,
+			isClientContact: false,
 			unreadNotificationCount: 0
 		};
 	}
@@ -21,6 +23,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		creditBalance: await getCreditBalance(locals.supabase),
 		isAdmin: profileFlags.isAdmin,
 		isStaff: profileFlags.isStaff,
+		isClientContact: (await resolveContactForAccount(locals.supabase, user.id)) !== null,
 		unreadNotificationCount: isProjectManager
 			? await getUnreadNotificationCount(locals.supabase, user.id)
 			: 0

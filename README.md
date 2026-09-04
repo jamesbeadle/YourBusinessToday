@@ -11,9 +11,10 @@ records, and export as Markdown whenever you like).
 
 Early access. Accounts, credits, both live products, and sharing are all working:
 
-- Sign in with Google, Microsoft, or email + password with verification — new accounts
-  start with zero credits; [docs/auth-setup.md](./docs/auth-setup.md)
-  covers the provider configuration.
+- Sign in with Google, or with an email address and a password — new accounts confirm
+  their address by email and start with zero credits, and a forgotten password is reset
+  from the sign-in page; [docs/auth-setup.md](./docs/auth-setup.md) covers the provider
+  configuration.
 - Buy credit packs at `/account/credits` — live Stripe Checkout with webhook fulfilment
   when keys are set, a placeholder otherwise; [docs/stripe-setup.md](./docs/stripe-setup.md)
   covers the keys and the unit economics.

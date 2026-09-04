@@ -20,7 +20,7 @@ export function renderChatbotInviteEmail(
 			their knowledge base, so you can ask it what you'd ask them.
 		</p>
 		<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#c9d2e6;">
-			Open the link and sign in with Google or Microsoft using this email address — that's
+			Open the link and sign in with this email address — that's
 			all it takes to join.
 		</p>
 		<a

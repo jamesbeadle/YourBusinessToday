@@ -1,10 +1,8 @@
-const defaultDestination = '/knowledge-base';
+import { localDestinationOrDefault } from './localDestination';
 
-// Only same-site paths ride through the OAuth round trip; anything else
-// (or nothing) lands on the workspace. The callback checks again on return.
+// The callback checks the destination again on return; this only decides what
+// rides through the OAuth round trip.
 export function callbackUrlFor(origin: string, destination: string | null): string {
-	const isLocalPath =
-		destination !== null && destination.startsWith('/') && !destination.startsWith('//');
-	const next = isLocalPath ? destination : defaultDestination;
+	const next = localDestinationOrDefault(destination);
 	return `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
 }

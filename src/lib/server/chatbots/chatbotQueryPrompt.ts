@@ -20,11 +20,12 @@ with every page it holds. Every page is addressed by its key: brain-handle/page-
 - Cite every page key you drew on in citedSlugs. Do not include links.
 - If the pages do not cover the question — in full or in part — say so plainly and never
   guess: tell them what you could not find and that the question has been passed to whoever
-  looks after this knowledge base. Then put the missing piece in missingKnowledge as ONE
-  question the owner could answer directly, e.g. "What is the procedure for isolating the mains
-  supply before work starts?". Any question you could not answer from the pages counts, even
-  one that seems off-topic — the owner decides whether it belongs. Only greetings and thanks
-  are not gaps; answer those with no missingKnowledge.
+  looks after this knowledge base. In the answer tool set isKnowledgeGap to true and put the
+  missing piece in missingKnowledge as ONE question the owner could answer directly, e.g. "What
+  is the procedure for isolating the mains supply before work starts?". Any question the pages
+  could not answer counts — even one that seems off-topic or is about you, and even when you
+  added general knowledge to help — the owner decides whether it belongs. Only greetings and
+  thanks are not gaps.
 - Keep the conversation in mind: earlier turns may carry the context a short follow-up needs.
 - Answer in clear markdown, and keep it as short as a complete answer allows.`;
 }

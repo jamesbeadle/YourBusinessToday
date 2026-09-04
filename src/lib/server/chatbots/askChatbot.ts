@@ -23,6 +23,7 @@ export async function askChatbot(
 	turns: ChatbotTurn[]
 ): Promise<ChatbotAnswer> {
 	const system = `${chatbotQueryPrompt(chatbot.name)}\n\n## The knowledge base\n\n${renderChatbotIndex(brains)}`;
+	const question = latestMemberQuestion(turns);
 	const messages = messagesFromTurns(turns);
 	const firstResponse = await requestAnthropic({
 		system,
@@ -37,7 +38,7 @@ export async function askChatbot(
 	const readRequests = hasImmediateAnswer
 		? []
 		: toolUsesNamed(firstResponse.content, readPagesTool.name);
-	if (readRequests.length === 0) return answerFrom(firstResponse.content);
+	if (readRequests.length === 0) return answerFrom(firstResponse.content, question);
 	messages.push({ role: 'assistant', content: firstResponse.content });
 	messages.push(await readChatbotPages(supabase, brains, readRequests));
 	const secondResponse = await requestAnthropic({
@@ -48,15 +49,22 @@ export async function askChatbot(
 		maxTokens: maxAnswerTokens,
 		model: chatbot.modelId
 	});
-	return answerFrom(secondResponse.content);
+	return answerFrom(secondResponse.content, question);
 }
 
-function answerFrom(content: unknown[]): ChatbotAnswer {
+function answerFrom(content: unknown[], question: string): ChatbotAnswer {
 	const answerCall = toolUseNamed(content, chatbotAnswerTool.name);
 	if (answerCall === undefined) {
 		console.error('Chatbot reply held no answer tool call', JSON.stringify(content).slice(0, replyLogLimit));
 	}
-	return parseChatbotAnswer(answerCall?.input);
+	return parseChatbotAnswer(answerCall?.input, question);
+}
+
+function latestMemberQuestion(turns: ChatbotTurn[]): string {
+	for (let index = turns.length - 1; index >= 0; index -= 1) {
+		if (turns[index].speaker === 'member') return turns[index].text;
+	}
+	return '';
 }
 
 function messagesFromTurns(turns: ChatbotTurn[]): AnthropicMessage[] {

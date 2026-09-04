@@ -14,6 +14,7 @@ import {
 	spendForChatbotQuestion
 } from '$lib/server/chatbots/spendForChatbotQuestion';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
+import type { ChatbotAnswer } from '$lib/data/chatbotTypes';
 import type { RequestHandler } from './$types';
 
 const longestQuestion = 1000;
@@ -59,7 +60,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 			[...priorTurns, { speaker: 'member', text: question }]
 		);
 		await recordChatbotTurn(service, conversation.id, question, answer);
-		await recordKnowledgeGap(service, chatbot.id, user.id, question, answer.missingKnowledge);
+		await noteKnowledgeGap(service, chatbot.id, user.id, question, answer);
 		const owed = questionCreditsFor(meteredCallsSoFar());
 		const settled = await settleChatbotQuestion(service, chatbot.id, user.id, owed - reserve);
 		return json({
@@ -73,6 +74,22 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 		error(502, 'That question failed — nothing was taken from your allowance');
 	}
 };
+
+// The gap is bookkeeping for the owner: failing to note it must never turn a
+// delivered answer into a refund.
+async function noteKnowledgeGap(
+	service: ReturnType<typeof supabaseServiceClient>,
+	chatbotId: string,
+	memberId: string,
+	question: string,
+	answer: ChatbotAnswer
+): Promise<void> {
+	try {
+		await recordKnowledgeGap(service, chatbotId, memberId, question, answer.missingKnowledge);
+	} catch (failure) {
+		console.error('Recording the knowledge gap failed', failure);
+	}
+}
 
 function readQuestion(payload: { question?: unknown }): string {
 	const question = typeof payload.question === 'string' ? payload.question.trim() : '';

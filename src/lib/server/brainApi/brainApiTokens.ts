@@ -1,31 +1,27 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { mintApiToken } from '$lib/server/tokens/apiToken';
 import type { BrainApiToken, MintedBrainApiToken } from '$lib/data/brainApiTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const tokenPrefix = 'ybt_';
-
-export function hashApiToken(token: string): string {
-	return createHash('sha256').update(token).digest('hex');
-}
+export { hashApiToken } from '$lib/server/tokens/apiToken';
 
 export async function createBrainApiToken(
 	supabase: SupabaseClient,
 	brainId: string,
 	name: string
 ): Promise<MintedBrainApiToken> {
-	const token = `${tokenPrefix}${randomBytes(24).toString('hex')}`;
+	const minted = mintApiToken();
 	const { data, error } = await supabase
 		.from('brain_api_tokens')
 		.insert({
 			brain_id: brainId,
 			name,
-			token_hash: hashApiToken(token),
-			token_hint: token.slice(-4)
+			token_hash: minted.tokenHash,
+			token_hint: minted.tokenHint
 		})
 		.select('id, name, token_hint, created_at, last_used_at')
 		.single();
 	if (error !== null) throw error;
-	return { ...asApiToken(data), token };
+	return { ...asApiToken(data), token: minted.token };
 }
 
 export async function getBrainApiTokens(

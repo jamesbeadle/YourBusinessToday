@@ -45,12 +45,20 @@ Raising a request costs no credits. It is our work queue, not their consumption.
 ```
 src/routes/api/mcp/+server.ts               POST — the whole protocol surface
 src/lib/server/mcp/readMcpRequest.ts        parse and validate one JSON-RPC message
-src/lib/server/mcp/mcpMethods.ts            initialize | tools/list | tools/call
+src/lib/server/mcp/mcpMethods.ts            server/discover | initialize | tools/list | tools/call
+src/lib/server/mcp/mcpProtocol.ts           supported revisions, server identity, cache hints
 src/lib/server/mcp/mcpTools.ts              the registry: name, description, schema, run
 src/lib/server/mcp/tools/*.ts               one file per tool, each calling one command or query
+src/lib/server/mcp/requestLimits.ts         the body cap and the daily ceiling
 src/lib/server/mcp/resolveContactCaller.ts  the gate
 src/lib/server/mcp/mcpErrors.ts             JSON-RPC error codes as named constants
 ```
+
+The current specification revision, `2026-07-28`, drops the `initialize` handshake in favour
+of a mandatory `server/discover`, and every result carries `resultType`. Older clients still
+send `initialize`, so both are answered and the version is negotiated down to whatever the
+caller asked for out of the four revisions we know. Costing nothing to keep, the older
+handshake stays until Claude's own clients have moved.
 
 Streamable HTTP, JSON responses only — no SSE, no session id, no server-initiated
 messages. Nothing in these five tools streams or pushes, so the stateless shape is the
@@ -104,9 +112,11 @@ title matches an open one of theirs, the tool returns the existing reference and
 
 ## Status
 
-Not built. Every command and query it needs now exists — `raiseFeatureRequest`,
-`commentOnFeatureRequest`, `getContactPortal`, `getRequestForContact` — and the portal calls
-them, so this server is the second face on code that is already running.
+Built, at `/api/mcp`, with all five tools and `/portal/access` for minting tokens.
+Migration 0036 is applied. What has been proved: the route answers, an absent or unknown
+token gets 401 with a `WWW-Authenticate` header, GET gets 405, and the whole thing
+type-checks and builds. What has not: a single call that reaches the database, because the
+only shell available for testing had no network. The first real call is the smoke test.
 
 ## Build order
 

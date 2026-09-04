@@ -19,3 +19,11 @@ export function parseFeatureRequestStatus(value: unknown): FeatureRequestStatus 
 export function featureRequestReference(requestNumber: number): string {
 	return `FR-${String(requestNumber).padStart(referenceDigits, '0')}`;
 }
+
+const referencePattern = /^FR-(\d{1,9})$/i;
+
+export function parseFeatureRequestReference(value: string): number | null {
+	const match = referencePattern.exec(value.trim());
+	if (match === null) return null;
+	return Number(match[1]);
+}

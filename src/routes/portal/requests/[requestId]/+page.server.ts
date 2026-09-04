@@ -7,7 +7,11 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const contact = await requireClientContact(locals);
-	const featureRequest = await getRequestForContact(locals.supabase, params.requestId);
+	const featureRequest = await getRequestForContact(
+		locals.supabase,
+		params.requestId,
+		contact.clientId
+	);
 	if (featureRequest === null) error(404, 'That request could not be found');
 	return {
 		featureRequest,

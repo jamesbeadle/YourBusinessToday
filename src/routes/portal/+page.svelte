@@ -17,7 +17,12 @@
 			<h1 class="font-display text-3xl font-medium">Hello {data.contactName}</h1>
 			<p class="text-chalk/70">What we run for {data.clientName}, and what you have asked for.</p>
 		</div>
-		<a href="/portal/requests/new" class={primaryButtonClasses}>Ask for something</a>
+		<div class="flex flex-wrap items-center gap-4">
+			<a href="/portal/access" class="font-display text-sm text-chalk/60 hover:text-chalk">
+				Connect Claude
+			</a>
+			<a href="/portal/requests/new" class={primaryButtonClasses}>Ask for something</a>
+		</div>
 	</div>
 
 	<section class="flex flex-col gap-4">

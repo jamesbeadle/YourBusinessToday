@@ -14,6 +14,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export type ChatbotTurn = { speaker: ChatbotSpeaker; text: string };
 
 const maxAnswerTokens = 4000;
+const replyLogLimit = 600;
 
 export async function askChatbot(
 	supabase: SupabaseClient,
@@ -27,6 +28,7 @@ export async function askChatbot(
 		system,
 		messages,
 		tools: [readPagesTool, chatbotAnswerTool],
+		mustUseTool: true,
 		maxTokens: maxAnswerTokens,
 		model: chatbot.modelId
 	});
@@ -50,7 +52,11 @@ export async function askChatbot(
 }
 
 function answerFrom(content: unknown[]): ChatbotAnswer {
-	return parseChatbotAnswer(toolUseNamed(content, chatbotAnswerTool.name)?.input);
+	const answerCall = toolUseNamed(content, chatbotAnswerTool.name);
+	if (answerCall === undefined) {
+		console.error('Chatbot reply held no answer tool call', JSON.stringify(content).slice(0, replyLogLimit));
+	}
+	return parseChatbotAnswer(answerCall?.input);
 }
 
 function messagesFromTurns(turns: ChatbotTurn[]): AnthropicMessage[] {

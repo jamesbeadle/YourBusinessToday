@@ -7,14 +7,14 @@ import {
 	serverInformation,
 	supportedProtocolVersions
 } from './mcpProtocol';
-import type { ContactCaller } from './resolveContactCaller';
+import type { McpCaller } from './resolveMcpCaller';
 import type { McpRequest } from './readMcpRequest';
 
 type McpAnswer = Record<string, unknown>;
 
 const capabilities = { tools: { listChanged: false } };
 
-const methods: Record<string, (caller: ContactCaller, request: McpRequest) => Promise<McpAnswer>> = {
+const methods: Record<string, (caller: McpCaller, request: McpRequest) => Promise<McpAnswer>> = {
 	'server/discover': async () => discovery(),
 	initialize: async (caller, request) => ({
 		protocolVersion: negotiateProtocolVersion(request.params.protocolVersion),
@@ -25,7 +25,7 @@ const methods: Record<string, (caller: ContactCaller, request: McpRequest) => Pr
 	'tools/call': (caller, request) => callTool(caller, request)
 };
 
-export async function answerMcpRequest(caller: ContactCaller, request: McpRequest) {
+export async function answerMcpRequest(caller: McpCaller, request: McpRequest) {
 	const method = methods[request.method];
 	if (method === undefined) {
 		return mcpFailure(request.id, McpErrorCode.MethodNotFound, `Unknown method ${request.method}`);
@@ -43,7 +43,7 @@ function discovery(): McpAnswer {
 	};
 }
 
-async function callTool(caller: ContactCaller, request: McpRequest): Promise<McpAnswer> {
+async function callTool(caller: McpCaller, request: McpRequest): Promise<McpAnswer> {
 	const tool = findMcpTool(request.params.name);
 	if (tool === null) {
 		return toolAnswer(`There is no tool called ${String(request.params.name)}.`, true);

@@ -16,3 +16,6 @@ vite.config.ts.timestamp-*
 
 .vercel
 .env*
+
+_to_delete/
+Claude outputs/

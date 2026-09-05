@@ -6,6 +6,8 @@ import { protectedResourcePath } from '$lib/server/oauth/oauthSettings';
 import { resolveMcpCaller } from '$lib/server/mcp/resolveMcpCaller';
 import type { RequestHandler } from './$types';
 
+export const config = { maxDuration: 300 };
+
 const acknowledged = 202;
 const unauthorised = 401;
 const methodNotAllowed = 405;

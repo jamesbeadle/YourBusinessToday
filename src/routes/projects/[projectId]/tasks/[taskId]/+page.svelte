@@ -6,6 +6,7 @@
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
 	import SubtaskList from '$lib/components/projects/SubtaskList.svelte';
+	import TaskAttachmentsSection from '$lib/components/projects/TaskAttachmentsSection.svelte';
 	import TaskCommentThread from '$lib/components/projects/TaskCommentThread.svelte';
 	import TaskDetailHeader from '$lib/components/projects/TaskDetailHeader.svelte';
 	import TaskEditForm from '$lib/components/projects/TaskEditForm.svelte';
@@ -48,6 +49,11 @@
 	{/if}
 	<SubtaskList subtasks={data.subtasks} onAddSubtask={() => (isSubtaskModalOpen = true)} />
 	<ChecklistSection checklists={data.checklists} />
+	<TaskAttachmentsSection
+		attachments={data.attachments}
+		projectId={data.project.id}
+		taskId={data.task.id}
+	/>
 	<TaskCommentThread comments={data.comments} />
 	<button
 		type="button"

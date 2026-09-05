@@ -1,0 +1,53 @@
+import { fail } from '@sveltejs/kit';
+import { attachmentLimitDescription, isWithinAttachmentLimit } from '$lib/data/taskAttachmentRules';
+import { deleteTaskAttachment } from '$lib/server/projects/deleteTaskAttachment';
+import { findTaskAttachment } from '$lib/server/projects/findTaskAttachment';
+import { grantAttachmentUpload } from '$lib/server/projects/grantAttachmentUpload';
+import {
+	parseAttachmentId,
+	parseAttachmentUploadForm
+} from '$lib/server/projects/parseAttachmentUploadForm';
+import { recordTaskAttachment } from '$lib/server/projects/recordTaskAttachment';
+import { requireStaff } from '$lib/server/auth/requireStaff';
+import type { Actions } from './$types';
+
+export const attachmentActions: Actions = {
+	grantAttachment: async ({ locals, params, request }) => {
+		await requireStaff(locals);
+		const upload = parseAttachmentUploadForm(await request.formData());
+		if (upload === null) return fail(400, { message: 'A file name, type, and size are required.' });
+		if (!isWithinAttachmentLimit(upload.byteCount)) {
+			return fail(400, { message: `That file is too large. ${attachmentLimitDescription()}` });
+		}
+		return grantAttachmentUpload(locals.supabase, params.taskId, upload);
+	},
+	recordAttachment: async ({ locals, params, request }) => {
+		const user = await requireStaff(locals);
+		const formData = await request.formData();
+		const upload = parseAttachmentUploadForm(formData);
+		const attachmentId = parseAttachmentId(formData);
+		if (upload === null || attachmentId === null) {
+			return fail(400, { message: 'An attachment is required.' });
+		}
+		const recording = await recordTaskAttachment(
+			locals.supabase,
+			params.taskId,
+			attachmentId,
+			user.id,
+			upload
+		);
+		if (recording === 'file_missing') {
+			return fail(400, { message: 'The file never reached storage — please try again.' });
+		}
+		return {};
+	},
+	deleteAttachment: async ({ locals, params, request }) => {
+		await requireStaff(locals);
+		const attachmentId = parseAttachmentId(await request.formData());
+		if (attachmentId === null) return fail(400, { message: 'An attachment is required.' });
+		const attachment = await findTaskAttachment(locals.supabase, params.taskId, attachmentId);
+		if (attachment === null) return fail(404, { message: 'That attachment is already gone.' });
+		await deleteTaskAttachment(locals.supabase, attachment);
+		return {};
+	}
+};

@@ -1,3 +1,4 @@
+import { safeStorageFilename } from '$lib/server/storage/safeStorageFilename';
 import { sourcesBucket } from './brainStorage';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -13,7 +14,7 @@ export async function createBrainSource(
 	upload: { filename: string; mimeType: string; byteCount: number }
 ): Promise<SourceUploadGrant> {
 	const sourceId = crypto.randomUUID();
-	const uploadPath = `${userId}/${sourceId}/${safeFilename(upload.filename)}`;
+	const uploadPath = `${userId}/${sourceId}/${safeStorageFilename(upload.filename)}`;
 	const { error: insertError } = await supabase.from('brain_sources').insert({
 		id: sourceId,
 		brain_id: brainId,
@@ -28,8 +29,4 @@ export async function createBrainSource(
 		.createSignedUploadUrl(uploadPath);
 	if (error !== null) throw error;
 	return { sourceId, uploadUrl: data.signedUrl };
-}
-
-function safeFilename(filename: string): string {
-	return filename.replace(/[^a-zA-Z0-9._-]+/g, '-');
 }

@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
 import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { attachmentActions } from './attachmentActions';
 import { buildActions } from './buildActions';
 import { checklistActions } from './checklistActions';
 import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
@@ -15,8 +16,7 @@ import { setCriterionMet } from '$lib/server/projects/setCriterionMet';
 import { setTaskAssignees } from '$lib/server/projects/setTaskAssignees';
 import { setTaskRoles } from '$lib/server/projects/setTaskRoles';
 import { updateTaskDetails } from '$lib/server/projects/updateTaskDetails';
-import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
-import type { TaskComment } from '$lib/server/projects/getTaskComments';
+import { withAuthorNames, withUploaderNames } from '$lib/server/projects/staffNames';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -26,13 +26,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		...workspace,
 		...(await getTaskFamily(locals.supabase, workspace.task)),
-		comments: withAuthorNames(workspace.comments, workspace.staffMembers)
+		comments: withAuthorNames(workspace.comments, workspace.staffMembers),
+		attachments: withUploaderNames(workspace.attachments, workspace.staffMembers)
 	};
 };
 
 export const actions: Actions = {
 	...checklistActions,
 	...buildActions,
+	...attachmentActions,
 	saveTask: async ({ locals, params, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
@@ -90,11 +92,3 @@ export const actions: Actions = {
 		redirect(303, `/projects/${params.projectId}`);
 	}
 };
-
-function withAuthorNames(comments: TaskComment[], staffMembers: StaffMember[]) {
-	const nameById = new Map(staffMembers.map((staffMember) => [staffMember.id, staffMember.name]));
-	return comments.map((comment) => ({
-		...comment,
-		authorName: nameById.get(comment.authorId) ?? 'Former staff'
-	}));
-}

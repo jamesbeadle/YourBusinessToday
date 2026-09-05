@@ -4,6 +4,7 @@ import { getProjectPhases } from '$lib/server/projects/getProjectPhases';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { getTask } from '$lib/server/projects/getTask';
 import { getTaskAcceptanceCriteria } from '$lib/server/projects/getTaskAcceptanceCriteria';
+import { getTaskAttachments } from '$lib/server/projects/getTaskAttachments';
 import { getTaskAssigneeMap } from '$lib/server/projects/getTaskAssigneeMap';
 import { getTaskChecklists } from '$lib/server/projects/getTaskChecklists';
 import { getTaskComments } from '$lib/server/projects/getTaskComments';
@@ -19,16 +20,25 @@ export async function loadTaskWorkspace(
 		getProject(supabase, projectId)
 	]);
 	if (task === null || project === null) return null;
-	const [staffMembers, phases, comments, criteria, checklists, assigneeIdsByTask, roles] =
-		await Promise.all([
-			getStaffDirectory(supabase),
-			getProjectPhases(supabase, projectId),
-			getTaskComments(supabase, taskId),
-			getTaskAcceptanceCriteria(supabase, taskId),
-			getTaskChecklists(supabase, taskId),
-			getTaskAssigneeMap(supabase, [taskId]),
-			getTaskRoles(supabase, taskId)
-		]);
+	const [
+		staffMembers,
+		phases,
+		comments,
+		criteria,
+		checklists,
+		attachments,
+		assigneeIdsByTask,
+		roles
+	] = await Promise.all([
+		getStaffDirectory(supabase),
+		getProjectPhases(supabase, projectId),
+		getTaskComments(supabase, taskId),
+		getTaskAcceptanceCriteria(supabase, taskId),
+		getTaskChecklists(supabase, taskId),
+		getTaskAttachments(supabase, taskId),
+		getTaskAssigneeMap(supabase, [taskId]),
+		getTaskRoles(supabase, taskId)
+	]);
 	return {
 		task,
 		project,
@@ -37,6 +47,7 @@ export async function loadTaskWorkspace(
 		comments,
 		criteria,
 		checklists,
+		attachments,
 		assigneeIds: assigneeIdsByTask.get(taskId) ?? [],
 		roles
 	};

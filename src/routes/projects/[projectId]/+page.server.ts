@@ -34,7 +34,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	};
 };
 
-export const actions: Actions = {
+export const actions = {
 	...projectActions,
 	createTask: async ({ locals, params, request }) => {
 		const user = await requireStaff(locals);
@@ -81,4 +81,4 @@ export const actions: Actions = {
 		await updateTaskPhase(locals.supabase, taskId, phaseId === '' ? null : phaseId);
 		return {};
 	}
-};
+} satisfies Actions;

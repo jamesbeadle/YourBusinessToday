@@ -1,6 +1,34 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { BrainSubscription, PurchasedEdition, SubscriptionStatus } from '$lib/data/marketTypes';
 
+type Joined<Row> = Row | Row[] | null;
+
+type PurchasedEditionRow = {
+	id: string;
+	price_credits: number;
+	purchased_at: string;
+	brain_listings: Joined<{ headline: string }>;
+	brain_editions: Joined<{
+		name: string;
+		version: number;
+		snapshot_brain_id: string;
+		domain_brains: Joined<{ id: string; entity_id: string }>;
+	}>;
+};
+
+type BrainSubscriptionRow = {
+	id: string;
+	listing_id: string;
+	price_credits: number;
+	current_period_end: string;
+	status: SubscriptionStatus;
+	brain_listings: Joined<{
+		headline: string;
+		brain_id: string;
+		domain_brains: Joined<{ entity_id: string }>;
+	}>;
+};
+
 export async function getPurchasedEditions(
 	supabase: SupabaseClient,
 	buyerId: string
@@ -13,7 +41,8 @@ export async function getPurchasedEditions(
 		)
 		.eq('buyer_id', buyerId)
 		.eq('kind', 'edition')
-		.order('purchased_at', { ascending: false });
+		.order('purchased_at', { ascending: false })
+		.overrideTypes<PurchasedEditionRow[], { merge: false }>();
 	if (error !== null) throw error;
 	return (data ?? []).map((row) => {
 		const edition = one(row.brain_editions);
@@ -43,7 +72,8 @@ export async function getBrainSubscriptions(
 		)
 		.eq('buyer_id', buyerId)
 		.eq('kind', 'subscription')
-		.order('current_period_end', { ascending: false });
+		.order('current_period_end', { ascending: false })
+		.overrideTypes<BrainSubscriptionRow[], { merge: false }>();
 	if (error !== null) throw error;
 	return (data ?? []).map((row) => {
 		const listing = one(row.brain_listings);
@@ -53,15 +83,15 @@ export async function getBrainSubscriptions(
 			headline: listing?.headline ?? '',
 			priceCredits: row.price_credits,
 			currentPeriodEnd: row.current_period_end,
-			status: row.status as SubscriptionStatus,
+			status: row.status,
 			brainId: listing?.brain_id ?? '',
 			entityId: one(listing?.domain_brains)?.entity_id ?? ''
 		};
 	});
 }
 
-function one<Row>(nested: Row | Row[] | null | undefined): Row | undefined {
-	if (nested === null || nested === undefined) return undefined;
-	if (Array.isArray(nested)) return nested[0];
-	return nested;
+function one<Row>(joined: Joined<Row> | undefined): Row | undefined {
+	if (joined === null || joined === undefined) return undefined;
+	if (Array.isArray(joined)) return joined[0];
+	return joined;
 }

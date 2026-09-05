@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ChatbotCard from './ChatbotCard.svelte';
-	import { knowledgeBaseToolHref } from '../knowledge/dashboard/knowledgeBaseTools';
+	import { knowledgeBaseHref, knowledgeBaseToolHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { OwnedChatbotGroup } from '$lib/server/chatbots/getChatbotsForOwner';
 
 	let { groups }: { groups: OwnedChatbotGroup[] } = $props();
@@ -12,7 +12,7 @@
 		<div class="flex flex-col gap-3 rounded-2xl border border-hairline p-5">
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<a
-					href={`/knowledge-base/${group.knowledgeBaseId}`}
+					href={knowledgeBaseHref(group.knowledgeBaseId)}
 					class="font-display text-base text-chalk transition hover:text-signal"
 				>
 					{group.knowledgeBaseName}

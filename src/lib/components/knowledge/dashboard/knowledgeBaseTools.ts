@@ -1,5 +1,5 @@
 import { sectionIconPaths } from '../../brain/dashboard/railIcons';
-import { knowledgeBaseHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
+import { knowledgeBaseToolParameter } from '$lib/data/knowledge/knowledgeBaseRoutes';
 
 export type KnowledgeBaseToolKey =
 	| 'interview'
@@ -54,19 +54,13 @@ export function knowledgeBaseToolKeysFor(isOwner: boolean): KnowledgeBaseToolKey
 	return isOwner ? ownerToolKeys : viewerToolKeys;
 }
 
-const toolParameter = 'section';
-
-export function knowledgeBaseToolHref(knowledgeBaseId: string, key: KnowledgeBaseToolKey): string {
-	return `${knowledgeBaseHref(knowledgeBaseId)}?${toolParameter}=${key}`;
-}
-
 /** A link may ask for a tool; otherwise a wide screen opens the interview and a phone opens nothing. */
 export function openingKnowledgeBaseTool(
 	url: URL,
 	isOwner: boolean,
 	isWideScreen: boolean
 ): KnowledgeBaseToolKey | null {
-	const requested = url.searchParams.get(toolParameter);
+	const requested = url.searchParams.get(knowledgeBaseToolParameter);
 	const requestedTool = knowledgeBaseToolKeysFor(isOwner).find((key) => key === requested);
 	if (requestedTool !== undefined) return requestedTool;
 	return isWideScreen ? 'interview' : null;

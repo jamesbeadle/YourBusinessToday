@@ -8,7 +8,7 @@ export type ActionArea =
 	| 'tasks'
 	| 'accounting';
 
-export type ActionAudience = 'staff' | 'contact' | 'everyone';
+export type ActionAudience = 'staff' | 'admin' | 'contact' | 'everyone';
 
 export type McpAction = {
 	name: string;

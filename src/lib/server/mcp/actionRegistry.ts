@@ -5,7 +5,7 @@ import { projectActions } from './actions/projectActions';
 import { requestActions } from './actions/requestActions';
 import { taskActions } from './actions/taskActions';
 import type { ActionArea, McpAction } from './actionTypes';
-import type { McpRole } from './resolveAccountStanding';
+import type { AccountStanding } from './resolveAccountStanding';
 
 const everyAction: McpAction[] = [
 	...accountActions,
@@ -16,22 +16,23 @@ const everyAction: McpAction[] = [
 	...accountingActions
 ];
 
-export function actionsFor(role: McpRole, area: ActionArea | null): McpAction[] {
+export function actionsFor(standing: AccountStanding, area: ActionArea | null): McpAction[] {
 	return everyAction
-		.filter((action) => isAudience(action, role))
+		.filter((action) => isForAudience(action, standing))
 		.filter((action) => area === null || action.area === area)
 		.sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export function findAction(name: string, role: McpRole): McpAction | null {
-	return actionsFor(role, null).find((action) => action.name === name) ?? null;
+export function findAction(name: string, standing: AccountStanding): McpAction | null {
+	return actionsFor(standing, null).find((action) => action.name === name) ?? null;
 }
 
-export function areasFor(role: McpRole): ActionArea[] {
-	return [...new Set(actionsFor(role, null).map((action) => action.area))];
+export function areasFor(standing: AccountStanding): ActionArea[] {
+	return [...new Set(actionsFor(standing, null).map((action) => action.area))];
 }
 
-function isAudience(action: McpAction, role: McpRole): boolean {
+function isForAudience(action: McpAction, standing: AccountStanding): boolean {
 	if (action.audience === 'everyone') return true;
-	return action.audience === role;
+	if (action.audience === 'admin') return standing.isAdmin;
+	return action.audience === standing.role;
 }

@@ -1,14 +1,32 @@
-export type ProjectStatus = 'active' | 'on_hold' | 'complete';
+export type ProjectStatus =
+	| 'scoping'
+	| 'building'
+	| 'testing'
+	| 'maintenance'
+	| 'complete'
+	| 'on_hold';
 
 export const projectStatusLabels: Record<ProjectStatus, string> = {
-	active: 'Active',
-	on_hold: 'On hold',
-	complete: 'Complete'
+	scoping: 'Scoping',
+	building: 'Building',
+	testing: 'Testing',
+	maintenance: 'Maintenance',
+	complete: 'Complete',
+	on_hold: 'On hold'
 };
 
-export const projectStatusOrder: ProjectStatus[] = ['active', 'on_hold', 'complete'];
+export const projectStatusOrder: ProjectStatus[] = [
+	'scoping',
+	'building',
+	'testing',
+	'maintenance',
+	'complete',
+	'on_hold'
+];
+
+const statusForNewProject: ProjectStatus = 'scoping';
 
 export function parseProjectStatus(value: unknown): ProjectStatus {
-	if (value === 'on_hold' || value === 'complete') return value;
-	return 'active';
+	const knownStatus = projectStatusOrder.find((status) => status === value);
+	return knownStatus ?? statusForNewProject;
 }

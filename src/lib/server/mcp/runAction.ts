@@ -6,7 +6,7 @@ export async function runAction(
 	name: string,
 	input: Record<string, unknown>
 ): Promise<string> {
-	const action = findAction(name, caller.role);
+	const action = findAction(name, caller);
 	if (action === null) {
 		return `There is no action called ${name} that you can run. Call list_actions to see what you can do.`;
 	}

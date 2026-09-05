@@ -1,8 +1,7 @@
-import { bearerToken } from '$lib/server/tokens/apiToken';
+import { bearerToken, hashApiToken } from '$lib/server/tokens/apiToken';
 import { hashSecret } from '$lib/server/oauth/oauthTokens';
-import { hashApiToken } from '$lib/server/tokens/apiToken';
 import { resolveAccountStanding, type AccountStanding } from './resolveAccountStanding';
-import { parseClientContactRecord } from '$lib/server/clients/clientContactRecord';
+import { parseClientContactRecord, type ClientContact } from '$lib/server/clients/clientContactRecord';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -10,9 +9,6 @@ export type McpCaller = AccountStanding & { supabase: SupabaseClient };
 
 const accessTokenPrefix = 'ybt_at_';
 
-// Two ways in: an OAuth access token, which resolves to whoever signed in and
-// carries their standing — staff or client contact; and a client access token
-// pasted into a config, which can only ever be a contact.
 export async function resolveMcpCaller(request: Request): Promise<McpCaller | null> {
 	const token = bearerToken(request);
 	if (token === '') return null;
@@ -50,8 +46,9 @@ async function resolveContactTokenCaller(
 		.maybeSingle();
 	if (error) throw error;
 	if (data === null || data.revoked_at !== null) return null;
-	await stampUse(supabase, 'client_api_tokens', data.id);
 	const contact = parseClientContactRecord(data.client_contacts as unknown as Record<string, unknown>);
+	if (await isAccountRestricted(supabase, contact)) return null;
+	await stampUse(supabase, 'client_api_tokens', data.id);
 	return {
 		supabase,
 		accountId: contact.accountId ?? '',
@@ -62,11 +59,13 @@ async function resolveContactTokenCaller(
 	};
 }
 
-async function stampUse(
-	supabase: SupabaseClient,
-	table: string,
-	rowId: string
-): Promise<void> {
+async function isAccountRestricted(supabase: SupabaseClient, contact: ClientContact): Promise<boolean> {
+	if (contact.accountId === null) return false;
+	const standing = await resolveAccountStanding(supabase, contact.accountId);
+	return standing.role === 'none';
+}
+
+async function stampUse(supabase: SupabaseClient, table: string, rowId: string): Promise<void> {
 	const { error } = await supabase
 		.from(table)
 		.update({ last_used_at: new Date().toISOString() })

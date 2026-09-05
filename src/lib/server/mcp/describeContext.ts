@@ -5,8 +5,8 @@ export function describeContext(caller: McpCaller): string {
 	return [
 		`Signed in as ${caller.email}.`,
 		caller.role === 'staff' ? staffLine(caller) : contactLine(caller),
-		`Areas you can reach: ${areasFor(caller.role).join(', ')}.`,
-		`${actionsFor(caller.role, null).length} actions are available to you — call list_actions to see them.`
+		`Areas you can reach: ${areasFor(caller).join(', ')}.`,
+		`${actionsFor(caller, null).length} actions are available to you — call list_actions to see them.`
 	].join('\n');
 }
 

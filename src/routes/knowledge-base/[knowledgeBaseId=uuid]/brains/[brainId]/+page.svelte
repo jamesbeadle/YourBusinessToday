@@ -1,5 +1,6 @@
 <script lang="ts">
 	import BrainViewFrame from '$lib/components/knowledge/dashboard/BrainViewFrame.svelte';
+	import ExperienceBrainView from '$lib/components/knowledge/brainViews/ExperienceBrainView.svelte';
 	import ExpertiseBrainView from '$lib/components/knowledge/brainViews/ExpertiseBrainView.svelte';
 
 	let { data } = $props();
@@ -15,5 +16,7 @@
 <BrainViewFrame {knowledgeBaseId} brain={data.openBrain}>
 	{#if data.view.kind === 'expertise'}
 		<ExpertiseBrainView {knowledgeBaseId} {brainId} view={data.view} />
+	{:else if data.view.kind === 'experience'}
+		<ExperienceBrainView {knowledgeBaseId} isOwner={data.isOwner} view={data.view} />
 	{/if}
 </BrainViewFrame>

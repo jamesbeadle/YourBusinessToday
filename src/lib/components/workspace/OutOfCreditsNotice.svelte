@@ -1,7 +1,11 @@
 <div class="flex items-center justify-between gap-4 border-t border-hairline bg-night p-4">
 	<p class="text-sm text-chalk/80">
 		You're out of credits — during early access, the Your Business Today team tops up accounts
-		directly. Get in touch and we'll sort you out.
+		directly.
+		<a href="/contact" class="text-chalk underline underline-offset-4 hover:text-signal">
+			Get in touch
+		</a>
+		and we'll sort you out.
 	</p>
 	<a
 		href="/account/credits"

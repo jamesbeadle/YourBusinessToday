@@ -1,4 +1,4 @@
-import { WIDE_SCREEN_QUERY } from './isWideScreen';
+const WIDE_SCREEN_QUERY = '(min-width: 1024px)';
 
 /**
  * The viewport as a live media query: isWideScreen follows the lg breakpoint

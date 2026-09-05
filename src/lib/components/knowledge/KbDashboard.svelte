@@ -5,6 +5,7 @@
 	import RailNav from '../shell/RailNav.svelte';
 	import RailPanel from '../shell/RailPanel.svelte';
 	import { kbRailItemsFor, kbSectionLabel, openingKbSection, type KbSectionKey } from './kbRail';
+	import { isWideScreen } from '$lib/client/isWideScreen';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
@@ -38,8 +39,7 @@
 	let isOutOfCredits = $state(false);
 
 	onMount(() => {
-		const isWideScreen = window.matchMedia('(min-width: 1024px)').matches;
-		activeSection = openingKbSection(page.url, isOwner, isWideScreen);
+		activeSection = openingKbSection(page.url, isOwner, isWideScreen());
 	});
 
 	function toggleSection(sectionKey: string): void {

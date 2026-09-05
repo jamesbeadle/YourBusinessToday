@@ -8,6 +8,7 @@
 	import WorkspaceMapNotice from '$lib/components/workspace/WorkspaceMapNotice.svelte';
 	import { findKnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 	import { hasMapContent, type WorkflowModel } from '$lib/data/workflowModel';
+	import { isWideScreen } from '$lib/client/isWideScreen';
 	import { onMount } from 'svelte';
 	import type { SectionKey } from '$lib/components/brain/dashboard/railIcons';
 
@@ -21,7 +22,7 @@
 	const isMapDrawn = $derived(hasMapContent(model));
 
 	onMount(() => {
-		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'interview';
+		if (isWideScreen()) activeSection = 'interview';
 	});
 
 	function toggleSection(section: SectionKey): void {

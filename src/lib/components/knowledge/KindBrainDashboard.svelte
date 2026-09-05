@@ -6,6 +6,7 @@
 	import SectionRail from '../brain/dashboard/SectionRail.svelte';
 	import { kindMemberSections, kindOwnerSections, type SectionKey } from '../brain/dashboard/railIcons';
 	import { kindForCategory } from '$lib/data/knowledge/knowledgeKinds';
+	import { isWideScreen } from '$lib/client/isWideScreen';
 	import { onMount } from 'svelte';
 	import type { BoundSchemaType } from '$lib/data/knowledge/boundSchemaTypes';
 	import type { KbBrainItem, KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
@@ -37,7 +38,7 @@
 	let activeSection = $state<SectionKey | null>(null);
 
 	onMount(() => {
-		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'interview';
+		if (isWideScreen()) activeSection = 'interview';
 	});
 
 	function toggleSection(section: SectionKey): void {

@@ -83,3 +83,9 @@ Session 2 — the face of the launch: hide the products (list above), rewrite he
 Session 3 — paperwork and payment: terms and privacy rewritten for chatbots and members, company details, sign-up consent, one real Stripe purchase, `payment_status` check, success-page reconciliation, Resend SMTP for auth mail, leaked-password protection on. Half a day.
 
 Session 4 — hygiene: CI green, rate limits, error sink, admin runbook and bootstrap, then the "Later" list as time allows.
+
+## Progress — 5 September, evening
+
+Blockers 1 to 4 are fixed in production: migrations 0040 and 0042 to 0046 are applied, so the free credit path and the self-refund are gone, the chatbot policies are tightened, and the Builder tables exist. Items 5 to 11, 13, 16, 17 and the lead-generation work are on the `launch-readiness` branch awaiting merge. Stripe (12), the rate limits, and the admin runbook are being finished in parallel on the same branch. Supabase auth hardening (14) still needs the dashboard steps written up in `docs/email-setup.md` — SMTP through Resend and leaked-password protection — before the box can be ticked. The admin item (15) is unchanged by request.
+
+What remains sits with the owner: fill in `src/lib/data/companyDetails.ts`, review the home and case-study copy, add the GitHub repository variables so CI has the public Supabase values, make one real purchase to prove the Stripe path end to end, and after the merge force-push so the old backups leave the history for good.

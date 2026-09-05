@@ -1,4 +1,4 @@
-import { parseContextWrites, parsePageRetires, parsePageWrite } from './parseIngestRecord';
+import { asText, isRecord, parseContextWrites, parsePageRetires, parsePageWrite } from './parseModelWrites';
 import type { BrainContextWrite } from './saveBrainContextWrites';
 import type { BrainPageWrite } from './saveBrainPageWrites';
 
@@ -26,13 +26,4 @@ export function parsePruneRecord(candidate: unknown): PruneRecord | null {
 	};
 	if (record.logLine === '' && record.findings === '') return null;
 	return record;
-}
-
-function asText(candidate: unknown): string {
-	if (typeof candidate !== 'string') return '';
-	return candidate.trim();
-}
-
-function isRecord(candidate: unknown): candidate is Record<string, unknown> {
-	return typeof candidate === 'object' && candidate !== null;
 }

@@ -1,8 +1,8 @@
 import { error, json } from '@sveltejs/kit';
 import { askChatbot, type ChatbotTurn } from '$lib/server/chatbots/askChatbot';
 import { getChatbot } from '$lib/server/chatbots/getChatbot';
-import { getChatbotBrains } from '$lib/server/chatbots/getChatbotBrains';
 import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
+import { getChatbotKnowledge } from '$lib/server/chatbots/getChatbotKnowledge';
 import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership';
 import { meteredCallsSoFar } from '$lib/server/anthropic/modelContext';
 import { questionCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
@@ -49,14 +49,14 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 
 	try {
 		const conversation = await getChatbotConversation(locals.supabase, chatbot.id, user.id);
-		const brains = await getChatbotBrains(service, chatbot.knowledgeBaseId);
+		const knowledge = await getChatbotKnowledge(service, chatbot.knowledgeBaseId);
 		const priorTurns: ChatbotTurn[] = conversation.messages
 			.slice(-longestRememberedExchange)
 			.map((message) => ({ speaker: message.speaker, text: message.body }));
 		const answer = await askChatbot(
 			service,
 			{ name: chatbot.name, modelId: membership.modelId },
-			brains,
+			knowledge,
 			[...priorTurns, { speaker: 'member', text: question }]
 		);
 		await recordChatbotTurn(service, conversation.id, question, answer);

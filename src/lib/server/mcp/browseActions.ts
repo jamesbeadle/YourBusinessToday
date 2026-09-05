@@ -4,13 +4,13 @@ import type { McpCaller } from './resolveMcpCaller';
 
 export function listActions(caller: McpCaller, argumentValues: Record<string, unknown>): string {
 	const area = (argumentValues.area ?? null) as ActionArea | null;
-	const actions = actionsFor(caller.role, area);
+	const actions = actionsFor(caller, area);
 	if (actions.length === 0) return 'Nothing is available to you in that area.';
 	return actions.map(summariseAction).join('\n');
 }
 
 export function describeAction(caller: McpCaller, argumentValues: Record<string, unknown>): string {
-	const action = findAction(String(argumentValues.name ?? ''), caller.role);
+	const action = findAction(String(argumentValues.name ?? ''), caller);
 	if (action === null) return 'There is no action by that name that you can run.';
 	return [
 		`${action.name} — ${action.summary}`,

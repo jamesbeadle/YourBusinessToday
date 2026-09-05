@@ -1,5 +1,6 @@
 import { McpErrorCode, jsonRpcVersion, mcpFailure } from './mcpErrors';
 import { describeMcpTools, findMcpTool } from './mcpTools';
+import { toolFailureSentence } from './toolFailureSentence';
 import {
 	latestProtocolVersion,
 	listCacheHints,
@@ -16,7 +17,8 @@ const capabilities = { tools: { listChanged: false } };
 
 const methods: Record<string, (caller: McpCaller, request: McpRequest) => Promise<McpAnswer>> = {
 	'server/discover': async () => discovery(),
-	initialize: async (caller, request) => ({
+	ping: async () => ({}),
+	initialize: async (_caller, request) => ({
 		protocolVersion: negotiateProtocolVersion(request.params.protocolVersion),
 		capabilities,
 		serverInfo: serverInformation
@@ -53,7 +55,7 @@ async function callTool(caller: McpCaller, request: McpRequest): Promise<McpAnsw
 		return toolAnswer(await tool.run(caller, argumentValues), false);
 	} catch (failure) {
 		console.error(`MCP tool ${tool.name} failed`, failure);
-		return toolAnswer('That did not work. Try again shortly.', true);
+		return toolAnswer(toolFailureSentence(failure), true);
 	}
 }
 

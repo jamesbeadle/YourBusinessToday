@@ -1,10 +1,17 @@
 import { createServerClient } from '@supabase/ssr';
+import { text } from '@sveltejs/kit';
+import { isForbiddenCrossSiteForm } from '$lib/server/http/crossSiteFormSubmission';
 import { PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { getUserModelOverride } from '$lib/server/anthropic/getUserModelOverride';
 import { runWithModelResolver } from '$lib/server/anthropic/modelContext';
 import type { Handle } from '@sveltejs/kit';
 
+const forbidden = 403;
+
 export const handle: Handle = async ({ event, resolve }) => {
+	if (isForbiddenCrossSiteForm(event.request, event.url)) {
+		return text('Cross-site form submissions are forbidden', { status: forbidden });
+	}
 	event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),

@@ -1,0 +1,94 @@
+import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
+import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
+import { getTask } from '$lib/server/projects/getTask';
+import { getTaskAcceptanceCriteria } from '$lib/server/projects/getTaskAcceptanceCriteria';
+import { noSuchTask } from './describeTask';
+import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
+import { setCriterionMet } from '$lib/server/projects/setCriterionMet';
+import type { AcceptanceCriterion } from '$lib/server/projects/criterionRecord';
+import type { McpAction } from '../actionTypes';
+
+const taskIdField = textField('The task id');
+
+const criterionIdField = textField('The criterion id, as read_task gives it');
+
+export const acceptanceCriterionActions: McpAction[] = [
+	{
+		name: 'add_acceptance_criterion',
+		area: 'tasks',
+		audience: 'staff',
+		isWrite: true,
+		summary: 'add one thing that must be true before a task counts as done',
+		inputSchema: objectSchema(
+			{ taskId: taskIdField, description: textField('What must be true') },
+			['taskId', 'description']
+		),
+		run: async (caller, input) => {
+			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			if (task === null) return noSuchTask;
+			const description = readOptionalText(input, 'description');
+			if (description === null) return 'A criterion needs a description of what must be true.';
+			await addAcceptanceCriterion(caller.supabase, task.id, description);
+			return `"${task.title}" now also has to satisfy: ${description}`;
+		}
+	},
+	{
+		name: 'set_acceptance_criterion_met',
+		area: 'tasks',
+		audience: 'staff',
+		isWrite: true,
+		summary: 'tick or untick one acceptance criterion on a task',
+		inputSchema: objectSchema(
+			{
+				taskId: taskIdField,
+				criterionId: criterionIdField,
+				isMet: { type: 'boolean', description: 'True when it now holds' }
+			},
+			['taskId', 'criterionId', 'isMet']
+		),
+		run: async (caller, input) => {
+			const taskId = readText(input, 'taskId');
+			const criteria = await getTaskAcceptanceCriteria(caller.supabase, taskId);
+			const criterion = findCriterion(criteria, readText(input, 'criterionId'));
+			if (criterion === null) return chooseAnotherCriterion(criteria);
+			const isMet = readIsMet(input);
+			await setCriterionMet(caller.supabase, criterion.id, isMet);
+			return `${criterion.description} — ${isMet ? 'met' : 'not met'}.`;
+		}
+	},
+	{
+		name: 'delete_acceptance_criterion',
+		area: 'tasks',
+		audience: 'staff',
+		isWrite: true,
+		summary: 'drop one acceptance criterion from a task',
+		inputSchema: objectSchema({ taskId: taskIdField, criterionId: criterionIdField }, [
+			'taskId',
+			'criterionId'
+		]),
+		run: async (caller, input) => {
+			const taskId = readText(input, 'taskId');
+			const criteria = await getTaskAcceptanceCriteria(caller.supabase, taskId);
+			const criterion = findCriterion(criteria, readText(input, 'criterionId'));
+			if (criterion === null) return chooseAnotherCriterion(criteria);
+			await deleteAcceptanceCriterion(caller.supabase, criterion.id);
+			return `Dropped: ${criterion.description}`;
+		}
+	}
+];
+
+function readIsMet(input: Record<string, unknown>): boolean {
+	return input.isMet === true || input.isMet === 'true';
+}
+
+function findCriterion(
+	criteria: AcceptanceCriterion[],
+	criterionId: string
+): AcceptanceCriterion | null {
+	return criteria.find((candidate) => candidate.id === criterionId) ?? null;
+}
+
+function chooseAnotherCriterion(criteria: AcceptanceCriterion[]): string {
+	if (criteria.length === 0) return 'That task has no acceptance criteria yet.';
+	return 'That task has no criterion with that id. Call read_task to see the ids it has.';
+}

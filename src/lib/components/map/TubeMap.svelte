@@ -20,7 +20,7 @@
 	viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
 	role="img"
 	aria-label="Process map of every role and task"
-	class="w-full rounded-2xl border border-map-grid bg-map-paper shadow-sm"
+	class="h-auto w-full rounded-2xl border border-map-grid bg-map-paper shadow-sm"
 >
 	{#each lines as line (line.id)}
 		<TubeLinePath {line} />

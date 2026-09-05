@@ -43,16 +43,12 @@
 	const dashboardTools = provideDashboardTools();
 	const slots = $derived(buildConstellationSlots(knowledgeBase.id, brains, processMaps));
 	const openBrainId = $derived(page.params.brainId ?? null);
+	const openSlot = $derived(slots.find((slot) => slot.id === openBrainId) ?? null);
 
 	let constellation = $state<KbConstellation>();
 	let isOutOfCredits = $state(false);
 
-	const flight = provideBrainFlight(
-		new BrainFlight(
-			() => constellation,
-			() => openBrainId
-		)
-	);
+	const flight = provideBrainFlight(new BrainFlight(() => constellation, () => openBrainId));
 
 	onMount(() => {
 		dashboardTools.open(openingKnowledgeBaseTool(page.url, isOwner, screen.isWideScreen));
@@ -70,10 +66,15 @@
 		{@render children()}
 		<DashboardTopBar
 			knowledgeBaseId={knowledgeBase.id}
-			isBrainOpen={openBrainId !== null}
+			{openSlot}
 			badgeCounts={{ review: workbench.proposals.length }}
 		/>
-		<BrainStrip {slots} activeSlotId={openBrainId} onSelect={selectSlot} />
+		<BrainStrip
+			knowledgeBaseId={knowledgeBase.id}
+			{slots}
+			activeSlotId={openBrainId}
+			onSelect={selectSlot}
+		/>
 		{#if isOutOfCredits}
 			<div class="absolute inset-x-4 top-16 z-20 overflow-hidden rounded-2xl border border-hairline">
 				<OutOfCreditsNotice />

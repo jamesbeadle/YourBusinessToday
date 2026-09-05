@@ -7,7 +7,7 @@
 	let isOpen = $state(false);
 </script>
 
-<div class="pointer-events-auto hidden flex-col items-end gap-2 sm:flex">
+<div class="pointer-events-auto hidden flex-col items-start gap-2 sm:flex">
 	<button
 		type="button"
 		onclick={() => (isOpen = !isOpen)}

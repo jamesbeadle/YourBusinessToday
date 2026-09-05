@@ -14,7 +14,7 @@
 	<title>{data.openBrain.name} — {data.knowledgeBase.name}</title>
 </svelte:head>
 
-<BrainViewFrame {knowledgeBaseId} brain={data.openBrain}>
+<BrainViewFrame brain={data.openBrain}>
 	{#if data.view.kind === 'expertise'}
 		<ExpertiseBrainView {knowledgeBaseId} {brainId} view={data.view} />
 	{:else if data.view.kind === 'experience'}

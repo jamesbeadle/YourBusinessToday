@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { defaultDestination } from './localDestination';
+import { homeDestinationFor } from './localDestination';
 
 const clientPortal = '/portal';
 
@@ -14,5 +14,5 @@ export async function destinationAfterPasswordSet(
 		.maybeSingle();
 	const isClientContact = contact !== null;
 	if (isClientContact) return clientPortal;
-	return defaultDestination;
+	return homeDestinationFor(supabase, accountId);
 }

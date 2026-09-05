@@ -4,7 +4,7 @@ import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const apiQuestionReason = 'brain_api_question';
+export const apiQuestionReason = 'brain_api_question';
 
 export async function spendForApiQuestion(
 	supabase: SupabaseClient,

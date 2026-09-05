@@ -4,6 +4,7 @@ import { getClientContact } from '$lib/server/clients/getClientContacts';
 import { assignProjectToClient, readProjectOwnership } from '$lib/server/projects/assignProjectToClient';
 import { inviteClientContact } from '$lib/server/clients/inviteClientContact';
 import { requireStaff } from '$lib/server/auth/requireStaff';
+import { tooManyInvitesMessage } from '$lib/server/email/inviteAllowance';
 import type { Actions } from './$types';
 
 export const registerActions: Actions = {
@@ -33,6 +34,7 @@ export const registerActions: Actions = {
 		if (contact.email === '') return fail(400, { message: 'Add an email address before inviting.' });
 		const outcome = await inviteClientContact(locals.supabase, contact, url.origin, user.id);
 		if (outcome === 'already_invited') return { message: `${contact.name} already has an account.` };
+		if (outcome === 'too_many_invites') return fail(429, { message: tooManyInvitesMessage });
 		return { message: `Invitation sent to ${contact.email}.` };
 	}
 };

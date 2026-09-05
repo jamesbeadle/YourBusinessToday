@@ -2,6 +2,7 @@ import { error, json } from '@sveltejs/kit';
 import { converseWithAgent } from '$lib/server/agent/converseWithAgent';
 import { creditsPerReply, harvestCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
 import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { requireSpendHeadroom } from '$lib/server/credits/requireSpendHeadroom';
 import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
@@ -20,6 +21,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const { sessionId, workflowId, message } = await readChatRequest(request);
 	const workflow = await getWorkflow(locals.supabase, workflowId);
 	if (workflow === null) error(404, 'That workflow could not be found');
+	await requireSpendHeadroom(locals.supabase, user.id);
 	const spend = await spendForAgentReply(locals.supabase, sessionId);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');

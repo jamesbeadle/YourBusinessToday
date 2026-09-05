@@ -4,7 +4,7 @@
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
 	import { sectionsForRole, type SectionKey } from './railIcons';
-	import { isWideScreen } from '$lib/client/isWideScreen';
+	import { screen } from '$lib/client/screen.svelte';
 	import { onMount } from 'svelte';
 	import type { BrainAccessRole } from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
@@ -48,7 +48,7 @@
 	let stage = $state<BrainStage>();
 
 	onMount(() => {
-		if (isWideScreen()) activeSection = 'terminal';
+		if (screen.isWideScreen) activeSection = 'terminal';
 	});
 
 	function toggleSection(section: SectionKey): void {
@@ -56,7 +56,7 @@
 	}
 
 	function openPageInBrain(slug: string): void {
-		if (!isWideScreen()) activeSection = null;
+		if (!screen.isWideScreen) activeSection = null;
 		stage?.drillToNeuron(slug);
 	}
 </script>

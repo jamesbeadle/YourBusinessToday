@@ -10,7 +10,11 @@ export type ClientEventKind =
 	| 'request_decided'
 	| 'request_promoted'
 	| 'build_dispatched'
-	| 'build_live';
+	| 'build_live'
+	| 'enquiry_received'
+	| 'lead_added'
+	| 'profile_researched'
+	| 'approach_drafted';
 
 export type ClientEvent = {
 	id: string;

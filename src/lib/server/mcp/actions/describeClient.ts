@@ -70,7 +70,11 @@ const clientEventLabels: Record<ClientEventKind, string> = {
 	request_decided: 'Request decided',
 	request_promoted: 'Request promoted',
 	build_dispatched: 'Build dispatched',
-	build_live: 'Build live'
+	build_live: 'Build live',
+	enquiry_received: 'Enquiry received',
+	lead_added: 'Lead added',
+	profile_researched: 'Profile researched',
+	approach_drafted: 'Approach drafted'
 };
 
 export function describeClientEvents(events: ClientEvent[]): string {

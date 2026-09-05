@@ -34,7 +34,7 @@
 			+<span class="hidden sm:inline"> Add a second brain</span>
 		</a>
 	{:else}
-		<BrainTitleBand slot={openSlot} />
+		<BrainTitleBand {openSlot} />
 	{/if}
 	<DashboardToolbar
 		tools={dashboardTools.tools}

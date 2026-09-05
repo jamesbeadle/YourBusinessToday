@@ -4,13 +4,13 @@ import {
 	creditsPerBrainQuestion,
 	creditsPerBrainUnlearn
 } from '$lib/data/creditPricing';
-import { refundCredits } from '$lib/server/credits/spendCredits';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
 
 export type BrainSpend = { creditBalance: number } | 'insufficient_credits' | 'account_restricted';
 
 const brainQuestionReason = 'brain_question';
-const brainPruneReason = 'brain_prune';
-const brainUnlearnReason = 'brain_unlearn';
+export const brainPruneReason = 'brain_prune';
+export const brainUnlearnReason = 'brain_unlearn';
 
 export async function spendForBrainQuestion(supabase: SupabaseClient): Promise<BrainSpend> {
 	return spendThrough(supabase, 'spend_for_brain_question', {});
@@ -21,7 +21,7 @@ export async function spendForBrainPrune(supabase: SupabaseClient): Promise<Brai
 }
 
 export async function refundForBrainPrune(payerId: string): Promise<void> {
-	await refundCredits(payerId, creditsPerBrainPrune, brainPruneReason);
+	await refundQuestionUsage(payerId, creditsPerBrainPrune, brainPruneReason);
 }
 
 export async function spendForBrainUnlearn(
@@ -32,11 +32,11 @@ export async function spendForBrainUnlearn(
 }
 
 export async function refundForBrainUnlearn(payerId: string): Promise<void> {
-	await refundCredits(payerId, creditsPerBrainUnlearn, brainUnlearnReason);
+	await refundQuestionUsage(payerId, creditsPerBrainUnlearn, brainUnlearnReason);
 }
 
 export async function refundForBrainQuestion(payerId: string): Promise<void> {
-	await refundCredits(payerId, creditsPerBrainQuestion, brainQuestionReason);
+	await refundQuestionUsage(payerId, creditsPerBrainQuestion, brainQuestionReason);
 }
 
 async function spendThrough(

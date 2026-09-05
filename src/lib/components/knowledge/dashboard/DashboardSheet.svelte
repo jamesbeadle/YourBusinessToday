@@ -25,7 +25,7 @@
 	type="button"
 	aria-label="Close panel"
 	class="fixed inset-0 z-40 bg-night/70"
-	transition:fade={{ duration: dashboardMotion.scrimFadeMilliseconds }}
+	transition:fade|global={{ duration: dashboardMotion.scrimFadeMilliseconds }}
 	onclick={onClose}
 ></button>
 <section
@@ -37,7 +37,7 @@
 	style:height={sheetHeight}
 	style:transform={`translateY(${drag.offsetPixels}px)`}
 	style:transition-duration={`${dashboardMotion.panelSlideMilliseconds}ms`}
-	transition:fly={{
+	transition:fly|global={{
 		y: '100%',
 		duration: dashboardMotion.panelSlideMilliseconds,
 		easing: panelEasing,

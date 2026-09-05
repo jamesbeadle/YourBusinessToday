@@ -30,7 +30,7 @@
 	let isOutOfCredits = $state(false);
 
 	$effect(() => {
-		const toolsOwner = brainToolsOwnerFor('expertise');
+		const toolsOwner = brainToolsOwnerFor('expertise', brainId);
 		const tools = brainTools(toolKeys, { interview, ask, model, settings });
 		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);

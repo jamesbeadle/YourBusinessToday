@@ -36,7 +36,7 @@
 	const legendLines = $derived(layoutWorkflowMap(model).lines);
 
 	$effect(() => {
-		const toolsOwner = brainToolsOwnerFor('process');
+		const toolsOwner = brainToolsOwnerFor('process', view.workflowId);
 		const tools = brainTools(toolKeys, { interview, map, share });
 		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);

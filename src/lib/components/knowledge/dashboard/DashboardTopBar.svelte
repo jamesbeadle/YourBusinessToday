@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BrainTitleBand from './BrainTitleBand.svelte';
 	import DashboardToolbar from './DashboardToolbar.svelte';
+	import { topRowHeightPixels } from './dashboardLayout';
 	import { useDashboardTools } from './dashboardTools.svelte';
 	import { newBrainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ConstellationSlot } from '../constellationSlots';
@@ -19,8 +20,9 @@
 </script>
 
 <div
-	class="pointer-events-none absolute inset-x-0 top-0 z-30 flex h-14 items-center justify-between
-		gap-3 px-3"
+	class="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3
+		px-3"
+	style:height={`${topRowHeightPixels}px`}
 >
 	{#if openSlot === null}
 		<a

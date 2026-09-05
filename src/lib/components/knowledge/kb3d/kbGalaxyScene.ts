@@ -1,10 +1,11 @@
 import { assembleKbGalaxy, type KbGalaxy } from './kbGalaxyAssembly';
 import { attachKbGalaxyInput, type KbGalaxyInput } from './kbGalaxyInput';
 import type { Camera } from 'three';
-import type { ConstellationSlot } from '../constellationSlots';
+import { areSameSlotsToShow, type ConstellationSlot } from '../constellationSlots';
 
 export type KbGalaxyScene = {
 	galaxy: () => KbGalaxy;
+	isShowing: (slots: ConstellationSlot[]) => boolean;
 	replace: (slots: ConstellationSlot[]) => void;
 	dispose: () => void;
 };
@@ -35,11 +36,16 @@ export function createKbGalaxyScene(options: {
 		galaxy.dispose();
 	}
 
+	function isShowing(slots: ConstellationSlot[]): boolean {
+		const shownSlots = galaxy.handles.map((handle) => handle.slot);
+		return areSameSlotsToShow(shownSlots, slots);
+	}
+
 	function replace(slots: ConstellationSlot[]): void {
 		dispose();
 		galaxy = assembleKbGalaxy(slots);
 		input = attachInput();
 	}
 
-	return { galaxy: () => galaxy, replace, dispose };
+	return { galaxy: () => galaxy, isShowing, replace, dispose };
 }

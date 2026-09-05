@@ -19,7 +19,8 @@ export class BrainFlight {
 	#stage: () => Stage | undefined;
 	#openBrainId: () => string | null;
 	#hasLanded = false;
-	#isInFlight = $state(false);
+	#landingTime: number | null = null;
+	#landingTimer: ReturnType<typeof setTimeout> | undefined;
 
 	constructor(stage: () => Stage | undefined, openBrainId: () => string | null) {
 		this.#stage = stage;
@@ -28,21 +29,34 @@ export class BrainFlight {
 		$effect(() => this.restWhileHidden());
 	}
 
-	/** A view entered by flight waits for the camera to land; a deep link shows it at once. */
+	/** A view entered by flight waits for the camera to land; a deep link, or a landed camera, shows it at once. */
 	get viewFadeDelayMilliseconds(): number {
-		return this.#isInFlight ? dashboardMotion.flightMilliseconds : 0;
+		if (this.#landingTime === null) return 0;
+		return Math.max(0, this.#landingTime - Date.now());
 	}
 
 	flyInto(brainId: string, isInstant = false): void {
-		this.#isInFlight = !isInstant;
+		this.beginFlight(isInstant);
 		this.wake();
 		this.#stage()?.focusSlot(brainId, { isInstant });
 	}
 
 	flyOut(): void {
-		this.#isInFlight = false;
+		this.land();
 		this.wake();
 		this.#stage()?.releaseFocus();
+	}
+
+	private beginFlight(isInstant: boolean): void {
+		if (isInstant) return this.land();
+		clearTimeout(this.#landingTimer);
+		this.#landingTime = Date.now() + dashboardMotion.flightMilliseconds;
+		this.#landingTimer = setTimeout(() => this.land(), dashboardMotion.flightMilliseconds);
+	}
+
+	private land(): void {
+		clearTimeout(this.#landingTimer);
+		this.#landingTime = null;
 	}
 
 	private wake(): void {
@@ -51,6 +65,7 @@ export class BrainFlight {
 	}
 
 	private followRoute(): (() => void) | void {
+		if (this.#stage() === undefined) return;
 		const brainId = this.#openBrainId();
 		const isDeepLink = !this.#hasLanded;
 		this.#hasLanded = true;
@@ -61,7 +76,6 @@ export class BrainFlight {
 	}
 
 	private rest(): void {
-		this.#isInFlight = false;
 		this.#stage()?.pause();
 		this.#stage()?.hide();
 	}

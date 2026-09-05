@@ -1,27 +1,32 @@
 <script lang="ts">
+	import { knowledgeBaseHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ConstellationSlot } from '../constellationSlots';
 
 	let {
+		knowledgeBaseId,
 		slot,
 		isActive,
 		onSelect
 	}: {
+		knowledgeBaseId: string;
 		slot: ConstellationSlot;
 		isActive: boolean;
 		onSelect: (slot: ConstellationSlot) => void;
 	} = $props();
 
 	const isGhost = $derived(slot.variant === 'ghost');
+	const href = $derived(isActive ? knowledgeBaseHref(knowledgeBaseId) : slot.href);
 
+	/** A ghost links to the new brain form and the open brain's chip links back out; the rest fly in. */
 	function select(event: MouseEvent): void {
-		if (isGhost) return;
+		if (isGhost || isActive) return;
 		event.preventDefault();
 		onSelect(slot);
 	}
 </script>
 
 <a
-	href={slot.href}
+	{href}
 	aria-current={isActive ? 'page' : undefined}
 	title={slot.name}
 	onclick={select}

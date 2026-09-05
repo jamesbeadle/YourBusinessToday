@@ -22,7 +22,7 @@
 >
 	<nav aria-label="Brains" class="flex flex-wrap items-center justify-center gap-2">
 		{#each slots as slot (slot.id)}
-			<BrainStripChip {slot} isActive={slot.id === activeSlotId} {onSelect} />
+			<BrainStripChip {knowledgeBaseId} {slot} isActive={slot.id === activeSlotId} {onSelect} />
 		{/each}
 	</nav>
 	{#if activeSlotId !== null}

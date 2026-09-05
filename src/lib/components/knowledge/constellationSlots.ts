@@ -24,6 +24,12 @@ export function buildConstellationSlots(
 	return [...filled, ...ghostSlots(knowledgeBaseId, filled)];
 }
 
+/** The galaxy is built from the slots' ids and names; anything else changing leaves it standing. */
+export function areSameSlotsToShow(shown: ConstellationSlot[], next: ConstellationSlot[]): boolean {
+	if (shown.length !== next.length) return false;
+	return shown.every((slot, index) => slot.id === next[index].id && slot.name === next[index].name);
+}
+
 function brainSlot(knowledgeBaseId: string, brain: KbBrainSummary): ConstellationSlot {
 	const kind = kindForCategory(brain.category);
 	return {

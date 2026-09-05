@@ -1,5 +1,6 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three';
 import { screen } from '$lib/client/screen.svelte';
+import { untrack } from 'svelte';
 
 const DEFAULT_FIELD_OF_VIEW_DEGREES = 42;
 const DEFAULT_FAR_PLANE = 90;
@@ -16,13 +17,15 @@ export type Stage = {
 	dispose: () => void;
 };
 
+/** A stage is built for the screen it starts on; crossing the breakpoint later must not rebuild the scene. */
 export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {}): Stage {
+	const isWideScreen = untrack(() => screen.isWideScreen);
 	const renderer = new WebGLRenderer({
 		canvas,
 		antialias: true,
-		powerPreference: screen.isWideScreen ? 'high-performance' : 'default'
+		powerPreference: isWideScreen ? 'high-performance' : 'default'
 	});
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioLimit()));
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioLimit(isWideScreen)));
 
 	const fieldOfView = options.fieldOfViewDegrees ?? DEFAULT_FIELD_OF_VIEW_DEGREES;
 	const farPlane = options.farPlane ?? DEFAULT_FAR_PLANE;
@@ -42,10 +45,8 @@ export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {
 	return { renderer, camera, resize, dispose };
 }
 
-function pixelRatioLimit(): number {
-	return screen.isWideScreen
-		? PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS
-		: PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS;
+function pixelRatioLimit(isWideScreen: boolean): number {
+	return isWideScreen ? PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS : PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS;
 }
 
 export function fitStageTo(

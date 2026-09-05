@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { dashboardMotion } from './dashboardMotion';
+	import { topRowHeightPixels } from './dashboardLayout';
 	import { useBrainFlight } from './brainFlight.svelte';
 	import { prefersReducedMotion } from '../../brain/constellation/orbitRig';
 	import { fade } from 'svelte/transition';
@@ -31,7 +32,7 @@
 	in:fade={fadeInOnceLanded()}
 	out:fade={fadeOut()}
 >
-	<div class="absolute inset-x-0 top-14 bottom-0">
+	<div class="absolute inset-x-0 bottom-0" style:top={`${topRowHeightPixels}px`}>
 		{@render children()}
 	</div>
 </section>

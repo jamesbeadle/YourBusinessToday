@@ -4,10 +4,16 @@
 	import SecondBrainRegister from '$lib/components/knowledge/SecondBrainRegister.svelte';
 	import YourChatbotsSection from '$lib/components/chatbots/YourChatbotsSection.svelte';
 	import SharedWithYouSection from '$lib/components/knowledge/SharedWithYouSection.svelte';
+	import { page } from '$app/state';
+	import { newKnowledgeBaseHash } from '$lib/data/knowledge/knowledgeBaseRoutes';
 
 	let { data } = $props();
 
 	let isCreateFormOpen = $state(false);
+
+	$effect(() => {
+		if (page.url.hash === newKnowledgeBaseHash) isCreateFormOpen = true;
+	});
 </script>
 
 <svelte:head>

@@ -2,7 +2,9 @@
 	import ShareList from './ShareList.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { requestShare } from './shareRequests';
+	import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 	import type { MergedGrant } from './shareGrouping';
+	import type { ShareOutcome } from './shareRequests';
 	import type { ShareScope, WorkspaceInvite, WorkspaceShare } from '$lib/data/sharingTypes';
 
 	let {
@@ -32,8 +34,8 @@
 		notice = null;
 		const outcome = await requestShare(email, scope, brainId, entityId);
 		isSharing = false;
-		if (!outcome.isShared) return (notice = { tone: 'caution', message: outcome.message });
-		notice = { tone: 'go', message: NEUTRAL_CONFIRMATION };
+		notice = describeOutcome(outcome, NEUTRAL_CONFIRMATION);
+		if (!outcome.isShared) return;
 		email = '';
 		await invalidateAll();
 	}
@@ -41,9 +43,14 @@
 	async function resendInvite(invite: MergedGrant) {
 		notice = null;
 		const outcome = await requestShare(invite.email, invite.scope, brainId, entityId);
-		notice = outcome.isShared
-			? { tone: 'go', message: `Invitation re-sent to ${invite.email}.` }
-			: { tone: 'caution', message: outcome.message };
+		notice = describeOutcome(outcome, `Invitation re-sent to ${invite.email}.`);
+	}
+
+	function describeOutcome(outcome: ShareOutcome, confirmation: string) {
+		if (!outcome.isShared) return { tone: 'caution' as const, message: outcome.message };
+		const undelivered = undeliveredInviteNotice(outcome.emailDelivery);
+		if (undelivered !== null) return { tone: 'caution' as const, message: undelivered };
+		return { tone: 'go' as const, message: confirmation };
 	}
 </script>
 

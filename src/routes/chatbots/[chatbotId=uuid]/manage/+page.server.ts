@@ -14,6 +14,7 @@ import { requireOwnedChatbot } from '$lib/server/chatbots/requireOwnedChatbot';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
 import { teachingNoteCredits } from '$lib/server/chatbots/teachChatbotAnswer';
+import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 import type { Actions, PageServerLoad } from './$types';
 
 // Answering a question reads it into the brain with Claude, which outlives
@@ -97,6 +98,8 @@ export const actions: Actions = {
 		if (outcome === 'already_invited') {
 			return fail(400, { message: 'That address is already a member.' });
 		}
+		const undelivered = undeliveredInviteNotice(outcome);
+		if (undelivered !== null) return { message: undelivered };
 	},
 	removeMember: async ({ locals, params, request }) => {
 		const user = await requireUser(locals);

@@ -4,6 +4,7 @@ import { deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
 import { inviteEmailSubject, renderInviteEmail } from '$lib/server/email/inviteEmail';
 import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
 import { verifyShareTarget } from '$lib/server/sharing/verifyShareTarget';
+import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { RequestHandler } from './$types';
 import type { ShareScope } from '$lib/data/sharingTypes';
 
@@ -29,8 +30,8 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
 		targetId,
 		targetName: target.name
 	});
-	await deliverInvite(email, user.email ?? '', target.name, url.origin);
-	return json({ isInvited: true });
+	const emailDelivery = await deliverInvite(email, user.email ?? '', target.name, url.origin);
+	return json({ isInvited: true, emailDelivery });
 };
 
 export const DELETE: RequestHandler = async ({ locals, request }) => {
@@ -54,17 +55,13 @@ async function deliverInvite(
 	inviterEmail: string,
 	workspaceName: string,
 	origin: string
-): Promise<void> {
+): Promise<EmailDelivery> {
 	const signInUrl = `${origin}/account/sign-in?invited=1&by=${encodeURIComponent(inviterEmail)}`;
-	try {
-		await sendTransactionalEmail({
-			to: invitedEmail,
-			subject: inviteEmailSubject(inviterEmail),
-			html: renderInviteEmail(inviterEmail, workspaceName, signInUrl)
-		});
-	} catch (failure) {
-		console.error('Invite email failed', failure);
-	}
+	return sendTransactionalEmail({
+		to: invitedEmail,
+		subject: inviteEmailSubject(inviterEmail),
+		html: renderInviteEmail(inviterEmail, workspaceName, signInUrl)
+	});
 }
 
 function readTarget(payload: Record<string, unknown>): { scope: ShareScope; targetId: string } {

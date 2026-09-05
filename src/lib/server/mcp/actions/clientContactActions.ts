@@ -3,6 +3,7 @@ import { getClient } from '$lib/server/clients/getClient';
 import { getClientContact } from '$lib/server/clients/getClientContacts';
 import { inviteClientContact } from '$lib/server/clients/inviteClientContact';
 import { noSuchClient } from './describeClient';
+import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import type { McpAction } from '../actionTypes';
 import type { McpCaller } from '../resolveMcpCaller';
@@ -75,5 +76,7 @@ async function inviteContact(caller: McpCaller, input: Record<string, unknown>):
 	const origin = readOptionalText(input, 'origin') ?? liveOrigin;
 	const outcome = await inviteClientContact(caller.supabase, contact, origin, caller.accountId);
 	if (outcome === 'already_invited') return `${contact.name} already has a sign-in, so nothing was sent.`;
+	const undelivered = undeliveredInviteNotice(outcome);
+	if (undelivered !== null) return `${undelivered} ${contact.name} now has a sign-in but no link to it.`;
 	return `Invitation sent to ${contact.email}. It takes ${contact.name} to a page to set a password.`;
 }

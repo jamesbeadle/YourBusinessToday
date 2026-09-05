@@ -14,8 +14,6 @@ the credit model profitable.
   the service-role client. The function is idempotent on the checkout session id and only
   executable by the service role. Credits are only ever granted from the webhook, never
   from the success redirect.
-- **Fallback**: when `STRIPE_SECRET_KEY` is missing, the `buy` action uses the old
-  placeholder RPC (`purchase_credit_pack`) so local development works without Stripe.
 
 ## Going live, step by step
 
@@ -55,8 +53,7 @@ Revenue side, per reply, at 10 credits per reply:
 | Scale (3,000) | £12.99 | 3,000 | 4.3p | ~1.3p (31%) |
 
 Stripe fees (1.5% + 20p UK cards) cost 24.5p on a Starter pack — about 8.2% of revenue.
-The fixed 20p is why packs never go below ~£3: at £1.99 the fee share is 11.6%. Welcome
-credits give away 30 free replies (~£1 of API cost) per signup.
+The fixed 20p is why packs never go below ~£3: at £1.99 the fee share is 11.6%.
 
 Two cost reductions are planned before launch, and the Scale pack's thinner margin
 assumes at least one lands:

@@ -253,9 +253,7 @@ GitHub; a client on GitLab cannot be built this way until they move.
 Steps 1 to 4 and 6 of the build order are written and type-check clean, on the working tree
 and not yet committed. Migration 0040 is not applied. Nothing has run end to end: no routine
 exists yet, no environment variable is set, no webhook is installed, and `main` is not yet
-protected. `npm run check` reports twenty errors that predate this work, in `market/`,
-`face/_to_delete/` and `sharing/`; the `ci` workflow will stay red until they are fixed,
-which makes fixing them the first thing the Builder should be asked to do.
+protected. `npm run check` is clean and the `ci` workflow runs check and build.
 
 ## Build order
 

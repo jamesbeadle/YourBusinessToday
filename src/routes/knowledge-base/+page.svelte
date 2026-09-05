@@ -43,6 +43,9 @@
 	{#if data.invitations.length > 0}
 		<InvitationsPanel invitations={data.invitations} />
 	{/if}
+	{#if data.register.length === 0 && data.memberChatbots.length > 0}
+		<YourChatbotsSection chatbots={data.memberChatbots} />
+	{/if}
 	{#if data.register.length === 0}
 		<div
 			class="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-hairline
@@ -64,7 +67,7 @@
 	{:else}
 		<SecondBrainRegister groups={data.register} />
 	{/if}
-	{#if data.memberChatbots.length > 0}
+	{#if data.register.length > 0 && data.memberChatbots.length > 0}
 		<YourChatbotsSection chatbots={data.memberChatbots} />
 	{/if}
 	{#if data.sharedBrains.length > 0 || data.sharedWorkflows.length > 0}

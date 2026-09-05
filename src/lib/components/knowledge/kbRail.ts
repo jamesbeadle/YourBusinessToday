@@ -60,3 +60,19 @@ export function kbRailItemsFor(isOwner: boolean): RailItem[] {
 export function kbSectionLabel(key: KbSectionKey): string {
 	return kbRailItems[key].label;
 }
+
+const sectionParameter = 'section';
+
+export function kbSectionHref(knowledgeBaseId: string, key: KbSectionKey): string {
+	return `/knowledge-base/${knowledgeBaseId}?${sectionParameter}=${key}`;
+}
+
+// A link may ask for a section; otherwise a wide screen opens the interview
+// and a phone opens nothing.
+export function openingKbSection(url: URL, isOwner: boolean, isWideScreen: boolean): KbSectionKey | null {
+	const requested = url.searchParams.get(sectionParameter);
+	const allowed = isOwner ? ownerKeys : viewerKeys;
+	const requestedSection = allowed.find((key) => key === requested);
+	if (requestedSection !== undefined) return requestedSection;
+	return isWideScreen ? 'interview' : null;
+}

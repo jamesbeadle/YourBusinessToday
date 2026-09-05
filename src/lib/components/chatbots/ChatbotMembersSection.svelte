@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AllowancesForm from './AllowancesForm.svelte';
 	import ChatbotMemberCard from './ChatbotMemberCard.svelte';
 	import ChatbotMemberRow from './ChatbotMemberRow.svelte';
 	import InviteMemberForm from './InviteMemberForm.svelte';
@@ -14,7 +15,8 @@
 	</div>
 	{#if members.length === 0}
 		<p class="text-sm text-chalk/50">
-			Nobody yet — invite an email address and they'll get a link to {chatbot.name}.
+			Nobody yet — invite an email address with an allowance and they'll get a link to
+			{chatbot.name}.
 		</p>
 	{:else}
 		<ul class="flex flex-col gap-2 sm:hidden">
@@ -39,5 +41,6 @@
 				{/each}
 			</tbody>
 		</table>
+		<AllowancesForm {chatbot} {members} />
 	{/if}
 </section>

@@ -4,6 +4,7 @@
 	import { createFlowExperience, type FlowExperience } from './flow/createFlowExperience';
 	import { hasMapContent, type WorkflowModel } from '$lib/data/workflowModel';
 	import { sceneHintPosition, sceneHudPillClass, sceneHudPosition } from './sceneHud';
+	import { restWhilePageHidden } from '$lib/client/pageVisibility.svelte';
 	import { untrack } from 'svelte';
 	import type { FlowHover } from './flow/flowTypes';
 
@@ -54,6 +55,8 @@
 	$effect(() => {
 		experience?.updateModel(flow);
 	});
+
+	restWhilePageHidden(() => experience);
 
 	function returnToWholeBrain(): void {
 		focusedNodeId = null;

@@ -1,17 +1,18 @@
 import { dashboardMotion } from './dashboardMotion';
+import { pageVisibility } from '$lib/client/pageVisibility.svelte';
 import { getContext, setContext } from 'svelte';
 import type KbConstellation from '../KbConstellation.svelte';
 
-type Stage = Pick<KbConstellation, 'focusSlot' | 'releaseFocus' | 'pause' | 'resume'>;
+type Stage = Pick<KbConstellation, 'focusSlot' | 'releaseFocus' | 'pause' | 'resume' | 'hide' | 'show'>;
 
 const restingDelayMilliseconds =
 	dashboardMotion.flightMilliseconds + dashboardMotion.settleAfterFlightMilliseconds;
 
 /**
  * Keeps the galaxy in step with the URL: a brain in the route means the camera
- * is inside it and the galaxy rests once the flight lands; none means the
- * galaxy spins on the ring. Landing directly on a brain cuts instead of flying,
- * and a hidden page rests the galaxy until it is seen again.
+ * is inside it and the galaxy rests unseen once the flight lands; none means
+ * the galaxy spins on the ring. Landing directly on a brain cuts instead of
+ * flying, and a hidden page rests the galaxy until it is seen again.
  * Create inside a component.
  */
 export class BrainFlight {
@@ -34,14 +35,19 @@ export class BrainFlight {
 
 	flyInto(brainId: string, isInstant = false): void {
 		this.#isInFlight = !isInstant;
-		this.#stage()?.resume();
+		this.wake();
 		this.#stage()?.focusSlot(brainId, { isInstant });
 	}
 
 	flyOut(): void {
 		this.#isInFlight = false;
-		this.#stage()?.resume();
+		this.wake();
 		this.#stage()?.releaseFocus();
+	}
+
+	private wake(): void {
+		this.#stage()?.show();
+		this.#stage()?.resume();
 	}
 
 	private followRoute(): (() => void) | void {
@@ -57,15 +63,12 @@ export class BrainFlight {
 	private rest(): void {
 		this.#isInFlight = false;
 		this.#stage()?.pause();
+		this.#stage()?.hide();
 	}
 
-	private restWhileHidden(): () => void {
-		const followVisibility = () => {
-			if (document.hidden) return this.#stage()?.pause();
-			if (this.#openBrainId() === null) this.#stage()?.resume();
-		};
-		document.addEventListener('visibilitychange', followVisibility);
-		return () => document.removeEventListener('visibilitychange', followVisibility);
+	private restWhileHidden(): void {
+		if (pageVisibility.isHidden) return this.#stage()?.pause();
+		if (this.#openBrainId() === null) this.#stage()?.resume();
 	}
 }
 

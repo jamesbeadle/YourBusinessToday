@@ -4,6 +4,7 @@
 	import NeuronTooltip from './NeuronTooltip.svelte';
 	import { buildConstellationModel } from './constellation/buildConstellationModel';
 	import { createConstellationExploration } from './constellation/constellationExploration.svelte';
+	import { restWhilePageHidden } from '$lib/client/pageVisibility.svelte';
 	import { untrack } from 'svelte';
 	import {
 		createConstellationExperience,
@@ -56,6 +57,8 @@
 		if (!hasNeurons) hasWatchedEmptyBrain = true;
 		experience?.updateModel(model);
 	});
+
+	restWhilePageHidden(() => experience);
 
 	export function drillToNeuron(slug: string): void {
 		exploration.rememberSelection(slug);

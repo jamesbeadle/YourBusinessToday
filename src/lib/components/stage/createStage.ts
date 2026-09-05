@@ -1,9 +1,11 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three';
+import { screen } from '$lib/client/screen.svelte';
 
 const DEFAULT_FIELD_OF_VIEW_DEGREES = 42;
 const DEFAULT_FAR_PLANE = 90;
 const NEAR_PLANE = 0.1;
-const PIXEL_RATIO_LIMIT = 2;
+const PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS = 2;
+const PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS = 1.5;
 
 export type StageOptions = { fieldOfViewDegrees?: number; farPlane?: number };
 
@@ -15,8 +17,12 @@ export type Stage = {
 };
 
 export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {}): Stage {
-	const renderer = new WebGLRenderer({ canvas, antialias: true });
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, PIXEL_RATIO_LIMIT));
+	const renderer = new WebGLRenderer({
+		canvas,
+		antialias: true,
+		powerPreference: screen.isWideScreen ? 'high-performance' : 'default'
+	});
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioLimit()));
 
 	const fieldOfView = options.fieldOfViewDegrees ?? DEFAULT_FIELD_OF_VIEW_DEGREES;
 	const farPlane = options.farPlane ?? DEFAULT_FAR_PLANE;
@@ -28,7 +34,18 @@ export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {
 		camera.updateProjectionMatrix();
 	}
 
-	return { renderer, camera, resize, dispose: () => renderer.dispose() };
+	function dispose(): void {
+		renderer.dispose();
+		renderer.forceContextLoss();
+	}
+
+	return { renderer, camera, resize, dispose };
+}
+
+function pixelRatioLimit(): number {
+	return screen.isWideScreen
+		? PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS
+		: PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS;
 }
 
 export function fitStageTo(

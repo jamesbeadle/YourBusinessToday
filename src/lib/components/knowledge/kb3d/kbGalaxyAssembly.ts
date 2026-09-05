@@ -5,7 +5,8 @@ import {
 	MeshBasicMaterial,
 	Scene,
 	SphereGeometry,
-	Vector3
+	Vector3,
+	type Sprite
 } from 'three';
 import { buildMiniBrain } from './miniBrain';
 import { buildSpoke, coreGlow, slotPosition } from './kbGalaxyParts';
@@ -23,6 +24,7 @@ export type SlotHandle = {
 	slot: ConstellationSlot;
 	group: Group;
 	hitMesh: Mesh;
+	labels: Sprite[];
 	baseY: number;
 	spinSpeed: number;
 	bobPhase: number;
@@ -84,6 +86,7 @@ function buildSlotHandle(
 		slot,
 		group,
 		hitMesh,
+		labels: [nameSprite, kindSprite],
 		baseY: position.y,
 		spinSpeed: 0.12 + (slotIndex % 3) * 0.05,
 		bobPhase: slotIndex * 2.1,

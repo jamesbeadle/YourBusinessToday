@@ -24,7 +24,7 @@
 	const toolKeys = $derived(brainToolKeysFor(['interview', 'ask', 'contents'], 'settings', isOwner));
 
 	$effect(() => {
-		const toolsOwner = brainToolsOwnerFor('experience');
+		const toolsOwner = brainToolsOwnerFor('experience', brain.id);
 		const tools = brainTools(toolKeys, { interview, ask, contents, settings });
 		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);

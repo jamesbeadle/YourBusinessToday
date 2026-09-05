@@ -73,7 +73,12 @@ export function createKbGalaxy(
 		focus.focus(handle, options.isInstant ?? false);
 	}
 
+	function releaseFocus(): void {
+		focus.release(false);
+	}
+
 	function updateSlots(slots: ConstellationSlot[]): void {
+		if (scene.isShowing(slots)) return;
 		const focusedSlotId = focus.focusedSlotId();
 		scene.replace(slots);
 		focus.release(true);
@@ -89,12 +94,5 @@ export function createKbGalaxy(
 		stage.dispose();
 	}
 
-	return {
-		focusSlot,
-		releaseFocus: () => focus.release(false),
-		pause: loop.pause,
-		resume: loop.resume,
-		updateSlots,
-		destroy
-	};
+	return { focusSlot, releaseFocus, pause: loop.pause, resume: loop.resume, updateSlots, destroy };
 }

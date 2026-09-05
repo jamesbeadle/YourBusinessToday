@@ -8,9 +8,9 @@ export type BrainToolKey =
 
 type BrainToolDefinition = { label: string; iconPaths: string[] };
 
-/** Each kind of view owns its own registration, so switching brains never drops the incoming tools. */
-export function brainToolsOwnerFor(kind: KnowledgeKind): string {
-	return `${kind}-brain`;
+/** Each open brain owns its own registration, so the outgoing view's release never drops the incoming tools. */
+export function brainToolsOwnerFor(kind: KnowledgeKind, brainId: string): string {
+	return `${kind}-brain-${brainId}`;
 }
 
 const brainToolDefinitions: Record<BrainToolKey, BrainToolDefinition> = {

@@ -13,15 +13,20 @@
 	}: { title: string; onClose: () => void; children: Snippet } = $props();
 
 	const columnWidthPixels = 380;
+
+	function closeOnEscape(event: KeyboardEvent): void {
+		if (event.defaultPrevented || event.key !== 'Escape') return;
+		onClose();
+	}
 </script>
 
-<svelte:window onkeydown={(event) => event.key === 'Escape' && onClose()} />
+<svelte:window onkeydown={closeOnEscape} />
 
 {#if screen.isWideScreen}
 	<aside
 		class="flex shrink-0 flex-col border-l border-hairline bg-night"
 		style:width={`${columnWidthPixels}px`}
-		transition:fly={{
+		transition:fly|global={{
 			x: columnWidthPixels,
 			duration: dashboardMotion.panelSlideMilliseconds,
 			easing: panelEasing,

@@ -89,10 +89,11 @@ needs nothing from the dashboard.
 ## Tools and panels
 
 A tool is `{ key, label, iconPaths, panel }` where `panel` is a snippet. The layout owns
-the active tool and the panel chrome; whoever owns a tool registers it: the layout
-registers the knowledge base tools, a brain page registers its own on mount and removes
-them on destroy (`dashboardTools` context). The toolbar therefore always shows exactly the
-tools that apply.
+the active tool and the panel chrome; whoever owns a tool registers it with a rank: the
+layout registers the knowledge base tools, a brain view registers its own (ranked above,
+under an owner key per brain) on mount and removes them on destroy (`dashboardTools`
+context). The highest rank is on show, so the toolbar always shows exactly the tools that
+apply whichever order the owners mount in.
 
 | State | Owner tools | Viewer tools |
 | --- | --- | --- |

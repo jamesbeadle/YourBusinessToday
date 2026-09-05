@@ -13,3 +13,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .DS_Store
 .vercel
+
+.claude/worktrees/

@@ -1,7 +1,8 @@
 import { deliverChatbotInvite } from './deliverChatbotInvite';
+import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type ResendOutcome = 'sent' | 'no_pending_invite' | 'email_failed';
+export type ResendOutcome = 'no_pending_invite' | EmailDelivery;
 
 // Only a member who has not yet joined can be re-invited; RLS keeps the
 // lookup to the owner's own members.
@@ -14,13 +15,7 @@ export async function resendChatbotInvite(
 ): Promise<ResendOutcome> {
 	const invitedEmail = await pendingInvitedEmail(supabase, chatbot.id, memberRowId);
 	if (invitedEmail === null) return 'no_pending_invite';
-	try {
-		await deliverChatbotInvite({ chatbot, invitedEmail, inviterEmail, origin });
-		return 'sent';
-	} catch (failure) {
-		console.error('Chatbot invite email failed', failure);
-		return 'email_failed';
-	}
+	return deliverChatbotInvite({ chatbot, invitedEmail, inviterEmail, origin });
 }
 
 async function pendingInvitedEmail(

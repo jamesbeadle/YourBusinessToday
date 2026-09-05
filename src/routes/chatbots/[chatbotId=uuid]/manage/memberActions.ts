@@ -5,14 +5,10 @@ import { parseInvitedAllowance, parseInvitedEmail } from '$lib/server/chatbots/p
 import { removeChatbotMember } from '$lib/server/chatbots/removeChatbotMember';
 import { requireOwnedChatbot } from '$lib/server/chatbots/requireOwnedChatbot';
 import { requireUser } from '$lib/server/auth/requireUser';
-import { resendChatbotInvite, type ResendOutcome } from '$lib/server/chatbots/resendChatbotInvite';
+import { resendChatbotInvite } from '$lib/server/chatbots/resendChatbotInvite';
 import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
+import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 import type { RequestEvent } from './$types';
-
-const resendRefusals: Record<Exclude<ResendOutcome, 'sent'>, { status: number; message: string }> = {
-	no_pending_invite: { status: 404, message: 'That person has already joined.' },
-	email_failed: { status: 502, message: 'The invite email could not be sent — try again shortly.' }
-};
 
 export async function inviteMember({ locals, params, request, url }: RequestEvent) {
 	const user = await requireUser(locals);
@@ -31,6 +27,8 @@ export async function inviteMember({ locals, params, request, url }: RequestEven
 		allowance
 	);
 	if (outcome === 'already_invited') return fail(400, { message: 'That address is already a member.' });
+	const undelivered = undeliveredInviteNotice(outcome);
+	if (undelivered !== null) return { message: undelivered };
 }
 
 export async function resendInvite({ locals, params, request, url }: RequestEvent) {
@@ -44,9 +42,9 @@ export async function resendInvite({ locals, params, request, url }: RequestEven
 		user.email ?? '',
 		url.origin
 	);
-	if (outcome === 'sent') return;
-	const refusal = resendRefusals[outcome];
-	return fail(refusal.status, { message: refusal.message });
+	if (outcome === 'no_pending_invite') return fail(404, { message: 'That person has already joined.' });
+	const undelivered = undeliveredInviteNotice(outcome);
+	if (undelivered !== null) return fail(502, { message: undelivered });
 }
 
 export async function removeMember({ locals, params, request }: RequestEvent) {

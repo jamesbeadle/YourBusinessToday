@@ -4,9 +4,10 @@ import { getHiveMembers } from '$lib/server/hive/getHiveMembers';
 import { getHiveModelIndex } from '$lib/server/hive/getHiveModelIndex';
 import { recordHiveMindQuestion } from '$lib/server/hive/recordHiveMindQuestion';
 import {
-	refundForHiveMindQuestion,
+	hiveMindQuestionReason,
 	spendForHiveMindQuestion
 } from '$lib/server/hive/spendForHiveMindQuestion';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
 import { splitHiveMindEarnings } from '$lib/server/hive/splitHiveMindEarnings';
 import {
@@ -47,7 +48,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			consultation.citedPageKeys,
 			shares
 		);
-		const usageBalance = await settleQuestionUsage(user.id, reserve, 'hive_mind_question');
+		const usageBalance = await settleQuestionUsage(user.id, reserve, hiveMindQuestionReason);
 		return json({
 			answerMarkdown: consultation.answerMarkdown,
 			contributors: contributorsFrom(members, shares),
@@ -55,7 +56,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		});
 	} catch (failure) {
 		console.error('Hive Mind question failed', failure);
-		await refundForHiveMindQuestion(user.id);
+		await refundQuestionUsage(user.id, reserve, hiveMindQuestionReason);
 		error(502, 'That question failed — your credits have been refunded');
 	}
 };

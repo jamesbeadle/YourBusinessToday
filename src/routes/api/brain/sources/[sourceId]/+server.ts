@@ -1,12 +1,15 @@
 import { error, json } from '@sveltejs/kit';
+import { creditsPerBrainUnlearn } from '$lib/data/creditPricing';
 import { deleteBrainSource } from '$lib/server/brain/deleteBrainSource';
 import { findBrainSource } from '$lib/server/brain/findBrainSource';
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
 import { runSourceRemoval } from '$lib/server/brain/runSourceRemoval';
 import {
+	brainUnlearnReason,
 	refundForBrainUnlearn,
 	spendForBrainUnlearn
 } from '$lib/server/brain/spendForBrainWork';
+import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
@@ -29,9 +32,11 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 
 	try {
 		await runSourceRemoval(locals.supabase, source);
-	} catch {
+	} catch (failure) {
+		console.error('Brain unlearn failed', failure);
 		await refundForBrainUnlearn(user.id);
 		error(502, 'Unlearning that document failed — your credits have been refunded');
 	}
-	return json({ creditBalance: await getCreditBalance(locals.supabase) });
+	const settledBalance = await settleQuestionUsage(user.id, creditsPerBrainUnlearn, brainUnlearnReason);
+	return json({ creditBalance: settledBalance ?? (await getCreditBalance(locals.supabase)) });
 };

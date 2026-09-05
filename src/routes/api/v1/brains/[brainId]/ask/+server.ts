@@ -3,17 +3,18 @@ import { askModeller } from '$lib/server/brain/askModeller';
 import { createBrainConversation } from '$lib/server/brain/createBrainConversation';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
-import { getConversationMessages } from '$lib/server/brain/getBrainConversation';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
-import { refundForApiQuestion, spendForApiQuestion } from '$lib/server/brainApi/spendForApiQuestion';
+import { rememberedTurns } from '$lib/server/brain/rememberedTurns';
+import {
+	refundForApiQuestion,
+	settleForApiQuestion,
+	spendForApiQuestion
+} from '$lib/server/brainApi/spendForApiQuestion';
 import { resolveApiCaller } from '$lib/server/brainApi/resolveApiCaller';
 import { cheapestModelId } from '$lib/data/modelLadder';
-import type { BrainConversationTurn } from '$lib/data/brainTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
-
-const longestRememberedExchange = 12;
 
 export const config = { maxDuration: 300 };
 
@@ -35,8 +36,8 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		const priorTurns = await rememberedTurns(supabase, conversationId);
 		const contexts = await getBrainContexts(supabase, brain.id);
 		const index = await getBrainPageIndex(supabase, brain.id);
-		// Fixed 10-credit price, so the API runs on the cheapest rung until it
-		// is metered like session questions (docs/model-pricing.md).
+		// A bearer call has no session to resolve a slider, so it runs on the
+		// cheapest rung and settles usage against the owner (docs/model-pricing.md).
 		const answer = await askModeller(
 			supabase,
 			brain.id,
@@ -57,7 +58,8 @@ export const POST: RequestHandler = async ({ request, params }) => {
 				askedThrough: 'api'
 			}
 		});
-		return json({ conversationId, ...answer, creditBalance: spend.creditBalance });
+		const settledBalance = await settleForApiQuestion(brain.ownerId);
+		return json({ conversationId, ...answer, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain API question failed', failure);
 		await refundForApiQuestion(brain.ownerId);
@@ -86,14 +88,4 @@ async function resolveConversationId(
 		if (data !== null) return data.id;
 	}
 	return createBrainConversation(supabase, brain.id, 'api', brain.ownerId);
-}
-
-async function rememberedTurns(
-	supabase: SupabaseClient,
-	conversationId: string
-): Promise<BrainConversationTurn[]> {
-	const messages = await getConversationMessages(supabase, conversationId);
-	return messages
-		.slice(-longestRememberedExchange)
-		.map((message) => ({ speaker: message.speaker, text: message.body }));
 }

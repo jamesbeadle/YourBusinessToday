@@ -11,7 +11,8 @@ import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { fileHarvestToKnowledgeBase } from '$lib/server/agent/fileHarvestedKnowledge';
 import { requireOwnedKnowledgeBase } from '$lib/server/knowledge/requireOwnedKnowledgeBase';
 import { isAnthropicConfigured } from '$lib/server/anthropic/isAnthropicConfigured';
-import { refundCredits, spendCredits } from '$lib/server/credits/spendCredits';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
@@ -39,7 +40,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({ ...turn, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Interview turn failed', failure);
-		await refundCredits(user.id, reserve, interviewSpendReason);
+		await refundQuestionUsage(user.id, reserve, interviewSpendReason);
 		error(502, 'That turn failed — your credits have been refunded');
 	}
 };

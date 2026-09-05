@@ -7,6 +7,12 @@ const checkoutParameter = 'checkout';
 const sessionParameter = 'session_id';
 const expiredStatus: Stripe.Checkout.Session.Status = 'expired';
 
+export const creditedReturnPath = `/account/credits?${checkoutParameter}=credited`;
+
+export function isReturningFromStripe(searchParams: URLSearchParams): boolean {
+	return searchParams.has(sessionParameter);
+}
+
 export async function reconcileCheckoutReturn(
 	searchParams: URLSearchParams,
 	stripe: Stripe | null,
@@ -14,6 +20,7 @@ export async function reconcileCheckoutReturn(
 ): Promise<CheckoutOutcome> {
 	const checkoutState = searchParams.get(checkoutParameter);
 	if (checkoutState === 'cancelled') return 'cancelled';
+	if (checkoutState === 'credited') return 'credited';
 	if (checkoutState !== 'success') return null;
 	const sessionId = searchParams.get(sessionParameter);
 	if (stripe === null || sessionId === null) return 'pending';

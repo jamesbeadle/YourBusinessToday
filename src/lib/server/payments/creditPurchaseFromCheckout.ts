@@ -13,7 +13,10 @@ export async function creditPurchaseFromCheckout(
 	if (!isCheckoutPaid(session)) return;
 	const userId = session.client_reference_id;
 	const packId = session.metadata?.packId;
-	if (!userId || !packId) throw new Error('checkout_session_missing_purchase_details');
+	if (!userId || !packId) {
+		console.warn('Stripe checkout session is not a credit pack purchase', session.id);
+		return;
+	}
 	const supabase = supabaseServiceClient();
 	const { error } = await supabase.rpc('complete_stripe_purchase', {
 		user_identifier: userId,

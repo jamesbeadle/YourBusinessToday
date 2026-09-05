@@ -12,7 +12,15 @@
 
 <div class="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-16">
 	<div class="flex flex-col gap-2">
-		<h1 class="font-display text-3xl font-medium">Admin</h1>
+		<div class="flex items-baseline justify-between gap-3">
+			<h1 class="font-display text-3xl font-medium">Admin</h1>
+			<a
+				href="/admin/usage"
+				class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
+			>
+				Usage and margin
+			</a>
+		</div>
 		<p class="text-chalk/70">
 			The model the site runs on, every account, its credit balance, and the controls to grant
 			promotional credits, restrict access, or delete an account.

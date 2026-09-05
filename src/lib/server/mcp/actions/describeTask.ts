@@ -1,3 +1,4 @@
+import { attachmentLines } from './describeAttachments';
 import { taskStatusLabels } from '$lib/data/taskStatus';
 import type { AcceptanceCriterion } from '$lib/server/projects/criterionRecord';
 import type { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
@@ -21,6 +22,7 @@ export function describeTask(workspace: TaskWorkspace): string {
 		task.details === '' ? 'No details written yet.' : `Details: ${task.details}`,
 		...criterionLines(workspace.criteria),
 		...checklistLines(workspace.checklists),
+		...attachmentLines(workspace.attachments, workspace.staffMembers),
 		...commentLines(workspace.comments, workspace.staffMembers)
 	].join('\n');
 }

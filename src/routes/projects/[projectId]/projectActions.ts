@@ -6,7 +6,7 @@ import { requireStaff } from '$lib/server/auth/requireStaff';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { Actions } from './$types';
 
-export const projectActions: Actions = {
+export const projectActions = {
 	updateProject: async ({ locals, params, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
@@ -35,4 +35,4 @@ export const projectActions: Actions = {
 		await deletePhase(locals.supabase, phaseId);
 		return {};
 	}
-};
+} satisfies Actions;

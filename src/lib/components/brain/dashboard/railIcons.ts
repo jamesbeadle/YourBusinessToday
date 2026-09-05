@@ -1,3 +1,5 @@
+import type { BrainAccessRole } from '$lib/data/marketTypes';
+
 export type SectionKey =
 	| 'interview'
 	| 'terminal'
@@ -18,6 +20,12 @@ export const readerSections: SectionKey[] = ['terminal', 'model'];
 export const memberSections: SectionKey[] = ['interview', 'terminal', 'model'];
 
 export const ownerSections: SectionKey[] = [...memberSections, 'settings'];
+
+export const sectionsForRole: Record<BrainAccessRole, SectionKey[]> = {
+	owner: ownerSections,
+	collaborator: memberSections,
+	reader: readerSections
+};
 
 export const kindReaderSections: SectionKey[] = ['terminal', 'contents'];
 

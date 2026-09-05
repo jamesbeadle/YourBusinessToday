@@ -5,7 +5,7 @@
 	import KbConstellation from '../KbConstellation.svelte';
 	import KnowledgeBaseToolset from './KnowledgeBaseToolset.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
-	import { BrainFlight } from './brainFlight.svelte';
+	import { BrainFlight, provideBrainFlight } from './brainFlight.svelte';
 	import { provideDashboardTools } from './dashboardTools.svelte';
 	import { openingKnowledgeBaseTool } from './knowledgeBaseTools';
 	import { buildConstellationSlots, type ConstellationSlot } from '../constellationSlots';
@@ -47,9 +47,11 @@
 	let constellation = $state<KbConstellation>();
 	let isOutOfCredits = $state(false);
 
-	const flight = new BrainFlight(
-		() => constellation,
-		() => openBrainId
+	const flight = provideBrainFlight(
+		new BrainFlight(
+			() => constellation,
+			() => openBrainId
+		)
 	);
 
 	onMount(() => {

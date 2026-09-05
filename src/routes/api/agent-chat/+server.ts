@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const spend = await spendForAgentReply(locals.supabase, sessionId);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
-	const reserve = await reserveModelFloor(locals);
+	const reserve = await reserveModelFloor(locals, user.id);
 
 	try {
 		const agentTurn = await converseWithAgent(locals.supabase, user.id, sessionId, workflow, message);
@@ -43,14 +43,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
 // spend_for_agent_reply takes the fixed 10; a dearer model tops the reserve
 // up to its floor under the same reason, so settlement measures from the floor.
-async function reserveModelFloor(locals: App.Locals): Promise<number> {
+// A refused top-up hands the fixed spend back before the request is turned away.
+async function reserveModelFloor(locals: App.Locals, payerId: string): Promise<number> {
 	const floor = questionFloorCreditsFor(await resolveRequestModel());
 	const topUp = floor - creditsPerReply;
 	if (topUp <= 0) return creditsPerReply;
 	const spend = await spendCredits(locals.supabase, topUp, replySpendReason);
+	if (typeof spend !== 'string') return floor;
+	await refundQuestionUsage(payerId, creditsPerReply, replySpendReason);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
-	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
-	return floor;
+	error(403, 'This account is currently restricted');
 }
 
 async function chargeForHarvest(

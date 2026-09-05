@@ -14,8 +14,9 @@
 	</p>
 	<p class="text-xs leading-relaxed text-chalk/50">
 		Every bot reads all three brains as they stand at each question: the expertise model page
-		by page, the {chatbotKnowledgeCaps.mostExperienceItems} most recent experience entries, and the process map — its
-		roles, tasks and journeys.
+		by page (the first {chatbotKnowledgeCaps.longestExpertiseIndex.toLocaleString('en-GB')} characters
+		of its index), the {chatbotKnowledgeCaps.mostExperienceItems} most recent experience entries, and the
+		process map — its roles, tasks and journeys.
 	</p>
 	<NewChatbotForm />
 	{#if chatbots.length === 0}

@@ -5,7 +5,8 @@
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { MapViewer } from '$lib/server/maps/getMapViewers';
 
-	let { viewers }: { viewers: MapViewer[] } = $props();
+	let { viewers, actionBasePath = '' }: { viewers: MapViewer[]; actionBasePath?: string } =
+		$props();
 
 	const addViewerTracker = new FormTracker();
 	const removeViewerTracker = new FormTracker();
@@ -20,7 +21,12 @@
 		</p>
 	</div>
 	<FormErrorNote message={addViewerTracker.errorMessage} />
-	<form method="POST" action="?/addViewer" use:enhance={addViewerTracker.submit()} class="flex gap-2">
+	<form
+		method="POST"
+		action={`${actionBasePath}?/addViewer`}
+		use:enhance={addViewerTracker.submit()}
+		class="flex gap-2"
+	>
 		<input
 			name="viewerEmail"
 			type="email"
@@ -45,7 +51,11 @@
 			{#each viewers as viewer (viewer.id)}
 				<li class="flex items-center justify-between gap-3 py-2.5">
 					<span class="truncate text-sm text-chalk/80">{viewer.email}</span>
-					<form method="POST" action="?/removeViewer" use:enhance={removeViewerTracker.submit()}>
+					<form
+						method="POST"
+						action={`${actionBasePath}?/removeViewer`}
+						use:enhance={removeViewerTracker.submit()}
+					>
 						<input type="hidden" name="viewerId" value={viewer.id} />
 						<button
 							type="submit"

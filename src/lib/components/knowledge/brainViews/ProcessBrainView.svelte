@@ -1,0 +1,75 @@
+<script lang="ts">
+	import FlowBrain from '../../brain/FlowBrain.svelte';
+	import LineLegend from '../../map/LineLegend.svelte';
+	import ProcessMapOverlay from './ProcessMapOverlay.svelte';
+	import ShareMapPanel from '../../workspace/ShareMapPanel.svelte';
+	import StationDetailPanel from '../../map/StationDetailPanel.svelte';
+	import WorkspaceChat from '../../workspace/WorkspaceChat.svelte';
+	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
+	import { layoutWorkflowMap } from '$lib/data/mapLayout';
+	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
+	import type { ProcessBrainView } from '$lib/server/knowledge/brainViews/loadProcessBrainView';
+	import type { StationSelection } from '../../map/stationSelection';
+	import type { WorkflowModel } from '$lib/data/workflowModel';
+
+	let {
+		knowledgeBaseId,
+		isOwner,
+		creditBalance,
+		view
+	}: {
+		knowledgeBaseId: string;
+		isOwner: boolean;
+		creditBalance: number | null;
+		view: ProcessBrainView;
+	} = $props();
+
+	const dashboardTools = useDashboardTools();
+	const toolsOwner = brainToolsOwnerFor('process');
+	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
+	const toolKeys = $derived(brainToolKeysFor(['interview', 'map'], 'share', isOwner));
+	const isMapShown = $derived(dashboardTools.activeKey === 'map');
+
+	let model: WorkflowModel = $derived(view.latestMap);
+	let selection = $state<StationSelection | null>(null);
+
+	const legendLines = $derived(layoutWorkflowMap(model).lines);
+
+	$effect(() => {
+		dashboardTools.register(toolsOwner, brainTools(toolKeys, { interview, map, share }));
+		return () => dashboardTools.release(toolsOwner);
+	});
+</script>
+
+{#snippet interview()}
+	<WorkspaceChat
+		workflowId={view.workflowId}
+		initialMessages={view.messages}
+		onMapUpdate={(updatedModel) => (model = updatedModel)}
+		frame="panel"
+	/>
+{/snippet}
+
+{#snippet map()}
+	<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+		<LineLegend lines={legendLines} />
+		<StationDetailPanel {selection} />
+	</div>
+{/snippet}
+
+{#snippet share()}
+	<div class="min-h-0 flex-1 overflow-y-auto p-4">
+		<ShareMapPanel viewers={view.viewers} {actionBasePath} />
+	</div>
+{/snippet}
+
+<FlowBrain {model} seed={view.workflowId} />
+{#if isMapShown}
+	<ProcessMapOverlay
+		{model}
+		{selection}
+		{creditBalance}
+		onSelectStation={(chosen) => (selection = chosen)}
+	/>
+{/if}

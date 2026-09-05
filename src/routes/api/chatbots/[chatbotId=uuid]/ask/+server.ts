@@ -5,9 +5,11 @@ import { getChatbot } from '$lib/server/chatbots/getChatbot';
 import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
 import { getChatbotKnowledge } from '$lib/server/chatbots/getChatbotKnowledge';
 import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership';
+import { longestQuestion } from '$lib/data/questionLimits';
 import { questionFloorCreditsFor } from '$lib/data/creditPricing';
 import { recordChatbotTurn } from '$lib/server/chatbots/recordChatbotTurn';
 import { recordKnowledgeGap } from '$lib/server/chatbots/recordKnowledgeGap';
+import { requireMemberQuestionHeadroom } from '$lib/server/chatbots/requireMemberQuestionHeadroom';
 import {
 	refundForChatbotQuestion,
 	settleChatbotQuestion
@@ -17,7 +19,6 @@ import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClien
 import type { ChatbotAnswer } from '$lib/data/chatbotTypes';
 import type { RequestHandler } from './$types';
 
-const longestQuestion = 1000;
 const longestRememberedExchange = 12;
 
 export const config = { maxDuration: 300 };
@@ -30,6 +31,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 	const question = readQuestion(await request.json().catch(() => ({})));
 	const membership = await getChatbotMembership(locals.supabase, chatbot.id, user.id, chatbot.modelId);
 	if (membership === null) error(notAMemberRefusal.status, notAMemberRefusal.message);
+	await requireMemberQuestionHeadroom(locals.supabase, user.id);
 
 	// The spend RPC is the membership check proper: it runs as the service
 	// role with the member named by the session, so nothing is read or

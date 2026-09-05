@@ -1,7 +1,9 @@
 import { error, json } from '@sveltejs/kit';
 import { createWorkspaceInvite, deleteWorkspaceInvite } from '$lib/server/sharing/workspaceInvites';
 import { deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
+import { countWorkspaceInvitesThisHour } from '$lib/server/sharing/recentWorkspaceInviteCount';
 import { inviteEmailSubject, renderInviteEmail } from '$lib/server/email/inviteEmail';
+import { isInviteAllowanceSpent, tooManyInvitesMessage } from '$lib/server/email/inviteAllowance';
 import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
 import { verifyShareTarget } from '$lib/server/sharing/verifyShareTarget';
 import type { EmailDelivery } from '$lib/data/emailDelivery';
@@ -22,6 +24,8 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
 
 	const target = await verifyShareTarget(locals.supabase, user.id, scope, targetId);
 	if (target === null) error(404, 'Only the owner can share this');
+	const invitesThisHour = await countWorkspaceInvitesThisHour(locals.supabase, user.id);
+	if (isInviteAllowanceSpent(invitesThisHour)) error(429, tooManyInvitesMessage);
 
 	await createWorkspaceInvite(locals.supabase, {
 		invitedEmail: email,

@@ -31,6 +31,10 @@
 	--color-tube-metropolitan: #9b0058;
 }
 
+:root {
+	--site-header-height: 3.5rem;
+}
+
 body {
 	background-color: var(--color-night);
 	color: var(--color-chalk);

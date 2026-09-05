@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ChatbotCard from './ChatbotCard.svelte';
-	import { kbSectionHref } from '../knowledge/kbRail';
+	import { knowledgeBaseToolHref } from '../knowledge/dashboard/knowledgeBaseTools';
 	import type { OwnedChatbotGroup } from '$lib/server/chatbots/getChatbotsForOwner';
 
 	let { groups }: { groups: OwnedChatbotGroup[] } = $props();
@@ -18,7 +18,7 @@
 					{group.knowledgeBaseName}
 				</a>
 				<a
-					href={kbSectionHref(group.knowledgeBaseId, 'chatbots')}
+					href={knowledgeBaseToolHref(group.knowledgeBaseId, 'chatbots')}
 					class="rounded-full border border-signal px-4 py-1.5 font-display text-xs text-signal
 						transition hover:bg-signal hover:text-night"
 				>

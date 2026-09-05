@@ -9,6 +9,8 @@ const FOCUS_DISTANCE = 6;
 const FOCUS_LIFT = 1.2;
 const ORIGIN = new Vector3(0, 0, 0);
 
+export type FocusOptions = { isInstant?: boolean };
+
 export type GalaxyFocus = {
 	focus: (handle: SlotHandle, isInstant: boolean) => void;
 	release: (isInstant: boolean) => void;

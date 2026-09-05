@@ -8,6 +8,7 @@ const BOB_SPEED = 0.6;
 const HOVER_SCALE = 1.14;
 const SCALE_EASE = 6;
 const OPACITY_EASE = 4;
+const SETTLING_SECONDS = 1;
 
 export type SlotMotionState = {
 	isAnimated: boolean;
@@ -25,6 +26,14 @@ export function animateSlotHandles(
 		if (state.isAnimated) spinAndBob(handle, deltaSeconds, timeSeconds);
 		easeScale(handle, deltaSeconds, state.hoveredSlotId);
 		easeOpacity(handle, deltaSeconds, state.focusedSlotId, state.isAnimated);
+	}
+}
+
+/** Lands every eased value at its target at once, for a frame drawn while the loop rests. */
+export function settleSlotHandles(handles: SlotHandle[], state: SlotMotionState): void {
+	for (const handle of handles) {
+		easeScale(handle, SETTLING_SECONDS, state.hoveredSlotId);
+		easeOpacity(handle, SETTLING_SECONDS, state.focusedSlotId, state.isAnimated);
 	}
 }
 

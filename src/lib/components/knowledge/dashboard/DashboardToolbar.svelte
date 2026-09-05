@@ -48,7 +48,9 @@
 					<path d={pathData} />
 				{/each}
 			</svg>
-			<span class="hidden font-display text-xs lg:inline">{tool.label}</span>
+			{#if activeKey === tool.key}
+				<span class="hidden font-display text-xs lg:inline">{tool.label}</span>
+			{/if}
 			{#if (badgeCounts[tool.key] ?? 0) > 0}
 				<span
 					class="absolute -top-0.5 -right-0.5 rounded-full bg-signal px-1 font-display

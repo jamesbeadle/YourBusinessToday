@@ -9,7 +9,7 @@
 		<input name="name" required class={inputClasses} />
 	</FormField>
 	<FormField label="Email">
-		<input name="email" type="email" required class={inputClasses} />
+		<input name="email" type="email" class={inputClasses} />
 	</FormField>
 	<FormField label="Role">
 		<input name="role" placeholder="Operations manager" class={inputClasses} />

@@ -7,6 +7,7 @@ export type NewContactSeed = {
 	phone: string;
 	role: string;
 	isPrimary: boolean;
+	sourceUrl?: string;
 };
 
 export type AddContactOutcome = 'added' | 'already_known';
@@ -15,11 +16,10 @@ const duplicateRowCode = '23505';
 
 export function readNewContactSeed(formData: FormData): NewContactSeed | null {
 	const name = String(formData.get('name') ?? '').trim();
-	const email = String(formData.get('email') ?? '').trim().toLowerCase();
-	if (name === '' || email === '') return null;
+	if (name === '') return null;
 	return {
 		name,
-		email,
+		email: String(formData.get('email') ?? '').trim().toLowerCase(),
 		phone: String(formData.get('phone') ?? '').trim(),
 		role: String(formData.get('role') ?? '').trim(),
 		isPrimary: formData.get('isPrimary') === 'on'
@@ -39,11 +39,12 @@ export async function addClientContact(
 		email: seed.email,
 		phone: seed.phone,
 		role: seed.role,
-		is_primary: seed.isPrimary
+		is_primary: seed.isPrimary,
+		source_url: seed.sourceUrl ?? ''
 	});
 	if (error !== null && error.code === duplicateRowCode) return 'already_known';
 	if (error !== null) throw error;
-	await recordClientEvent(supabase, clientId, 'contact_added', { email: seed.email }, actorAccountId);
+	await recordClientEvent(supabase, clientId, 'contact_added', { name: seed.name, email: seed.email }, actorAccountId);
 	return 'added';
 }
 

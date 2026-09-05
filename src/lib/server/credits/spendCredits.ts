@@ -21,7 +21,7 @@ export async function spendCredits(
 }
 
 // Refunds run only on the server, which names the payer: the database
-// refuses this call from a browser session (migration 0041). A refund that
+// refuses this call from a browser session (migration 0046). A refund that
 // fails is reported rather than thrown, so it never hides the failure that
 // prompted it from the user.
 export async function refundCredits(payerId: string, amount: number, reason: string): Promise<void> {

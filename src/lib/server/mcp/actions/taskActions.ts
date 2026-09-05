@@ -1,4 +1,6 @@
 import { acceptanceCriterionActions } from './acceptanceCriterionActions';
+import { buildDispatchActions } from './buildDispatchActions';
+import { builderActions } from './builderActions';
 import { taskReadActions } from './taskReadActions';
 import { taskStatusActions } from './taskStatusActions';
 import { taskStoryActions } from './taskStoryActions';
@@ -12,5 +14,7 @@ export const taskActions: McpAction[] = [
 	...taskStatusActions,
 	...taskStoryActions,
 	...taskTeamActions,
-	...acceptanceCriterionActions
+	...acceptanceCriterionActions,
+	...buildDispatchActions,
+	...builderActions
 ];

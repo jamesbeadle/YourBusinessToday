@@ -1,21 +1,25 @@
 <script lang="ts">
 	let {
 		shouldIncludeDone,
+		isWaitingOnMe,
 		viewedUserId
-	}: { shouldIncludeDone: boolean; viewedUserId: string | null } = $props();
+	}: { shouldIncludeDone: boolean; isWaitingOnMe: boolean; viewedUserId: string | null } =
+		$props();
 
-	function filterHref(shouldShowAll: boolean): string {
+	function filterHref(status: string | null): string {
 		const parameters = new URLSearchParams();
-		if (shouldShowAll) parameters.set('status', 'all');
+		if (status !== null) parameters.set('status', status);
 		if (viewedUserId !== null) parameters.set('user', viewedUserId);
 		const query = parameters.toString();
 		if (query === '') return '/tasks';
 		return `/tasks?${query}`;
 	}
 
+	const isOpenList = $derived(!shouldIncludeDone && !isWaitingOnMe);
 	const filterOptions = $derived([
-		{ label: 'Open', href: filterHref(false), isActive: !shouldIncludeDone },
-		{ label: 'All', href: filterHref(true), isActive: shouldIncludeDone }
+		{ label: 'Open', href: filterHref(null), isActive: isOpenList },
+		{ label: 'All', href: filterHref('all'), isActive: shouldIncludeDone },
+		{ label: 'Waiting on me', href: filterHref('waiting'), isActive: isWaitingOnMe }
 	]);
 </script>
 

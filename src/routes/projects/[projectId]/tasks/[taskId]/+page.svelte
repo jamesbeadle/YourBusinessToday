@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
+	import BuildPanel from '$lib/components/projects/BuildPanel.svelte';
 	import ChecklistSection from '$lib/components/projects/ChecklistSection.svelte';
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
@@ -42,6 +43,9 @@
 		onEdit={() => (isEditModalOpen = true)}
 	/>
 	<AcceptanceCriteriaSection criteria={data.criteria} />
+	{#if data.project.repositoryUrl !== ''}
+		<BuildPanel task={data.task} project={data.project} />
+	{/if}
 	<SubtaskList subtasks={data.subtasks} onAddSubtask={() => (isSubtaskModalOpen = true)} />
 	<ChecklistSection checklists={data.checklists} />
 	<TaskCommentThread comments={data.comments} />

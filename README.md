@@ -35,6 +35,10 @@ Early access. Accounts, credits, both live products, and sharing are all working
   Haiku by default — grant promotional credits, restrict accounts, and delete accounts.
   The first admin is bootstrapped by email on signup.
 - The demo map at `/project` shows a finished map.
+- Accepted client requests can be sent to the Builder — a Claude Code routine per tier
+  that branches, builds, opens a pull request and reports back; merged builds mark the
+  task live and tell the client. Schema changes wait for a person;
+  [docs/builder-architecture.md](./docs/builder-architecture.md) is the design.
 
 The agent uses the Claude API when `ANTHROPIC_API_KEY` is set, and falls back to a scripted
 interviewer (without live map updates) when it is not. The agent's interviewing brain lives
@@ -57,6 +61,8 @@ npm run dev
 | `STRIPE_SECRET_KEY` | Stripe secret key — optional, placeholder checkout without it |
 | `STRIPE_WEBHOOK_SECRET` | Signing secret for `/api/stripe-webhook` |
 | `SUPABASE_SECRET_KEY` | Supabase secret key — used by the Stripe webhook and to read the site model |
+| `BUILDER_{EASY,MEDIUM,HARD}_ROUTINE_URL` / `_TOKEN` | Fire endpoint and token of the Claude Code routine for each tier — optional, sending to build refuses politely without them |
+| `GITHUB_WEBHOOK_SECRET` | Secret on the GitHub webhook that tells a task its build merged |
 
 ## Architecture
 

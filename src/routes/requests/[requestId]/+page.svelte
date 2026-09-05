@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AcceptAndBuildForm from '$lib/components/requests/AcceptAndBuildForm.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import RequestDecisionForm from '$lib/components/requests/RequestDecisionForm.svelte';
 	import RequestStatusPill from '$lib/components/requests/RequestStatusPill.svelte';
@@ -51,7 +52,12 @@
 
 	<section class="flex flex-col gap-4">
 		<h2 class="font-display text-xl">The work</h2>
-		{#if featureRequest.taskId === null}
+		{#if featureRequest.taskId === null && data.canBuild}
+			<AcceptAndBuildForm defaultBrief={data.defaultBrief} />
+		{:else if featureRequest.taskId === null}
+			<p class="text-sm text-chalk/60">
+				This project has no repository recorded, so the Builder cannot take it. Promote it by hand.
+			</p>
 			<form method="POST" action="?/promote">
 				<SubmitButton savingLabel="Creating…">Promote to a task</SubmitButton>
 			</form>

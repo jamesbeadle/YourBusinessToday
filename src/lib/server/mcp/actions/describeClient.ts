@@ -67,7 +67,9 @@ const clientEventLabels: Record<ClientEventKind, string> = {
 	project_assigned: 'Project assigned',
 	request_raised: 'Request raised',
 	request_decided: 'Request decided',
-	request_promoted: 'Request promoted'
+	request_promoted: 'Request promoted',
+	build_dispatched: 'Build dispatched',
+	build_live: 'Build live'
 };
 
 export function describeClientEvents(events: ClientEvent[]): string {

@@ -7,7 +7,9 @@ export type ClientEventKind =
 	| 'project_assigned'
 	| 'request_raised'
 	| 'request_decided'
-	| 'request_promoted';
+	| 'request_promoted'
+	| 'build_dispatched'
+	| 'build_live';
 
 export type ClientEvent = {
 	id: string;

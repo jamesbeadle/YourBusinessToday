@@ -49,12 +49,18 @@
 		shouldIncludeDone={data.shouldIncludeDone}
 	/>
 	<div class="flex flex-wrap items-center justify-between gap-4">
-		<GlobalTaskFilter shouldIncludeDone={data.shouldIncludeDone} {viewedUserId} />
+		<GlobalTaskFilter
+			shouldIncludeDone={data.shouldIncludeDone}
+			isWaitingOnMe={data.isWaitingOnMe}
+			{viewedUserId}
+		/>
 		<p class="font-display text-sm text-chalk/50">{taskCountLabel}</p>
 	</div>
 	{#if data.taskPage.tasks.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			No tasks here — add one from a project, or switch the filter to All.
+			{data.isWaitingOnMe
+				? 'Nothing is waiting on you. No build has a migration to review.'
+				: 'No tasks here — add one from a project, or switch the filter to All.'}
 		</p>
 	{:else}
 		<ol class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">

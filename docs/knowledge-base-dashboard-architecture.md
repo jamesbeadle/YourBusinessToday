@@ -58,8 +58,8 @@ knowledge base and its brains, invitations, shared brains, your chatbots, the cr
       │                     ▲   header switcher ▲
       └──(none yet)──▶ create form              │
 /knowledge-base/all ────────┘ (switcher: All knowledge bases)
-/workspace/[entityId]/domains/[domainId]   ──302──▶ the brain route when filed in a knowledge base
-/workspace/[entityId]/workflows/[workflowId] ──302──▶ the brain route when filed in a knowledge base
+/workspace/[entityId]/domains/[domainId]   ──307──▶ the brain route when filed in a knowledge base the caller can open
+/workspace/[entityId]/workflows/[workflowId] ──307──▶ the brain route when filed in a knowledge base the caller can open
 ```
 
 `[id]` is a uuid param matcher so `all` is its own route. `[brainId]` is a `kb_brains` id
@@ -118,5 +118,6 @@ screens, and pauses when the page is hidden or a brain is open.
 
 ## Not built
 
-The old four dashboards are removed once the new one covers them. Shared workflows for
-viewers without knowledge base access keep the workflow route's read-only map.
+The old four dashboards are removed once the new one covers them. The workspace domain
+and workflow routes stay for brains that are not filed, and for shared viewers without
+knowledge base access, with their own rail and panels.

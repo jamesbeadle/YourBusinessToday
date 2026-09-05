@@ -14,7 +14,7 @@
 		{#each sharedBrains as shared (shared.brainId)}
 			<li>
 				<a
-					href={`/workspace/${shared.entityId}/domains/${shared.brainId}`}
+					href={shared.href}
 					class="group flex flex-col gap-1 rounded-2xl border border-hairline bg-carriage p-5
 						transition hover:border-chalk/30"
 				>

@@ -9,7 +9,7 @@
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { fetchBrainPage } from '../../brain/constellation/fetchBrainPage';
 	import { kindInterviewIntros } from '../interviewRequest';
-	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import { screen } from '$lib/client/screen.svelte';
 	import type { ExpertiseBrainView } from '$lib/server/knowledge/brainViews/loadExpertiseBrainView';
@@ -21,7 +21,6 @@
 	}: { knowledgeBaseId: string; brainId: string; view: ExpertiseBrainView } = $props();
 
 	const dashboardTools = useDashboardTools();
-	const toolsOwner = brainToolsOwnerFor('expertise');
 	const isOwner = $derived(view.accessRole === 'owner');
 	const pageBasePath = $derived(`/workspace/${view.brain.entityId}/domains/${view.brain.id}`);
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, brainId));
@@ -31,8 +30,9 @@
 	let isOutOfCredits = $state(false);
 
 	$effect(() => {
+		const toolsOwner = brainToolsOwnerFor('expertise');
 		const tools = brainTools(toolKeys, { interview, ask, model, settings });
-		dashboardTools.register(toolsOwner, tools);
+		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);
 	});
 

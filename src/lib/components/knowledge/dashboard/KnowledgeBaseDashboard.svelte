@@ -61,6 +61,14 @@
 </script>
 
 <div class="flex h-full w-full overflow-hidden bg-night">
+	<KnowledgeBaseToolset
+		{knowledgeBase}
+		{isOwner}
+		{shares}
+		{chatbots}
+		{workbench}
+		onOutOfCredits={() => (isOutOfCredits = true)}
+	/>
 	<div class="relative min-w-0 flex-1">
 		<KbConstellation bind:this={constellation} {slots} onSelect={selectSlot} />
 		{@render children()}
@@ -81,14 +89,6 @@
 			</div>
 		{/if}
 	</div>
-	<KnowledgeBaseToolset
-		{knowledgeBase}
-		{isOwner}
-		{shares}
-		{chatbots}
-		{workbench}
-		onOutOfCredits={() => (isOutOfCredits = true)}
-	/>
 	{#if dashboardTools.activeTool !== null}
 		<DashboardPanel title={dashboardTools.activeTool.label} onClose={() => dashboardTools.close()}>
 			{@render dashboardTools.activeTool.panel()}

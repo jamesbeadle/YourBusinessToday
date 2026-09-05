@@ -7,7 +7,7 @@
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { findBrainType } from '$lib/data/knowledge/brainTypeCatalog';
 	import { kindInterviewIntros } from '../interviewRequest';
-	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ExperienceBrainView } from '$lib/server/knowledge/brainViews/loadExperienceBrainView';
 
@@ -18,15 +18,15 @@
 	}: { knowledgeBaseId: string; isOwner: boolean; view: ExperienceBrainView } = $props();
 
 	const dashboardTools = useDashboardTools();
-	const toolsOwner = brainToolsOwnerFor('experience');
 	const brain = $derived(view.brain);
 	const editor = $derived(findBrainType(brain.brainType)?.editor ?? 'notes');
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, brain.id));
 	const toolKeys = $derived(brainToolKeysFor(['interview', 'ask', 'contents'], 'settings', isOwner));
 
 	$effect(() => {
+		const toolsOwner = brainToolsOwnerFor('experience');
 		const tools = brainTools(toolKeys, { interview, ask, contents, settings });
-		dashboardTools.register(toolsOwner, tools);
+		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);
 	});
 </script>

@@ -1,7 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { createChatbot } from '$lib/server/chatbots/createChatbot';
 import { getChatbotsForKnowledgeBase } from '$lib/server/chatbots/getChatbotsForKnowledgeBase';
-import { applyToHiveMind } from '$lib/server/hive/applyToHiveMind';
 import { deleteKnowledgeBase } from '$lib/server/knowledge/deleteKnowledgeBase';
 import { findPrimaryExpertiseBrain } from '$lib/server/knowledge/interviewContext';
 import { getKbBrains } from '$lib/server/knowledge/getKbBrains';
@@ -78,22 +77,5 @@ export const actions: Actions = {
 		if (name === '') return fail(400, { message: 'Give the chatbot a name.' });
 		const chatbotId = await createChatbot(locals.supabase, knowledgeBase.id, name);
 		redirect(303, `/chatbots/${chatbotId}/manage`);
-	},
-	applyToHiveMind: async ({ locals, params, request }) => {
-		const user = await requireUser(locals);
-		const knowledgeBase = await getKnowledgeBase(locals.supabase, params.knowledgeBaseId);
-		if (knowledgeBase === null || knowledgeBase.ownerId !== user.id) {
-			return fail(403, { message: 'Only the owner can apply to Trade Talk.' });
-		}
-		const primary = await findPrimaryExpertiseBrain(locals.supabase, knowledgeBase.id);
-		if (primary === null) return fail(400, { message: 'Add an Expertise Brain first.' });
-		const formData = await request.formData();
-		const pitch = String(formData.get('pitch') ?? '').trim();
-		if (pitch === '') return fail(400, { message: 'Say what your trade can advise on.' });
-		const outcome = await applyToHiveMind(locals.supabase, primary.domainBrainId, pitch);
-		if (outcome === 'already_pending') {
-			return fail(400, { message: 'This knowledge base already has an application under review.' });
-		}
-		return {};
 	}
 };

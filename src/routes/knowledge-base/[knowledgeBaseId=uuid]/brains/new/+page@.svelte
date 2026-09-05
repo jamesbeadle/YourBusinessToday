@@ -4,6 +4,7 @@
 	import NewSecondBrainForm from '$lib/components/knowledge/NewSecondBrainForm.svelte';
 	import { findKnowledgeKind, knowledgeKinds } from '$lib/data/knowledge/knowledgeKinds';
 	import type { KnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
+	import { allKnowledgeBasesHref, knowledgeBaseHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 
 	let { data } = $props();
 
@@ -25,9 +26,9 @@
 
 <div class="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
 	<nav class="text-sm text-chalk/50">
-		<a href="/knowledge-base" class="transition hover:text-signal">Knowledge Base</a>
+		<a href={allKnowledgeBasesHref} class="transition hover:text-signal">Knowledge Base</a>
 		<span class="mx-2">/</span>
-		<a href={`/knowledge-base/${data.knowledgeBase.id}`} class="transition hover:text-signal">
+		<a href={knowledgeBaseHref(data.knowledgeBase.id)} class="transition hover:text-signal">
 			{data.knowledgeBase.name}
 		</a>
 		<span class="mx-2">/</span>

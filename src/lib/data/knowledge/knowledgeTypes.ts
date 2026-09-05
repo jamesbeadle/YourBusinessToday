@@ -48,6 +48,7 @@ export type BrainTypeDefinition = {
 
 export type KnowledgeBaseSummary = {
 	id: string;
+	ownerId: string;
 	name: string;
 	description: string;
 	isArchived: boolean;

@@ -1,12 +1,8 @@
 <script lang="ts">
 	import KbDashboard from '$lib/components/knowledge/KbDashboard.svelte';
 
-	let { data } = $props();
+	let { data, children } = $props();
 </script>
-
-<svelte:head>
-	<title>{data.knowledgeBase.name} — Knowledge Base — Your Business Today</title>
-</svelte:head>
 
 <KbDashboard
 	knowledgeBase={data.knowledgeBase}
@@ -17,3 +13,5 @@
 	chatbots={data.chatbots}
 	workbench={data.workbench}
 />
+
+{@render children()}

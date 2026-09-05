@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type ClientEventKind =
-	| 'enquiry_received'
 	| 'stage_moved'
 	| 'contact_added'
 	| 'contact_invited'

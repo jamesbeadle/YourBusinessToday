@@ -27,7 +27,7 @@
 	);
 
 	const sessionId = crypto.randomUUID();
-	let messages = $state<ChatMessage[]>(seedMessages(initialMessages));
+	let messages = $derived(seedMessages(initialMessages));
 	let isAgentTyping = $state(false);
 	let isOutOfCredits = $state(false);
 	let threadElement = $state<HTMLElement | null>(null);
@@ -38,7 +38,7 @@
 	}
 
 	function appendMessage(author: ChatMessage['author'], text: string) {
-		messages.push({ id: messages.length, author, text });
+		messages = [...messages, { id: messages.length, author, text }];
 	}
 
 	async function sendUserMessage(text: string) {

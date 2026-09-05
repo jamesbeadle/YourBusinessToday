@@ -4,7 +4,9 @@ import { featureRequestColumns, parseFeatureRequestRecord } from './featureReque
 import type { ClientRequest } from './getRequestsForClient';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const contactRequestColumns = `${featureRequestColumns}, projects!inner(name, client_id), tasks(status)`;
+export type ContactRequestDetail = ClientRequest & { environmentUrl: string };
+
+const contactRequestColumns = `${featureRequestColumns}, projects!inner(name, client_id, environment_url), tasks(status)`;
 
 // Callers name a request either by its row id or by the FR-0001 reference a
 // person reads, so both are accepted here rather than in every caller.
@@ -12,7 +14,7 @@ export async function getRequestForContact(
 	supabase: SupabaseClient,
 	requestId: string,
 	clientId: string
-): Promise<ClientRequest | null> {
+): Promise<ContactRequestDetail | null> {
 	const query = supabase
 		.from('feature_requests')
 		.select(contactRequestColumns)
@@ -28,6 +30,7 @@ export async function getRequestForContact(
 	return {
 		...parseFeatureRequestRecord(row),
 		projectName: row.projects.name as string,
+		environmentUrl: (row.projects.environment_url ?? '') as string,
 		isDelivered: row.tasks?.status === 'done'
 	};
 }

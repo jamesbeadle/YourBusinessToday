@@ -34,6 +34,15 @@
 		{/if}
 	</section>
 
+	{#if featureRequest.isDelivered && featureRequest.environmentUrl !== ''}
+		<p class="text-sm text-chalk/70">
+			Live at
+			<a href={featureRequest.environmentUrl} target="_blank" rel="noreferrer" class="text-go hover:brightness-110">
+				{featureRequest.environmentUrl}
+			</a>
+		</p>
+	{/if}
+
 	{#if featureRequest.decisionNote !== ''}
 		<section class="rounded-2xl border border-hairline p-6">
 			<h2 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Our answer</h2>

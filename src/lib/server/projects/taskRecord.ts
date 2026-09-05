@@ -1,3 +1,4 @@
+import { parseBuildStatus, type BuildStatus } from '$lib/data/buildStatus';
 import { parseStoryPoints } from '$lib/data/storyPoints';
 import { parseTaskStatus, type TaskStatus } from '$lib/data/taskStatus';
 
@@ -18,6 +19,11 @@ export type ProjectTask = {
 	storyWant: string;
 	storyBenefit: string;
 	dueDate: string | null;
+	buildBrief: string;
+	buildStatus: BuildStatus;
+	pullRequestUrl: string;
+	buildSessionUrl: string;
+	hasMigration: boolean;
 	createdAt: string;
 };
 
@@ -39,6 +45,11 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 		storyWant: row.story_want as string,
 		storyBenefit: row.story_benefit as string,
 		dueDate: (row.due_date as string) ?? null,
+		buildBrief: (row.build_brief as string) ?? '',
+		buildStatus: parseBuildStatus(row.build_status),
+		pullRequestUrl: (row.pull_request_url as string) ?? '',
+		buildSessionUrl: (row.build_session_url as string) ?? '',
+		hasMigration: row.has_migration === true,
 		createdAt: row.created_at as string
 	};
 }

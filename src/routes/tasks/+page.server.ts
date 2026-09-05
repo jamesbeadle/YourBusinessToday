@@ -1,4 +1,5 @@
 import { fail } from '@sveltejs/kit';
+import { getBuildsWaitingOnMe, singlePageOf } from '$lib/server/builder/getBuildsWaitingOnMe';
 import { getGlobalTaskPage } from '$lib/server/projects/getGlobalTaskPage';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { moveGlobalTask } from '$lib/server/projects/moveGlobalTask';
@@ -15,20 +16,20 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = await requireStaff(locals);
 	const pageNumber = readPageNumber(url.searchParams.get('page'));
 	const shouldIncludeDone = url.searchParams.get('status') === 'all';
+	const isWaitingOnMe = url.searchParams.get('status') === 'waiting';
 	const staffMembers = await getStaffDirectory(locals.supabase);
 	const viewedStaffMember = resolveViewedStaffMember(
 		url.searchParams.get('user'),
 		staffMembers,
 		user.id
 	);
+	const taskPage = isWaitingOnMe
+		? singlePageOf(await getBuildsWaitingOnMe(locals.supabase, viewedStaffMember.id))
+		: await getGlobalTaskPage(locals.supabase, viewedStaffMember.id, pageNumber, shouldIncludeDone);
 	return {
-		taskPage: await getGlobalTaskPage(
-			locals.supabase,
-			viewedStaffMember.id,
-			pageNumber,
-			shouldIncludeDone
-		),
+		taskPage,
 		shouldIncludeDone,
+		isWaitingOnMe,
 		staffMembers,
 		viewedStaffMember,
 		currentUserId: user.id

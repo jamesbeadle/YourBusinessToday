@@ -186,21 +186,25 @@ so all of this is also reachable from staff's own Claude.
 
 ## The Builder's doctrine
 
-The routine's saved prompt is three sentences: it is the YBT Builder; the routine-fire
-payload names a task id; call `claim_build` with it, then `load_skill` `builder` and follow
-it. The doctrine itself is a YBT skill, so changing how builds work is an edit on the site,
-not an edit on three accounts.
+The routine's saved prompt is three sentences:
 
-The skill, in order: clone is done for you — the routine attaches every client
-repository, so `cd` into the one `claim_build` named. Create the branch it named. Read the
-repository's own `CLAUDE.md` and follow it over anything here. Implement to the acceptance
-criteria and nothing beyond them. Run the repository's checks and fix what fails. Commit
-in small steps with messages that say why. Push, open the pull request with the brief as
-its body, and arm auto-merge (`gh pr merge --auto --squash`). Call `report_build`. If you
-needed a schema change, write the migration file in the repository's migrations folder,
-never run it, and report `has_migration` true. Never touch `.env` or anything named like
-a key. If the criteria cannot be met, stop and report `failed` with the reason rather
-than guessing.
+> You are the Your Business Today Builder. The routine-fire-payload block names a task id.
+> Call the YBT action `claim_build` with that id and follow exactly what it answers.
+
+The doctrine itself is the second half of `claim_build`'s answer, kept in
+`src/lib/server/builder/builderDoctrine.ts`, so changing how builds work is one edit here,
+not an edit on three accounts. Since `describe_action` inlines it too, staff can read what
+the Builder is told.
+
+The doctrine, in order: the repository is already cloned; change into it. Create the branch
+`claim_build` named. Read the repository's own `CLAUDE.md` and follow it over anything
+here. Implement to the acceptance criteria and nothing beyond them. Run the repository's
+checks and fix what fails. Commit in small steps with messages that say why. Push, open
+the pull request with the brief as its body, and arm auto-merge
+(`gh pr merge --auto --squash`). If a schema change was needed, write the migration file
+in the migrations folder, never run it, and report `has_migration` true. Never touch
+`.env` or anything named like a key. Call `report_build`. If the criteria cannot be met,
+stop and report `failed` with the reason rather than guessing.
 
 ## The migration gate
 
@@ -246,7 +250,12 @@ GitHub; a client on GitLab cannot be built this way until they move.
 
 ## Status
 
-Designed, not built. Nothing in this document exists in the code yet.
+Steps 1 to 4 and 6 of the build order are written and type-check clean, on the working tree
+and not yet committed. Migration 0040 is not applied. Nothing has run end to end: no routine
+exists yet, no environment variable is set, no webhook is installed, and `main` is not yet
+protected. `npm run check` reports twenty errors that predate this work, in `market/`,
+`face/_to_delete/` and `sharing/`; the `ci` workflow will stay red until they are fixed,
+which makes fixing them the first thing the Builder should be asked to do.
 
 ## Build order
 
@@ -255,7 +264,7 @@ Designed, not built. Nothing in this document exists in the code yet.
    build**. The Build panel on the task page; the pill on the backlog; the filter on
    `/tasks`; the Live line on the portal.
 3. `reviseBuildBrief`, `sendTaskToBuild` and the fire client; `claimBuild`, `reportBuild`
-   and their MCP actions; the `builder` skill saved in YBT.
+   and their MCP actions; the doctrine `claim_build` answers with.
 4. `ci` and `migration-gate` workflows in this repository, branch protection, auto-merge.
 5. The three routines, one per account; tier URLs and tokens into the environment.
 6. `/api/github-webhook` and `markBuildLive`; the webhook installed on this repository.

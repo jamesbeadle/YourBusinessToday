@@ -11,7 +11,9 @@
 		project_assigned: 'Project assigned',
 		request_raised: 'Request raised',
 		request_decided: 'Request decided',
-		request_promoted: 'Request promoted to a task'
+		request_promoted: 'Request promoted to a task',
+		build_dispatched: 'Sent to the Builder',
+		build_live: 'Build went live'
 	};
 
 	function summarise(event: ClientEvent): string {

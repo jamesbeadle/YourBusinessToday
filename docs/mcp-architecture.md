@@ -115,12 +115,15 @@ Built and deployed. Proved against production: the discovery documents answer, a
 unauthenticated call gets 401 with the right header, GET gets 405, registration
 validates its input. Proved locally against the production build: the token endpoint
 accepts a form-encoded POST with no `Origin`, other forms without one are still refused,
-malformed bodies get an OAuth error rather than a crash. Migrations 0036, 0037 and 0038
-are applied.
+malformed bodies get an OAuth error rather than a crash. Migrations 0036 to 0039 are
+applied.
 
-Not yet proved: one whole Connect from Claude — register, approve, exchange, `tools/list`,
-`get_current_context` — against the deployed build with these changes in it. That is the
-next thing to do after the next deploy, before anyone else is pointed at it.
+Proved end to end against production on 5 September 2026: register (`client_secret_basic`),
+sign in, approve, exchange, replay refused, refresh with rotation, wrong secret refused,
+`initialize`, `ping`, `tools/list`, then `get_current_context`, `list_projects`,
+`read_task_queue`, `list_clients`, `list_triage_queue` and `read_accounting_overview` as an
+administrator. Migration 0039 lets `staff_directory()` answer the service role, which the
+MCP runs on; without it every action that reads the directory failed.
 
 ## Known gaps, in order
 

@@ -6,13 +6,14 @@ import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { getBrainItems } from '$lib/server/knowledge/getBrainItems';
 import { getKbBrain } from '$lib/server/knowledge/getKbBrain';
 import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { requireSpendHeadroom } from '$lib/server/credits/requireSpendHeadroom';
 import { spendCredits } from '$lib/server/credits/spendCredits';
 import { isAnthropicConfigured } from '$lib/server/anthropic/isAnthropicConfigured';
+import { longestQuestion } from '$lib/data/questionLimits';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 120 };
 
-const longestQuestion = 1000;
 const questionSpendReason = 'brain_question';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
@@ -23,6 +24,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const { brainId, question } = await readQuestionRequest(request);
 	const brain = await getKbBrain(locals.supabase, brainId);
 	if (brain === null) error(404, 'That brain could not be found');
+	await requireSpendHeadroom(locals.supabase, user.id);
 
 	const reserve = questionFloorCreditsFor(await resolveRequestModel());
 	const spend = await spendCredits(locals.supabase, reserve, questionSpendReason);

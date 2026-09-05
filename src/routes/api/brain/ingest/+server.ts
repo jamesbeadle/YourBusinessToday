@@ -3,6 +3,7 @@ import { findBrainSource, markSourceStatus } from '$lib/server/brain/findBrainSo
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
 import { ingestCreditsFor } from '$lib/data/creditPricing';
 import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { requireSpendHeadroom } from '$lib/server/credits/requireSpendHeadroom';
 import { runSourceIngest } from '$lib/server/brain/runSourceIngest';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { runProposedIngest } from '$lib/server/sharing/runProposedIngest';
@@ -23,6 +24,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const source = await findBrainSource(locals.supabase, sourceId);
 	if (source === null) error(404, 'That document could not be found');
 	if (source.status === 'ingested') error(409, 'That document is already in the brain');
+	await requireSpendHeadroom(locals.supabase, user.id);
 
 	const reserve = ingestCreditsFor(source.byteCount);
 	const spend = await spendCredits(locals.supabase, reserve, ingestSpendReason);

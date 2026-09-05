@@ -26,6 +26,7 @@ export type SlotHandle = {
 	baseY: number;
 	spinSpeed: number;
 	bobPhase: number;
+	opacityScale: number;
 };
 
 export type KbGalaxy = { scene: Scene; handles: SlotHandle[]; dispose: () => void };
@@ -85,6 +86,7 @@ function buildSlotHandle(
 		hitMesh,
 		baseY: position.y,
 		spinSpeed: 0.12 + (slotIndex % 3) * 0.05,
-		bobPhase: slotIndex * 2.1
+		bobPhase: slotIndex * 2.1,
+		opacityScale: 1
 	};
 }

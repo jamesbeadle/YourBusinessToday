@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createKbGalaxy } from './kb3d/createKbGalaxy';
+	import { createKbGalaxy, type FocusOptions, type KbGalaxyExperience } from './kb3d/createKbGalaxy';
 	import { untrack } from 'svelte';
 	import type { ConstellationSlot } from './constellationSlots';
 
@@ -13,17 +13,53 @@
 
 	let containerElement = $state<HTMLDivElement>();
 	let canvasElement = $state<HTMLCanvasElement>();
+	let galaxy: KbGalaxyExperience | null = null;
+	let shownSlots: ConstellationSlot[] | null = null;
+	let focusedSlotId: string | null = null;
+	let isPaused = false;
+
+	export function focusSlot(slotId: string, options: FocusOptions = {}): void {
+		focusedSlotId = slotId;
+		galaxy?.focusSlot(slotId, options);
+	}
+
+	export function releaseFocus(): void {
+		focusedSlotId = null;
+		galaxy?.releaseFocus();
+	}
+
+	export function pause(): void {
+		isPaused = true;
+		galaxy?.pause();
+	}
+
+	export function resume(): void {
+		isPaused = false;
+		galaxy?.resume();
+	}
+
+	function applyIntent(created: KbGalaxyExperience): void {
+		if (focusedSlotId !== null) created.focusSlot(focusedSlotId, { isInstant: true });
+		if (isPaused) created.pause();
+	}
 
 	$effect(() => {
-		void slots;
 		if (canvasElement === undefined || containerElement === undefined) return;
-		const galaxy = createKbGalaxy(
-			canvasElement,
-			containerElement,
-			untrack(() => slots),
-			onSelect
-		);
-		return () => galaxy.destroy();
+		const initialSlots = untrack(() => slots);
+		const created = createKbGalaxy(canvasElement, containerElement, initialSlots, onSelect);
+		applyIntent(created);
+		galaxy = created;
+		shownSlots = initialSlots;
+		return () => {
+			created.destroy();
+			galaxy = null;
+		};
+	});
+
+	$effect(() => {
+		if (galaxy === null || shownSlots === slots) return;
+		galaxy.updateSlots(slots);
+		shownSlots = slots;
 	});
 </script>
 

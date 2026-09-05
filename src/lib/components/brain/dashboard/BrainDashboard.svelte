@@ -1,11 +1,10 @@
 <script lang="ts">
-	import BrainConstellation from '../BrainConstellation.svelte';
 	import BrainDashboardPanels from './BrainDashboardPanels.svelte';
-	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
+	import BrainStage from './BrainStage.svelte';
 	import SectionPanel from './SectionPanel.svelte';
 	import SectionRail from './SectionRail.svelte';
-	import { fetchBrainPage } from '../constellation/fetchBrainPage';
-	import { memberSections, ownerSections, readerSections, type SectionKey } from './railIcons';
+	import { sectionsForRole, type SectionKey } from './railIcons';
+	import { isWideScreen } from '$lib/client/isWideScreen';
 	import { onMount } from 'svelte';
 	import type { BrainAccessRole } from '$lib/data/marketTypes';
 	import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
@@ -43,19 +42,13 @@
 
 	const isOwner = $derived(accessRole === 'owner');
 	const pageBasePath = $derived(`/workspace/${brain.entityId}/domains/${brain.id}`);
-	const sectionsByRole: Record<BrainAccessRole, SectionKey[]> = {
-		owner: ownerSections,
-		collaborator: memberSections,
-		reader: readerSections
-	};
-	const sections = $derived(sectionsByRole[accessRole]);
 
 	let activeSection = $state<SectionKey | null>(null);
 	let isOutOfCredits = $state(false);
-	let constellation = $state<{ drillToNeuron: (slug: string) => void }>();
+	let stage = $state<BrainStage>();
 
 	onMount(() => {
-		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'terminal';
+		if (isWideScreen()) activeSection = 'terminal';
 	});
 
 	function toggleSection(section: SectionKey): void {
@@ -63,14 +56,14 @@
 	}
 
 	function openPageInBrain(slug: string): void {
-		if (!window.matchMedia('(min-width: 1024px)').matches) activeSection = null;
-		constellation?.drillToNeuron(slug);
+		if (!isWideScreen()) activeSection = null;
+		stage?.drillToNeuron(slug);
 	}
 </script>
 
 <div class="flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-night lg:flex-row">
 	<div class="order-2 lg:order-1 lg:contents">
-		<SectionRail {sections} {activeSection} onSelect={toggleSection} />
+		<SectionRail sections={sectionsForRole[accessRole]} {activeSection} onSelect={toggleSection} />
 	</div>
 	<div class="relative order-1 flex min-h-0 min-w-0 flex-1 lg:order-2">
 		{#if activeSection !== null}
@@ -91,41 +84,17 @@
 				/>
 			</SectionPanel>
 		{/if}
-		<div class="relative min-w-0 flex-1">
-			<BrainConstellation
-				bind:this={constellation}
-				loadPage={(slug) => fetchBrainPage(brain.id, slug)}
-				{pageBasePath}
-				{contexts}
-				{pageIndex}
-				{pageLinks}
-			/>
-			<div
-				class="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center
-					justify-between px-4 py-2"
-			>
-				<a
-					href={backHref}
-					class="pointer-events-auto font-display text-xs text-chalk/50 transition hover:text-chalk"
-				>
-					← {filedKnowledgeBaseName ?? 'Knowledge Base'}
-				</a>
-				{#if isOwner}
-					<a
-						href={`/api/brain/export?brain=${brain.id}`}
-						download
-						class="pointer-events-auto font-display text-xs text-chalk/50 underline transition
-							hover:text-chalk"
-					>
-						Export as Markdown
-					</a>
-				{/if}
-			</div>
-			{#if isOutOfCredits}
-				<div class="absolute inset-x-4 top-4 z-20 overflow-hidden rounded-2xl border border-hairline">
-					<OutOfCreditsNotice />
-				</div>
-			{/if}
-		</div>
+		<BrainStage
+			bind:this={stage}
+			brainId={brain.id}
+			{pageBasePath}
+			{contexts}
+			{pageIndex}
+			{pageLinks}
+			{backHref}
+			backLabel={filedKnowledgeBaseName ?? 'Knowledge Base'}
+			{isOwner}
+			{isOutOfCredits}
+		/>
 	</div>
 </div>

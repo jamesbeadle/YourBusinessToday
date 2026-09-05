@@ -12,7 +12,7 @@
 
 	const tracker = new FormTracker();
 
-	let selectedPipeline = $state(retrievalConfig.pipeline);
+	let selectedPipeline = $derived(retrievalConfig.pipeline);
 
 	const pipelineSummary = $derived(
 		retrievalPipelines.find((definition) => definition.pipeline === selectedPipeline)?.summary ?? ''

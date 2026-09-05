@@ -31,9 +31,11 @@
 		return tracker.submit(onDone)(submitEvent);
 	};
 
-	const toneClasses = isDestructive
-		? 'text-signal/80 hover:bg-signal/10 hover:text-signal'
-		: 'text-chalk/80 hover:bg-hairline/40 hover:text-chalk';
+	const toneClasses = $derived(
+		isDestructive
+			? 'text-signal/80 hover:bg-signal/10 hover:text-signal'
+			: 'text-chalk/80 hover:bg-hairline/40 hover:text-chalk'
+	);
 </script>
 
 <form method="POST" {action} use:enhance={confirmThenSubmit}>

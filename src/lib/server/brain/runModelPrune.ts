@@ -1,25 +1,16 @@
+import { auditModelForPrune } from './auditModelForPrune';
 import { deleteBrainPages } from './deleteBrainPages';
 import { getBrainContexts } from './getBrainContexts';
-import { getBrainPageIndex, renderDomainModelIndex } from './getBrainPageIndex';
+import { getBrainPageIndex } from './getBrainPageIndex';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
-import { modellerPrunePrompt } from './modellerPrunePrompt';
-import { parsePruneRecord } from './parsePruneRecord';
-import { pruneModelTool } from './pruneModelTool';
-import { readPagesResultMessage, toolUseNamed, toolUsesNamed } from './readPagesExchange';
-import { readPagesTool } from './modellerAnswerTools';
 import { recordBrainEvent } from './recordBrainEvent';
-import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
+import { recordPruneEvents } from './recordPruneEvents';
 import { saveBrainContextWrites } from './saveBrainContextWrites';
 import { saveBrainPageWrites } from './saveBrainPageWrites';
 import { sweepEmptyBrainContexts } from './sweepEmptyBrainContexts';
-import type { AnthropicMessage } from '$lib/server/anthropic/anthropicTypes';
-import type { BrainContext, BrainPageSummary } from '$lib/data/brainTypes';
-import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
+import type { BrainPageSummary } from '$lib/data/brainTypes';
 import type { PruneRecord } from './parsePruneRecord';
 import type { SupabaseClient } from '@supabase/supabase-js';
-
-const maxPruneTokens = 24_000;
-const maxReadRounds = 3;
 
 export type PruneOutcome = {
 	logLine: string;
@@ -40,7 +31,7 @@ export async function runModelPrune(
 	if (index.length === 0) {
 		return emptyModelOutcome(supabase, brainId, sweptBefore.length);
 	}
-	const record = await auditModel(supabase, brainId, brain, contexts, index);
+	const record = await auditModelForPrune(supabase, brain, contexts, index);
 	const appliedContextWrites = await saveBrainContextWrites(supabase, brainId, record.contextWrites);
 	const appliedPageWrites = await saveBrainPageWrites(supabase, brainId, record.pageWrites);
 	const deletedSlugs = await deleteBrainPages(
@@ -84,75 +75,8 @@ async function emptyModelOutcome(
 	return outcome;
 }
 
-async function auditModel(
-	supabase: SupabaseClient,
-	brainId: string,
-	brain: DomainBrain,
-	contexts: BrainContext[],
-	index: BrainPageSummary[]
-): Promise<PruneRecord> {
-	const system = `${modellerPrunePrompt(brain.name, brain.domainGoal)}\n\n## Model index\n\n${renderDomainModelIndex(contexts, index)}`;
-	const messages: AnthropicMessage[] = [
-		{ role: 'user', content: 'Prune the model now. Read any pages you need first.' }
-	];
-	const tools = [readPagesTool, pruneModelTool];
-	for (let round = 0; round < maxReadRounds; round += 1) {
-		const response = await requestAnthropic({ system, messages, tools, maxTokens: maxPruneTokens });
-		const record = parsePruneRecord(toolUseNamed(response.content, pruneModelTool.name)?.input);
-		if (record !== null) return record;
-		const readRequests = toolUsesNamed(response.content, readPagesTool.name);
-		if (readRequests.length === 0) break;
-		messages.push({ role: 'assistant', content: response.content });
-		messages.push(await readPagesResultMessage(supabase, brainId, readRequests));
-	}
-	const finalResponse = await requestAnthropic({
-		system,
-		messages,
-		tools,
-		forcedToolName: pruneModelTool.name,
-		maxTokens: maxPruneTokens
-	});
-	if (finalResponse.stop_reason === 'max_tokens') {
-		throw new Error('Pruning ran out of room before finishing the model update');
-	}
-	const record = parsePruneRecord(toolUseNamed(finalResponse.content, pruneModelTool.name)?.input);
-	if (record === null) throw new Error('Pruning produced no usable model update');
-	return record;
-}
-
 function retirableSlugs(record: PruneRecord, index: BrainPageSummary[]): string[] {
 	return record.pageRetires.filter((slug) =>
 		index.some((page) => page.slug === slug && page.kind !== 'context_map')
 	);
-}
-
-async function recordPruneEvents(
-	supabase: SupabaseClient,
-	brainId: string,
-	contextWrites: { slug: string; wasCreated: boolean }[],
-	pageWrites: { slug: string; wasCreated: boolean }[],
-	deletedSlugs: string[]
-): Promise<void> {
-	for (const write of contextWrites) {
-		await recordBrainEvent(supabase, {
-			brainId,
-			kind: write.wasCreated ? 'context_created' : 'context_updated',
-			detail: { contextSlug: write.slug }
-		});
-	}
-	for (const write of pageWrites) {
-		await recordBrainEvent(supabase, {
-			brainId,
-			kind: write.wasCreated ? 'page_created' : 'page_updated',
-			detail: {},
-			pageSlug: write.slug
-		});
-	}
-	for (const slug of deletedSlugs) {
-		await recordBrainEvent(supabase, {
-			brainId,
-			kind: 'page_deleted',
-			detail: { pageSlug: slug }
-		});
-	}
 }

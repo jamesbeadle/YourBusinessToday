@@ -1,4 +1,4 @@
-import { parsePageWrite } from './parseIngestRecord';
+import { parsePageWrite } from './parseModelWrites';
 import type { BrainPageWrite } from './saveBrainPageWrites';
 
 export type RetirementRecord = {

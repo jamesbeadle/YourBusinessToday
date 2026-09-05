@@ -4,21 +4,26 @@ import type { TaskAttachment } from './attachmentRecord';
 
 export type AttachmentLinkKind = 'open' | 'download';
 
-const signedLinkLifetimeSeconds = 60;
+export const clickThroughLifetimeSeconds = 60;
+export const agentFetchLifetimeSeconds = 10 * 60;
 
 export async function signAttachmentLink(
 	supabase: SupabaseClient,
 	attachment: TaskAttachment,
-	kind: AttachmentLinkKind
+	kind: AttachmentLinkKind,
+	lifetimeSeconds: number
 ): Promise<string> {
 	const { data, error } = await supabase.storage
 		.from(attachmentsBucket)
-		.createSignedUrl(attachment.storagePath, signedLinkLifetimeSeconds, signingOptions(attachment, kind));
+		.createSignedUrl(attachment.storagePath, lifetimeSeconds, signingOptions(attachment, kind));
 	if (error !== null) throw error;
 	return data.signedUrl;
 }
 
-function signingOptions(attachment: TaskAttachment, kind: AttachmentLinkKind): { download?: string } {
+function signingOptions(
+	attachment: TaskAttachment,
+	kind: AttachmentLinkKind
+): { download?: string } {
 	if (kind === 'open') return {};
 	return { download: attachment.filename };
 }

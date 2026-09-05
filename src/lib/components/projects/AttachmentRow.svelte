@@ -1,7 +1,9 @@
 <script lang="ts">
+	import AttachmentPreviewModal from './AttachmentPreviewModal.svelte';
+	import AttachmentThumbnail from './AttachmentThumbnail.svelte';
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import { attachmentHref } from './attachmentLinks';
-	import { describeByteCount } from '$lib/data/taskAttachmentRules';
+	import { describeByteCount, previewKindFor } from '$lib/data/taskAttachmentRules';
 	import { formatBritishDate } from '$lib/data/britishDate';
 	import type { TaskAttachment } from '$lib/server/projects/attachmentRecord';
 
@@ -15,19 +17,30 @@
 		taskId: string;
 	} = $props();
 
+	let isPreviewOpen = $state(false);
 	let isRemoveModalOpen = $state(false);
+
+	const canPreview = $derived(previewKindFor(attachment.mimeType) !== null);
+	const filenameClasses = 'truncate text-left font-display text-chalk transition hover:text-go';
 </script>
 
-<li class="flex items-center justify-between gap-4 px-5 py-3">
-	<div class="flex min-w-0 flex-col gap-0.5">
-		<a
-			href={attachmentHref(projectId, taskId, attachment.id, 'open')}
-			target="_blank"
-			rel="noreferrer"
-			class="truncate font-display text-chalk transition hover:text-go"
-		>
-			{attachment.filename}
-		</a>
+<li class="flex items-center gap-4 px-5 py-3">
+	<AttachmentThumbnail {attachment} {projectId} {taskId} />
+	<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+		{#if canPreview}
+			<button type="button" onclick={() => (isPreviewOpen = true)} class={filenameClasses}>
+				{attachment.filename}
+			</button>
+		{:else}
+			<a
+				href={attachmentHref(projectId, taskId, attachment.id, 'open')}
+				target="_blank"
+				rel="noreferrer"
+				class={filenameClasses}
+			>
+				{attachment.filename}
+			</a>
+		{/if}
 		<p class="text-xs text-chalk/50">
 			{describeByteCount(attachment.byteCount)}
 			· <span class="text-chalk/80">{attachment.uploaderName}</span>
@@ -52,6 +65,10 @@
 		</button>
 	</div>
 </li>
+
+{#if canPreview}
+	<AttachmentPreviewModal {attachment} {projectId} {taskId} bind:isOpen={isPreviewOpen} />
+{/if}
 
 <DangerConfirmModal
 	title="Remove attachment"

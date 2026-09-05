@@ -3,7 +3,9 @@ import { attachmentLimitDescription, isWithinAttachmentLimit } from '$lib/data/t
 import type { ActionResult } from '@sveltejs/kit';
 import type { AttachmentUpload } from '$lib/server/projects/attachmentRecord';
 
-export type AttachmentUploadOutcome = { status: 'uploaded' } | { status: 'failed'; message: string };
+export type AttachmentUploadOutcome =
+	| { status: 'uploaded' }
+	| { status: 'failed'; message: string };
 
 const unknownMimeType = 'application/octet-stream';
 

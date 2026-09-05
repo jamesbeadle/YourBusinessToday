@@ -31,12 +31,6 @@
 		Every role you describe becomes a line, every task a station. Once the agent has enough to
 		work with, your Process Map appears here.
 	</p>
-	<p class="text-sm text-chalk/70">
-		Wondering what it will look like?
-		<a href="/project" class="text-signal underline underline-offset-4 hover:brightness-110">
-			Explore the demo map.
-		</a>
-	</p>
 	<p class="border-t border-hairline pt-3 text-sm text-chalk/50">
 		{creditBalance ?? 0}
 		{creditBalance === 1 ? 'credit' : 'credits'} remaining · each reply costs {creditsPerReply}

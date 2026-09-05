@@ -43,8 +43,6 @@ const ownerKeys: KbSectionKey[] = [
 	'review',
 	'share',
 	'chatbots',
-	'sell',
-	'tradeTalk',
 	'api',
 	'log',
 	'settings'

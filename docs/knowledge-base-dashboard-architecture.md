@@ -103,18 +103,50 @@ tools that apply.
 
 ## Motion
 
-The galaxy gains `focusSlot(id)` (camera flies to the brain, the others dim), `releaseFocus()`,
-`pause()` and `resume()`. Entering a brain: focus, navigate, fade the view in over the
-scene, then pause the galaxy. Leaving: fade the view out, resume, release. Landing directly
-on a brain URL starts focused with no flight. `prefers-reduced-motion` turns flights and
-fades into cuts. Durations and easings are named constants in one module.
+The galaxy offers `focusSlot(id)` (camera flies to the brain, the others dim), `releaseFocus()`,
+`pause()`, `resume()`, `hide()` and `show()`. `BrainFlight` (`brainFlight.svelte.ts`) keeps
+the galaxy in step with the URL: a brain in the route flies the camera in while the view
+fades in over the scene, and once the flight has settled the galaxy pauses its loop and
+hides its canvas — there is nothing to see behind the view. Leaving shows and resumes the
+galaxy before the release flight, and the view fades out over it. Landing directly on a
+brain URL starts focused with no flight. `prefers-reduced-motion` turns flights and fades
+into cuts. Durations and easings are named constants in `dashboardMotion.ts`.
+
+Every scene (galaxy, expertise constellation, experience regions, process flow) rests
+while the tab is hidden through one `pageVisibility` rune (`restWhilePageHidden`), and the
+stage (`createStage.ts`) caps pixel ratio at 1.5 on narrow screens and 2 on wide ones,
+asks for the high-performance GPU only on wide screens, and forces context loss on dispose
+so flying between brains never exhausts WebGL contexts.
 
 ## Phones
 
-The screen-size check is a reactive media query, not a one-shot read. The toolbar is a
-compact icon row; the strip is the primary switcher; panels are bottom sheets. The galaxy
-frames its ring to the aspect ratio, scales its labels, caps pixel ratio lower on narrow
-screens, and pauses when the page is hidden or a brain is open.
+The screen-size check is `screen.isWideScreen`, a live media query on the `lg` breakpoint.
+The header is exactly `--site-header-height` tall, the switcher name truncates, and `main`
+on dashboard routes is the rest of the viewport with no scrolling.
+
+The dashboard has one top row and one bottom stack, so nothing can collide:
+
+- **Top row** (`DashboardTopBar`, 56px): on the left "Add a second brain" in the
+  constellation state or the open brain's name and kind (`BrainTitleBand`, truncating); on
+  the right the toolbar — 44px icon buttons that scroll sideways with a hidden scrollbar
+  when they overflow, capped to 62% of the width on phones so the title keeps its room.
+- **Bottom stack** (`BrainStrip`): the chips (44px tall on phones, wrapping to a second
+  row) with the "← Knowledge base" link centred beneath them; on wide screens the link
+  sits bottom-left instead.
+- **Scene HUDs** ("Whole brain / focused" pills, the constellation key, the neuron detail's
+  close, the process map's close) sit top-left under the title band at `sceneHudPosition`;
+  the top-right belongs to the toolbar alone. Pointer hints (`sceneHintPosition`) only show
+  on wide screens.
+- **Panels** are bottom sheets to 85% of the height (`DashboardSheet`): the handle drags the
+  sheet down and lets go past 120px or with a flick to dismiss, otherwise it snaps back
+  (`SheetDrag`); the page behind stops scrolling while a sheet is open; the scrim, the close
+  button and Escape still close it.
+- **Process map**: the 2D map overlay stays up once the map tool has opened it, whether or
+  not the tool's panel (legend and station detail) is open, and closes from its own chip;
+  the SVG scales to the width and the overlay scrolls when it is taller than the viewport.
+- **Galaxy**: the camera rests further back in portrait so the whole ring fits
+  (`kbGalaxyFraming.ts`), labels shrink below 768px and again below 480px, a touch with
+  no more than 6px of drift is a tap, and a lifted finger clears the hover.
 
 ## Not built
 

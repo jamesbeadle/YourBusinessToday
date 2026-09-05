@@ -27,13 +27,14 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
 	const invitesThisHour = await countWorkspaceInvitesThisHour(locals.supabase, user.id);
 	if (isInviteAllowanceSpent(invitesThisHour)) error(429, tooManyInvitesMessage);
 
-	await createWorkspaceInvite(locals.supabase, {
+	const outcome = await createWorkspaceInvite(locals.supabase, {
 		invitedEmail: email,
 		invitedByEmail: user.email ?? '',
 		scope,
 		targetId,
 		targetName: target.name
 	});
+	if (outcome === 'already_invited') error(409, 'That address is already invited');
 	const emailDelivery = await deliverInvite(email, user.email ?? '', target.name, url.origin);
 	return json({ isInvited: true, emailDelivery });
 };

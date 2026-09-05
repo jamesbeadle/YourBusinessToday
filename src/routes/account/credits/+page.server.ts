@@ -2,7 +2,11 @@ import { fail, redirect } from '@sveltejs/kit';
 import { getCreditPacks } from '$lib/server/credits/getCreditPacks';
 import { getProfileFlags } from '$lib/server/auth/getProfileFlags';
 import { createCheckoutSession } from '$lib/server/payments/createCheckoutSession';
-import { reconcileCheckoutReturn } from '$lib/server/payments/reconcileCheckoutReturn';
+import {
+	creditedReturnPath,
+	isReturningFromStripe,
+	reconcileCheckoutReturn
+} from '$lib/server/payments/reconcileCheckoutReturn';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { stripeClient } from '$lib/server/payments/stripeClient';
 import type { Actions, PageServerLoad } from './$types';
@@ -13,9 +17,13 @@ const earlyAccessMessage =
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = await requireUser(locals);
 	const stripe = stripeClient();
+	const checkoutOutcome = await reconcileCheckoutReturn(url.searchParams, stripe, user.id);
+	if (checkoutOutcome === 'credited' && isReturningFromStripe(url.searchParams)) {
+		redirect(303, creditedReturnPath);
+	}
 	return {
 		creditPacks: await getCreditPacks(locals.supabase),
-		checkoutOutcome: await reconcileCheckoutReturn(url.searchParams, stripe, user.id),
+		checkoutOutcome,
 		isCheckoutLive: stripe !== null
 	};
 };

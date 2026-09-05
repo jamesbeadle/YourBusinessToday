@@ -1,4 +1,5 @@
 import { fail } from '@sveltejs/kit';
+import { addressRateLimit } from '$lib/server/http/addressRateLimit';
 import { countChatbotInvitesThisHour } from '$lib/server/chatbots/recentChatbotInviteCount';
 import { inviteChatbotMember } from '$lib/server/chatbots/inviteChatbotMember';
 import { isInviteAllowanceSpent, tooManyInvitesMessage } from '$lib/server/email/inviteAllowance';
@@ -12,6 +13,13 @@ import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
 import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 import type { RequestEvent } from './$types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+const oneHourInMilliseconds = 60 * 60 * 1000;
+const resendsPerOwner = addressRateLimit({
+	allowance: 10,
+	windowMilliseconds: oneHourInMilliseconds
+});
+const tooManyResendsMessage = 'Too many resends — try again in an hour.';
 
 export async function inviteMember({ locals, params, request, url }: RequestEvent) {
 	const user = await requireUser(locals);
@@ -43,6 +51,7 @@ export async function resendInvite({ locals, params, request, url }: RequestEven
 	if (await hasSpentInviteAllowance(locals.supabase, user.id)) {
 		return fail(429, { message: tooManyInvitesMessage });
 	}
+	if (!resendsPerOwner.isAllowedFrom(user.id)) return fail(429, { message: tooManyResendsMessage });
 	const formData = await request.formData();
 	const outcome = await resendChatbotInvite(
 		locals.supabase,

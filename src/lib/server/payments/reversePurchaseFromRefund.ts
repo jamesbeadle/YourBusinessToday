@@ -1,6 +1,8 @@
 import type Stripe from 'stripe';
 import { supabaseServiceClient } from './supabaseServiceClient';
 
+const purchaseNotFoundError = 'purchase_not_found';
+
 export async function reversePurchaseFromRefund(
 	stripe: Stripe,
 	charge: Stripe.Charge
@@ -18,7 +20,16 @@ export async function reversePurchaseFromRefund(
 	const { error } = await supabase.rpc('reverse_purchase_credits', {
 		session_identifier: session.id
 	});
-	if (error) throw error;
+	if (!error) return;
+	if (isPurchaseNotFound(error)) {
+		console.warn('Stripe charge refunded for a checkout never fulfilled', charge.id, session.id);
+		return;
+	}
+	throw error;
+}
+
+function isPurchaseNotFound(error: { message: string }): boolean {
+	return error.message.includes(purchaseNotFoundError);
 }
 
 async function checkoutSessionForCharge(

@@ -20,10 +20,14 @@ const modelUsageTable = 'model_usage';
 // is reported and the settlement stands.
 export async function recordModelUsage(settlement: ModelUsageSettlement): Promise<void> {
 	if (settlement.calls.length === 0) return;
-	const { error } = await supabaseServiceClient()
-		.from(modelUsageTable)
-		.insert(usageRowsFor(settlement));
-	if (error !== null) console.error('Recording model usage failed', settlement.reason, error);
+	try {
+		const { error } = await supabaseServiceClient()
+			.from(modelUsageTable)
+			.insert(usageRowsFor(settlement));
+		if (error !== null) throw error;
+	} catch (failure) {
+		console.error('Recording model usage failed', settlement.reason, failure);
+	}
 }
 
 function usageRowsFor(settlement: ModelUsageSettlement): Record<string, unknown>[] {

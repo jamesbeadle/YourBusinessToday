@@ -45,7 +45,8 @@ export const taskReadActions: McpAction[] = [
 		area: 'tasks',
 		audience: 'staff',
 		isWrite: false,
-		summary: 'read one task in full with its story, team, criteria, checklists and comments',
+		summary:
+			'read one task in full with its story, team, criteria, checklists, attachments and comments',
 		inputSchema: objectSchema({ taskId: textField('The task id') }, ['taskId']),
 		run: async (caller, input) => {
 			const task = await getTask(caller.supabase, readText(input, 'taskId'));

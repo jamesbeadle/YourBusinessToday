@@ -10,12 +10,14 @@
 		brain,
 		domainBrains,
 		boundDomainBrainIds,
-		isOwner
+		isOwner,
+		actionBasePath
 	}: {
 		brain: KbBrainSummary;
 		domainBrains: KbBrainSummary[];
 		boundDomainBrainIds: string[];
 		isOwner: boolean;
+		actionBasePath: string;
 	} = $props();
 
 	let isDeleteModalOpen = $state(false);
@@ -42,13 +44,17 @@
 			<h4 class="font-display text-xs tracking-widest text-chalk/50 uppercase">
 				Expertise bindings
 			</h4>
-			<BindingsPanel {domainBrains} {boundDomainBrainIds} />
+			<BindingsPanel {domainBrains} {boundDomainBrainIds} {actionBasePath} />
 		</section>
 	{/if}
 	{#if brain.brainType !== 'ddd_model'}
 		<section class="flex flex-col gap-3">
 			<h4 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Retrieval</h4>
-			<RetrievalSettingsPanel retrievalConfig={brain.retrievalConfig} brainType={brain.brainType} />
+			<RetrievalSettingsPanel
+				retrievalConfig={brain.retrievalConfig}
+				brainType={brain.brainType}
+				{actionBasePath}
+			/>
 		</section>
 	{/if}
 	{#if isOwner}
@@ -69,7 +75,7 @@
 	bind:isOpen={isDeleteModalOpen}
 	title="Delete this brain?"
 	description={`"${brain.name}" and everything stored in it will be removed from this knowledge base.`}
-	action="?/deleteBrain"
+	action={`${actionBasePath}?/deleteBrain`}
 	fields={{}}
 	submitLabel="Delete brain"
 />

@@ -1,17 +1,14 @@
 import { Vector3 } from 'three';
-import { createGalaxyFocus } from './kbGalaxyFocus';
+import { createGalaxyFocus, type FocusOptions } from './kbGalaxyFocus';
 import { createKbGalaxyScene } from './kbGalaxyScene';
-import { animateSlotHandles } from './slotHandleMotion';
+import { animateSlotHandles, settleSlotHandles, type SlotMotionState } from './slotHandleMotion';
 import { createOrbitRig, prefersReducedMotion } from '../../brain/constellation/orbitRig';
 import { createStage, fitStageTo } from '../../stage/createStage';
 import { startAnimationLoop } from '../../stage/animationLoop';
 import type { ConstellationSlot } from '../constellationSlots';
 
-const FIELD_OF_VIEW_DEGREES = 46;
-const FAR_PLANE = 160;
+const STAGE_OPTIONS = { fieldOfViewDegrees: 46, farPlane: 160 };
 const CAMERA_START = new Vector3(0, 6, 19);
-
-export type FocusOptions = { isInstant?: boolean };
 
 export type KbGalaxyExperience = {
 	focusSlot: (slotId: string, options?: FocusOptions) => void;
@@ -29,14 +26,10 @@ export function createKbGalaxy(
 	onActivate: (slot: ConstellationSlot) => void
 ): KbGalaxyExperience {
 	const isAnimated = !prefersReducedMotion();
-	const stage = createStage(canvas, {
-		fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES,
-		farPlane: FAR_PLANE
-	});
+	const stage = createStage(canvas, STAGE_OPTIONS);
 	stage.camera.position.copy(CAMERA_START);
 	const controls = createOrbitRig(stage.camera, canvas);
 	const focus = createGalaxyFocus(stage.camera, controls, CAMERA_START, isAnimated);
-	const resizeObserver = fitStageTo(stage, container);
 	let hoveredSlotId: string | null = null;
 	const scene = createKbGalaxyScene({
 		canvas,
@@ -46,17 +39,27 @@ export function createKbGalaxy(
 		onActivate
 	});
 	let stopLoop: (() => void) | null = startAnimationLoop(frame);
+	const resizeObserver = fitStageTo(stage, container, renderWhileResting);
+
+	function motionState(): SlotMotionState {
+		return { isAnimated, hoveredSlotId, focusedSlotId: focus.focusedSlotId() };
+	}
+
+	function render(): void {
+		stage.renderer.render(scene.galaxy().scene, stage.camera);
+	}
 
 	function frame(deltaSeconds: number, timeSeconds: number): void {
-		const galaxy = scene.galaxy();
 		focus.update(deltaSeconds);
 		controls.update();
-		animateSlotHandles(galaxy.handles, deltaSeconds, timeSeconds, {
-			isAnimated,
-			hoveredSlotId,
-			focusedSlotId: focus.focusedSlotId()
-		});
-		stage.renderer.render(galaxy.scene, stage.camera);
+		animateSlotHandles(scene.galaxy().handles, deltaSeconds, timeSeconds, motionState());
+		render();
+	}
+
+	function renderWhileResting(): void {
+		if (stopLoop !== null) return;
+		settleSlotHandles(scene.galaxy().handles, motionState());
+		render();
 	}
 
 	function focusSlot(slotId: string, options: FocusOptions = {}): void {
@@ -80,7 +83,7 @@ export function createKbGalaxy(
 		scene.replace(slots);
 		focus.release(true);
 		if (focusedSlotId !== null) focusSlot(focusedSlotId, { isInstant: true });
-		frame(0, 0);
+		renderWhileResting();
 	}
 
 	function destroy(): void {

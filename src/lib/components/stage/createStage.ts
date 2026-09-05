@@ -31,10 +31,15 @@ export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {
 	return { renderer, camera, resize, dispose: () => renderer.dispose() };
 }
 
-export function fitStageTo(stage: Stage, container: HTMLElement): ResizeObserver {
-	const observer = new ResizeObserver(() =>
-		stage.resize(container.clientWidth, container.clientHeight)
-	);
+export function fitStageTo(
+	stage: Stage,
+	container: HTMLElement,
+	onResized: () => void = () => {}
+): ResizeObserver {
+	const observer = new ResizeObserver(() => {
+		stage.resize(container.clientWidth, container.clientHeight);
+		onResized();
+	});
 	observer.observe(container);
 	stage.resize(container.clientWidth, container.clientHeight);
 	return observer;

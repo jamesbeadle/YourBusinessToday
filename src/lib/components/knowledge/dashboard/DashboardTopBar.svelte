@@ -22,13 +22,15 @@
 >
 	<a
 		href={newBrainHref(knowledgeBaseId)}
+		aria-label="Add a second brain"
+		title="Add a second brain"
 		class={[
-			'pointer-events-auto rounded-full border border-hairline bg-night/80 px-4 py-1.5',
+			'pointer-events-auto rounded-full border border-hairline bg-night/80 px-3 py-1.5 sm:px-4',
 			'font-display text-xs text-chalk/60 transition hover:border-signal hover:text-signal',
 			isBrainOpen && 'invisible'
 		]}
 	>
-		+ Add a second brain
+		+<span class="hidden sm:inline"> Add a second brain</span>
 	</a>
 	<DashboardToolbar
 		tools={dashboardTools.tools}

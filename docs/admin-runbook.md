@@ -149,6 +149,16 @@ where proname in ('reverse_purchase_credits', 'admin_adjust_credits');
 
 Every migration file is safe to re-run, so when in doubt, run it again.
 
+As of 5 September 2026 every file up to 0048 is applied to production; 0040 and
+0042–0048 went through Supabase's tooling and are in the history, 0041 was run by hand.
+
+### Rebuild a database from nothing
+
+The tables and functions that predate the numbered migrations — profiles, credit packs,
+the ledger, purchases, the original agent and map storage, brain sources and events, the
+admin gates and the signup trigger — live in `docs/sql/base-schema.sql`, captured from
+production. Run that first, then `migrations/0001` onward in order.
+
 ## The admin test pack
 
 `purchase_credit_pack('<pack id>')` grants a pack's credits with no payment, records a

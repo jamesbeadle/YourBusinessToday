@@ -5,10 +5,10 @@
 
 	let { brainId, listing }: { brainId: string; listing: BrainListing | null } = $props();
 
-	let headline = $state(listing?.headline ?? '');
-	let description = $state(listing?.description ?? '');
-	let editionPriceCredits = $state(priceText(listing?.editionPriceCredits));
-	let subscriptionPriceCredits = $state(priceText(listing?.subscriptionPriceCredits));
+	let headline = $derived(listing?.headline ?? '');
+	let description = $derived(listing?.description ?? '');
+	let editionPriceCredits = $derived(priceText(listing?.editionPriceCredits));
+	let subscriptionPriceCredits = $derived(priceText(listing?.subscriptionPriceCredits));
 	let isSaving = $state(false);
 	let notice = $state<{ tone: 'go' | 'caution'; message: string } | null>(null);
 

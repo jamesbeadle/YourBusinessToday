@@ -13,7 +13,7 @@
 
 	let { data } = $props();
 
-	let model = $state<WorkflowModel>(data.latestMap);
+	let model: WorkflowModel = $derived(data.latestMap);
 	let activeSection = $state<SectionKey | null>(null);
 
 	const sections: SectionKey[] = ['interview', 'map', 'share'];

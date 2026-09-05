@@ -1,6 +1,5 @@
 <script lang="ts">
 	import AdminUserRow from '$lib/components/admin/AdminUserRow.svelte';
-	import HiveReviewPanel from '$lib/components/admin/HiveReviewPanel.svelte';
 	import SiteModelPanel from '$lib/components/admin/SiteModelPanel.svelte';
 
 	let { data, form } = $props();
@@ -22,7 +21,6 @@
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
 	{/if}
 	<SiteModelPanel siteModel={data.siteModel} />
-	<HiveReviewPanel applications={data.hiveApplications} />
 	<ul class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
 		{#each data.users as user (user.email)}
 			<AdminUserRow {user} />

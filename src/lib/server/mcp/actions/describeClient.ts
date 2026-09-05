@@ -61,6 +61,7 @@ function describeProjectLine(project: ClientProject): string {
 }
 
 const clientEventLabels: Record<ClientEventKind, string> = {
+	enquiry_received: 'Enquiry received',
 	stage_moved: 'Stage moved',
 	contact_added: 'Contact added',
 	contact_invited: 'Contact invited',

@@ -1,4 +1,4 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { getListingEditions } from '$lib/server/market/getListingEditions';
 import { getMyListingPurchases } from '$lib/server/market/getMyListingPurchases';
 import { getPublishedListing } from '$lib/server/market/getBrainListing';
@@ -9,9 +9,14 @@ import {
 	subscribeToBrain
 } from '$lib/server/market/purchaseFromMarket';
 import { requireUser } from '$lib/server/auth/requireUser';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async (event) => {
+	redirect(307, '/');
+	return loadListing(event);
+};
+
+async function loadListing({ locals, params }: PageServerLoadEvent) {
 	const user = await requireUser(locals);
 	const listing = await getPublishedListing(locals.supabase, params.listingId);
 	if (listing === null) error(404, 'That listing is not on the market');
@@ -21,7 +26,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		editions: await getListingEditions(locals.supabase, listing.id),
 		mine: await getMyListingPurchases(locals.supabase, user.id, listing.id)
 	};
-};
+}
 
 export const actions: Actions = {
 	buyEdition: async ({ locals, request }) => {

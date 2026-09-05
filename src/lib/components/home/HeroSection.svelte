@@ -11,25 +11,25 @@
 			Consultants who<br />know your business.
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
-			YBT is a business consultancy. We learn how your business really runs — the rules of
-			your trade, the jobs you've done, the way your work flows — and turn that understanding
-			into answers, plans, and services that fit your business, not a template. The second
-			brain we build along the way is yours to keep.
+			We automate businesses. It starts with learning how yours really runs — the rules of your
+			trade, the jobs you have done, the way work moves from enquiry to invoice — and ends with
+			the repetitive parts running themselves. Everything we learn is kept in a knowledge base
+			that stays yours.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
-				href="/account/sign-in"
+				href="/contact"
 				class="rounded-full bg-signal px-7 py-3 font-display text-sm font-medium text-night
 					transition hover:brightness-110"
 			>
-				Start the conversation
+				Talk to us
 			</a>
 			<a
-				href="/vision"
+				href="/knowledge-base"
 				class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
 					transition hover:border-chalk/40 hover:text-chalk"
 			>
-				Read what we're building
+				Build your knowledge base
 			</a>
 		</div>
 	</div>

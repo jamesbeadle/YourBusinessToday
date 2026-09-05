@@ -2,13 +2,11 @@
 	import ApiPanel from '../brain/dashboard/ApiPanel.svelte';
 	import ChatbotsPanel from '../chatbots/ChatbotsPanel.svelte';
 	import BrainActivityLog from '../brain/BrainActivityLog.svelte';
-	import HiveMindPanel from '../brain/dashboard/HiveMindPanel.svelte';
 	import KbBrainsPanel from './KbBrainsPanel.svelte';
 	import KbInterviewPanel from './KbInterviewPanel.svelte';
 	import KbSettingsPanel from './KbSettingsPanel.svelte';
 	import KnowledgeBaseSharePanel from './KnowledgeBaseSharePanel.svelte';
 	import ReviewPanel from '../brain/review/ReviewPanel.svelte';
-	import SellPanel from '../brain/dashboard/SellPanel.svelte';
 	import SourcesPanel from '../brain/SourcesPanel.svelte';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
@@ -43,7 +41,7 @@
 	const primaryBrain = $derived(workbench.primaryBrain);
 	const needsExpertise = $derived(
 		primaryBrain === null &&
-			['documents', 'review', 'sell', 'tradeTalk', 'api', 'log'].includes(section)
+			['documents', 'review', 'api', 'log'].includes(section)
 	);
 	const pageBasePath = $derived(
 		primaryBrain === null ? '' : `/workspace/${primaryBrain.entityId}/domains/${primaryBrain.id}`
@@ -74,19 +72,6 @@
 	<div class="min-h-0 flex-1 overflow-y-auto p-4">
 		<ChatbotsPanel {chatbots} />
 	</div>
-{:else if section === 'sell' && primaryBrain !== null}
-	<div class="min-h-0 flex-1 overflow-y-auto">
-		<SellPanel
-			brainId={primaryBrain.id}
-			listing={workbench.listing}
-			editions={workbench.editions}
-			sales={workbench.sales}
-		/>
-	</div>
-{:else if section === 'tradeTalk' && primaryBrain !== null}
-	{#if workbench.hive !== null}
-		<HiveMindPanel hive={workbench.hive} />
-	{/if}
 {:else if section === 'api' && primaryBrain !== null}
 	<div class="min-h-0 flex-1 overflow-y-auto">
 		<ApiPanel brainId={primaryBrain.id} tokens={workbench.apiTokens} />

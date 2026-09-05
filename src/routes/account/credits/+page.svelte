@@ -21,7 +21,11 @@
 	{#if !data.isCheckoutLive}
 		<p class="rounded-2xl border border-signal/40 bg-signal/10 px-5 py-4 text-chalk/80">
 			Early access: credit packs can't be bought yet. The Your Business Today team grants
-			credits directly to your account — get in touch and we'll top you up.
+			credits directly to your account —
+			<a href="/contact" class="text-chalk underline underline-offset-4 hover:text-signal">
+				get in touch
+			</a>
+			and we'll top you up.
 		</p>
 	{/if}
 	{#if data.checkoutState === 'success'}
@@ -56,6 +60,12 @@
 		{:else}
 			Prices shown are what packs will cost once checkout opens.
 		{/if}
+	</p>
+	<p class="text-sm text-chalk/50">
+		Unused packs can be refunded within 14 days of purchase — the full promise is in our
+		<a href="/terms" class="text-chalk/80 underline underline-offset-4 hover:text-chalk">
+			terms of service</a
+		>.
 	</p>
 	<SendCreditsPanel />
 </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import KbDashboard from '$lib/components/knowledge/KbDashboard.svelte';
+	import KnowledgeBaseDashboard from '$lib/components/knowledge/dashboard/KnowledgeBaseDashboard.svelte';
 
 	let { data, children } = $props();
 </script>
 
-<KbDashboard
+<KnowledgeBaseDashboard
 	knowledgeBase={data.knowledgeBase}
 	isOwner={data.isOwner}
 	brains={data.brains}
@@ -12,6 +12,6 @@
 	shares={data.shares}
 	chatbots={data.chatbots}
 	workbench={data.workbench}
-/>
-
-{@render children()}
+>
+	{@render children()}
+</KnowledgeBaseDashboard>

@@ -3,9 +3,13 @@
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import { knowledgeBaseActionHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { KnowledgeBaseShare } from '$lib/server/knowledge/knowledgeBaseShares';
 
-	let { shares }: { shares: KnowledgeBaseShare[] } = $props();
+	let {
+		knowledgeBaseId,
+		shares
+	}: { knowledgeBaseId: string; shares: KnowledgeBaseShare[] } = $props();
 
 	const shareTracker = new FormTracker();
 </script>
@@ -16,7 +20,7 @@
 	</p>
 	<form
 		method="POST"
-		action="?/shareKnowledgeBase"
+		action={knowledgeBaseActionHref(knowledgeBaseId, 'shareKnowledgeBase')}
 		use:enhance={shareTracker.submit()}
 		class="flex items-center gap-2"
 	>
@@ -36,7 +40,11 @@
 			{#each shares as share (share.id)}
 				<li class="flex items-center justify-between gap-3 py-2">
 					<span class="truncate text-sm">{share.viewerEmail}</span>
-					<form method="POST" action="?/removeShare" use:enhance>
+					<form
+						method="POST"
+						action={knowledgeBaseActionHref(knowledgeBaseId, 'removeShare')}
+						use:enhance
+					>
 						<input type="hidden" name="shareId" value={share.id} />
 						<button
 							type="submit"

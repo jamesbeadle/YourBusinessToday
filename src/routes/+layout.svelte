@@ -20,6 +20,7 @@
 		isStaff={data.isStaff}
 		isClientContact={data.isClientContact}
 		unreadNotificationCount={data.unreadNotificationCount}
+		knowledgeBases={data.knowledgeBases}
 	/>
 	<main
 		class="flex-1 transition-opacity duration-300"

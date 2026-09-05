@@ -1,6 +1,7 @@
 <script lang="ts">
 	import RegionTooltip from './RegionTooltip.svelte';
 	import { buildRegionModel } from './regions/buildRegionModel';
+	import { restWhilePageHidden } from '$lib/client/pageVisibility.svelte';
 	import { untrack } from 'svelte';
 	import {
 		createRegionExperience,
@@ -53,6 +54,8 @@
 	$effect(() => {
 		experience?.updateModel(model);
 	});
+
+	restWhilePageHidden(() => experience);
 
 	function returnToWholeBrain(): void {
 		focusedRegionId = null;

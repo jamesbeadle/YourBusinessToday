@@ -9,21 +9,21 @@ export type KnowledgeService = {
 
 export const knowledgeServices: KnowledgeService[] = [
 	{
-		id: 'trade-talk',
-		name: 'Trade Talk',
-		tagline: 'Ask every trade at once',
+		id: 'chatbots',
+		name: 'Chatbots',
+		tagline: 'Hand your knowledge to your staff',
 		description:
-			'One question, answered by the second brains of approved trades — real businesses, real knowledge, not scraped content. Every brain that shapes an answer earns its owner a share of the revenue.',
+			'Set up a chatbot on your knowledge base, invite your staff by email, and they ask it instead of asking you. You fund it from your credits, decide how much each person may spend, and see the questions it could not answer.',
 		isLive: true,
-		href: '/trade-talk'
+		href: '/knowledge-base'
 	},
 	{
-		id: 'marketplace',
-		name: 'The Marketplace',
-		tagline: 'Buy and sell expertise',
+		id: 'connect-your-tools',
+		name: 'Connect your tools',
+		tagline: 'Your knowledge, inside Claude',
 		description:
-			'List an edition of your expertise brain and other businesses can buy it for credits — a snapshot of what you know, sold on your terms. Or buy your way into a trade you are entering.',
+			'An MCP server and API put your knowledge base inside Claude and the other tools you already use. Mint a token, paste the address, and your own assistant reads from what you know.',
 		isLive: true,
-		href: '/market'
+		href: '/knowledge-base'
 	}
 ];

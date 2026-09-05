@@ -8,10 +8,10 @@
 			<p class="font-display text-sm tracking-widest text-signal uppercase">How it's built</p>
 			<h2 class="font-display text-3xl font-medium">Talk about your business. That's it.</h2>
 			<p class="max-w-prose text-chalk/70">
-				No forms, no setup wizard, no data entry. You talk about your business — in
-				conversation, or by dropping in the documents you already have — and YBT works out
-				what each thing it learns actually is: a rule of your trade, a thing that happened,
-				a step in how work moves. Then it files it in the right brain.
+				No forms, no setup wizard, no data entry. You talk about your business — in an
+				interview, or by uploading the documents you already have — and YBT works out what
+				each thing it learns actually is: a rule of your trade, a thing that happened, a step
+				in how work moves. Then it files it in the right brain.
 			</p>
 			<p class="max-w-prose text-chalk/70">
 				The interviewer knows what a complete picture of a business looks like, so it knows

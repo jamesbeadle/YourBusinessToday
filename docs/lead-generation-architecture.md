@@ -40,7 +40,9 @@ so the row says where it came from; if it does not, the ledger still says so.
   a summary, industry, location, headcount band, the people it found (name, role, evidence
   URL) and suggested opening angles. The draft is shown in an editable form; Save as lead
   writes the client, its people and a `profile_researched` event. Opened from a client's
-  page, the same view updates that client instead of creating another.
+  page, the same view updates that client instead of creating another. Given only a name,
+  a few likely `.co.uk` and `.com` domains are tried before asking for the address — there
+  is no web search yet.
 - `/clients/prospect` — SIC codes and a location, searched against the Companies House
   advanced search; a results table with company, number, incorporation date, address and
   SIC codes, and Add as lead on every row. Without `COMPANIES_HOUSE_API_KEY` the page says

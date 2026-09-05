@@ -28,8 +28,7 @@ export async function researchCompany(query: string): Promise<ResearchOutcome> {
 	});
 	const toolInput = toolUseFrom(response, companyResearchTool.name);
 	if (toolInput === undefined) throw new Error('Claude did not return a profile');
-	const sourceUrl = website.pages[website.pages.length - 1].url;
-	const profile = parseResearchedProfile(toolInput as Record<string, unknown>, website.url, sourceUrl);
+	const profile = parseResearchedProfile(toolInput as Record<string, unknown>, website.url, website.url);
 	return { kind: 'researched', profile: withFallbackName(profile, query) };
 }
 

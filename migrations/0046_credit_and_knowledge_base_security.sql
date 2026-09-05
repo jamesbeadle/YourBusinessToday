@@ -1,4 +1,4 @@
--- 0041: close the three ways a signed-in user could take what is not theirs.
+-- 0046: close the three ways a signed-in user could take what is not theirs.
 --
 -- 1. purchase_credit_pack granted a pack's credits with no payment. It stays
 --    for the admin to test the credit flow, and refuses everyone else.

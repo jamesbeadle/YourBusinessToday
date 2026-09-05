@@ -1,6 +1,9 @@
+import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { ShareScope } from '$lib/data/sharingTypes';
 
-export type ShareOutcome = { isShared: true } | { isShared: false; message: string };
+export type ShareOutcome =
+	| { isShared: true; emailDelivery: EmailDelivery }
+	| { isShared: false; message: string };
 
 export async function requestShare(
 	email: string,
@@ -17,8 +20,13 @@ export async function requestShare(
 			entityId: scope === 'entity' ? entityId : ''
 		})
 	});
-	if (response.ok) return { isShared: true };
+	if (response.ok) return { isShared: true, emailDelivery: await deliveryFrom(response) };
 	return { isShared: false, message: await messageFrom(response) };
+}
+
+async function deliveryFrom(response: Response): Promise<EmailDelivery> {
+	const payload = await response.json().catch(() => null);
+	return payload?.emailDelivery ?? 'sent';
 }
 
 async function messageFrom(response: Response): Promise<string> {

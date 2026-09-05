@@ -1,10 +1,14 @@
 import { deliverChatbotInvite, type ChatbotInvite } from './deliverChatbotInvite';
+import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type InviteOutcome = 'invited' | 'already_invited';
+export type InviteOutcome = 'already_invited' | EmailDelivery;
 
 const duplicateRowCode = '23505';
 
+// The membership row exists once the insert succeeds; an undelivered email
+// must not undo it, so the delivery status travels back for the owner to
+// see, and the owner can resend.
 export async function inviteChatbotMember(
 	supabase: SupabaseClient,
 	invite: ChatbotInvite,
@@ -17,16 +21,5 @@ export async function inviteChatbotMember(
 	});
 	if (error !== null && error.code === duplicateRowCode) return 'already_invited';
 	if (error !== null) throw error;
-	await deliverOrLog(invite);
-	return 'invited';
-}
-
-// The membership row exists once the insert succeeds; a failed email must
-// not undo it, so the failure is logged and the owner can resend.
-async function deliverOrLog(invite: ChatbotInvite): Promise<void> {
-	try {
-		await deliverChatbotInvite(invite);
-	} catch (failure) {
-		console.error('Chatbot invite email failed', failure);
-	}
+	return deliverChatbotInvite(invite);
 }

@@ -17,11 +17,10 @@ export function renderInviteEmail(
 		<p style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#c9d2e6;">
 			<strong style="color:#eef1f8;">${inviterEmail}</strong> has invited you to collaborate
 			on <strong style="color:#eef1f8;">${workspaceName}</strong> in Your Business Today —
-			a living model of a business you can explore in 3D and question like a colleague.
+			a shared knowledge base you can browse and ask questions of like a colleague.
 		</p>
 		<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#c9d2e6;">
-			Sign in with Google using this email address and accept the invitation from your
-			workspace.
+			Sign in with this email address and accept the invitation from your workspace.
 		</p>
 		<a
 			href="${signInUrl}"

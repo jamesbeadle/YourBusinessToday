@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ChatbotChat from '$lib/components/chatbots/ChatbotChat.svelte';
+	import { unnamedChatbotOwner } from '$lib/data/chatbotQuietMessages';
 
 	let { data } = $props();
 </script>
@@ -22,5 +23,6 @@
 		chatbot={data.chatbot}
 		membership={data.membership}
 		conversation={data.conversation}
+		ownerName={data.ownerName ?? unnamedChatbotOwner}
 	/>
 {/if}

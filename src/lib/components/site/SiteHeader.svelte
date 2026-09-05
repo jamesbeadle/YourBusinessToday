@@ -2,10 +2,13 @@
 	import AccountMenu from './AccountMenu.svelte';
 	import BrandWordmark from './BrandWordmark.svelte';
 	import CreditBalancePill from './CreditBalancePill.svelte';
+	import KnowledgeBaseSwitcher from './KnowledgeBaseSwitcher.svelte';
 	import MobileMenuButton from './MobileMenuButton.svelte';
 	import MobileNavDrawer from './MobileNavDrawer.svelte';
 	import NotificationsBell from './NotificationsBell.svelte';
 	import { buildMenuGroups } from './siteNavigation';
+	import { page } from '$app/state';
+	import type { KnowledgeBaseSummary } from '$lib/data/knowledge/knowledgeTypes';
 
 	let {
 		userEmail,
@@ -13,7 +16,8 @@
 		isAdmin,
 		isStaff,
 		isClientContact,
-		unreadNotificationCount
+		unreadNotificationCount,
+		knowledgeBases
 	}: {
 		userEmail: string | null;
 		creditBalance: number | null;
@@ -21,7 +25,10 @@
 		isStaff: boolean;
 		isClientContact: boolean;
 		unreadNotificationCount: number;
+		knowledgeBases: KnowledgeBaseSummary[];
 	} = $props();
+
+	const openKnowledgeBaseId = $derived(page.params.knowledgeBaseId ?? null);
 
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
@@ -37,9 +44,14 @@
 
 <header class="relative z-40 border-b border-hairline bg-night print:hidden">
 	<div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
-		<a href="/" class="flex items-center">
-			<BrandWordmark fontSize={26} />
-		</a>
+		<div class="flex min-w-0 items-center gap-3">
+			<a href="/" class="flex shrink-0 items-center">
+				<BrandWordmark fontSize={26} />
+			</a>
+			{#if openKnowledgeBaseId !== null}
+				<KnowledgeBaseSwitcher {knowledgeBases} currentKnowledgeBaseId={openKnowledgeBaseId} />
+			{/if}
+		</div>
 		<nav class="hidden items-center gap-6 md:flex">
 			{#if isProjectManager}
 				<NotificationsBell unreadCount={unreadNotificationCount} />

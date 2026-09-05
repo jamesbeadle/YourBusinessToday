@@ -1,4 +1,6 @@
 import { clientInviteEmailSubject, renderClientInviteEmail } from '$lib/server/email/clientInviteEmail';
+import { countContactInvitesThisHour } from './recentContactInviteCount';
+import { isInviteAllowanceSpent } from '$lib/server/email/inviteAllowance';
 import { recordClientEvent } from './recordClientEvent';
 import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
@@ -6,7 +8,7 @@ import type { ClientContact } from './clientContactRecord';
 import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type InviteOutcome = 'already_invited' | EmailDelivery;
+export type InviteOutcome = 'already_invited' | 'too_many_invites' | EmailDelivery;
 
 const setPasswordPath = '/auth/callback?next=/account/set-password';
 
@@ -17,6 +19,8 @@ export async function inviteClientContact(
 	actorAccountId: string
 ): Promise<InviteOutcome> {
 	if (contact.accountId !== null) return 'already_invited';
+	const invitesThisHour = await countContactInvitesThisHour(supabase, actorAccountId);
+	if (isInviteAllowanceSpent(invitesThisHour)) return 'too_many_invites';
 	const invitation = await mintInvitation(contact.email, `${origin}${setPasswordPath}`);
 	await linkContactToAccount(supabase, contact.id, invitation.accountId);
 	const delivery = await deliverInvitation(contact, invitation.actionLink);

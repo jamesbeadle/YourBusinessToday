@@ -1,5 +1,7 @@
 import { fail } from '@sveltejs/kit';
+import { countChatbotInvitesThisHour } from '$lib/server/chatbots/recentChatbotInviteCount';
 import { inviteChatbotMember } from '$lib/server/chatbots/inviteChatbotMember';
+import { isInviteAllowanceSpent, tooManyInvitesMessage } from '$lib/server/email/inviteAllowance';
 import { isLadderModel } from '$lib/data/modelLadder';
 import { parseInvitedAllowance, parseInvitedEmail } from '$lib/server/chatbots/parseInviteForm';
 import { removeChatbotMember } from '$lib/server/chatbots/removeChatbotMember';
@@ -9,10 +11,14 @@ import { resendChatbotInvite } from '$lib/server/chatbots/resendChatbotInvite';
 import { setMemberModel } from '$lib/server/chatbots/setMemberModel';
 import { undeliveredInviteNotice } from '$lib/data/emailDelivery';
 import type { RequestEvent } from './$types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function inviteMember({ locals, params, request, url }: RequestEvent) {
 	const user = await requireUser(locals);
 	const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
+	if (await hasSpentInviteAllowance(locals.supabase, user.id)) {
+		return fail(429, { message: tooManyInvitesMessage });
+	}
 	const formData = await request.formData();
 	const invitedEmail = parseInvitedEmail(formData);
 	if (invitedEmail === '') return fail(400, { message: 'Enter an email address to invite.' });
@@ -34,6 +40,9 @@ export async function inviteMember({ locals, params, request, url }: RequestEven
 export async function resendInvite({ locals, params, request, url }: RequestEvent) {
 	const user = await requireUser(locals);
 	const chatbot = await requireOwnedChatbot(locals.supabase, params.chatbotId, user.id);
+	if (await hasSpentInviteAllowance(locals.supabase, user.id)) {
+		return fail(429, { message: tooManyInvitesMessage });
+	}
 	const formData = await request.formData();
 	const outcome = await resendChatbotInvite(
 		locals.supabase,
@@ -67,4 +76,11 @@ export async function setMemberModelOverride({ locals, params, request }: Reques
 
 function memberIdFrom(formData: FormData): string {
 	return String(formData.get('memberId') ?? '');
+}
+
+async function hasSpentInviteAllowance(
+	supabase: SupabaseClient,
+	ownerId: string
+): Promise<boolean> {
+	return isInviteAllowanceSpent(await countChatbotInvitesThisHour(supabase, ownerId));
 }

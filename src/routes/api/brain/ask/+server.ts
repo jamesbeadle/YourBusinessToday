@@ -3,21 +3,19 @@ import { askModeller } from '$lib/server/brain/askModeller';
 import { createBrainConversation } from '$lib/server/brain/createBrainConversation';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
 import { getBrainPageIndex } from '$lib/server/brain/getBrainPageIndex';
-import { getConversationMessages } from '$lib/server/brain/getBrainConversation';
 import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
-import type { BrainConversationTurn } from '$lib/data/brainTypes';
+import { rememberedTurns } from '$lib/server/brain/rememberedTurns';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { questionFloorCreditsFor } from '$lib/data/creditPricing';
-import { refundCredits, spendCredits } from '$lib/server/credits/spendCredits';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
 import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
-
-const longestRememberedExchange = 12;
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
@@ -56,7 +54,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({ conversationId, ...answer, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain question failed', failure);
-		await refundCredits(user.id, reserve, 'brain_question');
+		await refundQuestionUsage(user.id, reserve, 'brain_question');
 		error(502, `That question failed (credits refunded): ${questionFailureSummary(failure)}`);
 	}
 };
@@ -93,14 +91,4 @@ async function resolveConversationId(
 		if (data !== null) return data.id;
 	}
 	return createBrainConversation(supabase, brainId, 'brain');
-}
-
-async function rememberedTurns(
-	supabase: SupabaseClient,
-	conversationId: string
-): Promise<BrainConversationTurn[]> {
-	const messages = await getConversationMessages(supabase, conversationId);
-	return messages
-		.slice(-longestRememberedExchange)
-		.map((message) => ({ speaker: message.speaker, text: message.body }));
 }

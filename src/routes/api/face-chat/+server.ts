@@ -8,15 +8,17 @@ import { getLatestDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { recordBrainEvent } from '$lib/server/brain/recordBrainEvent';
 import { recordConversationTurn } from '$lib/server/brain/recordConversationTurn';
 import { questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
 import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
-import type { FaceChatTurn } from '$lib/data/faceChatTypes';
+import type { FaceChatReply, FaceChatTurn } from '$lib/data/faceChatTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 
 const longestConversation = 12;
 const longestTurnLength = 2000;
+const faceSpendReason = 'brain_question';
 
 export const config = { maxDuration: 300 };
 
@@ -28,21 +30,37 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const brain = await getLatestDomainBrain(locals.supabase);
 	if (brain === null) error(404, 'Create an expertise brain in your knowledge base first');
 	const reserve = questionFloorCreditsFor(await resolveRequestModel());
-	const spend = await spendCredits(locals.supabase, reserve, 'brain_question');
+	const spend = await spendCredits(locals.supabase, reserve, faceSpendReason);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
 
-	const contexts = await getBrainContexts(locals.supabase, brain.id);
-	const index = await getBrainPageIndex(locals.supabase, brain.id);
-	const spoken = await converseWithFace(locals.supabase, brain.id, contexts, index, turns);
+	try {
+		const spoken = await speakWithFace(locals.supabase, brain.id, turns);
+		const settledBalance = await settleQuestionUsage(user.id, reserve, faceSpendReason);
+		return json({ ...spoken, creditBalance: settledBalance ?? spend.creditBalance });
+	} catch (failure) {
+		console.error('Face chat failed', failure);
+		await refundQuestionUsage(user.id, reserve, faceSpendReason);
+		error(502, 'That reply failed — your credits have been refunded');
+	}
+};
+
+async function speakWithFace(
+	supabase: SupabaseClient,
+	brainId: string,
+	turns: FaceChatTurn[]
+): Promise<FaceChatReply> {
+	const contexts = await getBrainContexts(supabase, brainId);
+	const index = await getBrainPageIndex(supabase, brainId);
+	const spoken = await converseWithFace(supabase, brainId, contexts, index, turns);
 	const question = turns[turns.length - 1].text;
-	const conversationId = await faceConversationId(locals.supabase, brain.id);
-	await recordConversationTurn(locals.supabase, conversationId, question, {
+	const conversationId = await faceConversationId(supabase, brainId);
+	await recordConversationTurn(supabase, conversationId, question, {
 		answerMarkdown: spoken.reply,
 		citedSlugs: spoken.citedSlugs
 	});
-	await recordBrainEvent(locals.supabase, {
-		brainId: brain.id,
+	await recordBrainEvent(supabase, {
+		brainId,
 		kind: 'question_answered',
 		detail: {
 			question,
@@ -52,9 +70,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 			askedThrough: 'face'
 		}
 	});
-	const settledBalance = await settleQuestionUsage(user.id, reserve, 'brain_question');
-	return json({ ...spoken, creditBalance: settledBalance ?? spend.creditBalance });
-};
+	return spoken;
+}
 
 async function faceConversationId(supabase: SupabaseClient, brainId: string): Promise<string> {
 	const existingId = await getLatestConversationId(supabase, brainId, 'face');

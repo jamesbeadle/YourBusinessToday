@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AdminPurchasesTable from '$lib/components/admin/AdminPurchasesTable.svelte';
 	import AdminUserRow from '$lib/components/admin/AdminUserRow.svelte';
 	import SiteModelPanel from '$lib/components/admin/SiteModelPanel.svelte';
 
@@ -21,8 +22,8 @@
 			</a>
 		</div>
 		<p class="text-chalk/70">
-			The model the site runs on, every account, its credit balance, and the controls to grant
-			promotional credits, restrict access, or delete an account.
+			The model the site runs on, every account, its credit balance, the controls to adjust
+			credits, restrict access, or delete an account, and every purchase made through Stripe.
 		</p>
 	</div>
 	{#if form?.message}
@@ -34,4 +35,5 @@
 			<AdminUserRow {user} />
 		{/each}
 	</ul>
+	<AdminPurchasesTable purchases={data.purchases} />
 </div>

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import AdminActionsMenu from '$lib/components/admin/AdminActionsMenu.svelte';
-	import GrantCreditsModal from '$lib/components/admin/GrantCreditsModal.svelte';
+	import AdjustCreditsModal from '$lib/components/admin/AdjustCreditsModal.svelte';
 	import UserModelSelect from '$lib/components/admin/UserModelSelect.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user }: { user: AdminUserSummary } = $props();
 
-	let isGrantModalOpen = $state(false);
+	let isAdjustModalOpen = $state(false);
 </script>
 
 <li class="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
@@ -29,9 +29,9 @@
 	</div>
 	<div class="flex items-center gap-3">
 		<UserModelSelect {user} />
-		<AdminActionsMenu {user} onGrantCredits={() => (isGrantModalOpen = true)} />
+		<AdminActionsMenu {user} onAdjustCredits={() => (isAdjustModalOpen = true)} />
 	</div>
-	{#if isGrantModalOpen}
-		<GrantCreditsModal {user} onClose={() => (isGrantModalOpen = false)} />
+	{#if isAdjustModalOpen}
+		<AdjustCreditsModal {user} onClose={() => (isAdjustModalOpen = false)} />
 	{/if}
 </li>

@@ -26,6 +26,7 @@
 				min="0"
 				step="1"
 				value={allowanceFor(member)}
+				defaultValue={allowanceFor(member)}
 				oninput={(event) => readEdit(member.id, event)}
 				class="w-32 rounded-xl border border-hairline bg-night px-4 py-2 font-mono text-chalk
 					outline-none focus:border-signal"

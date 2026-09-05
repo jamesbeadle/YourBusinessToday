@@ -30,6 +30,7 @@
 				min="0"
 				step="1"
 				value={defaultMemberAllowanceCredits}
+				defaultValue={defaultMemberAllowanceCredits}
 				aria-label="Allowance in credits"
 				class="w-24 rounded-xl border border-hairline bg-night px-3 py-2 font-mono text-sm
 					text-chalk outline-none focus:border-signal"

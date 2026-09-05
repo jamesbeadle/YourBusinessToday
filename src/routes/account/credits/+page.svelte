@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CheckoutOutcomeNote from '$lib/components/account/CheckoutOutcomeNote.svelte';
 	import CreditPackCard from '$lib/components/account/CreditPackCard.svelte';
 	import SendCreditsPanel from '$lib/components/account/SendCreditsPanel.svelte';
 
@@ -28,17 +29,7 @@
 			and we'll top you up.
 		</p>
 	{/if}
-	{#if data.checkoutState === 'success'}
-		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">
-			Payment received — your credits land in the ledger within a few seconds. Refresh if your
-			balance hasn't moved yet.
-		</p>
-	{/if}
-	{#if data.checkoutState === 'cancelled'}
-		<p class="rounded-2xl border border-hairline bg-carriage px-5 py-4 text-chalk/70">
-			Checkout cancelled — no card was charged.
-		</p>
-	{/if}
+	<CheckoutOutcomeNote outcome={data.checkoutOutcome} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-caution/50 bg-caution/10 px-5 py-4 text-caution">
 			{form.message}

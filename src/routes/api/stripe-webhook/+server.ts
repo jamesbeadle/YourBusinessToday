@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import type Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
-import { creditPurchaseFromCheckout } from '$lib/server/payments/creditPurchaseFromCheckout';
+import { handleStripeEvent } from '$lib/server/payments/handleStripeEvent';
 import { stripeClient } from '$lib/server/payments/stripeClient';
 import type { RequestHandler } from './$types';
 
@@ -12,9 +12,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (signature === null) error(400, 'missing_signature');
 	const payload = await request.text();
 	const stripeEvent = await verifiedEvent(stripe, payload, signature);
-	if (stripeEvent.type === 'checkout.session.completed') {
-		await creditPurchaseFromCheckout(stripeEvent.data.object);
-	}
+	await handleStripeEvent(stripe, stripeEvent);
 	return json({ received: true });
 };
 

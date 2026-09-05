@@ -2,6 +2,7 @@ import { cubicOut } from 'svelte/easing';
 
 export const dashboardMotion = {
 	flightMilliseconds: 900,
+	settleAfterFlightMilliseconds: 200,
 	viewFadeMilliseconds: 260,
 	panelSlideMilliseconds: 220,
 	scrimFadeMilliseconds: 150,

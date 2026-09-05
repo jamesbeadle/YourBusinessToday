@@ -1,20 +1,11 @@
 <script lang="ts">
-	import KindBrainDashboard from '$lib/components/knowledge/KindBrainDashboard.svelte';
+	import BrainViewFrame from '$lib/components/knowledge/dashboard/BrainViewFrame.svelte';
 
 	let { data } = $props();
 </script>
 
 <svelte:head>
-	<title>{data.brain.name} — {data.knowledgeBase.name}</title>
+	<title>{data.openBrain.name} — {data.knowledgeBase.name}</title>
 </svelte:head>
 
-<KindBrainDashboard
-	knowledgeBase={data.knowledgeBase}
-	brain={data.brain}
-	items={data.items}
-	domainBrains={data.domainBrains}
-	boundDomainBrainIds={data.boundDomainBrainIds}
-	schemaTypes={data.schemaTypes}
-	dddEditorHref={data.dddEditorHref}
-	isOwner={data.isOwner}
-/>
+<BrainViewFrame knowledgeBaseId={data.knowledgeBase.id} brain={data.openBrain} />

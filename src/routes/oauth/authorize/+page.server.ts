@@ -28,7 +28,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		clientName: authorizationRequest.clientName,
 		email: standing.email,
 		role: standing.role,
-		isAdmin: standing.isAdmin
+		isAdmin: standing.isAdmin,
+		approvePath: pathForNamedAction(url, 'approve'),
+		refusePath: pathForNamedAction(url, 'refuse')
 	};
 };
 
@@ -60,6 +62,13 @@ async function requireStandingThatMayConnect(
 	const standing = await resolveAccountStanding(supabaseServiceClient(), user.id);
 	if (standing.role === 'none') error(forbidden, accountCannotConnect);
 	return standing;
+}
+
+// A form posting to "?/approve" would replace the query string and lose the
+// authorization parameters the action has to read back, so the parameters are
+// carried alongside the action name.
+function pathForNamedAction(url: URL, actionName: string): string {
+	return `${url.pathname}${url.search}&/${actionName}`;
 }
 
 function signInThenReturn(url: URL): string {

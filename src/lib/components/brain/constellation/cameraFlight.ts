@@ -1,6 +1,8 @@
 import { Vector3, type PerspectiveCamera } from 'three';
 
-const FLIGHT_SECONDS = 1.4;
+const DEFAULT_FLIGHT_SECONDS = 1.4;
+
+export type FlightOptions = { seconds?: number; ease?: (progress: number) => number };
 
 export type CameraFlight = {
 	flyTo: (destination: Vector3, target: Vector3) => void;
@@ -8,7 +10,13 @@ export type CameraFlight = {
 	isFlying: () => boolean;
 };
 
-export function createCameraFlight(camera: PerspectiveCamera, orbitTarget: Vector3): CameraFlight {
+export function createCameraFlight(
+	camera: PerspectiveCamera,
+	orbitTarget: Vector3,
+	options: FlightOptions = {}
+): CameraFlight {
+	const flightSeconds = options.seconds ?? DEFAULT_FLIGHT_SECONDS;
+	const ease = options.ease ?? easeInOutCubic;
 	const fromPosition = new Vector3();
 	const fromTarget = new Vector3();
 	const toPosition = new Vector3();
@@ -32,8 +40,8 @@ export function createCameraFlight(camera: PerspectiveCamera, orbitTarget: Vecto
 	): void {
 		if (!isActive) return;
 		elapsedSeconds += deltaSeconds;
-		const progress = Math.min(1, elapsedSeconds / FLIGHT_SECONDS);
-		const eased = easeInOutCubic(progress);
+		const progress = Math.min(1, elapsedSeconds / flightSeconds);
+		const eased = ease(progress);
 		flownCamera.position.lerpVectors(fromPosition, toPosition, eased);
 		flownTarget.lerpVectors(fromTarget, toTarget, eased);
 		if (progress >= 1) isActive = false;

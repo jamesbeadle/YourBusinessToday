@@ -25,7 +25,12 @@ async function insertLead(supabase: SupabaseClient, enquiry: WebsiteEnquiry): Pr
 	const clientName = enquiry.company === '' ? enquiry.name : enquiry.company;
 	const { data, error } = await supabase
 		.from('clients')
-		.insert({ name: clientName, website: enquiry.website, lifecycle_stage: leadStage })
+		.insert({
+			name: clientName,
+			website: enquiry.website,
+			lifecycle_stage: leadStage,
+			lead_source: websiteSource
+		})
 		.select('id')
 		.single();
 	if (error) throw error;

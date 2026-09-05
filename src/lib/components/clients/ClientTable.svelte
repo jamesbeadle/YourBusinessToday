@@ -1,8 +1,15 @@
 <script lang="ts">
 	import ClientStageForm from './ClientStageForm.svelte';
+	import { leadSourceLabels } from '$lib/data/leadSources';
 	import type { ClientSummary } from '$lib/server/clients/getClientList';
 
 	let { clients }: { clients: ClientSummary[] } = $props();
+
+	function describe(client: ClientSummary): string {
+		const contact = client.primaryContactName === '' ? 'No contact yet' : client.primaryContactName;
+		const projects = `${client.projectCount} project${client.projectCount === 1 ? '' : 's'}`;
+		return [contact, projects, leadSourceLabels[client.leadSource]].join(' · ');
+	}
 </script>
 
 <ul class="divide-y divide-hairline rounded-2xl border border-hairline">
@@ -11,8 +18,7 @@
 			<div class="min-w-0">
 				<a href={`/clients/${client.id}`} class="font-display hover:text-signal">{client.name}</a>
 				<p class="text-xs text-chalk/50">
-					{client.primaryContactName === '' ? 'No contact yet' : client.primaryContactName}
-					· {client.projectCount} project{client.projectCount === 1 ? '' : 's'}
+					{describe(client)}
 					{#if client.openRequestCount > 0}
 						· <span class="text-signal">{client.openRequestCount} awaiting triage</span>
 					{/if}

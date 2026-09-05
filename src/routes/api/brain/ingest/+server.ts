@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	} catch (failure) {
 		console.error('Brain ingest failed', failure);
 		await markSourceStatus(locals.supabase, sourceId, 'failed', failureSummary(failure));
-		await refundCredits(locals.supabase, ingestCost, 'brain_ingest_sized');
+		await refundCredits(user.id, ingestCost, 'brain_ingest_sized');
 		error(502, 'Reading that document failed — your credits have been refunded');
 	}
 	return json({ creditBalance: await getCreditBalance(locals.supabase), isProposal });

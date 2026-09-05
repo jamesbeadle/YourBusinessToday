@@ -56,7 +56,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({ conversationId, ...answer, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain question failed', failure);
-		await refundCredits(locals.supabase, reserve, 'brain_question');
+		await refundCredits(user.id, reserve, 'brain_question');
 		error(502, `That question failed (credits refunded): ${questionFailureSummary(failure)}`);
 	}
 };

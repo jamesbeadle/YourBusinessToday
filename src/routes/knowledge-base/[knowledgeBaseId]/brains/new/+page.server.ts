@@ -1,18 +1,21 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { bindInstanceBrain } from '$lib/server/knowledge/brainBindings';
 import { createKbBrain } from '$lib/server/knowledge/createKbBrain';
 import { createLinkedDomainBrain, findOrCreateEntity } from '$lib/server/knowledge/createLinkedDomainBrain';
 import { createWorkflow } from '$lib/server/entities/createWorkflow';
 import { getKbBrains } from '$lib/server/knowledge/getKbBrains';
-import { getKnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
+import { requireOwnedKnowledgeBase } from '$lib/server/knowledge/requireOwnedKnowledgeBase';
 import { touchKnowledgeBase } from '$lib/server/knowledge/updateKnowledgeBase';
 import { requireUser } from '$lib/server/auth/requireUser';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	await requireUser(locals);
-	const knowledgeBase = await getKnowledgeBase(locals.supabase, params.knowledgeBaseId);
-	if (knowledgeBase === null) error(404, 'That knowledge base is not yours to open');
+	const user = await requireUser(locals);
+	const knowledgeBase = await requireOwnedKnowledgeBase(
+		locals.supabase,
+		params.knowledgeBaseId,
+		user.id
+	);
 	const brains = await getKbBrains(locals.supabase, knowledgeBase.id);
 	return {
 		knowledgeBase,
@@ -22,7 +25,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
 	createBrain: async ({ locals, params, request }) => {
-		await requireUser(locals);
+		const user = await requireUser(locals);
+		const knowledgeBase = await requireOwnedKnowledgeBase(
+			locals.supabase,
+			params.knowledgeBaseId,
+			user.id
+		);
 		const formData = await request.formData();
 		const kind = String(formData.get('kind') ?? '');
 		const name = String(formData.get('name') ?? '').trim();
@@ -31,13 +39,10 @@ export const actions: Actions = {
 			return fail(400, { message: 'Pick a kind of brain first.' });
 		}
 		if (name === '') return fail(400, { message: 'A brain needs a name.' });
-		const knowledgeBase = await getKnowledgeBase(locals.supabase, params.knowledgeBaseId);
-		if (knowledgeBase === null) return fail(404, { message: 'Knowledge base not found.' });
 		if (kind === 'process') {
-			const workflowId = await createProcessBrain(locals, knowledgeBase.name, name);
+			await createProcessBrain(locals, knowledgeBase.name, name);
 			await touchKnowledgeBase(locals.supabase, knowledgeBase.id);
 			redirect(303, `/knowledge-base/${knowledgeBase.id}`);
-			void workflowId;
 		}
 		const brainId = await createStoredBrain(locals, knowledgeBase, kind, name, description);
 		await bindSelectedExpertise(locals, brainId, formData.getAll('boundDomainBrainIds'));

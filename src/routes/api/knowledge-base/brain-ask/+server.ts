@@ -5,7 +5,8 @@ import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { getBrainItems } from '$lib/server/knowledge/getBrainItems';
 import { getKbBrain } from '$lib/server/knowledge/getKbBrain';
-import { refundCredits, spendCredits } from '$lib/server/credits/spendCredits';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { spendCredits } from '$lib/server/credits/spendCredits';
 import { isAnthropicConfigured } from '$lib/server/anthropic/isAnthropicConfigured';
 import type { RequestHandler } from './$types';
 
@@ -35,7 +36,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({ reply, creditBalance: settledBalance ?? spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain question failed', failure);
-		await refundCredits(user.id, reserve, questionSpendReason);
+		await refundQuestionUsage(user.id, reserve, questionSpendReason);
 		error(502, 'That question failed — your credits have been refunded');
 	}
 };

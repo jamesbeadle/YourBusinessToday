@@ -5,15 +5,14 @@ import { getChatbot } from '$lib/server/chatbots/getChatbot';
 import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
 import { getChatbotKnowledge } from '$lib/server/chatbots/getChatbotKnowledge';
 import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership';
-import { meteredCallsSoFar } from '$lib/server/anthropic/modelContext';
-import { questionCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { questionFloorCreditsFor } from '$lib/data/creditPricing';
 import { recordChatbotTurn } from '$lib/server/chatbots/recordChatbotTurn';
 import { recordKnowledgeGap } from '$lib/server/chatbots/recordKnowledgeGap';
 import {
 	refundForChatbotQuestion,
-	settleChatbotQuestion,
-	spendForChatbotQuestion
-} from '$lib/server/chatbots/spendForChatbotQuestion';
+	settleChatbotQuestion
+} from '$lib/server/chatbots/settleChatbotQuestion';
+import { spendForChatbotQuestion } from '$lib/server/chatbots/spendForChatbotQuestion';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
 import type { ChatbotAnswer } from '$lib/data/chatbotTypes';
 import type { RequestHandler } from './$types';
@@ -57,8 +56,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 		);
 		await recordChatbotTurn(service, conversation.id, question, answer);
 		await noteKnowledgeGap(service, chatbot.id, user.id, question, answer);
-		const owed = questionCreditsFor(meteredCallsSoFar());
-		const settled = await settleChatbotQuestion(service, chatbot.id, user.id, owed - reserve);
+		const settled = await settleChatbotQuestion(service, chatbot, user.id, reserve);
 		return json({
 			...answer,
 			creditsCharged: reserve + settled,
@@ -66,7 +64,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 		});
 	} catch (failure) {
 		console.error('Chatbot question failed', failure);
-		await refundForChatbotQuestion(service, chatbot.id, user.id, reserve);
+		await refundForChatbotQuestion(service, chatbot, user.id, reserve);
 		error(502, 'That question failed — nothing was taken from your allowance');
 	}
 };

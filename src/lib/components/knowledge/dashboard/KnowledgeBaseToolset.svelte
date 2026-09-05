@@ -4,7 +4,7 @@
 	import KbInterviewPanel from '../KbInterviewPanel.svelte';
 	import KbSettingsPanel from '../KbSettingsPanel.svelte';
 	import KnowledgeBaseSharePanel from '../KnowledgeBaseSharePanel.svelte';
-	import { useDashboardTools } from './dashboardTools.svelte';
+	import { knowledgeBaseToolsRank, useDashboardTools } from './dashboardTools.svelte';
 	import {
 		knowledgeBaseToolDefinitions,
 		knowledgeBaseToolKeysFor,
@@ -51,7 +51,7 @@
 			...knowledgeBaseToolDefinitions[key],
 			panel: panels[key]
 		}));
-		dashboardTools.register(toolsOwner, tools);
+		dashboardTools.register(toolsOwner, tools, knowledgeBaseToolsRank);
 		return () => dashboardTools.release(toolsOwner);
 	});
 </script>

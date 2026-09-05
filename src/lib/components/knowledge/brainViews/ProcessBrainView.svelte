@@ -7,7 +7,7 @@
 	import WorkspaceChat from '../../workspace/WorkspaceChat.svelte';
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { layoutWorkflowMap } from '$lib/data/mapLayout';
-	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ProcessBrainView } from '$lib/server/knowledge/brainViews/loadProcessBrainView';
 	import type { StationSelection } from '../../map/stationSelection';
@@ -26,7 +26,6 @@
 	} = $props();
 
 	const dashboardTools = useDashboardTools();
-	const toolsOwner = brainToolsOwnerFor('process');
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
 	const toolKeys = $derived(brainToolKeysFor(['interview', 'map'], 'share', isOwner));
 
@@ -37,7 +36,9 @@
 	const legendLines = $derived(layoutWorkflowMap(model).lines);
 
 	$effect(() => {
-		dashboardTools.register(toolsOwner, brainTools(toolKeys, { interview, map, share }));
+		const toolsOwner = brainToolsOwnerFor('process');
+		const tools = brainTools(toolKeys, { interview, map, share });
+		dashboardTools.register(toolsOwner, tools, brainToolsRank);
 		return () => dashboardTools.release(toolsOwner);
 	});
 

@@ -1,15 +1,17 @@
 <script lang="ts">
+	import BrainTitleBand from './BrainTitleBand.svelte';
 	import DashboardToolbar from './DashboardToolbar.svelte';
 	import { useDashboardTools } from './dashboardTools.svelte';
 	import { newBrainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
+	import type { ConstellationSlot } from '../constellationSlots';
 
 	let {
 		knowledgeBaseId,
-		isBrainOpen,
+		openSlot,
 		badgeCounts
 	}: {
 		knowledgeBaseId: string;
-		isBrainOpen: boolean;
+		openSlot: ConstellationSlot | null;
 		badgeCounts: Record<string, number>;
 	} = $props();
 
@@ -17,21 +19,23 @@
 </script>
 
 <div
-	class="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-3
-		p-3"
+	class="pointer-events-none absolute inset-x-0 top-0 z-30 flex h-14 items-center justify-between
+		gap-3 px-3"
 >
-	<a
-		href={newBrainHref(knowledgeBaseId)}
-		aria-label="Add a second brain"
-		title="Add a second brain"
-		class={[
-			'pointer-events-auto rounded-full border border-hairline bg-night/80 px-3 py-1.5 sm:px-4',
-			'font-display text-xs text-chalk/60 transition hover:border-signal hover:text-signal',
-			isBrainOpen && 'invisible'
-		]}
-	>
-		+<span class="hidden sm:inline"> Add a second brain</span>
-	</a>
+	{#if openSlot === null}
+		<a
+			href={newBrainHref(knowledgeBaseId)}
+			aria-label="Add a second brain"
+			title="Add a second brain"
+			class="pointer-events-auto min-w-0 shrink rounded-full border border-hairline bg-night/80 px-3
+				py-1.5 font-display text-xs whitespace-nowrap text-chalk/60 transition hover:border-signal
+				hover:text-signal sm:px-4"
+		>
+			+<span class="hidden sm:inline"> Add a second brain</span>
+		</a>
+	{:else}
+		<BrainTitleBand slot={openSlot} />
+	{/if}
 	<DashboardToolbar
 		tools={dashboardTools.tools}
 		activeKey={dashboardTools.activeKey}

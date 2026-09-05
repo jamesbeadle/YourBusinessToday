@@ -3,6 +3,7 @@
 	import { buildFlowModel } from './flow/buildFlowModel';
 	import { createFlowExperience, type FlowExperience } from './flow/createFlowExperience';
 	import { hasMapContent, type WorkflowModel } from '$lib/data/workflowModel';
+	import { sceneHintPosition, sceneHudPillClass, sceneHudPosition } from './sceneHud';
 	import { untrack } from 'svelte';
 	import type { FlowHover } from './flow/flowTypes';
 
@@ -64,13 +65,8 @@
 <div bind:this={containerElement} class="relative h-full w-full overflow-hidden bg-night">
 	<canvas bind:this={canvasElement} class="block h-full w-full"></canvas>
 	{#if focusedNode !== undefined}
-		<nav class="absolute top-4 right-4 z-10 flex items-center gap-2 font-display text-sm">
-			<button
-				type="button"
-				onclick={returnToWholeBrain}
-				class="rounded-full border border-hairline bg-night/70 px-3 py-1 text-chalk/80 backdrop-blur
-					transition hover:border-chalk/40 hover:text-chalk"
-			>
+		<nav class={[sceneHudPosition, 'flex flex-wrap items-center gap-2 font-display text-sm']}>
+			<button type="button" onclick={returnToWholeBrain} class={sceneHudPillClass}>
 				Whole brain
 			</button>
 			<span class="text-chalk/40">/</span>
@@ -82,10 +78,7 @@
 	{#if hover !== null && (hoveredNode !== undefined || hoveredEdge !== undefined)}
 		<FlowTooltip {hover} node={hoveredNode} edge={hoveredEdge} {roleNameFor} />
 	{/if}
-	<p
-		class="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 font-display
-			text-[10px] tracking-widest text-chalk/25 uppercase"
-	>
+	<p class={[sceneHintPosition, 'font-display text-[10px] tracking-widest text-chalk/25 uppercase']}>
 		{hint}
 	</p>
 </div>

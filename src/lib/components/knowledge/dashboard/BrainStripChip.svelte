@@ -27,8 +27,8 @@
 	onclick={select}
 	style={`color: ${slot.accent}`}
 	class={[
-		'pointer-events-auto flex max-w-40 items-center gap-2 rounded-full border px-3 py-1.5',
-		'font-display text-xs transition',
+		'pointer-events-auto flex min-h-11 max-w-44 items-center gap-2 rounded-full border px-4',
+		'font-display text-xs transition lg:min-h-0 lg:px-3 lg:py-1.5',
 		isActive ? 'border-current bg-carriage' : 'border-hairline bg-night/80 hover:border-current',
 		isGhost && 'border-dashed opacity-60 hover:opacity-100'
 	]}

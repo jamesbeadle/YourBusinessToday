@@ -29,10 +29,10 @@
 	const toolsOwner = brainToolsOwnerFor('process');
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
 	const toolKeys = $derived(brainToolKeysFor(['interview', 'map'], 'share', isOwner));
-	const isMapShown = $derived(dashboardTools.activeKey === 'map');
 
 	let model: WorkflowModel = $derived(view.latestMap);
 	let selection = $state<StationSelection | null>(null);
+	let isMapShown = $state(false);
 
 	const legendLines = $derived(layoutWorkflowMap(model).lines);
 
@@ -40,6 +40,15 @@
 		dashboardTools.register(toolsOwner, brainTools(toolKeys, { interview, map, share }));
 		return () => dashboardTools.release(toolsOwner);
 	});
+
+	$effect(() => {
+		if (dashboardTools.activeKey === 'map') isMapShown = true;
+	});
+
+	function closeMap(): void {
+		isMapShown = false;
+		if (dashboardTools.activeKey === 'map') dashboardTools.close();
+	}
 </script>
 
 {#snippet interview()}
@@ -71,5 +80,6 @@
 		{selection}
 		{creditBalance}
 		onSelectStation={(chosen) => (selection = chosen)}
+		onClose={closeMap}
 	/>
 {/if}

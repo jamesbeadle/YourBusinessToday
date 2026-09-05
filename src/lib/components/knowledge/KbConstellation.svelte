@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createKbGalaxy, type KbGalaxyExperience } from './kb3d/createKbGalaxy';
 	import type { FocusOptions } from './kb3d/kbGalaxyFocus';
+	import { sceneHintPosition } from '../brain/sceneHud';
 	import { untrack } from 'svelte';
 	import type { ConstellationSlot } from './constellationSlots';
 
@@ -67,8 +68,10 @@
 <div bind:this={containerElement} class="relative h-full w-full overflow-hidden bg-night">
 	<canvas bind:this={canvasElement} class="block h-full w-full"></canvas>
 	<p
-		class="pointer-events-none absolute bottom-16 left-1/2 hidden -translate-x-1/2 font-display
-			text-[10px] tracking-widest whitespace-nowrap text-chalk/25 uppercase lg:block"
+		class={[
+			sceneHintPosition,
+			'font-display text-[10px] tracking-widest whitespace-nowrap text-chalk/25 uppercase'
+		]}
 	>
 		drag to orbit · click a brain to open it
 	</p>

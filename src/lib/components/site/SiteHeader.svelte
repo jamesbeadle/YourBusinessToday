@@ -42,8 +42,10 @@
 	const closeMobileMenu = () => (isMobileMenuOpen = false);
 </script>
 
-<header class="relative z-40 border-b border-hairline bg-night print:hidden">
-	<div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+<header
+	class="relative z-40 h-[var(--site-header-height)] border-b border-hairline bg-night print:hidden"
+>
+	<div class="mx-auto flex h-full max-w-6xl items-center justify-between gap-4 px-4 sm:gap-6 sm:px-6">
 		<div class="flex min-w-0 items-center gap-3">
 			<a href="/" class="flex shrink-0 items-center">
 				<BrandWordmark fontSize={26} />
@@ -52,12 +54,12 @@
 				<KnowledgeBaseSwitcher {knowledgeBases} currentKnowledgeBaseId={openKnowledgeBaseId} />
 			{/if}
 		</div>
-		<nav class="hidden items-center gap-6 md:flex">
+		<nav class="hidden shrink-0 items-center gap-6 md:flex">
 			{#if isProjectManager}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}
 			{#if isSignedIn}
-				<CreditBalancePill balance={creditBalance ?? 0} />
+				<CreditBalancePill balance={creditBalance ?? 0} isUnitHiddenOnNarrowScreens />
 			{:else}
 				<a
 					href="/account/sign-in"
@@ -69,7 +71,7 @@
 			{/if}
 			<AccountMenu {menuGroups} />
 		</nav>
-		<div class="flex items-center gap-4 md:hidden">
+		<div class="flex shrink-0 items-center gap-4 md:hidden">
 			{#if isProjectManager}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}

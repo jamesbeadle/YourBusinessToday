@@ -1,6 +1,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+	creditsPerBrainPrune,
+	creditsPerBrainQuestion,
+	creditsPerBrainUnlearn
+} from '$lib/data/creditPricing';
+import { refundCredits } from '$lib/server/credits/spendCredits';
 
 export type BrainSpend = { creditBalance: number } | 'insufficient_credits' | 'account_restricted';
+
+const brainQuestionReason = 'brain_question';
+const brainPruneReason = 'brain_prune';
+const brainUnlearnReason = 'brain_unlearn';
 
 export async function spendForBrainQuestion(supabase: SupabaseClient): Promise<BrainSpend> {
 	return spendThrough(supabase, 'spend_for_brain_question', {});
@@ -10,9 +20,8 @@ export async function spendForBrainPrune(supabase: SupabaseClient): Promise<Brai
 	return spendThrough(supabase, 'spend_for_brain_prune', {});
 }
 
-export async function refundForBrainPrune(supabase: SupabaseClient): Promise<void> {
-	const { error } = await supabase.rpc('refund_for_brain_prune', {});
-	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+export async function refundForBrainPrune(payerId: string): Promise<void> {
+	await refundCredits(payerId, creditsPerBrainPrune, brainPruneReason);
 }
 
 export async function spendForBrainUnlearn(
@@ -22,14 +31,12 @@ export async function spendForBrainUnlearn(
 	return spendThrough(supabase, 'spend_for_brain_unlearn', { source_identifier: sourceId });
 }
 
-export async function refundForBrainUnlearn(supabase: SupabaseClient): Promise<void> {
-	const { error } = await supabase.rpc('refund_for_brain_unlearn', {});
-	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+export async function refundForBrainUnlearn(payerId: string): Promise<void> {
+	await refundCredits(payerId, creditsPerBrainUnlearn, brainUnlearnReason);
 }
 
-export async function refundForBrainQuestion(supabase: SupabaseClient): Promise<void> {
-	const { error } = await supabase.rpc('refund_for_brain_question', {});
-	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+export async function refundForBrainQuestion(payerId: string): Promise<void> {
+	await refundCredits(payerId, creditsPerBrainQuestion, brainQuestionReason);
 }
 
 async function spendThrough(

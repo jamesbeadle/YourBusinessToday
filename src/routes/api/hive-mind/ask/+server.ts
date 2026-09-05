@@ -55,7 +55,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		});
 	} catch (failure) {
 		console.error('Hive Mind question failed', failure);
-		await refundForHiveMindQuestion(locals.supabase);
+		await refundForHiveMindQuestion(user.id);
 		error(502, 'That question failed — your credits have been refunded');
 	}
 };

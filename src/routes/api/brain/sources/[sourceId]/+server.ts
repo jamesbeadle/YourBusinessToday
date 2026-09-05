@@ -30,7 +30,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 	try {
 		await runSourceRemoval(locals.supabase, source);
 	} catch {
-		await refundForBrainUnlearn(locals.supabase);
+		await refundForBrainUnlearn(user.id);
 		error(502, 'Unlearning that document failed — your credits have been refunded');
 	}
 	return json({ creditBalance: await getCreditBalance(locals.supabase) });

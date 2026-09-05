@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return json({ ...outcome, creditBalance: await getCreditBalance(locals.supabase) });
 	} catch (failure) {
 		console.error('Brain prune failed', failure);
-		await refundForBrainPrune(locals.supabase);
+		await refundForBrainPrune(user.id);
 		error(502, `Pruning failed (credits refunded): ${failureSummary(failure)}`);
 	}
 };

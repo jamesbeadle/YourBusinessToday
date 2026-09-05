@@ -1,5 +1,9 @@
 import type { BrainSpend } from '$lib/server/brain/spendForBrainWork';
+import { creditsPerBrainQuestion } from '$lib/data/creditPricing';
+import { refundCredits } from '$lib/server/credits/spendCredits';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+const apiQuestionReason = 'brain_api_question';
 
 export async function spendForApiQuestion(
 	supabase: SupabaseClient,
@@ -14,12 +18,6 @@ export async function spendForApiQuestion(
 	throw error;
 }
 
-export async function refundForApiQuestion(
-	supabase: SupabaseClient,
-	tokenHash: string
-): Promise<void> {
-	const { error } = await supabase.rpc('refund_for_brain_api_question', {
-		p_token_hash: tokenHash
-	});
-	if (error !== null && !error.message.includes('nothing_to_refund')) throw error;
+export async function refundForApiQuestion(brainOwnerId: string): Promise<void> {
+	await refundCredits(brainOwnerId, creditsPerBrainQuestion, apiQuestionReason);
 }

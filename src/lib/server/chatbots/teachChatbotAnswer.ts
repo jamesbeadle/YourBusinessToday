@@ -47,7 +47,7 @@ export async function teachChatbotAnswer(
 	} catch (failure) {
 		console.error('Teaching the chatbot failed', failure);
 		await markSourceStatus(supabase, sourceId, 'failed', failureSummary(failure));
-		await refundCredits(supabase, cost, teachingSpendReason);
+		await refundCredits(userId, cost, teachingSpendReason);
 		return 'reading_failed';
 	}
 	await markKnowledgeGapAnswered(supabase, gap.id, answer, sourceId);

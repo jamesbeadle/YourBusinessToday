@@ -60,7 +60,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		return json({ conversationId, ...answer, creditBalance: spend.creditBalance });
 	} catch (failure) {
 		console.error('Brain API question failed', failure);
-		await refundForApiQuestion(supabase, tokenHash);
+		await refundForApiQuestion(brain.ownerId);
 		error(502, 'That question failed — the credits have been refunded');
 	}
 };

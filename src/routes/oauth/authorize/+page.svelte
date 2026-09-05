@@ -29,10 +29,10 @@
 		</p>
 	</div>
 	<div class="flex flex-wrap items-center gap-4">
-		<form method="POST" action="?/approve">
+		<form method="POST" action={data.approvePath}>
 			<SubmitButton savingLabel="Connecting…">Connect</SubmitButton>
 		</form>
-		<form method="POST" action="?/refuse">
+		<form method="POST" action={data.refusePath}>
 			<SubmitButton class={quietButtonClasses} savingLabel="Cancelling…">Cancel</SubmitButton>
 		</form>
 	</div>

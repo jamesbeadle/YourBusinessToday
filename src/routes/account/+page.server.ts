@@ -9,12 +9,6 @@ import {
 import { isLadderModel } from '$lib/data/modelLadder';
 import { getDisplayName } from '$lib/server/auth/getDisplayName';
 import { getPurchaseHistory } from '$lib/server/credits/getPurchaseHistory';
-import { getTradeTalkEarnings } from '$lib/server/credits/getTradeTalkEarnings';
-import {
-	getPayoutDetails,
-	parsePayoutDetailsForm,
-	savePayoutDetails
-} from '$lib/server/credits/payoutDetails';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { saveDisplayName } from '$lib/server/auth/saveDisplayName';
 import type { Actions, PageServerLoad } from './$types';
@@ -25,9 +19,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		modelId: (await getUserModelPreference(locals.supabase)) ?? (await siteModelOrDefault()),
 		adminPinnedModel: await getAdminPinnedModel(locals.supabase),
 		purchases: await getPurchaseHistory(locals.supabase),
-		displayName: await getDisplayName(locals.supabase),
-		tradeTalkEarnings: await getTradeTalkEarnings(locals.supabase),
-		payoutDetails: await getPayoutDetails(locals.supabase)
+		displayName: await getDisplayName(locals.supabase)
 	};
 };
 
@@ -51,13 +43,6 @@ export const actions: Actions = {
 	signOut: async ({ locals }) => {
 		await locals.supabase.auth.signOut();
 		redirect(303, '/');
-	},
-	savePayoutDetails: async ({ locals, request }) => {
-		await requireUser(locals);
-		const parsed = parsePayoutDetailsForm(await request.formData());
-		if (typeof parsed === 'string') return fail(400, { message: parsed });
-		await savePayoutDetails(locals.supabase, parsed);
-		return {};
 	},
 	saveDisplayName: async ({ locals, request }) => {
 		await requireUser(locals);

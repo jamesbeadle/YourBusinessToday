@@ -30,11 +30,13 @@ async function loadApplication({ locals, params }: PageServerLoadEvent) {
 
 export const actions: Actions = {
 	approveHiveApplication: async ({ locals, params }) => {
+		redirect(307, '/knowledge-base');
 		await requireAdmin(locals);
 		await approveHiveApplication(locals.supabase, params.applicationId);
 		redirect(303, '/admin');
 	},
 	rejectHiveApplication: async ({ locals, params, request }) => {
+		redirect(307, '/knowledge-base');
 		await requireAdmin(locals);
 		const formData = await request.formData();
 		const note = String(formData.get('note') ?? '').trim();

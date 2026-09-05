@@ -1,37 +1,66 @@
 import { htmlToPlainText } from '$lib/server/brain/htmlToPlainText';
+import { parsePublicUrl } from './parsePublicUrl';
 
 export type PublicPage = { url: string; html: string; text: string };
 
+type FetchedPage = { response: Response; url: URL };
+
 const fetchTimeoutMilliseconds = 10_000;
 const longestPageCharacters = 12_000;
-const acceptedProtocols = ['http:', 'https:'];
-const privateHostPattern = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.|\[)/i;
+const longestPageBytes = 1_000_000;
+const mostRedirectHops = 3;
+const redirectStatuses = [301, 302, 303, 307, 308];
+const requestHeaders = { accept: 'text/html', 'user-agent': 'YourBusinessToday/1.0 (lead research)' };
 
 export async function fetchPublicPage(pageUrl: string): Promise<PublicPage | null> {
+	const fetched = await fetchFollowingRedirects(pageUrl, mostRedirectHops);
+	if (fetched === null || !fetched.response.ok) return null;
+	const contentType = fetched.response.headers.get('content-type') ?? '';
+	if (!contentType.includes('text/html')) return null;
+	const html = await readBodyUpTo(fetched.response, longestPageBytes);
+	const text = htmlToPlainText(html).slice(0, longestPageCharacters);
+	if (text === '') return null;
+	return { url: fetched.url.href, html, text };
+}
+
+async function fetchFollowingRedirects(pageUrl: string, hopsLeft: number): Promise<FetchedPage | null> {
 	const parsed = parsePublicUrl(pageUrl);
 	if (parsed === null) return null;
 	const response = await fetch(parsed.href, {
-		redirect: 'follow',
+		redirect: 'manual',
 		signal: AbortSignal.timeout(fetchTimeoutMilliseconds),
-		headers: { accept: 'text/html', 'user-agent': 'YourBusinessToday/1.0 (lead research)' }
+		headers: requestHeaders
 	}).catch(() => null);
-	if (response === null || !response.ok) return null;
-	const contentType = response.headers.get('content-type') ?? '';
-	if (!contentType.includes('text/html')) return null;
-	const html = await response.text();
-	const text = htmlToPlainText(html).slice(0, longestPageCharacters);
-	if (text === '') return null;
-	return { url: response.url || parsed.href, html, text };
+	if (response === null) return null;
+	if (!redirectStatuses.includes(response.status)) return { response, url: parsed };
+	await response.body?.cancel().catch(() => undefined);
+	if (hopsLeft === 0) return null;
+	const nextUrl = resolveRedirectTarget(response.headers.get('location'), parsed);
+	if (nextUrl === null) return null;
+	return fetchFollowingRedirects(nextUrl, hopsLeft - 1);
 }
 
-export function parsePublicUrl(candidate: string): URL | null {
-	let parsed: URL;
+function resolveRedirectTarget(location: string | null, base: URL): string | null {
+	if (location === null) return null;
 	try {
-		parsed = new URL(candidate);
+		return new URL(location, base).href;
 	} catch {
 		return null;
 	}
-	if (!acceptedProtocols.includes(parsed.protocol)) return null;
-	if (privateHostPattern.test(parsed.hostname)) return null;
-	return parsed;
+}
+
+async function readBodyUpTo(response: Response, longestBytes: number): Promise<string> {
+	if (response.body === null) return '';
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	let html = '';
+	let bytesRead = 0;
+	while (bytesRead < longestBytes) {
+		const { done, value } = await reader.read();
+		if (done) return html;
+		bytesRead += value.byteLength;
+		html += decoder.decode(value, { stream: true });
+	}
+	await reader.cancel().catch(() => undefined);
+	return html;
 }

@@ -7,6 +7,8 @@ import { requireStaff } from '$lib/server/auth/requireStaff';
 import { saveResearchedLead } from '$lib/server/clients/saveResearchedLead';
 import type { Actions, PageServerLoad } from './$types';
 
+const researchFailedMessage = 'The research could not be completed just now — please try again.';
+
 export const load: PageServerLoad = async ({ locals, url }) => {
 	await requireStaff(locals);
 	const clientId = url.searchParams.get('clientId');
@@ -31,7 +33,8 @@ export const actions: Actions = {
 			if (outcome.kind === 'no_website') return fail(404, { message: outcome.message });
 			return { researched: outcome.profile, clientId };
 		} catch (failure) {
-			return fail(502, { message: (failure as Error).message });
+			console.error('Company research failed', failure);
+			return fail(502, { message: researchFailedMessage });
 		}
 	},
 	saveLead: async ({ locals, request }) => {

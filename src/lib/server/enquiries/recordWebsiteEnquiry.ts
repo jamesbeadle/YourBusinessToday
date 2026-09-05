@@ -1,6 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordClientEvent } from '$lib/server/clients/recordClientEvent';
+import { findRecentWebsiteEnquiry } from './findRecentWebsiteEnquiry';
 import type { WebsiteEnquiry } from '$lib/data/enquiryForm';
+
+export type RecordedEnquiry = { clientId: string; isRepeat: boolean };
 
 const websiteSource = 'website';
 const leadStage = 'lead';
@@ -8,7 +11,9 @@ const leadStage = 'lead';
 export async function recordWebsiteEnquiry(
 	supabase: SupabaseClient,
 	enquiry: WebsiteEnquiry
-): Promise<string> {
+): Promise<RecordedEnquiry> {
+	const recentClientId = await findRecentWebsiteEnquiry(supabase, enquiry.email);
+	if (recentClientId !== null) return { clientId: recentClientId, isRepeat: true };
 	const clientId = await insertLead(supabase, enquiry);
 	await insertPrimaryContact(supabase, clientId, enquiry);
 	await recordClientEvent(
@@ -18,7 +23,7 @@ export async function recordWebsiteEnquiry(
 		{ message: enquiry.message, source: websiteSource },
 		null
 	);
-	return clientId;
+	return { clientId, isRepeat: false };
 }
 
 async function insertLead(supabase: SupabaseClient, enquiry: WebsiteEnquiry): Promise<string> {

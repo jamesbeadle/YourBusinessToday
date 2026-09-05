@@ -18,6 +18,7 @@ async function loadEntity({ locals, params }: PageServerLoadEvent) {
 
 export const actions: Actions = {
 	createDomainBrain: async ({ locals, params, request }) => {
+		redirect(307, '/knowledge-base');
 		await requireUser(locals);
 		const formData = await request.formData();
 		const name = String(formData.get('name') ?? '').trim();

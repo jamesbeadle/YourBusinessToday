@@ -1,4 +1,5 @@
 import { parseHeadcountBand, type HeadcountBand } from '$lib/data/headcountBands';
+import { publicUrlOr } from './parsePublicUrl';
 
 export type CompanyProfile = {
 	industry: string;
@@ -40,7 +41,7 @@ export function readCompanyProfileForm(formData: FormData): CompanyProfile {
 		companyNumber: readTrimmed(formData, 'companyNumber'),
 		summary: readTrimmed(formData, 'summary'),
 		openingAngles: readTrimmed(formData, 'openingAngles'),
-		sourceUrl: readTrimmed(formData, 'sourceUrl')
+		sourceUrl: publicUrlOr(formData.get('sourceUrl'), '')
 	};
 }
 

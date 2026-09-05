@@ -1,3 +1,4 @@
+import { publicUrlOr } from './parsePublicUrl';
 import { readCompanyProfileForm } from './companyProfile';
 import type { ResearchedPerson, ResearchedProfile } from './researchedProfile';
 
@@ -25,7 +26,7 @@ function readIncludedPeople(formData: FormData): ResearchedPerson[] {
 		.map((index) => ({
 			name: (names[index] ?? '').trim(),
 			role: (roles[index] ?? '').trim(),
-			evidenceUrl: (evidenceUrls[index] ?? '').trim()
+			evidenceUrl: publicUrlOr(evidenceUrls[index], '')
 		}))
 		.filter((person) => person.name !== '');
 }

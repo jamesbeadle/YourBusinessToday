@@ -3,6 +3,7 @@ import {
 	enquiryHoneypotField,
 	type WebsiteEnquiry
 } from '$lib/data/enquiryForm';
+import { publicUrlOr } from '$lib/server/clients/parsePublicUrl';
 
 const emailShape = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,7 +18,7 @@ export function readWebsiteEnquiry(formData: FormData): EnquiryReading {
 		name: fieldValue(formData, 'name'),
 		email: fieldValue(formData, 'email').toLowerCase(),
 		company: fieldValue(formData, 'company'),
-		website: fieldValue(formData, 'website'),
+		website: publicUrlOr(fieldValue(formData, 'website'), ''),
 		message: fieldValue(formData, 'message')
 	};
 	const problem = findEnquiryProblem(enquiry);

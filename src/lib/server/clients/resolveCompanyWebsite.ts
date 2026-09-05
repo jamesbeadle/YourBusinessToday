@@ -1,5 +1,6 @@
 import { fetchCompanyPages } from './fetchCompanyPages';
-import { parsePublicUrl, type PublicPage } from './fetchPublicPage';
+import { parsePublicUrl } from './parsePublicUrl';
+import type { PublicPage } from './fetchPublicPage';
 
 export type CompanyWebsite = { url: string; pages: PublicPage[] };
 

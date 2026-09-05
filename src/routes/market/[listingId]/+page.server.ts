@@ -9,7 +9,7 @@ import {
 	subscribeToBrain
 } from '$lib/server/market/purchaseFromMarket';
 import { requireUser } from '$lib/server/auth/requireUser';
-import type { Actions, PageServerLoad, PageServerLoadEvent } from './$types';
+import type { Actions, PageServerLoad, PageServerLoadEvent, RequestEvent } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	redirect(307, '/');
@@ -29,28 +29,43 @@ async function loadListing({ locals, params }: PageServerLoadEvent) {
 }
 
 export const actions: Actions = {
-	buyEdition: async ({ locals, request }) => {
-		await requireUser(locals);
-		const formData = await request.formData();
-		const editionId = String(formData.get('editionId') ?? '');
-		if (editionId === '') return fail(400, { message: 'An edition is required.' });
-		const purchase = await purchaseBrainEdition(locals.supabase, editionId);
-		if (typeof purchase === 'string') {
-			return fail(400, { message: marketRefusalMessage(purchase) });
-		}
-		return {};
+	buyEdition: async (event) => {
+		redirect(307, '/');
+		return buyEdition(event);
 	},
-	subscribe: async ({ locals, params }) => {
-		await requireUser(locals);
-		const purchase = await subscribeToBrain(locals.supabase, params.listingId);
-		if (typeof purchase === 'string') {
-			return fail(400, { message: marketRefusalMessage(purchase) });
-		}
-		return {};
+	subscribe: async (event) => {
+		redirect(307, '/');
+		return subscribe(event);
 	},
-	cancelSubscription: async ({ locals, params }) => {
-		await requireUser(locals);
-		await cancelBrainSubscription(locals.supabase, params.listingId);
-		return {};
+	cancelSubscription: async (event) => {
+		redirect(307, '/');
+		return cancelSubscription(event);
 	}
 };
+
+async function buyEdition({ locals, request }: RequestEvent) {
+	await requireUser(locals);
+	const formData = await request.formData();
+	const editionId = String(formData.get('editionId') ?? '');
+	if (editionId === '') return fail(400, { message: 'An edition is required.' });
+	const purchase = await purchaseBrainEdition(locals.supabase, editionId);
+	if (typeof purchase === 'string') {
+		return fail(400, { message: marketRefusalMessage(purchase) });
+	}
+	return {};
+}
+
+async function subscribe({ locals, params }: RequestEvent) {
+	await requireUser(locals);
+	const purchase = await subscribeToBrain(locals.supabase, params.listingId);
+	if (typeof purchase === 'string') {
+		return fail(400, { message: marketRefusalMessage(purchase) });
+	}
+	return {};
+}
+
+async function cancelSubscription({ locals, params }: RequestEvent) {
+	await requireUser(locals);
+	await cancelBrainSubscription(locals.supabase, params.listingId);
+	return {};
+}

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ClientStage } from '$lib/data/clientLifecycle';
 import { parseClientRecord, type Client } from './clientRecord';
 
 export type ClientSummary = Client & {
@@ -7,11 +8,15 @@ export type ClientSummary = Client & {
 	openRequestCount: number;
 };
 
-export async function getClientList(supabase: SupabaseClient): Promise<ClientSummary[]> {
-	const { data, error } = await supabase
+export async function getClientList(
+	supabase: SupabaseClient,
+	stage: ClientStage | null = null
+): Promise<ClientSummary[]> {
+	const query = supabase
 		.from('clients')
 		.select('*, client_contacts(name, is_primary), projects(id, feature_requests(status))')
 		.order('name');
+	const { data, error } = stage === null ? await query : await query.eq('lifecycle_stage', stage);
 	if (error) throw error;
 	return data.map(toSummary);
 }

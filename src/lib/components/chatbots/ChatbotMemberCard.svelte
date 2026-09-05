@@ -1,6 +1,7 @@
 <script lang="ts">
 	import MemberModelSelect from './MemberModelSelect.svelte';
 	import RemoveMemberButton from './RemoveMemberButton.svelte';
+	import ResendInviteButton from './ResendInviteButton.svelte';
 	import type { ChatbotMember } from '$lib/data/chatbotTypes';
 
 	let { member }: { member: ChatbotMember } = $props();
@@ -15,6 +16,9 @@
 		<span>{member.spentCredits} of {member.allowanceCredits} credits spent</span>
 		<span class="flex items-center gap-2">
 			<MemberModelSelect memberId={member.id} modelId={member.modelId} />
+			{#if !member.hasJoined}
+				<ResendInviteButton memberId={member.id} />
+			{/if}
 			<RemoveMemberButton memberId={member.id} />
 		</span>
 	</div>

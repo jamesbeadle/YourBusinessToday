@@ -2,7 +2,7 @@
 	import AdminMenuAction from '$lib/components/admin/AdminMenuAction.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
-	let { user, onGrantCredits }: { user: AdminUserSummary; onGrantCredits: () => void } = $props();
+	let { user, onAdjustCredits }: { user: AdminUserSummary; onAdjustCredits: () => void } = $props();
 
 	let isOpen = $state(false);
 	let menuElement: HTMLElement | undefined = $state();
@@ -17,9 +17,9 @@
 		close();
 	}
 
-	function openGrantModal() {
+	function openAdjustModal() {
 		close();
-		onGrantCredits();
+		onAdjustCredits();
 	}
 </script>
 
@@ -46,11 +46,11 @@
 		>
 			<button
 				type="button"
-				onclick={openGrantModal}
+				onclick={openAdjustModal}
 				class="w-full rounded-xl px-3 py-2 text-left font-display text-sm text-chalk/80
 					transition hover:bg-hairline/40 hover:text-chalk"
 			>
-				Grant credits…
+				Adjust credits…
 			</button>
 			<AdminMenuAction
 				action="?/setStaff"

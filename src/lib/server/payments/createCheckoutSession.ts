@@ -1,6 +1,8 @@
 import type Stripe from 'stripe';
 import type { CreditPack } from '$lib/server/credits/getCreditPacks';
 
+const checkoutReturnPath = '/account/credits';
+
 export async function createCheckoutSession(
 	stripe: Stripe,
 	creditPack: CreditPack,
@@ -21,8 +23,8 @@ export async function createCheckoutSession(
 				}
 			}
 		],
-		success_url: `${origin}/account/credits?checkout=success`,
-		cancel_url: `${origin}/account/credits?checkout=cancelled`
+		success_url: `${origin}${checkoutReturnPath}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+		cancel_url: `${origin}${checkoutReturnPath}?checkout=cancelled`
 	});
 	if (session.url === null) throw new Error('checkout_session_missing_url');
 	return session.url;

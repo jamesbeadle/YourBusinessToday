@@ -1,5 +1,7 @@
 # Launch Plan — Domain Brain
 
+> This plan predates the current positioning; [launch-readiness.md](./launch-readiness.md) supersedes it.
+
 The path from where the code is today to a product that earns: ship it safely, learn who
 uses it, tune the modelling until the output sells itself, promote with admin-granted
 credits, and protect the margin as usage grows. Each phase gates the next — do them in

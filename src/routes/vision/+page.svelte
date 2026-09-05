@@ -2,7 +2,7 @@
 	<title>What we're building — Your Business Today</title>
 	<meta
 		name="description"
-		content="Why Your Business Today exists: a brain for your business — expertise, experience, and process — and the services that run on it."
+		content="Why Your Business Today exists: a consultancy that automates a business by learning how it really runs, and a knowledge base — expertise, experience, and process — that your staff and your tools can use."
 	/>
 </svelte:head>
 
@@ -23,45 +23,38 @@
 		again, and the answer is only ever as good as the ten minutes of context you had the
 		patience to type. The moment the chat ends, everything the machine learned evaporates.
 	</p>
-	<h2 class="font-display text-2xl font-medium">One profile, built once, working everywhere</h2>
+	<h2 class="font-display text-2xl font-medium">A consultancy that automates your business</h2>
 	<p class="text-chalk/80">
-		Your Business Today is built on a single idea: your business should be described once, kept
-		alive in one place, and every tool you use should start from that understanding. We call it
-		the business profile — a living, structured picture of what you sell, who does what, how
-		work flows from enquiry to invoice, and what good looks like when it ships.
+		Your Business Today is a consultancy first. We come in, learn how your business really runs
+		— by interviewing the people who do the work and reading the documents you already have —
+		and then we automate it. Not with a product you have to adopt, but with tools built for the
+		work that repeats in your business: the chasing, the retyping, the handovers that stall.
 	</p>
 	<p class="text-chalk/80">
-		The first conversation builds that profile while giving you something valuable in
-		its own right. The Process Map interviews you about how your company really runs and draws
-		it live — every role a line, every task a station, every handover an interchange, in the
-		visual language of a transit map. Most owners have never seen their business on one page.
-		The reaction is usually the same: “that's the first time I've actually seen it.”
+		The way we work is deliberately simple. You raise a request in your own client portal, we
+		discuss it in a thread, and once it is accepted it becomes a build. You see each tool before
+		it goes live, and you can connect your own Claude to the portal to raise requests and follow
+		them without opening the site.
 	</p>
-	<h2 class="font-display text-2xl font-medium">Why the map comes first</h2>
+	<h2 class="font-display text-2xl font-medium">Build knowledge, then use tools</h2>
 	<p class="text-chalk/80">
-		Workflows are the skeleton of a business. Once they're mapped, the question every owner is
-		asking — where does AI actually fit here? — stops being a guess. You can see which tasks
-		could run themselves, which handovers would break if a machine took them, and what done
-		looks like for every one of them, because the map already says so.
+		Everything we learn goes into a knowledge base that is yours. It remembers three ways: your
+		expertise — the rules, language and models of your trade; your experience — the record of
+		every job, event and decision, kept in the terms your expertise defines; and your process —
+		how the work moves from role to role. You build it by interview, or by uploading the
+		documents you already have, and the interviewer asks about exactly what is missing.
 	</p>
 	<p class="text-chalk/80">
-		That's the route we're building on top of the profile. YBT builds your business a brain
-		that remembers three ways: your expertise — every document your company files, read into
-		a structured model of what you know, in your own language, yours to export as Markdown
-		whenever you want it elsewhere; your experience — the record of every job, event, and
-		decision, kept in the terms your expertise defines; and your process — how the work
-		moves, drawn live as a map. Services run on that brain. The Workforce reads your process
-		to see which tasks can run themselves, plans the order, and puts agents on shift — doing
-		the work, escalating to a human when they should, reporting in live on the very map you
-		drew. And because a business that runs itself still needs feeding, the Prospector learns
-		from your experience what your best clients look like and finds who you serve next —
-		scored, contactable, and ready to export or work right here. What you know, what you've
-		done, how you work — and everything that runs on knowing it.
+		Once the knowledge is there, tools run on it. The first is chatbots: a manager sets one up on
+		the knowledge base, invites their staff by email, and funds it from their own credits — so
+		the team asks the chatbot instead of asking the manager, and the manager sees the questions
+		it could not answer. Alongside that, an MCP server and API put the same knowledge inside
+		Claude and the other tools you already use.
 	</p>
 	<h2 class="font-display text-2xl font-medium">The deal we're offering</h2>
 	<p class="text-chalk/80">
 		The more you share with YBT, the more every tool is worth — so the deal has to be fair, and
-		it has to be explicit. Your profile powers your tools and nothing else. It is never sold,
+		it has to be explicit. Your knowledge powers your tools and nothing else. It is never sold,
 		never pooled, never used to train anything for anyone else, and it leaves when you do.
 		Pricing is pay-as-you-go credits rather than subscriptions: you pay when a tool does work
 		for you, and your data stays yours either way.
@@ -73,18 +66,18 @@
 	</p>
 	<div class="mt-4 flex flex-wrap gap-4 border-t border-hairline pt-8">
 		<a
-			href="/account/sign-in"
+			href="/contact"
 			class="rounded-full bg-signal px-7 py-3 font-display text-sm font-medium text-night
 				transition hover:brightness-110"
 		>
-			Start your profile free
+			Talk to us
 		</a>
 		<a
-			href="/project"
+			href="/knowledge-base"
 			class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
 				transition hover:border-chalk/40 hover:text-chalk"
 		>
-			See a finished map
+			Build your knowledge base
 		</a>
 	</div>
 </article>

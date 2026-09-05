@@ -4,8 +4,10 @@
 	import OutOfCreditsNotice from '../workspace/OutOfCreditsNotice.svelte';
 	import RailNav from '../shell/RailNav.svelte';
 	import RailPanel from '../shell/RailPanel.svelte';
-	import { kbRailItemsFor, kbSectionLabel, type KbSectionKey } from './kbRail';
+	import { kbRailItemsFor, kbSectionLabel, openingKbSection, type KbSectionKey } from './kbRail';
+	import { isWideScreen } from '$lib/client/isWideScreen';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 	import type { KbWorkbenchData } from '$lib/server/knowledge/kbWorkbenchData';
@@ -37,7 +39,7 @@
 	let isOutOfCredits = $state(false);
 
 	onMount(() => {
-		if (window.matchMedia('(min-width: 1024px)').matches) activeSection = 'interview';
+		activeSection = openingKbSection(page.url, isOwner, isWideScreen());
 	});
 
 	function toggleSection(sectionKey: string): void {

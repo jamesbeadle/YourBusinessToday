@@ -1,6 +1,7 @@
 node_modules
 
 /build
+/backups
 /.svelte-kit
 /package
 
@@ -12,10 +13,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .DS_Store
 .vercel
-.env*
-
-.vercel
-.env*
 
 _to_delete/
 Claude outputs/
+.claude/worktrees/

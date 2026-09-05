@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { MemberChatbot } from '$lib/data/chatbotTypes';
 
-	let { chatbots }: { chatbots: MemberChatbot[] } = $props();
+	let { chatbots, title = 'Your chatbots' }: { chatbots: MemberChatbot[]; title?: string } = $props();
 </script>
 
 <section class="flex flex-col gap-3">
-	<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">Your chatbots</h2>
+	<h2 class="font-display text-xs tracking-widest text-chalk/50 uppercase">{title}</h2>
 	<ul class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
 		{#each chatbots as chatbot (chatbot.id)}
 			<li>

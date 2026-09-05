@@ -1,14 +1,12 @@
 <script lang="ts">
+	import AddLeadForm from '$lib/components/clients/AddLeadForm.svelte';
 	import ClientTable from '$lib/components/clients/ClientTable.svelte';
 	import EmptyState from '$lib/components/accounting/EmptyState.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
-	import Modal from '$lib/components/site/Modal.svelte';
-	import NewClientForm from '$lib/components/clients/NewClientForm.svelte';
-	import { primaryButtonClasses } from '$lib/components/site/formStyles';
+	import StageFilterTabs from '$lib/components/clients/StageFilterTabs.svelte';
+	import { quietButtonClasses } from '$lib/components/site/formStyles';
 
 	let { data, form } = $props();
-
-	let isNewClientModalOpen = $state(false);
 </script>
 
 <svelte:head>
@@ -21,18 +19,17 @@
 			<h1 class="font-display text-3xl font-medium">Clients</h1>
 			<p class="text-chalk/70">Everyone we work for, and everyone we hope to.</p>
 		</div>
-		<button class={primaryButtonClasses} onclick={() => (isNewClientModalOpen = true)}>
-			New client
-		</button>
+		<div class="flex flex-wrap gap-3">
+			<a href="/clients/research" class={quietButtonClasses}>Research a company</a>
+			<a href="/clients/prospect" class={quietButtonClasses}>Search Companies House</a>
+		</div>
 	</div>
 	<FormErrorNote message={form?.message ?? null} />
+	<AddLeadForm />
+	<StageFilterTabs chosenStage={data.stage} />
 	{#if data.clients.length === 0}
-		<EmptyState message="No clients yet. Add the first company you are talking to." />
+		<EmptyState message="Nobody at this stage yet." />
 	{:else}
 		<ClientTable clients={data.clients} />
 	{/if}
 </div>
-
-<Modal title="New client" bind:isOpen={isNewClientModalOpen}>
-	<NewClientForm staffMembers={data.staffMembers} />
-</Modal>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import CheckoutOutcomeNote from '$lib/components/account/CheckoutOutcomeNote.svelte';
 	import CreditPackCard from '$lib/components/account/CreditPackCard.svelte';
 	import SendCreditsPanel from '$lib/components/account/SendCreditsPanel.svelte';
 
@@ -21,20 +22,14 @@
 	{#if !data.isCheckoutLive}
 		<p class="rounded-2xl border border-signal/40 bg-signal/10 px-5 py-4 text-chalk/80">
 			Early access: credit packs can't be bought yet. The Your Business Today team grants
-			credits directly to your account — get in touch and we'll top you up.
+			credits directly to your account —
+			<a href="/contact" class="text-chalk underline underline-offset-4 hover:text-signal">
+				get in touch
+			</a>
+			and we'll top you up.
 		</p>
 	{/if}
-	{#if data.checkoutState === 'success'}
-		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">
-			Payment received — your credits land in the ledger within a few seconds. Refresh if your
-			balance hasn't moved yet.
-		</p>
-	{/if}
-	{#if data.checkoutState === 'cancelled'}
-		<p class="rounded-2xl border border-hairline bg-carriage px-5 py-4 text-chalk/70">
-			Checkout cancelled — no card was charged.
-		</p>
-	{/if}
+	<CheckoutOutcomeNote outcome={data.checkoutOutcome} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-caution/50 bg-caution/10 px-5 py-4 text-caution">
 			{form.message}
@@ -56,6 +51,12 @@
 		{:else}
 			Prices shown are what packs will cost once checkout opens.
 		{/if}
+	</p>
+	<p class="text-sm text-chalk/50">
+		Unused packs can be refunded within 14 days of purchase — the full promise is in our
+		<a href="/terms" class="text-chalk/80 underline underline-offset-4 hover:text-chalk">
+			terms of service</a
+		>.
 	</p>
 	<SendCreditsPanel />
 </div>

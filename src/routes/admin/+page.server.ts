@@ -1,13 +1,9 @@
 import { fail } from '@sveltejs/kit';
-import {
-	approveHiveApplication,
-	getHiveReviewQueue,
-	rejectHiveApplication
-} from '$lib/server/hive/hiveReview';
+import { adjustCredits, readCreditAdjustment } from '$lib/server/admin/adjustCredits';
 import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
+import { getAdminPurchaseList } from '$lib/server/admin/getAdminPurchaseList';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { getSiteModel } from '$lib/server/anthropic/getSiteModel';
-import { grantCredits } from '$lib/server/admin/grantCredits';
 import { isKnownSiteModel } from '$lib/data/siteModels';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
 import { setAccountRestriction } from '$lib/server/admin/setAccountRestriction';
@@ -16,12 +12,14 @@ import { setUserModel } from '$lib/server/admin/setUserModel';
 import { setStaffAccess } from '$lib/server/admin/setStaffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
+const signedNumber = new Intl.NumberFormat('en-GB', { signDisplay: 'always' });
+
 export const load: PageServerLoad = async ({ locals }) => {
 	await requireAdmin(locals);
 	return {
 		users: await getAdminUserList(locals.supabase),
-		siteModel: await getSiteModel(),
-		hiveApplications: await getHiveReviewQueue(locals.supabase)
+		purchases: await getAdminPurchaseList(),
+		siteModel: await getSiteModel()
 	};
 };
 
@@ -53,34 +51,15 @@ export const actions: Actions = {
 					: `${targetEmail} now runs on ${modelId}.`
 		};
 	},
-	grantCredits: async ({ locals, request }) => {
+	adjustCredits: async ({ locals, request }) => {
 		await requireAdmin(locals);
-		const formData = await request.formData();
-		const targetEmail = String(formData.get('targetEmail') ?? '');
-		const creditAmount = Number(formData.get('creditAmount'));
-		const note = String(formData.get('note') ?? 'promo').trim() || 'promo';
-		if (targetEmail === '' || !Number.isInteger(creditAmount) || creditAmount <= 0) {
-			return fail(400, { message: 'A user and a positive whole number of credits are required.' });
-		}
-		const newBalance = await grantCredits(locals.supabase, targetEmail, creditAmount, note);
-		return { message: `Granted ${creditAmount} credits to ${targetEmail} — balance ${newBalance}.` };
-	},
-	approveHiveApplication: async ({ locals, request }) => {
-		await requireAdmin(locals);
-		const formData = await request.formData();
-		const applicationId = String(formData.get('applicationId') ?? '');
-		if (applicationId === '') return fail(400, { message: 'An application is required.' });
-		await approveHiveApplication(locals.supabase, applicationId);
-		return { message: 'Approved — the brain has joined the hive with a fresh snapshot.' };
-	},
-	rejectHiveApplication: async ({ locals, request }) => {
-		await requireAdmin(locals);
-		const formData = await request.formData();
-		const applicationId = String(formData.get('applicationId') ?? '');
-		const note = String(formData.get('note') ?? '').trim();
-		if (applicationId === '') return fail(400, { message: 'An application is required.' });
-		await rejectHiveApplication(locals.supabase, applicationId, note);
-		return { message: 'Application rejected — the owner sees the note on their brain.' };
+		const adjustment = readCreditAdjustment(await request.formData());
+		if ('message' in adjustment) return fail(400, adjustment);
+		const newBalance = await adjustCredits(locals.supabase, adjustment);
+		const signedDelta = signedNumber.format(adjustment.creditDelta);
+		return {
+			message: `${adjustment.targetEmail} adjusted by ${signedDelta} credits — balance ${newBalance}.`
+		};
 	},
 	setRestriction: async ({ locals, request }) => {
 		await requireAdmin(locals);

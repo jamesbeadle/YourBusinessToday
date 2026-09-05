@@ -1,9 +1,12 @@
 import { error, json } from '@sveltejs/kit';
 import { createWorkspaceInvite, deleteWorkspaceInvite } from '$lib/server/sharing/workspaceInvites';
 import { deleteWorkspaceShare } from '$lib/server/sharing/createWorkspaceShare';
+import { countWorkspaceInvitesThisHour } from '$lib/server/sharing/recentWorkspaceInviteCount';
 import { inviteEmailSubject, renderInviteEmail } from '$lib/server/email/inviteEmail';
+import { isInviteAllowanceSpent, tooManyInvitesMessage } from '$lib/server/email/inviteAllowance';
 import { sendTransactionalEmail } from '$lib/server/email/sendTransactionalEmail';
 import { verifyShareTarget } from '$lib/server/sharing/verifyShareTarget';
+import type { EmailDelivery } from '$lib/data/emailDelivery';
 import type { RequestHandler } from './$types';
 import type { ShareScope } from '$lib/data/sharingTypes';
 
@@ -21,16 +24,19 @@ export const POST: RequestHandler = async ({ locals, request, url }) => {
 
 	const target = await verifyShareTarget(locals.supabase, user.id, scope, targetId);
 	if (target === null) error(404, 'Only the owner can share this');
+	const invitesThisHour = await countWorkspaceInvitesThisHour(locals.supabase, user.id);
+	if (isInviteAllowanceSpent(invitesThisHour)) error(429, tooManyInvitesMessage);
 
-	await createWorkspaceInvite(locals.supabase, {
+	const outcome = await createWorkspaceInvite(locals.supabase, {
 		invitedEmail: email,
 		invitedByEmail: user.email ?? '',
 		scope,
 		targetId,
 		targetName: target.name
 	});
-	await deliverInvite(email, user.email ?? '', target.name, url.origin);
-	return json({ isInvited: true });
+	if (outcome === 'already_invited') error(409, 'That address is already invited');
+	const emailDelivery = await deliverInvite(email, user.email ?? '', target.name, url.origin);
+	return json({ isInvited: true, emailDelivery });
 };
 
 export const DELETE: RequestHandler = async ({ locals, request }) => {
@@ -54,17 +60,13 @@ async function deliverInvite(
 	inviterEmail: string,
 	workspaceName: string,
 	origin: string
-): Promise<void> {
+): Promise<EmailDelivery> {
 	const signInUrl = `${origin}/account/sign-in?invited=1&by=${encodeURIComponent(inviterEmail)}`;
-	try {
-		await sendTransactionalEmail({
-			to: invitedEmail,
-			subject: inviteEmailSubject(inviterEmail),
-			html: renderInviteEmail(inviterEmail, workspaceName, signInUrl)
-		});
-	} catch (failure) {
-		console.error('Invite email failed', failure);
-	}
+	return sendTransactionalEmail({
+		to: invitedEmail,
+		subject: inviteEmailSubject(inviterEmail),
+		html: renderInviteEmail(inviterEmail, workspaceName, signInUrl)
+	});
 }
 
 function readTarget(payload: Record<string, unknown>): { scope: ShareScope; targetId: string } {

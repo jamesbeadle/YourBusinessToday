@@ -55,14 +55,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	} catch (failure) {
 		console.error('Brain question failed', failure);
 		await refundQuestionUsage(user.id, reserve, 'brain_question');
-		error(502, `That question failed (credits refunded): ${questionFailureSummary(failure)}`);
+		error(502, 'That question failed — your credits have been refunded');
 	}
 };
-
-function questionFailureSummary(failure: unknown): string {
-	if (failure instanceof Error) return failure.message.slice(0, 300);
-	return 'Unknown failure';
-}
 
 function readQuestion(payload: { question?: unknown }): string {
 	const question = typeof payload.question === 'string' ? payload.question.trim() : '';

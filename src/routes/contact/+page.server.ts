@@ -1,4 +1,5 @@
 import { fail } from '@sveltejs/kit';
+import { isEnquiryAllowedFrom } from '$lib/server/enquiries/enquiryRateLimit';
 import { notifyEnquiryReceived } from '$lib/server/enquiries/notifyEnquiryReceived';
 import { readWebsiteEnquiry } from '$lib/server/enquiries/websiteEnquiry';
 import { recordWebsiteEnquiry } from '$lib/server/enquiries/recordWebsiteEnquiry';
@@ -10,10 +11,11 @@ import type { Actions } from './$types';
 const recordingFailedMessage = `We could not save your message just now — please email ${companyDetails.consultingEmail} instead.`;
 
 export const actions: Actions = {
-	sendEnquiry: async ({ request, url }) => {
+	sendEnquiry: async ({ request, url, getClientAddress }) => {
 		const reading = readWebsiteEnquiry(await request.formData());
 		if ('isHoneypotFilled' in reading) return { isSent: true };
 		if ('problem' in reading) return fail(400, { message: reading.problem });
+		if (!isEnquiryAllowedFrom(getClientAddress())) return { isSent: true };
 		try {
 			await recordAndNotify(reading.enquiry, url.origin);
 		} catch {
@@ -24,6 +26,7 @@ export const actions: Actions = {
 };
 
 async function recordAndNotify(enquiry: WebsiteEnquiry, siteOrigin: string): Promise<void> {
-	const clientId = await recordWebsiteEnquiry(supabaseServiceClient(), enquiry);
-	await notifyEnquiryReceived(enquiry, `${siteOrigin}/clients/${clientId}`);
+	const recorded = await recordWebsiteEnquiry(supabaseServiceClient(), enquiry);
+	if (recorded.isRepeat) return;
+	await notifyEnquiryReceived(enquiry, `${siteOrigin}/clients/${recorded.clientId}`);
 }

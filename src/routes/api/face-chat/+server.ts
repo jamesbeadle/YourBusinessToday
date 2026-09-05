@@ -14,7 +14,7 @@ import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
 import type { FaceChatReply, FaceChatTurn } from '$lib/data/faceChatTypes';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { RequestHandler } from './$types';
+import type { RequestEvent, RequestHandler } from './$types';
 
 const longestConversation = 12;
 const longestTurnLength = 2000;
@@ -22,7 +22,12 @@ const faceSpendReason = 'brain_question';
 
 export const config = { maxDuration: 300 };
 
-export const POST: RequestHandler = async ({ locals, request }) => {
+export const POST: RequestHandler = async (event) => {
+	error(404, 'The face is not open yet');
+	return answerFaceChat(event);
+};
+
+async function answerFaceChat({ locals, request }: RequestEvent): Promise<Response> {
 	const { user } = await locals.safeGetSession();
 	if (user === null) error(401, 'Sign in to talk to your expertise brain');
 
@@ -43,7 +48,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		await refundQuestionUsage(user.id, reserve, faceSpendReason);
 		error(502, 'That reply failed — your credits have been refunded');
 	}
-};
+}
 
 async function speakWithFace(
 	supabase: SupabaseClient,

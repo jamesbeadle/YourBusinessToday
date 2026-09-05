@@ -1,4 +1,5 @@
 import { parseHeadcountBand } from '$lib/data/headcountBands';
+import { publicUrlOr } from './parsePublicUrl';
 import type { CompanyProfile } from './companyProfile';
 
 export type ResearchedPerson = { name: string; role: string; evidenceUrl: string };
@@ -48,7 +49,7 @@ function parsePeople(value: unknown, fallbackUrl: string): ResearchedPerson[] {
 		.map((person) => ({
 			name: String(person?.name ?? '').trim(),
 			role: String(person?.role ?? '').trim(),
-			evidenceUrl: String(person?.evidence_url ?? '').trim() || fallbackUrl
+			evidenceUrl: publicUrlOr(person?.evidence_url, fallbackUrl)
 		}))
 		.filter((person) => person.name !== '');
 }

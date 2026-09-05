@@ -7,6 +7,8 @@ import { isAnthropicConfigured } from '$lib/server/anthropic/isAnthropicConfigur
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import type { Actions } from './$types';
 
+const draftFailedMessage = 'The approach could not be drafted just now — please try again.';
+
 export const approachActions: Actions = {
 	draftApproach: async ({ locals, params, request }) => {
 		const user = await requireStaff(locals);
@@ -21,7 +23,8 @@ export const approachActions: Actions = {
 		try {
 			return { approachDraft: await draftApproach(locals.supabase, client, person, user.id) };
 		} catch (failure) {
-			return fail(502, { message: (failure as Error).message });
+			console.error('Approach draft failed', failure);
+			return fail(502, { message: draftFailedMessage });
 		}
 	},
 	saveApproach: async ({ locals, request }) => {

@@ -41,31 +41,108 @@ API returns — into the request's AsyncLocalStorage context (`recordMeteredCall
     owed (credits) = max(rung floor, ceil(bill × costMarkup / creditValuePence))
 
 `creditValuePence` is the cheapest pack's rate (Scale, £12.99 for 3,000 ≈ 0.43p) so the margin
-holds whichever pack the buyer used; `costMarkup` is 3. Both are constants at the top of the
-pricing section — the only two numbers to tune.
+holds whichever pack the buyer used; `costMarkup` is 3. The packs live once, in
+`src/lib/data/creditPacks.ts`, and `creditValuePence` derives from the cheapest of them;
+`getCreditPacks` refuses to serve a `credit_packs` table that disagrees with that list, so a
+pack added to the database without the constant can never sell credits below the value every
+job is priced at. `costMarkup` and `usdToGbp` sit at the top of `creditPricing.ts` — with the
+pack list, the only numbers to tune.
 
 Endpoints follow reserve-then-settle: take the floor for the resolved model before the work
-(`spendCredits(reserve, reason)`), answer, then `settleQuestionUsage(supabase, reserve, reason)`
+(`spendCredits(reserve, reason)`), answer, then `settleQuestionUsage(payer, reserve, reason)`
 takes whatever `owed − reserve` is positive under `reason + '_usage'` (`brain_question_usage`,
-`kb_interview_usage`, `hive_mind_question_usage`, `agent_reply_usage`) through the service-role
+`kb_interview_usage`, `hive_mind_question_usage`, `agent_reply_usage`…) through the service-role
 RPC `settle_credits_for(payer, amount, reason)`, which has **no balance check** — the balance may
 go negative until the next pack. That is deliberate: a settlement that could bounce would make
 the floor the real price for anyone who keeps their balance near it. Failure before the answer
-refunds the reserve as before. Wired into
-`/api/brain/ask`, `/api/face-chat`, `/api/knowledge-base/brain-ask`, `/api/knowledge-base/interview`,
-`/api/hive-mind/ask` and `/api/agent-chat`. The last two keep their fixed RPCs (25 with the
-specialists' pool; 10 per reply) and top the reserve up to the model floor under the same
-reason when the floor is higher; the depth and harvest surcharges stay separate product fees.
+refunds the reserve through `refundQuestionUsage`, which also records what the failed attempt
+cost (below). Wired into `/api/brain/ask`, `/api/face-chat`, `/api/knowledge-base/brain-ask`,
+`/api/knowledge-base/interview`, `/api/hive-mind/ask` and `/api/agent-chat`. The last two keep
+their fixed RPCs (25 with the specialists' pool; 10 per reply) and top the reserve up to the
+model floor under the same reason when the floor is higher; a failed Trade Talk question refunds
+the whole reserve, top-up included. The depth and harvest surcharges stay separate product fees:
+the harvest filed from an agent reply or an interview turn comes out of the reply's own tokens,
+which the settlement already covers, so the 2-credit-per-item harvest fee on `/api/agent-chat` is
+margin, not cost recovery (the interview files its harvest without that fee).
 
-Chatbots settle against the pool instead: `settle_chatbot_question(chatbot, member, extra)`
-(service-role only, 0032) moves `extra` from the pool onto the member's counter. Neither the
-allowance (James allows a member to run over their allocation) nor the pool is re-checked: the
-pool may go negative until the owner tops up, and the bot stops answering as soon as it cannot
-cover a floor. The ask endpoint returns `creditsCharged` and the settled `allowanceRemaining`.
+The same shape now covers every other job that runs the Modeller. Ingest and re-read reserve the
+byte-priced `ingestCreditsFor` under `brain_ingest_sized` and settle beyond it — a 25 KB document
+read on Fable owes around 250 credits against the flat 50 that was charged before. Prune (25) and
+unlearn (50) settle beyond their fixed prices; a chatbot teaching note settles beyond its ingest
+price under `chatbot_teach`; and the bearer API (`/api/v1/brains/[id]/ask`) keeps its fixed 10
+through `spend_for_brain_api_question`, runs on the cheapest rung because there is no session
+to resolve a slider from, and settles the marked-up bill beyond the 10 against the brain owner
+under `brain_api_question_usage`. What a job finally owes is `max(reserve, floor, marked-up bill)`
+— the reserve is never refunded down.
+
+Chatbots settle against the pool instead: `settleChatbotQuestion` calls
+`settle_chatbot_question(chatbot, member, extra)` (service-role only, 0032), which moves `extra`
+from the pool onto the member's counter. Neither the allowance (James allows a member to run
+over their allocation) nor the pool is re-checked: the pool may go negative until the owner tops
+up, and the bot stops answering as soon as it cannot cover a floor. The ask endpoint returns
+`creditsCharged` and the settled `allowanceRemaining`.
+
+## What is recorded
+
+Every metered call is stored at settlement in `model_usage` (migration 0042; service-role
+writes, admin reads): the payer, the ledger reason, the chatbot when the pool paid, the model,
+the four token counts, Anthropic's cost in pence (`usageCostPence`) and the share of the credits
+the job charged — one number per job, apportioned across its calls in proportion to cost so the
+rows always sum back to the ledger. `recordModelUsage` is the only writer; `settleQuestionUsage`,
+`refundQuestionUsage` and `settleChatbotQuestion` are the only callers. Three outcomes land:
+
+- settled — `credits_charged` is what the job finally owed (reserve plus settlement);
+- refunded — the job failed after Claude had answered part of it, the reserve went back, and the
+  calls are recorded at zero credits: the cost of the failure, visible;
+- `has_failed_settlement` — `settle_credits_for` (or the chatbot settle) itself failed, the row
+  carries only the reserve, and the shortfall shows as leakage instead of a log line.
+
+A write that fails is reported and never turns a delivered answer into a refund.
+
+## The margin view
+
+`/admin/usage` (admin only; `src/lib/server/admin/usage/`, service-role reads) shows the last 7,
+30 or 90 days (`?days=`, default 30): totals for Claude cost, revenue at pack value, margin,
+metered calls and settlement failures with the cost they left unrecovered; per model, calls,
+tokens, cost, credits and margin; per user, credits bought (paid packs), granted (welcome, promo,
+gifts, earnings), spent, refunded, the all-time balance, Claude cost, revenue and margin. Revenue
+is net credits spent (spent − refunded) × `creditValuePence`: the least the business was paid for
+those credits, so the margin shown is the floor, not the average.
+
+## Abuse limits
+
+Two kinds of gate stand in front of anything that costs money or sends an email. Per-user gates
+count rows the database already holds, because a Vercel instance is ephemeral and remembers
+nothing between requests; per-address gates on public endpoints live in memory
+(`src/lib/server/http/addressRateLimit.ts`) and bound a burst from one address, which is all an
+anonymous endpoint can be held to. Every count is `head: true` — no rows travel.
+
+| Endpoint or action | Signal | Allowance | Window | Refusal |
+| --- | --- | --- | --- | --- |
+| `POST /contact` (`sendEnquiry`) | in-memory, client address | 5 | 10 minutes | silently accepted, nothing recorded |
+| `POST /oauth/register` | in-memory, client address | 10 | 1 hour | 429 `too_many_registrations` |
+| `/api/brain/ask`, `/api/brain/ingest`, `/api/knowledge-base/brain-ask`, `/api/knowledge-base/interview`, `/api/agent-chat` | `credit_ledger` debits (`delta < 0`) for the user, through their own session | 30 (`mostSpendsPerMinute`) | 1 minute | 429 "Slow down — try again in a minute" |
+| `/api/v1/brains/[id]/ask` | the brain owner's `credit_ledger` debits with reason `brain_api_question`, through the service client | 30 | 1 minute | 429, same message |
+| `/api/chatbots/[id]/ask` | the member's own `chatbot_messages` (`speaker = 'member'`) — the pool pays, so the ledger says nothing about the member | 15 (`mostMemberQuestionsPerMinute`) | 1 minute | 429, same message |
+| `POST /api/workspace/shares` | `workspace_invites` rows owned by the user | 20 (`mostInvitesPerHour`) | 1 hour | 429 |
+| chatbot `inviteMember`, `resendInvite` | `chatbot_members` rows owned by the user | 20 | 1 hour | `fail(429)` |
+| client `inviteContact` (form and MCP `invite_client_contact`) | `client_events` of kind `contact_invited` by the actor | 20 | 1 hour | `fail(429)` / MCP message |
+
+The ledger gates live in `src/lib/server/credits/recentSpendCount.ts` and `requireSpendHeadroom.ts`
+and run before the reserve is taken; a question usually writes two debits (reserve and
+settlement), so thirty debits is roughly fifteen questions a minute. The chatbot gate is
+`src/lib/server/chatbots/requireMemberQuestionHeadroom.ts`. The invite allowance is one module,
+`src/lib/server/email/inviteAllowance.ts`, with a count per table beside the code it protects
+(`sharing/recentWorkspaceInviteCount.ts`, `chatbots/recentChatbotInviteCount.ts`,
+`clients/recentContactInviteCount.ts`). Migration 0048 indexes `credit_ledger (user_id,
+created_at)` so the per-minute count is a range read. Every session endpoint caps the question at
+`longestQuestion` (`src/lib/data/questionLimits.ts`, 1,000 characters), the bearer API included.
+
+Known gaps: resending a chatbot invite writes nothing, so resends are refused only while the
+hour's new invites stand at the allowance; and re-inviting an already-invited workspace address
+sends the email without a row, so it is not counted either.
 
 ## Not covered yet
 
-`/api/v1/brains/[id]/ask` (bearer tokens) still charges the fixed 10 credits through
-`spend_for_brain_api_question`, so it is pinned to the cheapest rung until it is metered. Ingest, prune and unlearn keep their fixed prices. Usage is metered but not yet stored;
-the admin cost-vs-credits view from launch-plan.md can read `meteredCallsSoFar()` into the
-event detail when it is built.
+The bearer API charges the owner's ledger but runs on the cheapest rung rather than the owner's
+slider. Interview harvests carry no per-item fee where agent replies do.

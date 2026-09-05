@@ -1,11 +1,24 @@
 import { json } from '@sveltejs/kit';
+import { addressRateLimit } from '$lib/server/http/addressRateLimit';
 import { registerOauthClient } from '$lib/server/oauth/registerOauthClient';
 import type { RequestHandler } from './$types';
 
 const created = 201;
 const badRequest = 400;
+const tooManyRequests = 429;
+const oneHourInMilliseconds = 60 * 60 * 1000;
+const registrationsPerAddress = addressRateLimit({
+	allowance: 10,
+	windowMilliseconds: oneHourInMilliseconds
+});
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	if (!registrationsPerAddress.isAllowedFrom(getClientAddress())) {
+		return json(
+			{ error: 'too_many_registrations', error_description: 'Try again in an hour' },
+			{ status: tooManyRequests }
+		);
+	}
 	const submission = await request.json().catch(() => null);
 	if (submission === null || typeof submission !== 'object') {
 		return json({ error: 'invalid_client_metadata' }, { status: badRequest });

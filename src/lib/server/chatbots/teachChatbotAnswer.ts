@@ -2,9 +2,11 @@ import { findBrainSource, markSourceStatus } from '../brain/findBrainSource';
 import { findPrimaryExpertiseBrain } from '../knowledge/interviewContext';
 import { ingestCreditsFor } from '$lib/data/creditPricing';
 import { markKnowledgeGapAnswered } from './markKnowledgeGapAnswered';
-import { refundCredits, spendCredits } from '../credits/spendCredits';
+import { refundQuestionUsage } from '../credits/refundQuestionUsage';
 import { renderTeachingNote } from './renderTeachingNote';
 import { runSourceIngest } from '../brain/runSourceIngest';
+import { settleQuestionUsage } from '../credits/settleQuestionUsage';
+import { spendCredits } from '../credits/spendCredits';
 import { byteCountOf, discardTeachingNote, storeTeachingNote } from './storeTeachingNote';
 import type { OpenKnowledgeGap } from './findOpenKnowledgeGap';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -36,8 +38,8 @@ export async function teachChatbotAnswer(
 	if (primary === null) return 'no_expertise_brain';
 	const note = renderTeachingNote(chatbot.name, gap, answer);
 	const sourceId = await storeTeachingNote(supabase, userId, primary.domainBrainId, gap.question, note);
-	const cost = ingestCreditsFor(byteCountOf(note));
-	const spend = await spendCredits(supabase, cost, teachingSpendReason);
+	const reserve = ingestCreditsFor(byteCountOf(note));
+	const spend = await spendCredits(supabase, reserve, teachingSpendReason);
 	if (typeof spend === 'string') {
 		await discardTeachingNote(supabase, sourceId);
 		return spend;
@@ -47,10 +49,11 @@ export async function teachChatbotAnswer(
 	} catch (failure) {
 		console.error('Teaching the chatbot failed', failure);
 		await markSourceStatus(supabase, sourceId, 'failed', failureSummary(failure));
-		await refundCredits(supabase, cost, teachingSpendReason);
+		await refundQuestionUsage(userId, reserve, teachingSpendReason);
 		return 'reading_failed';
 	}
 	await markKnowledgeGapAnswered(supabase, gap.id, answer, sourceId);
+	await settleQuestionUsage(userId, reserve, teachingSpendReason);
 	return 'taught';
 }
 

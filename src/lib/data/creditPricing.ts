@@ -1,5 +1,8 @@
+import { creditValuePence } from './creditPacks';
 import { rungFor } from './modelLadder';
 import type { AnthropicUsage, MeteredCall } from './anthropicUsage';
+
+export { creditValuePence };
 
 export const creditsPerReply = 10;
 export const creditsPerBrainQuestion = 10;
@@ -17,14 +20,13 @@ const tradeTalkCreditsPerExtraPage = 2;
 const harvestCreditsPerItem = 2;
 
 /**
- * Model-priced questions. A credit is valued at the CHEAPEST pack rate
- * (Scale: £12.99 for 3,000) so the margin holds whichever pack the buyer
- * chose; costMarkup is the multiple of Anthropic's bill a question must
- * return — James's floor is "100% on top", 3× leaves room for Stripe fees
- * and refunded failures. Cache reads bill at a tenth of input, cache
- * writes at a quarter more, per Anthropic's published rates.
+ * Model-priced work. A credit is valued at the cheapest pack rate
+ * (creditPacks.ts) so the margin holds whichever pack the buyer chose;
+ * costMarkup is the multiple of Anthropic's bill a job must return —
+ * James's floor is "100% on top", 3× leaves room for Stripe fees and
+ * refunded failures. Cache reads bill at a tenth of input, cache writes
+ * at a quarter more, per Anthropic's published rates.
  */
-export const creditValuePence = 12.99 * 100 / 3000;
 export const usdToGbp = 0.74;
 export const costMarkup = 3;
 const cacheReadInputShare = 0.1;

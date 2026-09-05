@@ -1,19 +1,23 @@
 <script lang="ts">
-	import ClientEventLedger from '$lib/components/clients/ClientEventLedger.svelte';
 	import AssignProjectForm from '$lib/components/clients/AssignProjectForm.svelte';
+	import ClientEventLedger from '$lib/components/clients/ClientEventLedger.svelte';
+	import ClientPeopleSection from '$lib/components/clients/ClientPeopleSection.svelte';
 	import ClientProjectList from '$lib/components/clients/ClientProjectList.svelte';
-	import ContactList from '$lib/components/clients/ContactList.svelte';
+	import CompanyProfileForm from '$lib/components/clients/CompanyProfileForm.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
-	import NewContactForm from '$lib/components/clients/NewContactForm.svelte';
 	import RequestTable from '$lib/components/requests/RequestTable.svelte';
 	import { clientStageLabels } from '$lib/data/clientLifecycle';
-	import { primaryButtonClasses } from '$lib/components/site/formStyles';
+	import { leadSourceLabels } from '$lib/data/leadSources';
+	import { primaryButtonClasses, quietButtonClasses } from '$lib/components/site/formStyles';
 
 	let { data, form } = $props();
 
-	let isNewContactModalOpen = $state(false);
 	let isAssignProjectModalOpen = $state(false);
+
+	const researchAgainHref = $derived(
+		`/clients/research?clientId=${data.client.id}&query=${encodeURIComponent(data.client.website || data.client.name)}`
+	);
 </script>
 
 <svelte:head>
@@ -25,7 +29,7 @@
 		<a href="/clients" class="font-display text-sm text-chalk/50 hover:text-chalk">← Clients</a>
 		<h1 class="font-display text-3xl font-medium">{data.client.name}</h1>
 		<p class="text-chalk/70">
-			{clientStageLabels[data.client.stage]}
+			{clientStageLabels[data.client.stage]} · {leadSourceLabels[data.client.leadSource]}
 			{#if data.client.website !== ''}
 				· <a href={data.client.website} class="hover:text-signal">{data.client.website}</a>
 			{/if}
@@ -35,13 +39,13 @@
 
 	<section class="flex flex-col gap-4">
 		<div class="flex items-center justify-between gap-4">
-			<h2 class="font-display text-xl">People</h2>
-			<button class={primaryButtonClasses} onclick={() => (isNewContactModalOpen = true)}>
-				Add contact
-			</button>
+			<h2 class="font-display text-xl">Company profile</h2>
+			<a href={researchAgainHref} class={quietButtonClasses}>Research again</a>
 		</div>
-		<ContactList contacts={data.contacts} />
+		<CompanyProfileForm client={data.client} />
 	</section>
+
+	<ClientPeopleSection people={data.people} approachDraft={form?.approachDraft ?? null} />
 
 	<section class="flex flex-col gap-4">
 		<div class="flex items-center justify-between gap-4">
@@ -73,10 +77,6 @@
 		<ClientEventLedger events={data.events} />
 	</section>
 </div>
-
-<Modal title="New contact" bind:isOpen={isNewContactModalOpen}>
-	<NewContactForm />
-</Modal>
 
 <Modal title="Add project" bind:isOpen={isAssignProjectModalOpen}>
 	<AssignProjectForm projects={data.unassignedProjects} />

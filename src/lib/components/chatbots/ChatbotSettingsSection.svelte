@@ -12,7 +12,7 @@
 
 	const renameTracker = new FormTracker();
 	const modelTracker = new FormTracker();
-	let chosenModel = $state(chatbot.modelId);
+	let chosenModel = $derived(chatbot.modelId);
 	let isDeleteModalOpen = $state(false);
 </script>
 

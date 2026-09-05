@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ChatbotCard from './ChatbotCard.svelte';
 	import NewChatbotForm from './NewChatbotForm.svelte';
+	import { chatbotKnowledgeCaps } from '$lib/data/chatbotKnowledgeCaps';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 
 	let { chatbots }: { chatbots: ChatbotSummary[] } = $props();
@@ -10,6 +11,12 @@
 	<p class="text-sm text-chalk/60">
 		A chatbot lets people ask this knowledge base without opening it. You fund it from your
 		credits and decide how much each member may spend.
+	</p>
+	<p class="text-xs leading-relaxed text-chalk/50">
+		Every bot reads all three brains as they stand at each question: the expertise model page
+		by page (the first {chatbotKnowledgeCaps.longestExpertiseIndex.toLocaleString('en-GB')} characters
+		of its index), the {chatbotKnowledgeCaps.mostExperienceItems} most recent experience entries, and the
+		process map — its roles, tasks and journeys.
 	</p>
 	<NewChatbotForm />
 	{#if chatbots.length === 0}

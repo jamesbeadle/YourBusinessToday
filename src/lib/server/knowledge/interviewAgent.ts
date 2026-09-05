@@ -1,4 +1,3 @@
-import { env } from '$env/dynamic/private';
 import { experienceEventSchema } from '$lib/server/agent/workspaceUpdateTool';
 import { parseHarvest, type HarvestedKnowledge } from '$lib/server/agent/parseHarvest';
 import { requestAnthropic } from '$lib/server/anthropic/requestAnthropic';
@@ -11,7 +10,6 @@ export type InterviewTurnInput = { author: 'agent' | 'user'; text: string };
 export type InterviewTurn = { reply: string; harvest: HarvestedKnowledge };
 
 const maxReplyTokens = 1500;
-const emptyHarvest: HarvestedKnowledge = { expertiseFacts: [], experienceEvents: [] };
 
 const interviewUpdateTool = {
 	name: 'interview_update',
@@ -45,9 +43,6 @@ export async function askInterviewer(
 	context: InterviewContext,
 	focus: InterviewFocus = null
 ): Promise<InterviewTurn> {
-	if (!env.ANTHROPIC_API_KEY) {
-		return { reply: 'The interviewer is offline right now — try again shortly.', harvest: emptyHarvest };
-	}
 	const response = await requestAnthropic({
 		system: interviewSystemPrompt(context, focus),
 		messages: conversation.map((turn) => ({

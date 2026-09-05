@@ -1,26 +1,27 @@
 import { fail } from '@sveltejs/kit';
-import { createClient, readNewClientSeed } from '$lib/server/clients/createClient';
+import { addLead, readLeadSeed } from '$lib/server/clients/addLead';
 import { getClientList } from '$lib/server/clients/getClientList';
-import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { moveClientStage } from '$lib/server/clients/moveClientStage';
 import { parseClientStage } from '$lib/data/clientLifecycle';
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import type { Actions, PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	await requireStaff(locals);
+	const requestedStage = url.searchParams.get('stage');
+	const stage = requestedStage === null ? null : parseClientStage(requestedStage);
 	return {
-		clients: await getClientList(locals.supabase),
-		staffMembers: await getStaffDirectory(locals.supabase)
+		clients: await getClientList(locals.supabase, stage),
+		stage
 	};
 };
 
 export const actions: Actions = {
-	createClient: async ({ locals, request }) => {
+	addLead: async ({ locals, request }) => {
 		const user = await requireStaff(locals);
-		const seed = readNewClientSeed(await request.formData(), user.id);
-		if (seed === null) return fail(400, { message: 'A client name is required.' });
-		await createClient(locals.supabase, seed, user.id);
+		const seed = readLeadSeed(await request.formData(), user.id);
+		if (seed === null) return fail(400, { message: 'A company name is required.' });
+		await addLead(locals.supabase, seed, user.id);
 		return { message: `${seed.name} added as a lead.` };
 	},
 	moveStage: async ({ locals, request }) => {

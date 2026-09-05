@@ -69,6 +69,8 @@ export type KnowledgeGap = {
 
 export type MemberAllowance = { memberId: string; allowance: number };
 
+export const defaultMemberAllowanceCredits = 100;
+
 export type MemberChatbot = {
 	id: string;
 	name: string;

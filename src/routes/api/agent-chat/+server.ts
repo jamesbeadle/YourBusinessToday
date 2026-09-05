@@ -1,19 +1,18 @@
 import { error, json } from '@sveltejs/kit';
-import { fileHarvestedKnowledge } from '$lib/server/agent/fileHarvestedKnowledge';
+import { converseWithAgent } from '$lib/server/agent/converseWithAgent';
 import { creditsPerReply, harvestCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
+import { refundQuestionUsage } from '$lib/server/credits/refundQuestionUsage';
+import { requireSpendHeadroom } from '$lib/server/credits/requireSpendHeadroom';
 import { resolveRequestModel } from '$lib/server/anthropic/resolveRequestModel';
 import { settleQuestionUsage } from '$lib/server/credits/settleQuestionUsage';
 import { spendCredits } from '$lib/server/credits/spendCredits';
-import { getLatestWorkflowMap } from '$lib/server/maps/getLatestWorkflowMap';
-import { getSessionConversation } from '$lib/server/agent/getSessionConversation';
 import { getWorkflow } from '$lib/server/entities/getWorkflow';
-import { recordAgentMessage } from '$lib/server/agent/recordAgentMessage';
-import { replyFromAgent } from '$lib/server/agent/replyFromAgent';
-import { saveWorkflowMap } from '$lib/server/maps/saveWorkflowMap';
 import { spendForAgentReply } from '$lib/server/agent/spendForAgentReply';
 import type { RequestHandler } from './$types';
 
 export const config = { maxDuration: 300 };
+
+const replySpendReason = 'agent_reply';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	const { user } = await locals.safeGetSession();
@@ -22,52 +21,40 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const { sessionId, workflowId, message } = await readChatRequest(request);
 	const workflow = await getWorkflow(locals.supabase, workflowId);
 	if (workflow === null) error(404, 'That workflow could not be found');
+	await requireSpendHeadroom(locals.supabase, user.id);
 	const spend = await spendForAgentReply(locals.supabase, sessionId);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
 	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
-	const reserve = await reserveModelFloor(locals);
+	const reserve = await reserveModelFloor(locals, user.id);
 
-	await recordAgentMessage(locals.supabase, {
-		sessionId,
-		userId: user.id,
-		workflowId: workflow.id,
-		author: 'user',
-		body: message
-	});
-	const conversation = await getSessionConversation(locals.supabase, sessionId);
-	const currentMap = await getLatestWorkflowMap(locals.supabase, workflow.id);
-	const agentTurn = await replyFromAgent(conversation, currentMap);
-	await recordAgentMessage(locals.supabase, {
-		sessionId,
-		userId: user.id,
-		workflowId: workflow.id,
-		author: 'agent',
-		body: agentTurn.reply
-	});
-	if (JSON.stringify(agentTurn.map) !== JSON.stringify(currentMap)) {
-		await saveWorkflowMap(locals.supabase, workflow.id, agentTurn.map);
+	try {
+		const agentTurn = await converseWithAgent(locals.supabase, user.id, sessionId, workflow, message);
+		await chargeForHarvest(locals, agentTurn.harvest);
+		const usageBalance = await settleQuestionUsage(user.id, reserve, replySpendReason);
+		return json({
+			reply: agentTurn.reply,
+			map: agentTurn.map,
+			creditBalance: usageBalance ?? spend.creditBalance
+		});
+	} catch (failure) {
+		console.error('Agent reply failed', failure);
+		await refundQuestionUsage(user.id, reserve, replySpendReason);
+		error(502, 'That reply failed — your credits have been refunded');
 	}
-	await fileHarvestedKnowledge(locals.supabase, workflow.entityId, agentTurn.harvest);
-	await chargeForHarvest(locals, agentTurn.harvest);
-	const usageBalance = await settleQuestionUsage(user.id, reserve, 'agent_reply');
-
-	return json({
-		reply: agentTurn.reply,
-		map: agentTurn.map,
-		creditBalance: usageBalance ?? spend.creditBalance
-	});
 };
 
 // spend_for_agent_reply takes the fixed 10; a dearer model tops the reserve
 // up to its floor under the same reason, so settlement measures from the floor.
-async function reserveModelFloor(locals: App.Locals): Promise<number> {
+// A refused top-up hands the fixed spend back before the request is turned away.
+async function reserveModelFloor(locals: App.Locals, payerId: string): Promise<number> {
 	const floor = questionFloorCreditsFor(await resolveRequestModel());
 	const topUp = floor - creditsPerReply;
 	if (topUp <= 0) return creditsPerReply;
-	const spend = await spendCredits(locals.supabase, topUp, 'agent_reply');
+	const spend = await spendCredits(locals.supabase, topUp, replySpendReason);
+	if (typeof spend !== 'string') return floor;
+	await refundQuestionUsage(payerId, creditsPerReply, replySpendReason);
 	if (spend === 'insufficient_credits') error(402, 'You are out of credits');
-	if (spend === 'account_restricted') error(403, 'This account is currently restricted');
-	return floor;
+	error(403, 'This account is currently restricted');
 }
 
 async function chargeForHarvest(

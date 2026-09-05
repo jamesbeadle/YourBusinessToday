@@ -16,6 +16,11 @@ characters — see `src/lib/server/auth/passwordRules.ts`.
 The one-time Google configuration — Cloud Console client, Supabase provider toggle,
 and the redirect URL allow-list — is documented in `docs/google-login-setup.md`.
 
+The emails Supabase sends for those flows — and the app's own invite emails — come from
+the built-in mailer until custom SMTP is set up. `docs/email-setup.md` covers Resend,
+the SMTP relay, rebranding the templates, leaked password protection, and why a
+`supabase.co` address flashes past during Google sign-in.
+
 In the Supabase dashboard (**Authentication → Sign In / Providers**) keep Email enabled
 with email confirmation on, and every other provider disabled, so the auth API refuses
 sign-ups the UI does not offer.

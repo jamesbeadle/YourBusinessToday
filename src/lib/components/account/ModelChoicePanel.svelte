@@ -12,7 +12,7 @@
 	}: { modelId: string; adminPinnedModel: string | null } = $props();
 
 	const tracker = new FormTracker();
-	let chosenModel = $state(modelId);
+	let chosenModel = $derived(modelId);
 </script>
 
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">

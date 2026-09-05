@@ -4,8 +4,6 @@
 	import ModelChoicePanel from '$lib/components/account/ModelChoicePanel.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
-	import PayoutDetailsPanel from '$lib/components/account/PayoutDetailsPanel.svelte';
-	import RevenueSharePanel from '$lib/components/account/RevenueSharePanel.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 
@@ -70,8 +68,6 @@
 		</a>
 	</div>
 	<ModelChoicePanel modelId={data.modelId} adminPinnedModel={data.adminPinnedModel} />
-	<RevenueSharePanel earnings={data.tradeTalkEarnings} />
-	<PayoutDetailsPanel payoutDetails={data.payoutDetails} />
 	<PurchaseHistoryTable purchases={data.purchases} />
 </div>
 

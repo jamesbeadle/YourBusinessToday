@@ -51,6 +51,16 @@
 	<button type="submit" class={primaryButtonClasses}>
 		{isCreatingAccount ? 'Create account' : 'Sign in'}
 	</button>
+	{#if isCreatingAccount}
+		<p class="text-xs text-chalk/50">
+			By creating an account you agree to our
+			<a href="/terms" class="text-chalk/80 underline underline-offset-4 hover:text-chalk">Terms</a>
+			and
+			<a href="/privacy" class="text-chalk/80 underline underline-offset-4 hover:text-chalk">
+				Privacy Statement</a
+			>.
+		</p>
+	{/if}
 	<div class="flex items-center justify-between">
 		<button
 			type="button"

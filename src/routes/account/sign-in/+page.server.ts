@@ -3,7 +3,7 @@ import { beginGoogleSignIn } from '$lib/server/auth/beginGoogleSignIn';
 import { callbackUrlFor } from '$lib/server/auth/callbackUrlFor';
 import { createAccountWithPassword } from '$lib/server/auth/createAccountWithPassword';
 import { readEmailAndPassword } from '$lib/server/auth/emailAndPassword';
-import { defaultDestination, localDestinationOrDefault } from '$lib/server/auth/localDestination';
+import { destinationAfterSignIn } from '$lib/server/auth/localDestination';
 import { problemWithCredentials, problemWithEmailAddress } from '$lib/server/auth/passwordRules';
 import { sendPasswordResetEmail } from '$lib/server/auth/sendPasswordResetEmail';
 import { signInWithPassword } from '$lib/server/auth/signInWithPassword';
@@ -15,7 +15,7 @@ const resetEmailSent = 'If that address has an account, a reset link is on its w
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const { user } = await locals.safeGetSession();
-	if (user !== null) redirect(303, defaultDestination);
+	if (user !== null) redirect(303, await destinationAfterSignIn(locals, url.searchParams.get('next')));
 	return {
 		isInvited: url.searchParams.get('invited') === '1',
 		invitedBy: url.searchParams.get('by') ?? '',
@@ -49,7 +49,7 @@ export const actions: Actions = {
 		if (inputProblem !== null) return problemResponse(inputProblem);
 		const signInProblem = await signInWithPassword(locals.supabase, credentials);
 		if (signInProblem !== null) return problemResponse(signInProblem);
-		redirect(303, localDestinationOrDefault(readDestination(formData)));
+		redirect(303, await destinationAfterSignIn(locals, readDestination(formData)));
 	},
 	createAccount: async ({ locals, request, url }) => {
 		const formData = await request.formData();

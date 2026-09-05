@@ -1,8 +1,9 @@
 import { error, json } from '@sveltejs/kit';
 import { askChatbot, type ChatbotTurn } from '$lib/server/chatbots/askChatbot';
+import { chatbotRefusalFor, notAMemberRefusal } from '$lib/server/chatbots/chatbotRefusals';
 import { getChatbot } from '$lib/server/chatbots/getChatbot';
-import { getChatbotBrains } from '$lib/server/chatbots/getChatbotBrains';
 import { getChatbotConversation } from '$lib/server/chatbots/getChatbotConversation';
+import { getChatbotKnowledge } from '$lib/server/chatbots/getChatbotKnowledge';
 import { getChatbotMembership } from '$lib/server/chatbots/getChatbotMembership';
 import { meteredCallsSoFar } from '$lib/server/anthropic/modelContext';
 import { questionCreditsFor, questionFloorCreditsFor } from '$lib/data/creditPricing';
@@ -20,13 +21,6 @@ import type { RequestHandler } from './$types';
 const longestQuestion = 1000;
 const longestRememberedExchange = 12;
 
-const refusalMessages = {
-	chatbot_out_of_credits: 'This bot is out of credits — its owner needs to top it up',
-	allowance_exhausted: 'Your allowance for this period is used up',
-	chatbot_paused: 'This bot is paused',
-	not_a_member: "You're not a member of this bot"
-} as const;
-
 export const config = { maxDuration: 300 };
 
 export const POST: RequestHandler = async ({ request, params, locals }) => {
@@ -36,7 +30,7 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 	if (chatbot === null) error(404, 'That bot does not exist');
 	const question = readQuestion(await request.json().catch(() => ({})));
 	const membership = await getChatbotMembership(locals.supabase, chatbot.id, user.id, chatbot.modelId);
-	if (membership === null) error(403, refusalMessages.not_a_member);
+	if (membership === null) error(notAMemberRefusal.status, notAMemberRefusal.message);
 
 	// The spend RPC is the membership check proper: it runs as the service
 	// role with the member named by the session, so nothing is read or
@@ -44,19 +38,21 @@ export const POST: RequestHandler = async ({ request, params, locals }) => {
 	const service = supabaseServiceClient();
 	const reserve = questionFloorCreditsFor(membership.modelId);
 	const spend = await spendForChatbotQuestion(service, chatbot.id, user.id, reserve);
-	if (spend === 'not_a_member') error(403, refusalMessages[spend]);
-	if (typeof spend === 'string') error(402, refusalMessages[spend]);
+	if (typeof spend === 'string') {
+		const refusal = await chatbotRefusalFor(service, chatbot, spend);
+		error(refusal.status, refusal.message);
+	}
 
 	try {
 		const conversation = await getChatbotConversation(locals.supabase, chatbot.id, user.id);
-		const brains = await getChatbotBrains(service, chatbot.knowledgeBaseId);
+		const knowledge = await getChatbotKnowledge(service, chatbot.knowledgeBaseId);
 		const priorTurns: ChatbotTurn[] = conversation.messages
 			.slice(-longestRememberedExchange)
 			.map((message) => ({ speaker: message.speaker, text: message.body }));
 		const answer = await askChatbot(
 			service,
 			{ name: chatbot.name, modelId: membership.modelId },
-			brains,
+			knowledge,
 			[...priorTurns, { speaker: 'member', text: question }]
 		);
 		await recordChatbotTurn(service, conversation.id, question, answer);

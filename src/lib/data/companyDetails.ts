@@ -4,6 +4,5 @@ export const companyDetails = {
 	registrationNumber: '[company number — fill in]',
 	registeredAddress: '[registered office address — fill in]',
 	websiteUrl: 'https://yourbusiness.today',
-	consultingEmail: 'consulting@yourbusiness.today',
-	privacyEmail: 'privacy@yourbusiness.today'
+	consultingEmail: 'consulting@yourbusiness.today'
 };

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses, panelClasses } from '$lib/components/site/formStyles';
-	import type { CompaniesHouseSearch } from '$lib/server/clients/searchCompaniesHouse';
+	import type { CompaniesHouseSearch } from '$lib/server/companiesHouse/searchCompaniesHouse';
 
 	let { search }: { search: CompaniesHouseSearch | null } = $props();
 </script>

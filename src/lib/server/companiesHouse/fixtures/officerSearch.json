@@ -1,0 +1,27 @@
+{
+	"items_per_page": 20,
+	"kind": "search#officers",
+	"items": [
+		{
+			"kind": "searchresults#officer",
+			"title": "Jane Elizabeth SMITH",
+			"description": "Total number of appointments 3 - Born June 1975",
+			"appointment_count": 3,
+			"date_of_birth": { "month": 6, "year": 1975 },
+			"address_snippet": "1 High Street, Guildford, GU1 3AA",
+			"links": { "self": "/officers/abc123DEF456/appointments" }
+		},
+		{
+			"kind": "searchresults#officer",
+			"title": "Jane SMITH",
+			"appointment_count": 1,
+			"address_snippet": "2 Low Road, Woking, GU21 1BB",
+			"links": { "self": "/officers/zzz999/appointments" }
+		},
+		{
+			"kind": "searchresults#officer",
+			"title": "Nobody LINKED",
+			"appointment_count": 0
+		}
+	]
+}

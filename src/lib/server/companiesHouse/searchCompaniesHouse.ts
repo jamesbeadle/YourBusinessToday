@@ -1,4 +1,5 @@
-import { env } from '$env/dynamic/private';
+import { companiesHouseApiOrigin, requestCompaniesHouse } from './companiesHouseRequest';
+import { describeRegisteredAddress } from './registeredAddress';
 
 export type CompaniesHouseSearch = { sicCodes: string[]; location: string };
 
@@ -10,14 +11,9 @@ export type CompaniesHouseCompany = {
 	sicCodes: string[];
 };
 
-const advancedSearchUrl = 'https://api.company-information.service.gov.uk/advanced-search/companies';
+const advancedSearchPath = '/advanced-search/companies';
 const activeCompanyStatus = 'active';
 const longestResultPage = 50;
-const fetchTimeoutMilliseconds = 10_000;
-
-export function isCompaniesHouseConfigured(): boolean {
-	return (env.COMPANIES_HOUSE_API_KEY ?? '') !== '';
-}
 
 export function readCompaniesHouseSearch(searchParams: URLSearchParams): CompaniesHouseSearch | null {
 	const sicCodes = (searchParams.get('sicCodes') ?? '')
@@ -32,38 +28,29 @@ export function readCompaniesHouseSearch(searchParams: URLSearchParams): Compani
 export async function searchCompaniesHouse(
 	search: CompaniesHouseSearch
 ): Promise<CompaniesHouseCompany[]> {
-	const response = await fetch(searchUrlFor(search), {
-		signal: AbortSignal.timeout(fetchTimeoutMilliseconds),
-		headers: { authorization: basicAuthorisation(), accept: 'application/json' }
-	});
-	if (!response.ok) throw new Error(`Companies House answered with status ${response.status}`);
-	const body = (await response.json()) as { items?: Record<string, unknown>[] };
-	return (body.items ?? []).map(parseCompany);
+	return parseCompanySearch(await requestCompaniesHouse(searchUrlFor(search)));
 }
 
-function searchUrlFor(search: CompaniesHouseSearch): string {
-	const url = new URL(advancedSearchUrl);
+export function parseCompanySearch(body: Record<string, unknown>): CompaniesHouseCompany[] {
+	const items = Array.isArray(body.items) ? (body.items as Record<string, unknown>[]) : [];
+	return items.map(parseCompany);
+}
+
+function searchUrlFor(search: CompaniesHouseSearch): URL {
+	const url = new URL(advancedSearchPath, companiesHouseApiOrigin);
 	for (const code of search.sicCodes) url.searchParams.append('sic_codes', code);
 	if (search.location !== '') url.searchParams.set('location', search.location);
 	url.searchParams.set('company_status', activeCompanyStatus);
 	url.searchParams.set('size', String(longestResultPage));
-	return url.href;
-}
-
-function basicAuthorisation(): string {
-	const credentials = Buffer.from(`${env.COMPANIES_HOUSE_API_KEY}:`).toString('base64');
-	return `Basic ${credentials}`;
+	return url;
 }
 
 function parseCompany(item: Record<string, unknown>): CompaniesHouseCompany {
-	const address = (item.registered_office_address ?? {}) as Record<string, unknown>;
 	return {
 		companyNumber: String(item.company_number ?? ''),
 		name: String(item.company_name ?? ''),
 		incorporatedOn: String(item.date_of_incorporation ?? ''),
-		address: [address.address_line_1, address.locality, address.postal_code]
-			.filter((part) => typeof part === 'string' && part !== '')
-			.join(', '),
+		address: describeRegisteredAddress(item.registered_office_address),
 		sicCodes: Array.isArray(item.sic_codes) ? item.sic_codes.map(String) : []
 	};
 }

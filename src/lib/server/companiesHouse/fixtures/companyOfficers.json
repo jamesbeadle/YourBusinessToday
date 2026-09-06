@@ -1,0 +1,25 @@
+{
+	"active_count": 2,
+	"resigned_count": 1,
+	"items": [
+		{
+			"name": "SMITH, Jane Elizabeth",
+			"officer_role": "director",
+			"appointed_on": "2015-03-01",
+			"links": { "officer": { "appointments": "/officers/abc123DEF456/appointments" } }
+		},
+		{
+			"name": "O'BRIEN-JONES, Patrick",
+			"officer_role": "secretary",
+			"appointed_on": "2016-05-20",
+			"links": { "officer": { "appointments": "/officers/pat789/appointments" } }
+		},
+		{
+			"name": "GONE, Person",
+			"officer_role": "director",
+			"appointed_on": "2011-01-01",
+			"resigned_on": "2014-01-01",
+			"links": { "officer": { "appointments": "/officers/gone000/appointments" } }
+		}
+	]
+}

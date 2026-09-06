@@ -1,11 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { addProspectAsLead, readProspectSeed } from '$lib/server/clients/addProspectAsLead';
+import { isCompaniesHouseConfigured } from '$lib/server/companiesHouse/companiesHouseRequest';
 import {
-	isCompaniesHouseConfigured,
 	readCompaniesHouseSearch,
 	searchCompaniesHouse,
 	type CompaniesHouseCompany
-} from '$lib/server/clients/searchCompaniesHouse';
+} from '$lib/server/companiesHouse/searchCompaniesHouse';
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import type { Actions, PageServerLoad } from './$types';
 

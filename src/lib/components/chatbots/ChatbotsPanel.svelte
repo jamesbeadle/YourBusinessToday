@@ -4,7 +4,10 @@
 	import { chatbotKnowledgeCaps } from '$lib/data/chatbotKnowledgeCaps';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
 
-	let { chatbots }: { chatbots: ChatbotSummary[] } = $props();
+	let {
+		knowledgeBaseId,
+		chatbots
+	}: { knowledgeBaseId: string; chatbots: ChatbotSummary[] } = $props();
 </script>
 
 <div class="flex flex-col gap-4">
@@ -18,7 +21,7 @@
 		of its index), the {chatbotKnowledgeCaps.mostExperienceItems} most recent experience entries, and the
 		process map — its roles, tasks and journeys.
 	</p>
-	<NewChatbotForm />
+	<NewChatbotForm {knowledgeBaseId} />
 	{#if chatbots.length === 0}
 		<p class="text-xs text-chalk/40">No chatbots yet — name one above to get started.</p>
 	{:else}

@@ -1,4 +1,4 @@
-import { startAnimationLoop } from '../../stage/animationLoop';
+import { createSceneLoop } from '../../stage/animationLoop';
 import { createStage, fitStageTo } from '../../stage/createStage';
 import { createOrbitRig, prefersReducedMotion } from '../constellation/orbitRig';
 import { createFlowDirector } from './flowDirector';
@@ -14,6 +14,8 @@ export type FlowExperience = {
 	focusNode: (nodeId: string | null) => void;
 	hoverNode: (nodeId: string | null) => void;
 	resetView: () => void;
+	pause: () => void;
+	resume: () => void;
 	destroy: () => void;
 };
 
@@ -48,7 +50,7 @@ export function createFlowExperience(
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	const stopLoop = startAnimationLoop(frame);
+	const loop = createSceneLoop(frame);
 
 	function updateModel(updatedModel: FlowModel): void {
 		if (updatedModel === knownModel) return;
@@ -58,7 +60,7 @@ export function createFlowExperience(
 	}
 
 	function destroy(): void {
-		stopLoop();
+		loop.pause();
 		detachPointer();
 		resizeObserver.disconnect();
 		controls.dispose();
@@ -71,6 +73,8 @@ export function createFlowExperience(
 		focusNode: director.focusNode,
 		hoverNode: (nodeId) => director.hover(nodeId === null ? null : { nodeId }),
 		resetView: () => director.focusNode(null),
+		pause: loop.pause,
+		resume: loop.resume,
 		destroy
 	};
 }

@@ -4,6 +4,7 @@ import {
 	type KbBrainRow,
 	type ProcessRow
 } from './registerQueries';
+import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 import type { KnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -65,7 +66,7 @@ function registerBrainsFor(
 	const stored = kbRows.map((row) => storedRegisterBrain(knowledgeBaseId, row, fallbackEntityName));
 	const processes = processRows
 		.filter((row) => kbEntityIds.has(row.entity_id))
-		.map(processRegisterBrain);
+		.map((row) => processRegisterBrain(knowledgeBaseId, row));
 	return [...stored, ...processes];
 }
 
@@ -79,18 +80,18 @@ function storedRegisterBrain(
 		kind: row.category === 'domain' ? 'expertise' : 'experience',
 		name: row.name,
 		entityName: row.domain_brains?.entities?.name ?? fallbackEntityName ?? '',
-		href: `/knowledge-base/${knowledgeBaseId}/brains/${row.id}`,
+		href: brainHref(knowledgeBaseId, row.id),
 		updatedAt: row.updated_at
 	};
 }
 
-function processRegisterBrain(row: ProcessRow): RegisterBrain {
+function processRegisterBrain(knowledgeBaseId: string, row: ProcessRow): RegisterBrain {
 	return {
 		id: row.id,
 		kind: 'process',
 		name: row.name,
 		entityName: row.entities?.name ?? '',
-		href: `/workspace/${row.entity_id}/workflows/${row.id}`,
+		href: brainHref(knowledgeBaseId, row.id),
 		updatedAt: row.created_at
 	};
 }

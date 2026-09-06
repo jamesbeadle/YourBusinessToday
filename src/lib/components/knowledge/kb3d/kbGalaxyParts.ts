@@ -10,7 +10,7 @@ import {
 	type Texture
 } from 'three';
 
-const RING_RADIUS = 7;
+export const RING_RADIUS = 7;
 
 export function coreGlow(glowTexture: Texture): Sprite {
 	const material = new SpriteMaterial({

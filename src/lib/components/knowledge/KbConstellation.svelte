@@ -1,56 +1,90 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { buildConstellationSlots, type ConstellationSlot } from './constellationSlots';
-	import { createKbGalaxy } from './kb3d/createKbGalaxy';
+	import { createKbGalaxy, type KbGalaxyExperience } from './kb3d/createKbGalaxy';
+	import type { FocusOptions } from './kb3d/kbGalaxyFocus';
+	import { sceneHintPosition } from '../brain/sceneHud';
 	import { untrack } from 'svelte';
-	import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
-	import type { ProcessMapSummary } from '$lib/server/knowledge/getProcessMaps';
+	import type { ConstellationSlot } from './constellationSlots';
 
 	let {
-		knowledgeBaseId,
-		brains,
-		processMaps
+		slots,
+		onSelect
 	}: {
-		knowledgeBaseId: string;
-		brains: KbBrainSummary[];
-		processMaps: ProcessMapSummary[];
+		slots: ConstellationSlot[];
+		onSelect: (slot: ConstellationSlot) => void;
 	} = $props();
-
-	const slots = $derived(buildConstellationSlots(knowledgeBaseId, brains, processMaps));
 
 	let containerElement = $state<HTMLDivElement>();
 	let canvasElement = $state<HTMLCanvasElement>();
+	let galaxy: KbGalaxyExperience | null = null;
+	let shownSlots: ConstellationSlot[] | null = null;
+	let focusedSlotId: string | null = null;
+	let isPaused = false;
+	let isHidden = $state(false);
 
-	function openSlot(slot: ConstellationSlot): void {
-		goto(slot.href);
+	export function focusSlot(slotId: string, options: FocusOptions = {}): void {
+		focusedSlotId = slotId;
+		galaxy?.focusSlot(slotId, options);
+	}
+
+	export function releaseFocus(): void {
+		focusedSlotId = null;
+		galaxy?.releaseFocus();
+	}
+
+	export function pause(): void {
+		isPaused = true;
+		galaxy?.pause();
+	}
+
+	export function resume(): void {
+		isPaused = false;
+		galaxy?.resume();
+	}
+
+	/** Once a brain's view covers the galaxy there is nothing to see, so the canvas rests unseen. */
+	export function hide(): void {
+		isHidden = true;
+	}
+
+	export function show(): void {
+		isHidden = false;
+	}
+
+	function applyIntent(created: KbGalaxyExperience): void {
+		if (focusedSlotId !== null) created.focusSlot(focusedSlotId, { isInstant: true });
+		if (isPaused) created.pause();
 	}
 
 	$effect(() => {
-		void slots;
 		if (canvasElement === undefined || containerElement === undefined) return;
-		const galaxy = createKbGalaxy(
-			canvasElement,
-			containerElement,
-			untrack(() => slots),
-			openSlot
-		);
-		return () => galaxy.destroy();
+		const initialSlots = untrack(() => slots);
+		const created = createKbGalaxy(canvasElement, containerElement, initialSlots, onSelect);
+		applyIntent(created);
+		galaxy = created;
+		shownSlots = initialSlots;
+		return () => {
+			created.destroy();
+			galaxy = null;
+		};
+	});
+
+	$effect(() => {
+		if (galaxy === null || shownSlots === slots) return;
+		galaxy.updateSlots(slots);
+		shownSlots = slots;
 	});
 </script>
 
-<div bind:this={containerElement} class="relative h-full w-full overflow-hidden bg-night">
+<div
+	bind:this={containerElement}
+	class={['relative h-full w-full overflow-hidden bg-night', isHidden && 'invisible']}
+>
 	<canvas bind:this={canvasElement} class="block h-full w-full"></canvas>
-	<a
-		href={`/knowledge-base/${knowledgeBaseId}/brains/new`}
-		class="absolute top-4 right-4 z-10 rounded-full border border-hairline bg-night/60 px-4
-			py-1.5 font-display text-xs text-chalk/60 backdrop-blur-none transition
-			hover:border-signal hover:text-signal"
-	>
-		+ Add a second brain
-	</a>
 	<p
-		class="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 font-display text-[10px]
-			tracking-widest text-chalk/25 uppercase"
+		class={[
+			sceneHintPosition,
+			'font-display text-[10px] tracking-widest whitespace-nowrap text-chalk/25 uppercase'
+		]}
 	>
 		drag to orbit · click a brain to open it
 	</p>

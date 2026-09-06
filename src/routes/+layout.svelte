@@ -1,13 +1,16 @@
 <script lang="ts">
 	import '../app.css';
 	import NavigationProgressBar from '$lib/components/site/NavigationProgressBar.svelte';
-		import SiteFooter from '$lib/components/site/SiteFooter.svelte';
+	import SiteFooter from '$lib/components/site/SiteFooter.svelte';
 	import SiteHeader from '$lib/components/site/SiteHeader.svelte';
+	import { isKnowledgeBaseDashboardRoute } from '$lib/components/knowledge/dashboard/dashboardRoute';
 	import { SlowNavigation } from '$lib/client/slowNavigation.svelte';
+	import { page } from '$app/state';
 
 	let { children, data } = $props();
 
 	const slowNavigation = new SlowNavigation();
+	const isDashboard = $derived(isKnowledgeBaseDashboardRoute(page.route.id));
 </script>
 
 <NavigationProgressBar />
@@ -20,13 +23,18 @@
 		isStaff={data.isStaff}
 		isClientContact={data.isClientContact}
 		unreadNotificationCount={data.unreadNotificationCount}
+		knowledgeBases={data.knowledgeBases}
 	/>
 	<main
-		class="flex-1 transition-opacity duration-300"
-		class:opacity-40={slowNavigation.isActive}
-		class:pointer-events-none={slowNavigation.isActive}
+		class={[
+			'flex-1 transition-opacity duration-300',
+			isDashboard && 'h-[calc(100dvh-var(--site-header-height))] overflow-hidden',
+			slowNavigation.isActive && 'pointer-events-none opacity-40'
+		]}
 	>
 		{@render children()}
 	</main>
-	<SiteFooter />
+	{#if !isDashboard}
+		<SiteFooter />
+	{/if}
 </div>

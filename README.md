@@ -15,9 +15,10 @@ portal and the team's own project management are all working:
 - Buy credit packs at `/account/credits` — live Stripe Checkout with webhook fulfilment
   when keys are set, a placeholder otherwise; [docs/stripe-setup.md](./docs/stripe-setup.md)
   covers the keys and the unit economics.
-- Build a Knowledge Base at `/knowledge-base` — three brains per base: expertise (what
-  the business knows, as a domain model), experience (what it has done, as case files) and
-  process (how it works, as flows of work). Each is built by interview with an agent or by
+- Build a Knowledge Base at `/knowledge-base` — one dashboard per base, with a header
+  switcher between bases, and three brains per base: expertise (what the business knows,
+  as a domain model), experience (what it has done, as case files) and process (how it
+  works, as flows of work). Each is built by interview with an agent or by
   uploading the documents the business already files, and every answer is grounded in
   those pages with citations; [docs/domain-brain-architecture.md](./docs/domain-brain-architecture.md)
   and [docs/process-brain-architecture.md](./docs/process-brain-architecture.md) cover the

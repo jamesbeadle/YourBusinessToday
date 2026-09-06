@@ -44,6 +44,11 @@ export function attachKbGalaxyInput(options: {
 		pressPoint = { x: event.clientX, y: event.clientY };
 	}
 
+	function settleHoverAfterTouch(event: PointerEvent): void {
+		if (event.pointerType === 'mouse') return;
+		options.onHover(null);
+	}
+
 	function onClick(event: MouseEvent): void {
 		if (pressPoint === null) return;
 		const drift = Math.hypot(event.clientX - pressPoint.x, event.clientY - pressPoint.y);
@@ -55,12 +60,14 @@ export function attachKbGalaxyInput(options: {
 
 	options.canvas.addEventListener('pointermove', onPointerMove);
 	options.canvas.addEventListener('pointerdown', onPointerDown);
+	options.canvas.addEventListener('pointerup', settleHoverAfterTouch);
 	options.canvas.addEventListener('click', onClick);
 
 	return {
 		detach: () => {
 			options.canvas.removeEventListener('pointermove', onPointerMove);
 			options.canvas.removeEventListener('pointerdown', onPointerDown);
+			options.canvas.removeEventListener('pointerup', settleHoverAfterTouch);
 			options.canvas.removeEventListener('click', onClick);
 		}
 	};

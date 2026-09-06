@@ -2,6 +2,7 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { createKbBrain } from '$lib/server/knowledge/createKbBrain';
 import { deleteDomainBrain } from '$lib/server/entities/deleteDomainBrain';
 import { findBrainFiling } from '$lib/server/knowledge/findBrainFiling';
+import { redirectToFiledBrain } from '$lib/server/knowledge/redirectToFiledBrain';
 import { getKnowledgeBaseList } from '$lib/server/knowledge/getKnowledgeBaseList';
 import { touchKnowledgeBase } from '$lib/server/knowledge/updateKnowledgeBase';
 import { getBrainContexts } from '$lib/server/brain/getBrainContexts';
@@ -12,6 +13,7 @@ import { getDomainBrain } from '$lib/server/entities/getDomainBrain';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { resolveBrainAccessRole } from '$lib/server/market/resolveBrainAccessRole';
 import { updateDomainBrainGoal } from '$lib/server/entities/updateDomainBrainGoal';
+import { knowledgeBaseHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 import type { DomainBrain } from '$lib/server/entities/getDomainBrain';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -22,6 +24,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		error(404, 'That expertise brain is not in this entity');
 	}
 	const filing = await findBrainFiling(locals.supabase, brain.id);
+	if (filing !== null) {
+		await redirectToFiledBrain(locals.supabase, filing.knowledgeBaseId, filing.brainId);
+	}
 	return {
 		brain,
 		accessRole: await resolveBrainAccessRole(locals.supabase, brain, user.id),
@@ -32,8 +37,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		knowledgeBases: filing === null ? await getKnowledgeBaseList(locals.supabase) : [],
 		filedKnowledgeBaseId: filing?.knowledgeBaseId ?? null,
 		filedKnowledgeBaseName: filing?.knowledgeBaseName ?? null,
-		backHref:
-			filing === null ? '/knowledge-base' : `/knowledge-base/${filing.knowledgeBaseId}`
+		backHref: filing === null ? '/knowledge-base' : knowledgeBaseHref(filing.knowledgeBaseId)
 	};
 };
 
@@ -43,7 +47,9 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const domainGoal = String(formData.get('domainGoal') ?? '').trim();
 		if (domainGoal === '') {
-			return fail(400, { message: 'An expertise brain needs a goal — say what it should articulate.' });
+			return fail(400, {
+				message: 'An expertise brain needs a goal — say what it should articulate.'
+			});
 		}
 		await updateDomainBrainGoal(locals.supabase, brain.id, domainGoal);
 		return {};

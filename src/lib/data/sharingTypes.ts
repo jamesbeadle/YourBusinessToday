@@ -29,6 +29,7 @@ export type SharedBrainSummary = {
 	entityId: string;
 	brainName: string;
 	entityName: string;
+	href: string;
 };
 
 export type ProposalChangeKind = 'context_write' | 'page_write' | 'page_delete' | 'context_delete';

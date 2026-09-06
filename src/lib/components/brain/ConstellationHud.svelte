@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ConstellationLegend from './ConstellationLegend.svelte';
+	import { sceneHintPosition, sceneHudPillClass, sceneHudPosition } from './sceneHud';
 	import type { BrainContext, BrainPageSummary } from '$lib/data/brainTypes';
 
 	let {
@@ -26,24 +27,12 @@
 	);
 </script>
 
-<div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4">
+<div class={[sceneHudPosition, 'pointer-events-none flex flex-col items-start gap-2']}>
 	<nav class="pointer-events-auto flex flex-wrap items-center gap-2 font-display text-sm">
-		<button
-			type="button"
-			onclick={onReturnToModel}
-			class="rounded-full border border-hairline bg-night/70 px-3 py-1 text-chalk/80 backdrop-blur
-				transition hover:border-chalk/40 hover:text-chalk"
-		>
-			Whole brain
-		</button>
+		<button type="button" onclick={onReturnToModel} class={sceneHudPillClass}>Whole brain</button>
 		{#if focusedContextName !== null}
 			<span class="text-chalk/40">/</span>
-			<button
-				type="button"
-				onclick={onReturnToContext}
-				class="rounded-full border border-hairline bg-night/70 px-3 py-1 text-chalk/80 backdrop-blur
-					transition hover:border-chalk/40 hover:text-chalk"
-			>
+			<button type="button" onclick={onReturnToContext} class={sceneHudPillClass}>
 				{focusedContextName}
 			</button>
 		{/if}
@@ -56,9 +45,6 @@
 	</nav>
 	<ConstellationLegend />
 </div>
-<p
-	class="pointer-events-none absolute bottom-3 left-1/2 hidden -translate-x-1/2 font-display text-xs sm:block
-		tracking-wide text-chalk/40"
->
+<p class={[sceneHintPosition, 'font-display text-xs tracking-wide text-chalk/40']}>
 	Drag to orbit · scroll to zoom · click a neuron to drill in
 </p>

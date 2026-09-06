@@ -31,6 +31,17 @@
 	--color-tube-metropolitan: #9b0058;
 }
 
+:root {
+	--site-header-height: 3.5rem;
+}
+
+@utility scrollbar-hidden {
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
 body {
 	background-color: var(--color-night);
 	color: var(--color-chalk);

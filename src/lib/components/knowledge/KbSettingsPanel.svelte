@@ -3,6 +3,7 @@
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { enhance } from '$app/forms';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import { knowledgeBaseActionHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { KnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
 
 	let { knowledgeBase }: { knowledgeBase: KnowledgeBase } = $props();
@@ -27,7 +28,11 @@
 				? 'This knowledge base is archived — it stays readable but fades in the register.'
 				: 'Archiving keeps everything but moves this knowledge base out of the way.'}
 		</p>
-		<form method="POST" action="?/setArchived" use:enhance={tracker.submit()}>
+		<form
+			method="POST"
+			action={knowledgeBaseActionHref(knowledgeBase.id, 'setArchived')}
+			use:enhance={tracker.submit()}
+		>
 			<input type="hidden" name="isArchived" value={String(!knowledgeBase.isArchived)} />
 			<SubmitButton
 				isSaving={tracker.isSaving}
@@ -62,7 +67,7 @@
 	description={`${knowledgeBase.name} and all three of its second brains — everything they have
 		learned, every source document, process map, and share — are deleted with it. This cannot
 		be undone.`}
-	action="?/deleteKnowledgeBase"
+	action={knowledgeBaseActionHref(knowledgeBase.id, 'deleteKnowledgeBase')}
 	fields={{}}
 	submitLabel="Delete knowledge base"
 	confirmWord="DELETE"

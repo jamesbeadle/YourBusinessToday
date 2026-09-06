@@ -27,12 +27,6 @@ export const sectionsForRole: Record<BrainAccessRole, SectionKey[]> = {
 	reader: readerSections
 };
 
-export const kindReaderSections: SectionKey[] = ['terminal', 'contents'];
-
-export const kindMemberSections: SectionKey[] = ['interview', 'terminal', 'contents'];
-
-export const kindOwnerSections: SectionKey[] = [...kindMemberSections, 'settings'];
-
 export const sectionLabels: Record<SectionKey, string> = {
 	interview: 'The interview',
 	terminal: 'Terminal',

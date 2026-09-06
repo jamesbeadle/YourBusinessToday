@@ -8,7 +8,7 @@
 	import WorkspaceMapNotice from '$lib/components/workspace/WorkspaceMapNotice.svelte';
 	import { findKnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 	import { hasMapContent, type WorkflowModel } from '$lib/data/workflowModel';
-	import { isWideScreen } from '$lib/client/isWideScreen';
+	import { screen } from '$lib/client/screen.svelte';
 	import { onMount } from 'svelte';
 	import type { SectionKey } from '$lib/components/brain/dashboard/railIcons';
 
@@ -22,7 +22,7 @@
 	const isMapDrawn = $derived(hasMapContent(model));
 
 	onMount(() => {
-		if (isWideScreen()) activeSection = 'interview';
+		if (screen.isWideScreen) activeSection = 'interview';
 	});
 
 	function toggleSection(section: SectionKey): void {
@@ -66,7 +66,7 @@
 				</div>
 			{/if}
 			<FlowBrain {model} seed={data.workflow.id} />
-			<div class="pointer-events-none absolute top-4 left-4 z-10 flex flex-col gap-0.5">
+			<div class="pointer-events-none absolute top-4 right-4 z-10 flex flex-col items-end gap-0.5 text-right">
 				<h1 class="font-display text-lg font-medium text-chalk">{data.workflow.name}</h1>
 				<p
 					class="font-display text-[10px] tracking-widest uppercase"

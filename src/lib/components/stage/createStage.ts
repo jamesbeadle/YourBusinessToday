@@ -1,9 +1,12 @@
 import { PerspectiveCamera, WebGLRenderer } from 'three';
+import { screen } from '$lib/client/screen.svelte';
+import { untrack } from 'svelte';
 
 const DEFAULT_FIELD_OF_VIEW_DEGREES = 42;
 const DEFAULT_FAR_PLANE = 90;
 const NEAR_PLANE = 0.1;
-const PIXEL_RATIO_LIMIT = 2;
+const PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS = 2;
+const PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS = 1.5;
 
 export type StageOptions = { fieldOfViewDegrees?: number; farPlane?: number };
 
@@ -14,9 +17,15 @@ export type Stage = {
 	dispose: () => void;
 };
 
+/** A stage is built for the screen it starts on; crossing the breakpoint later must not rebuild the scene. */
 export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {}): Stage {
-	const renderer = new WebGLRenderer({ canvas, antialias: true });
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, PIXEL_RATIO_LIMIT));
+	const isWideScreen = untrack(() => screen.isWideScreen);
+	const renderer = new WebGLRenderer({
+		canvas,
+		antialias: true,
+		powerPreference: isWideScreen ? 'high-performance' : 'default'
+	});
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelRatioLimit(isWideScreen)));
 
 	const fieldOfView = options.fieldOfViewDegrees ?? DEFAULT_FIELD_OF_VIEW_DEGREES;
 	const farPlane = options.farPlane ?? DEFAULT_FAR_PLANE;
@@ -28,13 +37,27 @@ export function createStage(canvas: HTMLCanvasElement, options: StageOptions = {
 		camera.updateProjectionMatrix();
 	}
 
-	return { renderer, camera, resize, dispose: () => renderer.dispose() };
+	function dispose(): void {
+		renderer.dispose();
+		renderer.forceContextLoss();
+	}
+
+	return { renderer, camera, resize, dispose };
 }
 
-export function fitStageTo(stage: Stage, container: HTMLElement): ResizeObserver {
-	const observer = new ResizeObserver(() =>
-		stage.resize(container.clientWidth, container.clientHeight)
-	);
+function pixelRatioLimit(isWideScreen: boolean): number {
+	return isWideScreen ? PIXEL_RATIO_LIMIT_ON_WIDE_SCREENS : PIXEL_RATIO_LIMIT_ON_NARROW_SCREENS;
+}
+
+export function fitStageTo(
+	stage: Stage,
+	container: HTMLElement,
+	onResized: () => void = () => {}
+): ResizeObserver {
+	const observer = new ResizeObserver(() => {
+		stage.resize(container.clientWidth, container.clientHeight);
+		onResized();
+	});
 	observer.observe(container);
 	stage.resize(container.clientWidth, container.clientHeight);
 	return observer;

@@ -22,8 +22,12 @@
 	const tools = $derived(dashboardTools.side(side));
 	const activeTool = $derived(tools.activeTool);
 
+	const isBehindTheBrainPanel = $derived(side === 'left' && dashboardTools.right.hasOpenPanel);
+
+	/** Escape closes one panel at a time, the brain's before the knowledge base's. */
 	function closeOnEscape(event: KeyboardEvent): void {
 		if (event.defaultPrevented || event.key !== 'Escape' || activeTool === null) return;
+		if (isBehindTheBrainPanel) return;
 		tools.close();
 	}
 </script>

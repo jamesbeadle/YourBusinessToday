@@ -17,9 +17,15 @@
 	} = $props();
 
 	const drawerWidth = 256;
+
+	function closeOnEscape(event: KeyboardEvent): void {
+		if (event.key !== 'Escape') return;
+		event.preventDefault();
+		onClose();
+	}
 </script>
 
-<svelte:window onkeydown={(event) => event.key === 'Escape' && onClose()} />
+<svelte:window onkeydown={closeOnEscape} />
 
 <button
 	type="button"

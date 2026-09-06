@@ -1,37 +1,37 @@
 <script lang="ts">
 	import BrainStripChip from './BrainStripChip.svelte';
-	import { knowledgeBaseHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ConstellationSlot } from '../constellationSlots';
 
 	let {
 		knowledgeBaseId,
 		slots,
 		activeSlotId,
+		hint,
 		onSelect
 	}: {
 		knowledgeBaseId: string;
 		slots: ConstellationSlot[];
 		activeSlotId: string | null;
+		hint: string | null;
 		onSelect: (slot: ConstellationSlot) => void;
 	} = $props();
 </script>
 
 <div
 	class="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2
-		px-4 pb-3 lg:pb-4"
+		px-4 pb-3"
 >
 	<nav aria-label="Brains" class="flex flex-wrap items-center justify-center gap-2">
 		{#each slots as slot (slot.id)}
 			<BrainStripChip {knowledgeBaseId} {slot} isActive={slot.id === activeSlotId} {onSelect} />
 		{/each}
 	</nav>
-	{#if activeSlotId !== null}
-		<a
-			href={knowledgeBaseHref(knowledgeBaseId)}
-			class="pointer-events-auto flex min-h-11 items-center font-display text-xs text-chalk/50
-				transition hover:text-chalk lg:absolute lg:bottom-4 lg:left-4 lg:min-h-0"
+	{#if hint !== null}
+		<p
+			class="hidden font-display text-[10px] tracking-widest whitespace-nowrap text-chalk/25
+				uppercase lg:block"
 		>
-			← Knowledge base
-		</a>
+			{hint}
+		</p>
 	{/if}
 </div>

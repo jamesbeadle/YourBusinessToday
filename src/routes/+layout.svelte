@@ -27,8 +27,10 @@
 	/>
 	<main
 		class={[
-			'flex-1 transition-opacity duration-300',
-			isDashboard && 'h-[calc(100dvh-var(--site-header-height))] overflow-hidden',
+			'transition-opacity duration-300',
+			isDashboard
+				? 'h-[calc(100dvh-var(--site-header-height))] flex-none overflow-hidden'
+				: 'flex-1',
 			slowNavigation.isActive && !isDashboard && 'pointer-events-none opacity-40'
 		]}
 	>

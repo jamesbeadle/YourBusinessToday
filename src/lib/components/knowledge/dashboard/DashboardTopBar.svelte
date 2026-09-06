@@ -8,15 +8,13 @@
 
 	let {
 		knowledgeBaseId,
-		openSlot,
-		badgeCounts
+		openSlot
 	}: {
 		knowledgeBaseId: string;
 		openSlot: ConstellationSlot | null;
-		badgeCounts: Record<string, number>;
 	} = $props();
 
-	const dashboardTools = useDashboardTools();
+	const toolbarTools = useDashboardTools().right;
 </script>
 
 <div
@@ -37,11 +35,10 @@
 		</a>
 	{:else}
 		<BrainTitleBand {openSlot} />
+		<DashboardToolbar
+			tools={toolbarTools.tools}
+			activeKey={toolbarTools.activeKey}
+			onSelect={(key) => toolbarTools.toggle(key)}
+		/>
 	{/if}
-	<DashboardToolbar
-		tools={dashboardTools.tools}
-		activeKey={dashboardTools.activeKey}
-		{badgeCounts}
-		onSelect={(key) => dashboardTools.toggle(key)}
-	/>
 </div>

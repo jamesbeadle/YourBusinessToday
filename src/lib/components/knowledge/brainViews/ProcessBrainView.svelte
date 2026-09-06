@@ -4,14 +4,12 @@
 	import ProcessMapOverlay from './ProcessMapOverlay.svelte';
 	import ShareMapPanel from '../../workspace/ShareMapPanel.svelte';
 	import StationDetailPanel from '../../map/StationDetailPanel.svelte';
-	import WorkspaceChat from '../../workspace/WorkspaceChat.svelte';
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { layoutWorkflowMap } from '$lib/data/mapLayout';
-	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ProcessBrainView } from '$lib/server/knowledge/brainViews/loadProcessBrainView';
 	import type { StationSelection } from '../../map/stationSelection';
-	import type { WorkflowModel } from '$lib/data/workflowModel';
 
 	let {
 		knowledgeBaseId,
@@ -25,11 +23,11 @@
 		view: ProcessBrainView;
 	} = $props();
 
-	const dashboardTools = useDashboardTools();
+	const toolbarTools = useDashboardTools().right;
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
-	const toolKeys = $derived(brainToolKeysFor(['interview', 'map'], 'share', isOwner));
+	const toolKeys = $derived(brainToolKeysFor(['map'], 'share', isOwner));
 
-	let model: WorkflowModel = $derived(view.latestMap);
+	const model = $derived(view.latestMap);
 	let selection = $state<StationSelection | null>(null);
 	let isMapShown = $state(false);
 
@@ -37,29 +35,20 @@
 
 	$effect(() => {
 		const toolsOwner = brainToolsOwnerFor('process', view.workflowId);
-		const tools = brainTools(toolKeys, { interview, map, share });
-		dashboardTools.register(toolsOwner, tools, brainToolsRank);
-		return () => dashboardTools.release(toolsOwner);
+		const tools = brainTools(toolKeys, { map, share });
+		toolbarTools.register(toolsOwner, tools);
+		return () => toolbarTools.release(toolsOwner);
 	});
 
 	$effect(() => {
-		if (dashboardTools.activeKey === 'map') isMapShown = true;
+		if (toolbarTools.activeKey === 'map') isMapShown = true;
 	});
 
 	function closeMap(): void {
 		isMapShown = false;
-		if (dashboardTools.activeKey === 'map') dashboardTools.close();
+		if (toolbarTools.activeKey === 'map') toolbarTools.close();
 	}
 </script>
-
-{#snippet interview()}
-	<WorkspaceChat
-		workflowId={view.workflowId}
-		initialMessages={view.messages}
-		onMapUpdate={(updatedModel) => (model = updatedModel)}
-		frame="panel"
-	/>
-{/snippet}
 
 {#snippet map()}
 	<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">

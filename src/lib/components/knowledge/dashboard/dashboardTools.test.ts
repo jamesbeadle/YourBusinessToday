@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	brainToolsRank,
-	DashboardTools,
-	knowledgeBaseToolsRank,
-	type DashboardTool
-} from './dashboardTools.svelte';
+import { DashboardTools, type DashboardTool } from './dashboardTools.svelte';
 import type { Snippet } from 'svelte';
 
 const noPanel = (() => {}) as unknown as Snippet;
@@ -20,43 +15,61 @@ function keysOf(tools: DashboardTool[]): string[] {
 const knowledgeBaseTools = [tool('interview'), tool('documents')];
 const brainTools = [tool('ask'), tool('model')];
 
+const wideScreen = () => false;
+const phone = () => true;
+
 describe('DashboardTools', () => {
-	it('shows the brain tools over the knowledge base tools whichever registers first', () => {
-		const dashboardTools = new DashboardTools();
-		dashboardTools.register('brain', brainTools, brainToolsRank);
-		dashboardTools.register('knowledge-base', knowledgeBaseTools, knowledgeBaseToolsRank);
-		expect(keysOf(dashboardTools.tools)).toEqual(['ask', 'model']);
+	it('keeps the knowledge base tools on the left and the brain tools on the right', () => {
+		const dashboardTools = new DashboardTools(wideScreen);
+		dashboardTools.left.register('knowledge-base', knowledgeBaseTools);
+		dashboardTools.right.register('brain', brainTools);
+		expect(keysOf(dashboardTools.left.tools)).toEqual(['interview', 'documents']);
+		expect(keysOf(dashboardTools.right.tools)).toEqual(['ask', 'model']);
 	});
 
-	it('falls back to the knowledge base tools once the brain releases its own', () => {
-		const dashboardTools = new DashboardTools();
-		dashboardTools.register('knowledge-base', knowledgeBaseTools, knowledgeBaseToolsRank);
-		dashboardTools.register('brain', brainTools, brainToolsRank);
-		dashboardTools.release('brain');
-		expect(keysOf(dashboardTools.tools)).toEqual(['interview', 'documents']);
-	});
-
-	it('shows the latest registration among equal ranks', () => {
-		const dashboardTools = new DashboardTools();
-		dashboardTools.register('expertise-brain-1', brainTools, brainToolsRank);
-		dashboardTools.register('process-brain-2', [tool('map')], brainToolsRank);
-		expect(keysOf(dashboardTools.tools)).toEqual(['map']);
+	it('shows the latest registration on a side whichever order the owners release in', () => {
+		const dashboardTools = new DashboardTools(wideScreen);
+		dashboardTools.right.register('expertise-brain-1', brainTools);
+		dashboardTools.right.register('process-brain-2', [tool('map')]);
+		dashboardTools.right.release('expertise-brain-1');
+		expect(keysOf(dashboardTools.right.tools)).toEqual(['map']);
 	});
 
 	it('closes the open panel when its tool is no longer on show', () => {
-		const dashboardTools = new DashboardTools();
-		dashboardTools.register('knowledge-base', knowledgeBaseTools, knowledgeBaseToolsRank);
-		dashboardTools.register('brain', brainTools, brainToolsRank);
-		dashboardTools.open('ask');
-		dashboardTools.release('brain');
-		expect(dashboardTools.activeKey).toBeNull();
-		expect(dashboardTools.tools).toHaveLength(2);
+		const dashboardTools = new DashboardTools(wideScreen);
+		dashboardTools.right.register('brain', brainTools);
+		dashboardTools.right.open('ask');
+		dashboardTools.right.release('brain');
+		expect(dashboardTools.right.activeKey).toBeNull();
+		expect(dashboardTools.right.tools).toEqual([]);
 	});
 
-	it('shows nothing once every owner has released', () => {
-		const dashboardTools = new DashboardTools();
-		dashboardTools.register('knowledge-base', knowledgeBaseTools, knowledgeBaseToolsRank);
-		dashboardTools.release('knowledge-base');
-		expect(dashboardTools.tools).toEqual([]);
+	it('lets a panel stand on each side of a wide screen', () => {
+		const dashboardTools = new DashboardTools(wideScreen);
+		dashboardTools.left.register('knowledge-base', knowledgeBaseTools);
+		dashboardTools.right.register('brain', brainTools);
+		dashboardTools.left.open('interview');
+		dashboardTools.right.toggle('ask');
+		expect(dashboardTools.left.activeKey).toBe('interview');
+		expect(dashboardTools.right.activeKey).toBe('ask');
+	});
+
+	it('opens one panel at a time where there is room for one only', () => {
+		const dashboardTools = new DashboardTools(phone);
+		dashboardTools.left.register('knowledge-base', knowledgeBaseTools);
+		dashboardTools.right.register('brain', brainTools);
+		dashboardTools.left.open('interview');
+		dashboardTools.right.toggle('ask');
+		expect(dashboardTools.left.activeKey).toBeNull();
+		expect(dashboardTools.right.activeKey).toBe('ask');
+		expect(dashboardTools.hasOpenPanel).toBe(true);
+	});
+
+	it('toggles a tool shut without touching the other side', () => {
+		const dashboardTools = new DashboardTools(phone);
+		dashboardTools.left.register('knowledge-base', knowledgeBaseTools);
+		dashboardTools.left.open('interview');
+		dashboardTools.left.toggle('interview');
+		expect(dashboardTools.hasOpenPanel).toBe(false);
 	});
 });

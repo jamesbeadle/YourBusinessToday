@@ -1,4 +1,9 @@
-import { findKnowledgeKind, kindForCategory, knowledgeKinds } from '$lib/data/knowledge/knowledgeKinds';
+import {
+	findKnowledgeKind,
+	kindForCategory,
+	knowledgeKinds,
+	type KnowledgeKind
+} from '$lib/data/knowledge/knowledgeKinds';
 import { brainHref, newBrainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 import type { KbBrainSummary } from '$lib/data/knowledge/knowledgeTypes';
 import type { ProcessMapSummary } from '$lib/server/knowledge/getProcessMaps';
@@ -9,6 +14,7 @@ export type ConstellationSlot = {
 	name: string;
 	href: string;
 	accent: string;
+	kind: KnowledgeKind;
 	kindLabel: string;
 	category: 'domain' | 'instance' | null;
 };
@@ -38,6 +44,7 @@ function brainSlot(knowledgeBaseId: string, brain: KbBrainSummary): Constellatio
 		name: brain.name,
 		href: brainHref(knowledgeBaseId, brain.id),
 		accent: kind.accent,
+		kind: kind.kind,
 		kindLabel: kind.label,
 		category: brain.category
 	};
@@ -50,6 +57,7 @@ function processSlot(knowledgeBaseId: string, processMap: ProcessMapSummary): Co
 		name: processMap.name,
 		href: brainHref(knowledgeBaseId, processMap.id),
 		accent: findKnowledgeKind('process').accent,
+		kind: 'process',
 		kindLabel: 'Process',
 		category: null
 	};
@@ -65,6 +73,7 @@ function ghostSlots(knowledgeBaseId: string, filled: ConstellationSlot[]): Const
 			name: `Add ${kind.label} Brain`,
 			href: newBrainHref(knowledgeBaseId, kind.kind),
 			accent: kind.accent,
+			kind: kind.kind,
 			kindLabel: kind.label,
 			category: null
 		}));

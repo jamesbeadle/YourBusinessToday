@@ -31,7 +31,7 @@ Decisions taken with James on 2026-09-03: allowances reset at every top-up (each
 
 ## 2. Views
 
-**Chatbots panel** — a new `chatbots` section on the knowledge-base rail (owner only), sitting after Sharing. Tells the owner what a bot reads (all three brains, and how much of each), then lists this knowledge base's bots as cards (name, pool remaining, member count, paused badge) with a one-field "New chatbot" form. Each card links to the bot's manage page. Serves stories 1 and 4 (at a glance).
+**Chatbots panel** — the `chatbots` tool in the knowledge base dashboard's toolbar (owner only), sitting after Sharing. Tells the owner what a bot reads (all three brains, and how much of each), then lists this knowledge base's bots as cards (name, pool remaining, member count, paused badge) with a one-field "New chatbot" form. Each card links to the bot's manage page. Serves stories 1 and 4 (at a glance).
 
 **Bot manage page** `/chatbots/[chatbotId]/manage` — owner only. Header: name (editable), pool remaining, pause/resume. Members table: email, status (invited / joined), model, allowance this period, spent this period, a "Resend invite" button while the person has not joined, and remove; beside it an "Invite" form that takes an email and an allowance (pre-filled with the 100-credit default). Under the table, an "Allowances this period" form — the same per-member column — with an "Update allowances" button that changes the limits without a top-up. Top-up form: credits to add, then the per-member allowance column pre-filled from the current allowances, and a confirm button whose label reads "Top up 500 credits". Over-allocation is permitted and shown ("Allowances total 800 of a 500-credit pool") rather than blocked. Top-up history list underneath. Serves stories 2, 3, 3a, 3b, 4, 5. On phones the members table becomes a card list, as ProjectTable does.
 
@@ -39,7 +39,7 @@ An **Unanswered questions** section sits directly under the header: one card per
 
 **Bot chat page** `/chatbots/[chatbotId]` — the member's whole world. Header: bot name, the model it answers with and its floor price, and an allowance pill ("120 of 200 credits left"). Chat feed of the member's conversation with the bot, composer at the bottom. Three quiet states replace the composer: "Your allowance for this period is used up — ask <owner> for more" (the owner's display name or email, read through the service client once membership is proven), "This bot is out of credits — its owner needs to top it up", "This bot is paused". The same three sentences come back from the ask endpoint's 402s (`chatbotQuietMessages`). Signed-out visitors are sent to sign-in with the bot as the destination. Signed-in non-members see a plain "You're not a member of this bot". Serves stories 6, 7, 8. When the knowledge base cannot answer, the bot says so in the reply and tells the member the question has been passed to whoever looks after the knowledge base (story 12).
 
-**Chatbots index** `/chatbots` — "Chatbots you can ask" (the viewer's memberships) and, for owners, "Chatbots you run" grouped by knowledge base, each group linking to its bots' manage pages and carrying a "New chatbot" link into the knowledge base's chatbots panel (`?section=chatbots` opens the rail on arrival). Linked from the Explore menu. Someone who owns no knowledge base but has joined a bot lands here after sign-in; everyone else lands on `/knowledge-base` as before. Serves story 9.
+**Chatbots index** `/chatbots` — "Chatbots you can ask" (the viewer's memberships) and, for owners, "Chatbots you run" grouped by knowledge base, each group linking to its bots' manage pages and carrying a "New chatbot" link into the knowledge base's chatbots panel (`?section=chatbots`, built by `knowledgeBaseToolHref`, opens the panel on arrival). Linked from the Explore menu. Someone who owns no knowledge base but has joined a bot lands here after sign-in; everyone else lands on `/knowledge-base` as before. Serves story 9.
 
 **Your chatbots** — the same membership list on `/knowledge-base`: above the create-your-first empty state when the viewer has bots but no knowledge base, beside "Shared with you" otherwise. Serves story 9.
 
@@ -50,7 +50,7 @@ An **Unanswered questions** section sits directly under the header: one card per
 ```
 /chatbots                             ── index: bots you can ask, bots you run → /chatbots/[id], …/manage
 /knowledge-base                       ── "Your chatbots" section → /chatbots/[id]
-  /knowledge-base/[knowledgeBaseId]   ── rail: chatbots → panel → /chatbots/[id]/manage
+  /knowledge-base/[knowledgeBaseId]   ── toolbar: chatbots → panel → /chatbots/[id]/manage
 /chatbots/[chatbotId]                 ── member chat (signed-out → /account/sign-in?next=…)
 /chatbots/[chatbotId]/manage          ── owner: members, allowances, top-ups, settings; back-link to the KB
 ```

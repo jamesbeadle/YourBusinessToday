@@ -33,7 +33,9 @@
 	}
 
 	function closeOnEscape(event: KeyboardEvent) {
-		if (event.key === 'Escape') close();
+		if (!isOpen || event.key !== 'Escape') return;
+		event.preventDefault();
+		close();
 	}
 
 	const tracker = new FormTracker();

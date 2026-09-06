@@ -3,13 +3,16 @@
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import { knowledgeBaseActionHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
+
+	let { knowledgeBaseId }: { knowledgeBaseId: string } = $props();
 
 	const tracker = new FormTracker();
 </script>
 
 <form
 	method="POST"
-	action="?/createChatbot"
+	action={knowledgeBaseActionHref(knowledgeBaseId, 'createChatbot')}
 	use:enhance={tracker.submit()}
 	class="flex flex-col gap-2"
 >

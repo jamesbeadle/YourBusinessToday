@@ -1,4 +1,4 @@
-import { startAnimationLoop } from '../../stage/animationLoop';
+import { createSceneLoop } from '../../stage/animationLoop';
 import { createStage, fitStageTo } from '../../stage/createStage';
 import { assembleConstellationScene } from './constellationSceneAssembly';
 import { attachExperienceInput } from './experienceInput';
@@ -18,6 +18,8 @@ export type ConstellationExperience = {
 	focusContext: (contextSlug: string | null) => void;
 	focusNeuron: (slug: string) => void;
 	resetView: () => void;
+	pause: () => void;
+	resume: () => void;
 	destroy: () => void;
 };
 
@@ -29,10 +31,7 @@ export function createConstellationExperience(
 	options: ExperienceOptions = {}
 ): ConstellationExperience {
 	const isAnimated = !prefersReducedMotion();
-	const stage = createStage(canvas, {
-		fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES,
-		farPlane: FAR_PLANE
-	});
+	const stage = createStage(canvas, { fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES, farPlane: FAR_PLANE });
 	const view = assembleConstellationScene(model);
 	const controls = createOrbitRig(stage.camera, canvas);
 	const director = createFocusDirector({ camera: stage.camera, controls, view, model, isAnimated });
@@ -66,7 +65,7 @@ export function createConstellationExperience(
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	const stopLoop = startAnimationLoop(frame);
+	const loop = createSceneLoop(frame);
 
 	function updateModel(updatedModel: ConstellationModel): void {
 		if (updatedModel === knownModel) return;
@@ -79,7 +78,7 @@ export function createConstellationExperience(
 	}
 
 	function destroy(): void {
-		stopLoop();
+		loop.pause();
 		detachPointer();
 		resizeObserver.disconnect();
 		controls.dispose();
@@ -92,6 +91,8 @@ export function createConstellationExperience(
 		focusContext: director.focusContext,
 		focusNeuron: director.focusNeuron,
 		resetView: () => director.focusContext(null),
+		pause: loop.pause,
+		resume: loop.resume,
 		destroy
 	};
 }

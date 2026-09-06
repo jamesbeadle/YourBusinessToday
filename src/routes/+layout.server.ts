@@ -1,3 +1,4 @@
+import { getKnowledgeBaseList } from '$lib/server/knowledge/getKnowledgeBaseList';
 import { getCreditBalance } from '$lib/server/credits/getCreditBalance';
 import { getProfileFlags } from '$lib/server/auth/getProfileFlags';
 import { getUnreadNotificationCount } from '$lib/server/notifications/getUnreadNotificationCount';
@@ -13,7 +14,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			isAdmin: false,
 			isStaff: false,
 			isClientContact: false,
-			unreadNotificationCount: 0
+			unreadNotificationCount: 0,
+			knowledgeBases: []
 		};
 	}
 	const profileFlags = await getProfileFlags(locals.supabase);
@@ -26,6 +28,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		isClientContact: (await resolveContactForAccount(locals.supabase, user.id)) !== null,
 		unreadNotificationCount: isProjectManager
 			? await getUnreadNotificationCount(locals.supabase, user.id)
-			: 0
+			: 0,
+		knowledgeBases: await getKnowledgeBaseList(locals.supabase)
 	};
 };

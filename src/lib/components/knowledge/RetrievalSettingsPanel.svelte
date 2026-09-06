@@ -7,8 +7,9 @@
 
 	let {
 		retrievalConfig,
-		brainType
-	}: { retrievalConfig: RetrievalConfig; brainType: string } = $props();
+		brainType,
+		actionBasePath
+	}: { retrievalConfig: RetrievalConfig; brainType: string; actionBasePath: string } = $props();
 
 	const tracker = new FormTracker();
 
@@ -24,7 +25,7 @@
 
 <form
 	method="POST"
-	action="?/saveRetrieval"
+	action={`${actionBasePath}?/saveRetrieval`}
 	use:enhance={tracker.submit()}
 	class="flex flex-col gap-3"
 >

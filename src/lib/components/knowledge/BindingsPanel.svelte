@@ -4,11 +4,17 @@
 
 	let {
 		domainBrains,
-		boundDomainBrainIds
-	}: { domainBrains: KbBrainSummary[]; boundDomainBrainIds: string[] } = $props();
+		boundDomainBrainIds,
+		actionBasePath
+	}: { domainBrains: KbBrainSummary[]; boundDomainBrainIds: string[]; actionBasePath: string } =
+		$props();
 
 	function isBound(domainBrain: KbBrainSummary): boolean {
 		return boundDomainBrainIds.includes(domainBrain.id);
+	}
+
+	function bindingActionHref(domainBrain: KbBrainSummary): string {
+		return `${actionBasePath}?/${isBound(domainBrain) ? 'unbindDomain' : 'bindDomain'}`;
 	}
 </script>
 
@@ -23,7 +29,7 @@
 		{#each domainBrains as domainBrain (domainBrain.id)}
 			<li class="flex items-center justify-between gap-3 py-2">
 				<span class="truncate text-sm">{domainBrain.name}</span>
-				<form method="POST" action={isBound(domainBrain) ? '?/unbindDomain' : '?/bindDomain'} use:enhance>
+				<form method="POST" action={bindingActionHref(domainBrain)} use:enhance>
 					<input type="hidden" name="domainBrainId" value={domainBrain.id} />
 					<button
 						type="submit"

@@ -2,7 +2,7 @@
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { formatBritishDate } from '$lib/data/britishDate';
 	import { quietButtonClasses } from '$lib/components/site/formStyles';
-	import type { CompaniesHouseCompany } from '$lib/server/clients/searchCompaniesHouse';
+	import type { CompaniesHouseCompany } from '$lib/server/companiesHouse/searchCompaniesHouse';
 
 	let {
 		companies,

@@ -1,0 +1,44 @@
+{
+	"name": "SMITH, Jane Elizabeth",
+	"total_results": 4,
+	"items": [
+		{
+			"officer_role": "director",
+			"appointed_on": "2015-03-01",
+			"appointed_to": {
+				"company_name": "SMITH HOLDINGS LIMITED",
+				"company_number": "01234567",
+				"company_status": "active"
+			},
+			"address": { "address_line_1": "1 High Street", "locality": "Guildford", "postal_code": "GU1 3AA" }
+		},
+		{
+			"officer_role": "secretary",
+			"appointed_on": "2018-07-15",
+			"appointed_to": {
+				"company_name": "SMITH JOINERY LIMITED",
+				"company_number": "07654321",
+				"company_status": "active"
+			}
+		},
+		{
+			"officer_role": "director",
+			"appointed_on": "2010-01-01",
+			"resigned_on": "2019-12-31",
+			"appointed_to": {
+				"company_name": "OLD VENTURE LIMITED",
+				"company_number": "05555555",
+				"company_status": "active"
+			}
+		},
+		{
+			"officer_role": "director",
+			"appointed_on": "2012-01-01",
+			"appointed_to": {
+				"company_name": "DISSOLVED TRADING LIMITED",
+				"company_number": "06666666",
+				"company_status": "dissolved"
+			}
+		}
+	]
+}

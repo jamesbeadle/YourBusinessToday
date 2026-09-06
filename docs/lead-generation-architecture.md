@@ -116,3 +116,123 @@ Web-search prospecting, the second Scout source, waits until the Companies House
 been used. Company-level notes do not exist: the profile summary and opening angles are the
 company's context, and what we learn talking to people goes on the person. Nothing sends
 a message — a draft is a draft.
+
+## People and groups
+
+"Client leads" is one way to look at it. Often the person we are trying to reach is a
+director or an owner with several companies, and it is their whole business we want — the
+automations run across every company they hold. So a lead can be a person as much as a
+company: find them on Companies House, pull in every company they are appointed to, research
+each as today, and let them become clients one by one or together under a parent.
+
+### User stories
+
+| As | I want | So that |
+| --- | --- | --- |
+| Staff | to add a person — a director or owner — as a lead | the relationship, not one company, is what I pursue |
+| Staff | to find them on Companies House and pull in every company they are currently appointed to, choosing which to keep | their whole business lands on the register in one go |
+| Staff | to see all of a person's companies with their stage and research state in one place | I know what we hold on each and what is still to do |
+| Staff | to research any of those companies as today | the profile and the angles exist before the first call |
+| Staff | to group companies under a parent, so a group is worked as one client while its companies keep their own projects | the group has one stage and one owner, the companies keep their own systems |
+| Staff | to see, on a company, who its people are and what else they own | one company opens the door to the rest |
+| Staff | to draft an approach to a person that draws on all their companies | the message speaks to their whole business |
+| Staff | from a company found on Companies House, to import its officers as people | the people arrive with the company |
+
+### The views
+
+- `/people` — every person on the register: warmth, decision-maker flag, next action and
+  its due date, and a dot per company coloured by stage. Add a person inline (name, email,
+  phone, seniority). Find on Companies House: an officer search by name, results with the
+  appointment count and a birth month and year to tell namesakes apart; picking one creates
+  the person with their officer id and opens their page with the import panel showing.
+- `/people/[personId]` — the profile header (name, warmth pill, decision maker, next
+  action) with an Edit modal; links; timestamped notes; the companies as cards (name, stage
+  pill, researched or not yet, Research linking to the existing research flow, and Group
+  under… to an existing parent or a new one); Import their companies, which fetches the
+  person's active appointments, offers any not yet on the register as checkboxes with Add
+  selected companies as leads and an optional Group them under… field defaulting to
+  "{Surname} group"; Draft approach, which reads every company's profile; and the ledger
+  of events across all their companies.
+- `/clients/[clientId]` — each person links to `/people/[id]` and says "also director of N
+  other companies"; a "Part of {parent}" line when the company sits in a group and, on a
+  parent, the list of its companies; Import officers from Companies House when a company
+  number is known, creating people and affiliations and skipping officers already listed.
+- `/clients` — Add a lead gains a Company | Person toggle; Person shows the person fields
+  and posts to `/people`. A People link sits beside the two research doors and in the
+  Manage menu.
+- `/clients/prospect` — every result gains Add with directors beside Add as a lead.
+
+### Site map
+
+```
+/people ──┬──▶ /people/[personId] ──┬──▶ /clients/[clientId] ──▶ /people/[personId]
+          │        ▲                └──▶ /clients/research?clientId=…
+          └──(officer)──┘
+/clients ──(Person)──▶ /people/[personId]
+/clients/prospect ──(Add with directors)──▶ /clients/[clientId]
+```
+
+A person and a company each link to the other; neither is the root.
+
+### The entities
+
+**Person** — `public.people`, new. `name`, `email` (one row per address, any number
+without one), `phone`, `companies_house_officer_id` (one row per officer, null when not
+from Companies House), and the profile that used to sit on a contact: `seniority`,
+`is_decision_maker`, `warmth`, `last_contacted_at`, `next_action`, `next_action_due`,
+`source_url`, `lead_source`. A person is one row however many companies they hold.
+
+**ClientContact** — `public.client_contacts` becomes the affiliation of a person with a
+company: `person_id`, `client_id`, `role`, `is_primary`, `account_id` and `invited_at`
+(portal access stays per company), plus what Companies House says about the appointment:
+`officer_role`, `appointed_on`, `resigned_on`, and `affiliation_source` (`staff`,
+`companies_house`, `website`). Name, email, phone and the profile fields move to the
+person: one person, one row, many affiliations.
+
+**PersonLink**, **PersonNote** — `contact_links` and `contact_notes` renamed to
+`person_links` and `person_notes`, keyed by `person_id`. What we learn about a person is
+true of them at every company.
+
+**Client** — gains `parent_client_id`. A group is a client whose children are its
+companies; there is no separate group table. The parent has its own stage and owner and the
+children keep theirs, so a group can be a prospect while one of its companies is already a
+client.
+
+**ClientEvent** — the ledger learns `person_added`, `appointments_imported`,
+`officers_imported` and `grouped_under`. A person's ledger is the union of their
+companies' ledgers, each line naming the company.
+
+Migration `0049_people_and_groups.sql` is additive first: it creates `people`, backfills
+one row per distinct email (or per name where there is none) from `client_contacts`,
+points every contact at its person, renames the links and notes tables to the person, and
+only then drops the moved columns. `client_id_for_account()` is untouched.
+
+### Commands and queries
+
+| Command | Story it serves |
+| --- | --- |
+| `addPerson` | a person typed in |
+| `findOrCreatePersonFromOfficer` | a Companies House officer becomes a person, once |
+| `affiliatePersonWithClient` | a person joins a company's people |
+| `importAppointmentsAsLeads` | the chosen appointments become leads, optionally grouped |
+| `importCompanyOfficers` | a company's officers become its people |
+| `groupClientsUnder` | companies under a parent |
+| `updatePersonProfile` | the person's own fields |
+| `addPersonNote`, `addPersonLink`, `removePersonLink` | what we hold on them |
+| `draftApproach` | the opening message and call plan, across their companies |
+
+| Query | Story it serves |
+| --- | --- |
+| `getPeople` | the people register |
+| `getPerson` | one person with their links and notes |
+| `getPersonCompanies` | their companies, stage and research state |
+| `getPersonEvents` | their ledger across companies |
+| `getClientPeople` | a company's people and what else each owns |
+| `getGroupParents`, `getClientChildren` | the groups to choose from, and a group's companies |
+| `searchOfficers`, `getOfficerAppointments`, `getCompanyOfficers` | Companies House |
+
+Companies House lives in `src/lib/server/companiesHouse/`: the advanced company search
+that was already there, `GET /search/officers`, `GET /officers/{id}/appointments` (active
+appointments at active companies only) and `GET /company/{number}/officers` (active
+only), all on the same key and basic auth. The parsers are tested against fixture JSON;
+nothing in the tests touches the network.

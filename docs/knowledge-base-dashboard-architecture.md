@@ -91,8 +91,8 @@ page's actions by absolute path, so they work from a brain URL too.
 
 The brain page (`brains/[brainId]/+page.server.ts`) resolves the brain and loads its
 view: expertise → contexts, page index, page links, conversation, access role; experience →
-items, bound domain brains, schema types; process → latest map, viewers. Each loader and
-each kind's actions live in their own module.
+items, bound domain brains, schema types; process → conversation, latest map, viewers. Each
+loader and each kind's actions live in their own module.
 
 The root layout loads the account's knowledge bases (one query) so the header switcher
 needs nothing from the dashboard.
@@ -114,7 +114,7 @@ other's. The interview stays on the left and focuses on the open brain's kind.
 | Constellation | interview, documents, review, share, chatbots, API, log, settings | interview, log | — | — |
 | Expertise brain | same | same | ask, model, settings | ask, model |
 | Experience brain | same | same | ask, contents, settings | ask, contents |
-| Process brain | same | same | map, share | map |
+| Process brain | same | same | draw the map, map, share | draw the map, map |
 
 ## Motion
 
@@ -193,7 +193,7 @@ The old four dashboards are removed once the new one covers them. The workspace 
 and workflow routes stay for brains that are not filed, and for shared viewers without
 knowledge base access, with their own rail and panels.
 
-The process brain's own workflow chat (`WorkspaceChat`, which redrew the map as you
-talked) is not offered inside the dashboard: the interview is a knowledge base tool on the
-left and focuses on process while a process brain is open, but the map only redraws on
-the next load. That chat is still reachable on the workspace workflow route.
+The process brain keeps its own map-drawing chat (`WorkspaceChat`) as the right-side tool
+"Draw the map": the knowledge base interview on the left files into brains but does not
+draw process maps, and a filed process brain's workspace route redirects here, so without
+it a filed map could never grow.

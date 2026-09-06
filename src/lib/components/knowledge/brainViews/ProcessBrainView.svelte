@@ -4,12 +4,14 @@
 	import ProcessMapOverlay from './ProcessMapOverlay.svelte';
 	import ShareMapPanel from '../../workspace/ShareMapPanel.svelte';
 	import StationDetailPanel from '../../map/StationDetailPanel.svelte';
+	import WorkspaceChat from '../../workspace/WorkspaceChat.svelte';
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { layoutWorkflowMap } from '$lib/data/mapLayout';
 	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ProcessBrainView } from '$lib/server/knowledge/brainViews/loadProcessBrainView';
 	import type { StationSelection } from '../../map/stationSelection';
+	import type { WorkflowModel } from '$lib/data/workflowModel';
 
 	let {
 		knowledgeBaseId,
@@ -27,9 +29,9 @@
 
 	const toolbarTools = useDashboardTools().right;
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
-	const toolKeys = $derived(brainToolKeysFor(['map'], 'share', isOwner));
+	const toolKeys = $derived(brainToolKeysFor(['draw', 'map'], 'share', isOwner));
 
-	const model = $derived(view.latestMap);
+	let model: WorkflowModel = $derived(view.latestMap);
 	let selection = $state<StationSelection | null>(null);
 	let isMapShown = $state(false);
 
@@ -37,7 +39,7 @@
 
 	$effect(() => {
 		const toolsOwner = brainToolsOwnerFor('process', view.workflowId);
-		const tools = brainTools(toolKeys, { map, share });
+		const tools = brainTools(toolKeys, { draw, map, share });
 		toolbarTools.register(toolsOwner, tools);
 		return () => toolbarTools.release(toolsOwner);
 	});
@@ -51,6 +53,15 @@
 		if (toolbarTools.activeKey === 'map') toolbarTools.close();
 	}
 </script>
+
+{#snippet draw()}
+	<WorkspaceChat
+		workflowId={view.workflowId}
+		initialMessages={view.messages}
+		onMapUpdate={(updatedModel) => (model = updatedModel)}
+		frame="panel"
+	/>
+{/snippet}
 
 {#snippet map()}
 	<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">

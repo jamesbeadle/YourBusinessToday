@@ -21,9 +21,16 @@
 
 	const toggleMenu = () => (isOpen = !isOpen);
 	const closeMenu = () => (isOpen = false);
+
+	/** Escape closes the open menu and claims the key, so the page beneath does not act on it too. */
+	function closeOnEscape(event: KeyboardEvent): void {
+		if (!isOpen || event.key !== 'Escape') return;
+		event.preventDefault();
+		closeMenu();
+	}
 </script>
 
-<svelte:window onkeydown={(event) => event.key === 'Escape' && closeMenu()} />
+<svelte:window onkeydown={closeOnEscape} />
 
 <div class="relative flex min-w-0 items-center gap-3">
 	<span aria-hidden="true" class="h-5 w-px shrink-0 bg-hairline"></span>

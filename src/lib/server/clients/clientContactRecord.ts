@@ -1,68 +1,48 @@
-import {
-	parseSeniority,
-	parseWarmth,
-	type Seniority,
-	type Warmth
-} from '$lib/data/contactProfileFields';
+export type AffiliationSource = 'staff' | 'companies_house' | 'website';
 
-export type ContactProfile = {
-	seniority: Seniority;
-	isDecisionMaker: boolean;
-	warmth: Warmth;
-	lastContactedOn: string | null;
-	nextAction: string;
-	nextActionDue: string | null;
-};
-
-export type ClientContact = ContactProfile & {
+export type ClientContact = {
 	id: string;
 	clientId: string;
+	personId: string;
 	accountId: string | null;
 	name: string;
 	email: string;
 	phone: string;
 	role: string;
+	officerRole: string;
+	appointedOn: string | null;
+	affiliationSource: AffiliationSource;
 	isPrimary: boolean;
-	sourceUrl: string;
 	invitedAt: string | null;
 	createdAt: string;
 };
 
+export const clientContactColumns = '*, people(name, email, phone)';
+
+const affiliationSources: AffiliationSource[] = ['staff', 'companies_house', 'website'];
+
 export function parseClientContactRecord(row: Record<string, unknown>): ClientContact {
+	const person = (row.people ?? {}) as Record<string, unknown>;
 	return {
 		id: row.id as string,
 		clientId: row.client_id as string,
+		personId: row.person_id as string,
 		accountId: (row.account_id ?? null) as string | null,
-		name: row.name as string,
-		email: row.email as string,
-		phone: row.phone as string,
-		role: row.role as string,
+		name: (person.name ?? '') as string,
+		email: (person.email ?? '') as string,
+		phone: (person.phone ?? '') as string,
+		role: (row.role ?? '') as string,
+		officerRole: (row.officer_role ?? '') as string,
+		appointedOn: (row.appointed_on ?? null) as string | null,
+		affiliationSource: parseAffiliationSource(row.affiliation_source),
 		isPrimary: row.is_primary as boolean,
-		sourceUrl: (row.source_url ?? '') as string,
 		invitedAt: (row.invited_at ?? null) as string | null,
-		createdAt: row.created_at as string,
-		...parseContactProfileRecord(row)
+		createdAt: row.created_at as string
 	};
 }
 
-export function parseContactProfileRecord(row: Record<string, unknown>): ContactProfile {
-	return {
-		seniority: parseSeniority(row.seniority),
-		isDecisionMaker: (row.is_decision_maker ?? false) as boolean,
-		warmth: parseWarmth(row.warmth),
-		lastContactedOn: (row.last_contacted_at ?? null) as string | null,
-		nextAction: (row.next_action ?? '') as string,
-		nextActionDue: (row.next_action_due ?? null) as string | null
-	};
-}
-
-export function toContactProfileColumns(profile: ContactProfile): Record<string, unknown> {
-	return {
-		seniority: profile.seniority,
-		is_decision_maker: profile.isDecisionMaker,
-		warmth: profile.warmth,
-		last_contacted_at: profile.lastContactedOn,
-		next_action: profile.nextAction,
-		next_action_due: profile.nextActionDue
-	};
+export function parseAffiliationSource(value: unknown): AffiliationSource {
+	const source = affiliationSources.find((candidate) => candidate === value);
+	if (source === undefined) return 'staff';
+	return source;
 }

@@ -61,7 +61,7 @@ function describeProjectLine(project: ClientProject): string {
 }
 
 const clientEventLabels: Record<ClientEventKind, string> = {
-		stage_moved: 'Stage moved',
+	stage_moved: 'Stage moved',
 	contact_added: 'Contact added',
 	contact_invited: 'Contact invited',
 	project_assigned: 'Project assigned',
@@ -73,7 +73,11 @@ const clientEventLabels: Record<ClientEventKind, string> = {
 	enquiry_received: 'Enquiry received',
 	lead_added: 'Lead added',
 	profile_researched: 'Profile researched',
-	approach_drafted: 'Approach drafted'
+	approach_drafted: 'Approach drafted',
+	person_added: 'Person added',
+	appointments_imported: 'Appointments imported from Companies House',
+	officers_imported: 'Officers imported from Companies House',
+	grouped_under: 'Grouped under a parent'
 };
 
 export function describeClientEvents(events: ClientEvent[]): string {

@@ -1,7 +1,11 @@
 import { bearerToken, hashApiToken } from '$lib/server/tokens/apiToken';
 import { hashSecret } from '$lib/server/oauth/oauthTokens';
 import { resolveAccountStanding, type AccountStanding } from './resolveAccountStanding';
-import { parseClientContactRecord, type ClientContact } from '$lib/server/clients/clientContactRecord';
+import {
+	clientContactColumns,
+	parseClientContactRecord,
+	type ClientContact
+} from '$lib/server/clients/clientContactRecord';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -41,7 +45,7 @@ async function resolveContactTokenCaller(
 ): Promise<McpCaller | null> {
 	const { data, error } = await supabase
 		.from('client_api_tokens')
-		.select('id, revoked_at, client_contacts(*)')
+		.select(`id, revoked_at, client_contacts(${clientContactColumns})`)
 		.eq('token_hash', hashApiToken(token))
 		.maybeSingle();
 	if (error) throw error;

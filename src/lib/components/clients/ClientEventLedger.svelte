@@ -5,7 +5,7 @@
 	let { events }: { events: ClientEvent[] } = $props();
 
 	const eventLabels: Record<ClientEventKind, string> = {
-				stage_moved: 'Stage moved',
+		stage_moved: 'Stage moved',
 		contact_added: 'Contact added',
 		contact_invited: 'Contact invited',
 		project_assigned: 'Project assigned',
@@ -17,7 +17,11 @@
 		enquiry_received: 'Enquiry received',
 		lead_added: 'Lead added',
 		profile_researched: 'Profile researched',
-		approach_drafted: 'Approach drafted'
+		approach_drafted: 'Approach drafted',
+		person_added: 'Person added',
+		appointments_imported: 'Imported from their appointments',
+		officers_imported: 'Officers imported',
+		grouped_under: 'Grouped under'
 	};
 
 	function summarise(event: ClientEvent): string {

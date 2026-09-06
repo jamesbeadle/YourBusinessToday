@@ -14,7 +14,7 @@ export async function getClientList(
 ): Promise<ClientSummary[]> {
 	const query = supabase
 		.from('clients')
-		.select('*, client_contacts(name, is_primary), projects(id, feature_requests(status))')
+		.select('*, client_contacts(is_primary, people(name)), projects(id, feature_requests(status))')
 		.order('name');
 	const { data, error } = stage === null ? await query : await query.eq('lifecycle_stage', stage);
 	if (error) throw error;
@@ -22,7 +22,7 @@ export async function getClientList(
 }
 
 type ProjectRow = { feature_requests: { status: string }[] };
-type ContactRow = { name: string; is_primary: boolean };
+type ContactRow = { is_primary: boolean; people: { name: string } | null };
 
 function toSummary(row: Record<string, unknown>): ClientSummary {
 	const projects = (row.projects ?? []) as ProjectRow[];
@@ -37,7 +37,7 @@ function toSummary(row: Record<string, unknown>): ClientSummary {
 function primaryContactName(contacts: ContactRow[]): string {
 	const primary = contacts.find((contact) => contact.is_primary) ?? contacts[0];
 	if (primary === undefined) return '';
-	return primary.name;
+	return primary.people?.name ?? '';
 }
 
 function countAwaitingTriage(projects: ProjectRow[]): number {

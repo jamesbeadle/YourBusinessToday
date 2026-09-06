@@ -1,16 +1,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type ContactNoteKind = 'note' | 'approach';
+export type PersonNoteKind = 'note' | 'approach';
 
-export async function addContactNote(
+export async function addPersonNote(
 	supabase: SupabaseClient,
-	contactId: string,
-	kind: ContactNoteKind,
+	personId: string,
+	kind: PersonNoteKind,
 	body: string,
 	authorId: string
 ): Promise<void> {
 	const { error } = await supabase
-		.from('contact_notes')
-		.insert({ contact_id: contactId, kind, body, author_id: authorId });
+		.from('person_notes')
+		.insert({ person_id: personId, kind, body, author_id: authorId });
 	if (error) throw error;
 }

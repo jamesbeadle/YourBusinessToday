@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { addPerson } from '$lib/server/people/addPerson';
+import { affiliatePersonWithClient } from './affiliatePersonWithClient';
 import { recordClientEvent } from './recordClientEvent';
 
 export type NewContactSeed = {
@@ -11,8 +13,6 @@ export type NewContactSeed = {
 };
 
 export type AddContactOutcome = 'added' | 'already_known';
-
-const duplicateRowCode = '23505';
 
 export function readNewContactSeed(formData: FormData): NewContactSeed | null {
 	const name = String(formData.get('name') ?? '').trim();
@@ -32,30 +32,20 @@ export async function addClientContact(
 	seed: NewContactSeed,
 	actorAccountId: string
 ): Promise<AddContactOutcome> {
-	if (seed.isPrimary) await standDownExistingPrimary(supabase, clientId);
-	const { error } = await supabase.from('client_contacts').insert({
-		client_id: clientId,
+	const { personId } = await addPerson(supabase, {
 		name: seed.name,
 		email: seed.email,
 		phone: seed.phone,
-		role: seed.role,
-		is_primary: seed.isPrimary,
-		source_url: seed.sourceUrl ?? ''
+		seniority: '',
+		sourceUrl: seed.sourceUrl
 	});
-	if (error !== null && error.code === duplicateRowCode) return 'already_known';
-	if (error !== null) throw error;
+	const outcome = await affiliatePersonWithClient(supabase, {
+		personId,
+		clientId,
+		role: seed.role,
+		isPrimary: seed.isPrimary
+	});
+	if (outcome === 'already_affiliated') return 'already_known';
 	await recordClientEvent(supabase, clientId, 'contact_added', { name: seed.name, email: seed.email }, actorAccountId);
 	return 'added';
-}
-
-async function standDownExistingPrimary(
-	supabase: SupabaseClient,
-	clientId: string
-): Promise<void> {
-	const { error } = await supabase
-		.from('client_contacts')
-		.update({ is_primary: false })
-		.eq('client_id', clientId)
-		.eq('is_primary', true);
-	if (error) throw error;
 }

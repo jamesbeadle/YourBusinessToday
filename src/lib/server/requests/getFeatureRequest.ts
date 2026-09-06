@@ -4,7 +4,7 @@ import { toQueuedRequest, type QueuedRequest } from './getTriageQueue';
 
 export type RequestDetail = QueuedRequest & { isDelivered: boolean };
 
-const detailColumns = `${featureRequestColumns}, projects(name, client_id, clients(name)), client_contacts(name), tasks(status)`;
+const detailColumns = `${featureRequestColumns}, projects(name, client_id, clients(name)), client_contacts(people(name)), tasks(status)`;
 
 export async function getFeatureRequest(
 	supabase: SupabaseClient,

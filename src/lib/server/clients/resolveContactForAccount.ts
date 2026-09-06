@@ -1,4 +1,4 @@
-import { parseClientContactRecord, type ClientContact } from './clientContactRecord';
+import { clientContactColumns, parseClientContactRecord, type ClientContact } from './clientContactRecord';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function resolveContactForAccount(
@@ -7,7 +7,7 @@ export async function resolveContactForAccount(
 ): Promise<ClientContact | null> {
 	const { data, error } = await supabase
 		.from('client_contacts')
-		.select('*')
+		.select(clientContactColumns)
 		.eq('account_id', accountId)
 		.maybeSingle();
 	if (error) throw error;

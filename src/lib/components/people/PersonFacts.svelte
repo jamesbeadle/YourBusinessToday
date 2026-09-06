@@ -2,7 +2,7 @@
 	import WarmthPill from './WarmthPill.svelte';
 	import { formatBritishDate } from '$lib/data/britishDate';
 	import { seniorityLabels } from '$lib/data/contactProfileFields';
-	import type { Person } from '$lib/server/clients/getPeopleForClient';
+	import type { Person } from '$lib/server/people/personRecord';
 
 	let { person }: { person: Person } = $props();
 

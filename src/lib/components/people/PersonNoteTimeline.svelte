@@ -2,9 +2,9 @@
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { formatBritishDate } from '$lib/data/britishDate';
 	import { inputClasses, quietButtonClasses } from '$lib/components/site/formStyles';
-	import type { AuthoredNote } from '$lib/server/clients/getPeopleForClient';
+	import type { AuthoredNote } from '$lib/server/people/authoredNotes';
 
-	let { contactId, notes }: { contactId: string; notes: AuthoredNote[] } = $props();
+	let { personId, notes }: { personId: string; notes: AuthoredNote[] } = $props();
 </script>
 
 <div class="flex flex-col gap-3">
@@ -24,7 +24,7 @@
 		</article>
 	{/each}
 	<form method="POST" action="?/addNote" class="flex flex-col gap-2">
-		<input type="hidden" name="contactId" value={contactId} />
+		<input type="hidden" name="personId" value={personId} />
 		<textarea
 			name="body"
 			rows="2"

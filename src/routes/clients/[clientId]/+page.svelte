@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AssignProjectForm from '$lib/components/clients/AssignProjectForm.svelte';
 	import ClientEventLedger from '$lib/components/clients/ClientEventLedger.svelte';
+	import ClientGroupSection from '$lib/components/clients/ClientGroupSection.svelte';
 	import ClientPeopleSection from '$lib/components/clients/ClientPeopleSection.svelte';
 	import ClientProjectList from '$lib/components/clients/ClientProjectList.svelte';
 	import CompanyProfileForm from '$lib/components/clients/CompanyProfileForm.svelte';
@@ -30,6 +31,9 @@
 		<h1 class="font-display text-3xl font-medium">{data.client.name}</h1>
 		<p class="text-chalk/70">
 			{clientStageLabels[data.client.stage]} · {leadSourceLabels[data.client.leadSource]}
+			{#if data.parent !== null}
+				· Part of <a href={`/clients/${data.parent.id}`} class="hover:text-signal">{data.parent.name}</a>
+			{/if}
 			{#if data.client.website !== ''}
 				· <a href={data.client.website} class="hover:text-signal">{data.client.website}</a>
 			{/if}
@@ -45,7 +49,18 @@
 		<CompanyProfileForm client={data.client} />
 	</section>
 
-	<ClientPeopleSection people={data.people} approachDraft={form?.approachDraft ?? null} />
+	<ClientPeopleSection
+		people={data.people}
+		approachDraft={form?.approachDraft ?? null}
+		canImportOfficers={data.canImportOfficers}
+	/>
+
+	<ClientGroupSection
+		client={data.client}
+		parent={data.parent}
+		children={data.children}
+		parents={data.parents}
+	/>
 
 	<section class="flex flex-col gap-4">
 		<div class="flex items-center justify-between gap-4">

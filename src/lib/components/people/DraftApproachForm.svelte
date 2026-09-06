@@ -2,15 +2,15 @@
 	import FormField from '$lib/components/accounting/FormField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses } from '$lib/components/site/formStyles';
-	import type { ApproachDraft } from '$lib/server/clients/draftApproach';
+	import type { ApproachDraft } from '$lib/server/people/draftApproach';
 
 	let { draft }: { draft: ApproachDraft } = $props();
 </script>
 
 <form method="POST" action="?/saveApproach" class="flex flex-col gap-4">
-	<input type="hidden" name="contactId" value={draft.contactId} />
+	<input type="hidden" name="personId" value={draft.personId} />
 	<p class="text-sm text-chalk/60">
-		Drafted for {draft.contactName} from the company profile and their notes. Edit freely, then
+		Drafted for {draft.personName} from every company they hold and their notes. Edit freely, then
 		save it to their notes.
 	</p>
 	<FormField label="Opening message">

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { displayNameFromRegisterName, displayNameFromSearchTitle, surnameOf } from './officerName';
+import { displayNameFromRegisterName, displayNameFromSearchTitle } from './officerName';
+import { suggestedGroupNameFor, surnameOf } from '$lib/data/personName';
 
 describe('officer names', () => {
 	it('puts the forenames before the surname', () => {
@@ -14,8 +15,9 @@ describe('officer names', () => {
 		expect(displayNameFromSearchTitle('Jane SMITH')).toBe('Jane Smith');
 	});
 
-	it('takes the last word as the surname', () => {
+	it('takes the last word as the surname and names the group after it', () => {
 		expect(surnameOf('Jane Elizabeth Smith')).toBe('Smith');
 		expect(surnameOf('')).toBe('');
+		expect(suggestedGroupNameFor('Jane Smith')).toBe('Smith group');
 	});
 });

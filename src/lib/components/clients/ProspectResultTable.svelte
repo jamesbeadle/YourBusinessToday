@@ -1,13 +1,15 @@
 <script lang="ts">
+	import ProspectSeedFields from './ProspectSeedFields.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { formatBritishDate } from '$lib/data/britishDate';
-	import { quietButtonClasses } from '$lib/components/site/formStyles';
+	import { confirmButtonClasses, quietButtonClasses } from '$lib/components/site/formStyles';
 	import type { CompaniesHouseCompany } from '$lib/server/companiesHouse/searchCompaniesHouse';
 
 	let {
 		companies,
-		addLeadAction
-	}: { companies: CompaniesHouseCompany[]; addLeadAction: string } = $props();
+		addLeadAction,
+		addWithDirectorsAction
+	}: { companies: CompaniesHouseCompany[]; addLeadAction: string; addWithDirectorsAction: string } = $props();
 
 	function describe(company: CompaniesHouseCompany): string {
 		const incorporated =
@@ -25,12 +27,16 @@
 				<p class="font-display">{company.name}</p>
 				<p class="text-xs text-chalk/50">{describe(company)}</p>
 			</div>
-			<form method="POST" action={addLeadAction}>
-				<input type="hidden" name="name" value={company.name} />
-				<input type="hidden" name="companyNumber" value={company.companyNumber} />
-				<input type="hidden" name="address" value={company.address} />
-				<SubmitButton class={quietButtonClasses} savingLabel="Adding…">Add as lead</SubmitButton>
-			</form>
+			<div class="flex flex-wrap gap-2">
+				<form method="POST" action={addLeadAction}>
+					<ProspectSeedFields {company} />
+					<SubmitButton class={quietButtonClasses} savingLabel="Adding…">Add as lead</SubmitButton>
+				</form>
+				<form method="POST" action={addWithDirectorsAction}>
+					<ProspectSeedFields {company} />
+					<SubmitButton class={confirmButtonClasses} savingLabel="Adding…">Add with directors</SubmitButton>
+				</form>
+			</div>
 		</li>
 	{/each}
 </ul>

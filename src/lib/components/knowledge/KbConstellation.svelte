@@ -6,9 +6,11 @@
 
 	let {
 		slots,
+		onHover,
 		onSelect
 	}: {
 		slots: ConstellationSlot[];
+		onHover: (slot: ConstellationSlot | null) => void;
 		onSelect: (slot: ConstellationSlot) => void;
 	} = $props();
 
@@ -57,7 +59,10 @@
 	$effect(() => {
 		if (canvasElement === undefined || containerElement === undefined) return;
 		const initialSlots = untrack(() => slots);
-		const created = createKbGalaxy(canvasElement, containerElement, initialSlots, onSelect);
+		const created = createKbGalaxy(canvasElement, containerElement, initialSlots, {
+			onHover,
+			onActivate: onSelect
+		});
 		applyIntent(created);
 		galaxy = created;
 		shownSlots = initialSlots;

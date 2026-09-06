@@ -11,11 +11,13 @@
 	let {
 		model,
 		seed,
-		onSelectNode = () => {}
+		onSelectNode = () => {},
+		onReady = () => {}
 	}: {
 		model: WorkflowModel;
 		seed: string;
 		onSelectNode?: (nodeId: string | null) => void;
+		onReady?: () => void;
 	} = $props();
 
 	const flow = $derived(buildFlowModel(model, seed));
@@ -41,13 +43,20 @@
 
 	$effect(() => {
 		if (canvasElement === undefined || containerElement === undefined) return;
-		const mounted = createFlowExperience(canvasElement, containerElement, untrack(() => flow), {
-			onHover: (candidate) => (hover = candidate),
-			onSelectNode: (nodeId) => {
+		const callbacks = {
+			onHover: (candidate: FlowHover | null) => (hover = candidate),
+			onSelectNode: (nodeId: string | null) => {
 				focusedNodeId = nodeId;
 				onSelectNode(nodeId);
 			}
-		});
+		};
+		const mounted = createFlowExperience(
+			canvasElement,
+			containerElement,
+			untrack(() => flow),
+			callbacks,
+			{ onReady }
+		);
 		experience = mounted;
 		return () => mounted.destroy();
 	});

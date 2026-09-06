@@ -5,10 +5,12 @@
 
 	let {
 		knowledgeBase,
-		slot
+		slot,
+		isOpening
 	}: {
 		knowledgeBase: KnowledgeBase;
 		slot: ConstellationSlot;
+		isOpening: boolean;
 	} = $props();
 </script>
 
@@ -25,10 +27,16 @@
 		<span class="truncate">{knowledgeBase.name}</span>
 	</a>
 	<span aria-hidden="true" class="shrink-0 text-chalk/30">›</span>
-	<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-		<h1 class="truncate text-sm font-medium text-chalk lg:text-base">{slot.name}</h1>
-		<p class="truncate text-[10px] tracking-widest uppercase" style:color={slot.accent}>
-			{slot.kindLabel} brain
+	{#if isOpening}
+		<p role="status" class="animate-pulse truncate text-sm text-chalk/60">
+			Opening {slot.kindLabel}…
 		</p>
-	</div>
+	{:else}
+		<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+			<h1 class="truncate text-sm font-medium text-chalk lg:text-base">{slot.name}</h1>
+			<p class="truncate text-[10px] tracking-widest uppercase" style:color={slot.accent}>
+				{slot.kindLabel} brain
+			</p>
+		</div>
+	{/if}
 </nav>

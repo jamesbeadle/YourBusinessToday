@@ -9,6 +9,8 @@ import type { FlowCallbacks, FlowModel } from './flowTypes';
 const FIELD_OF_VIEW_DEGREES = 50;
 const FAR_PLANE = 220;
 
+export type FlowExperienceOptions = { onReady?: () => void };
+
 export type FlowExperience = {
 	updateModel: (model: FlowModel) => void;
 	focusNode: (nodeId: string | null) => void;
@@ -23,7 +25,8 @@ export function createFlowExperience(
 	canvas: HTMLCanvasElement,
 	container: HTMLElement,
 	model: FlowModel,
-	callbacks: FlowCallbacks
+	callbacks: FlowCallbacks,
+	options: FlowExperienceOptions = {}
 ): FlowExperience {
 	const isAnimated = !prefersReducedMotion();
 	const stage = createStage(canvas, { fieldOfViewDegrees: FIELD_OF_VIEW_DEGREES, farPlane: FAR_PLANE });
@@ -50,7 +53,7 @@ export function createFlowExperience(
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	const loop = createSceneLoop(frame);
+	const loop = createSceneLoop(frame, options.onReady);
 
 	function updateModel(updatedModel: FlowModel): void {
 		if (updatedModel === knownModel) return;

@@ -9,6 +9,8 @@ import type { RegionCallbacks, RegionModel } from './regionTypes';
 const FIELD_OF_VIEW_DEGREES = 50;
 const FAR_PLANE = 220;
 
+export type RegionExperienceOptions = { onReady?: () => void };
+
 export type RegionExperience = {
 	updateModel: (model: RegionModel) => void;
 	hoverRegion: (regionId: string | null) => void;
@@ -23,7 +25,8 @@ export function createRegionExperience(
 	canvas: HTMLCanvasElement,
 	container: HTMLElement,
 	model: RegionModel,
-	callbacks: RegionCallbacks
+	callbacks: RegionCallbacks,
+	options: RegionExperienceOptions = {}
 ): RegionExperience {
 	const isAnimated = !prefersReducedMotion();
 	const stage = createStage(canvas, {
@@ -52,7 +55,7 @@ export function createRegionExperience(
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	const loop = createSceneLoop(frame);
+	const loop = createSceneLoop(frame, options.onReady);
 
 	function updateModel(updatedModel: RegionModel): void {
 		if (updatedModel === knownModel) return;

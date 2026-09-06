@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { formatBritishDate } from '$lib/data/britishDate';
+	import { summariseEventDetail } from '$lib/data/eventDetailSummary';
 	import { clientEventLabels } from '$lib/data/clientEventLabels';
 	import type { ClientEvent } from '$lib/server/clients/recordClientEvent';
 
 	let { events }: { events: ClientEvent[] } = $props();
 
-	function summarise(event: ClientEvent): string {
-		return Object.values(event.detail).filter(Boolean).join(' · ');
-	}
 </script>
 
 <ol class="flex flex-col gap-2 text-sm">
@@ -15,7 +13,7 @@
 		<li class="flex flex-wrap gap-x-3 text-chalk/60">
 			<span class="text-chalk/40">{formatBritishDate(event.createdAt)}</span>
 			<span class="text-chalk">{clientEventLabels[event.kind]}</span>
-			<span>{summarise(event)}</span>
+			<span>{summariseEventDetail(event.detail)}</span>
 		</li>
 	{/each}
 </ol>

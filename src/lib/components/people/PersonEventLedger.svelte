@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { formatBritishDate } from '$lib/data/britishDate';
+	import { summariseEventDetail } from '$lib/data/eventDetailSummary';
 	import { clientEventLabels } from '$lib/data/clientEventLabels';
 	import type { PersonEvent } from '$lib/server/people/getPersonEvents';
 
 	let { events }: { events: PersonEvent[] } = $props();
 
-	function summarise(event: PersonEvent): string {
-		return Object.values(event.detail).filter(Boolean).join(' · ');
-	}
 </script>
 
 {#if events.length === 0}
@@ -19,7 +17,7 @@
 			<span class="text-chalk/40">{formatBritishDate(event.createdAt)}</span>
 			<a href={`/clients/${event.clientId}`} class="text-chalk/80 hover:text-signal">{event.clientName}</a>
 			<span class="text-chalk">{clientEventLabels[event.kind]}</span>
-			<span>{summarise(event)}</span>
+			<span>{summariseEventDetail(event.detail)}</span>
 		</li>
 	{/each}
 </ol>

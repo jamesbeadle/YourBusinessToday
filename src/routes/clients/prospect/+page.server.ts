@@ -11,6 +11,9 @@ import {
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import type { Actions, PageServerLoad } from './$types';
 
+const officerImportFailedMessage =
+	'The company is on the register, but its officers could not be read just now.';
+
 export const load: PageServerLoad = async ({ locals, url }) => {
 	await requireStaff(locals);
 	const search = readCompaniesHouseSearch(url.searchParams);
@@ -48,10 +51,18 @@ export const actions: Actions = {
 		const outcome = await addProspectAsLead(locals.supabase, prospect, user.id);
 		const client = await getClient(locals.supabase, outcome.clientId);
 		if (client === null) return fail(404, { message: 'That client could not be found.' });
-		const officers = await importCompanyOfficers(locals.supabase, client, user.id);
-		return {
-			message: `${prospect.name} on the register with ${officers.importedCount} officer(s) added.`,
-			clientId: outcome.clientId
-		};
+		if (!isCompaniesHouseConfigured()) {
+			return { message: `${prospect.name} added, but Companies House is not configured.`, clientId: outcome.clientId };
+		}
+		try {
+			const officers = await importCompanyOfficers(locals.supabase, client, user.id);
+			return {
+				message: `${prospect.name} on the register with ${officers.importedCount} officer(s) added.`,
+				clientId: outcome.clientId
+			};
+		} catch (failure) {
+			console.error('Officer import failed', failure);
+			return { message: officerImportFailedMessage, clientId: outcome.clientId };
+		}
 	}
 };

@@ -1,8 +1,9 @@
+import { clientEventLabels } from '$lib/data/clientEventLabels';
 import { clientStageLabels } from '$lib/data/clientLifecycle';
 import { formatBritishDate } from '$lib/data/britishDate';
 import type { Client } from '$lib/server/clients/clientRecord';
 import type { ClientContact } from '$lib/server/clients/clientContactRecord';
-import type { ClientEvent, ClientEventKind } from '$lib/server/clients/recordClientEvent';
+import type { ClientEvent } from '$lib/server/clients/recordClientEvent';
 import type { ClientProject } from '$lib/server/clients/getClientProjects';
 import type { ClientSummary } from '$lib/server/clients/getClientList';
 
@@ -59,26 +60,6 @@ function describeProjectLine(project: ClientProject): string {
 	const awaiting = `${project.openRequestCount} request(s) awaiting triage`;
 	return `${project.name} — id ${project.id} — ${awaiting}`;
 }
-
-const clientEventLabels: Record<ClientEventKind, string> = {
-	stage_moved: 'Stage moved',
-	contact_added: 'Contact added',
-	contact_invited: 'Contact invited',
-	project_assigned: 'Project assigned',
-	request_raised: 'Request raised',
-	request_decided: 'Request decided',
-	request_promoted: 'Request promoted',
-	build_dispatched: 'Build dispatched',
-	build_live: 'Build live',
-	enquiry_received: 'Enquiry received',
-	lead_added: 'Lead added',
-	profile_researched: 'Profile researched',
-	approach_drafted: 'Approach drafted',
-	person_added: 'Person added',
-	appointments_imported: 'Appointments imported from Companies House',
-	officers_imported: 'Officers imported from Companies House',
-	grouped_under: 'Grouped under a parent'
-};
 
 export function describeClientEvents(events: ClientEvent[]): string {
 	if (events.length === 0) return 'Nothing has been recorded against this client yet.';

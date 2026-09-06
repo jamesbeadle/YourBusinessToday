@@ -14,17 +14,25 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	await requireStaff(locals);
 	const officerQuery = (url.searchParams.get('officer') ?? '').trim();
 	const isConfigured = isCompaniesHouseConfigured();
+	const officers = await officersFor(officerQuery, isConfigured);
 	return {
 		people: await getPeople(locals.supabase),
 		officerQuery,
 		isCompaniesHouseConfigured: isConfigured,
-		officers: await officersFor(officerQuery, isConfigured)
+		officers,
+		officerSearchFailed: officerQuery !== '' && isConfigured && officers === null
 	};
 };
 
+// The register being unreachable costs the search, never the page.
 async function officersFor(query: string, isConfigured: boolean): Promise<OfficerSearchResult[] | null> {
 	if (query === '' || !isConfigured) return null;
-	return searchOfficers(query);
+	try {
+		return await searchOfficers(query);
+	} catch (failure) {
+		console.error('Officer search failed', failure);
+		return null;
+	}
 }
 
 export const actions: Actions = {

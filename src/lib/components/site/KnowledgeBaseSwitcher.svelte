@@ -32,32 +32,34 @@
 
 <svelte:window onkeydown={closeOnEscape} />
 
-<div class="relative flex min-w-0 items-center gap-3">
+<div class="flex min-w-0 items-center gap-3">
 	<span aria-hidden="true" class="h-5 w-px shrink-0 bg-hairline"></span>
-	<button
-		type="button"
-		aria-label="Switch knowledge base"
-		aria-expanded={isOpen}
-		onclick={toggleMenu}
-		class="flex min-w-0 items-center gap-1.5 font-display text-sm text-chalk/80 transition
-			hover:text-chalk"
-	>
-		<span class="max-w-[40vw] truncate md:max-w-xs">{currentName}</span>
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="1.5"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			class="h-4 w-4 shrink-0 text-chalk/50"
-			aria-hidden="true"
+	<div class="relative flex min-w-0">
+		<button
+			type="button"
+			aria-label="Switch knowledge base"
+			aria-expanded={isOpen}
+			onclick={toggleMenu}
+			class="flex min-w-0 items-center gap-1.5 font-display text-sm text-chalk/80 transition
+				hover:text-chalk"
 		>
-			<path d="m6 9 6 6 6-6" />
-		</svg>
-	</button>
-	{#if isOpen}
-		<KnowledgeBaseSwitcherMenu {knowledgeBases} {currentKnowledgeBaseId} onClose={closeMenu} />
-	{/if}
+			<span class="max-w-[40vw] truncate md:max-w-xs">{currentName}</span>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="h-4 w-4 shrink-0 text-chalk/50"
+				aria-hidden="true"
+			>
+				<path d="m6 9 6 6 6-6" />
+			</svg>
+		</button>
+		{#if isOpen}
+			<KnowledgeBaseSwitcherMenu {knowledgeBases} {currentKnowledgeBaseId} onClose={closeMenu} />
+		{/if}
+	</div>
 </div>

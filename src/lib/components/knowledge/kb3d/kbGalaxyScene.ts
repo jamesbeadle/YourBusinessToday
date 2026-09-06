@@ -3,8 +3,14 @@ import { attachKbGalaxyInput, type KbGalaxyInput } from './kbGalaxyInput';
 import type { Camera } from 'three';
 import { areSameSlotsToShow, type ConstellationSlot } from '../constellationSlots';
 
+export type KbGalaxyCallbacks = {
+	onHover: (slot: ConstellationSlot | null) => void;
+	onActivate: (slot: ConstellationSlot) => void;
+};
+
 export type KbGalaxyScene = {
 	galaxy: () => KbGalaxy;
+	hoveredSlotId: () => string | null;
 	isShowing: (slots: ConstellationSlot[]) => boolean;
 	replace: (slots: ConstellationSlot[]) => void;
 	dispose: () => void;
@@ -15,10 +21,10 @@ export function createKbGalaxyScene(options: {
 	canvas: HTMLCanvasElement;
 	camera: Camera;
 	initialSlots: ConstellationSlot[];
-	onHover: (slot: ConstellationSlot | null) => void;
-	onActivate: (slot: ConstellationSlot) => void;
+	callbacks: KbGalaxyCallbacks;
 }): KbGalaxyScene {
 	let galaxy = assembleKbGalaxy(options.initialSlots);
+	let hoveredSlotId: string | null = null;
 	let input = attachInput();
 
 	function attachInput(): KbGalaxyInput {
@@ -26,8 +32,11 @@ export function createKbGalaxyScene(options: {
 			canvas: options.canvas,
 			camera: options.camera,
 			handles: galaxy.handles,
-			onHover: options.onHover,
-			onActivate: options.onActivate
+			onHover: (slot) => {
+				hoveredSlotId = slot?.id ?? null;
+				options.callbacks.onHover(slot);
+			},
+			onActivate: options.callbacks.onActivate
 		});
 	}
 
@@ -47,5 +56,5 @@ export function createKbGalaxyScene(options: {
 		input = attachInput();
 	}
 
-	return { galaxy: () => galaxy, isShowing, replace, dispose };
+	return { galaxy: () => galaxy, hoveredSlotId: () => hoveredSlotId, isShowing, replace, dispose };
 }

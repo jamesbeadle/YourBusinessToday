@@ -12,8 +12,14 @@
 	let {
 		knowledgeBaseId,
 		isOwner,
-		view
-	}: { knowledgeBaseId: string; isOwner: boolean; view: ExperienceBrainView } = $props();
+		view,
+		onReady
+	}: {
+		knowledgeBaseId: string;
+		isOwner: boolean;
+		view: ExperienceBrainView;
+		onReady: () => void;
+	} = $props();
 
 	const toolbarTools = useDashboardTools().right;
 	const brain = $derived(view.brain);
@@ -54,4 +60,4 @@
 	/>
 {/snippet}
 
-<RegionBrain items={view.items} seed={brain.id} />
+<RegionBrain items={view.items} seed={brain.id} {onReady} />

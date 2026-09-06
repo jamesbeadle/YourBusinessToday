@@ -15,11 +15,13 @@
 	let {
 		items,
 		seed,
-		onSelectRegion = () => {}
+		onSelectRegion = () => {},
+		onReady = () => {}
 	}: {
 		items: KbBrainItem[];
 		seed: string;
 		onSelectRegion?: (regionId: string | null) => void;
+		onReady?: () => void;
 	} = $props();
 
 	const model = $derived(buildRegionModel(items, seed));
@@ -40,13 +42,20 @@
 
 	$effect(() => {
 		if (canvasElement === undefined || containerElement === undefined) return;
-		const mounted = createRegionExperience(canvasElement, containerElement, untrack(() => model), {
-			onHover: (candidate) => (hover = candidate),
-			onSelectRegion: (regionId) => {
+		const callbacks = {
+			onHover: (candidate: RegionHover | null) => (hover = candidate),
+			onSelectRegion: (regionId: string | null) => {
 				focusedRegionId = regionId;
 				onSelectRegion(regionId);
 			}
-		});
+		};
+		const mounted = createRegionExperience(
+			canvasElement,
+			containerElement,
+			untrack(() => model),
+			callbacks,
+			{ onReady }
+		);
 		experience = mounted;
 		return () => mounted.destroy();
 	});

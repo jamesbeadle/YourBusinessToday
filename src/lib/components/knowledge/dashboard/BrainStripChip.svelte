@@ -6,11 +6,13 @@
 		knowledgeBaseId,
 		slot,
 		isActive,
+		onIntend,
 		onSelect
 	}: {
 		knowledgeBaseId: string;
 		slot: ConstellationSlot;
 		isActive: boolean;
+		onIntend: (slot: ConstellationSlot | null) => void;
 		onSelect: (slot: ConstellationSlot) => void;
 	} = $props();
 
@@ -32,6 +34,8 @@
 	aria-label={isActive ? `${slot.name} — back to the knowledge base` : slot.name}
 	title={slot.name}
 	onclick={select}
+	onpointerenter={() => onIntend(isActive ? null : slot)}
+	onpointerleave={() => onIntend(null)}
 	style={`color: ${slot.accent}`}
 	class={[
 		'pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border px-4',

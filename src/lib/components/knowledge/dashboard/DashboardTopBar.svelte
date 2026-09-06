@@ -9,13 +9,16 @@
 
 	let {
 		knowledgeBase,
-		openSlot
+		openSlot,
+		openingSlot
 	}: {
 		knowledgeBase: KnowledgeBase;
 		openSlot: ConstellationSlot | null;
+		openingSlot: ConstellationSlot | null;
 	} = $props();
 
 	const toolbarTools = useDashboardTools().right;
+	const shownSlot = $derived(openingSlot ?? openSlot);
 </script>
 
 <div
@@ -23,7 +26,7 @@
 		px-3"
 	style:height={`${topRowHeightPixels}px`}
 >
-	{#if openSlot === null}
+	{#if shownSlot === null}
 		<a
 			href={newBrainHref(knowledgeBase.id)}
 			aria-label="Add a second brain"
@@ -35,11 +38,13 @@
 			+<span class="hidden sm:inline"> Add a second brain</span>
 		</a>
 	{:else}
-		<BrainBreadcrumb {knowledgeBase} slot={openSlot} />
-		<DashboardToolbar
-			tools={toolbarTools.tools}
-			activeKey={toolbarTools.activeKey}
-			onSelect={(key) => toolbarTools.toggle(key)}
-		/>
+		<BrainBreadcrumb {knowledgeBase} slot={shownSlot} isOpening={openingSlot !== null} />
+		{#if toolbarTools.tools.length > 0}
+			<DashboardToolbar
+				tools={toolbarTools.tools}
+				activeKey={toolbarTools.activeKey}
+				onSelect={(key) => toolbarTools.toggle(key)}
+			/>
+		{/if}
 	{/if}
 </div>

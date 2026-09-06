@@ -11,7 +11,7 @@ import type { ConstellationCallbacks, ConstellationModel } from './constellation
 const FIELD_OF_VIEW_DEGREES = 50;
 const FAR_PLANE = 220;
 
-export type ExperienceOptions = { shouldCascadeInitialModel?: boolean };
+export type ExperienceOptions = { shouldCascadeInitialModel?: boolean; onReady?: () => void };
 
 export type ConstellationExperience = {
 	updateModel: (model: ConstellationModel) => void;
@@ -65,7 +65,7 @@ export function createConstellationExperience(
 		stage.renderer.render(view.scene, stage.camera);
 	}
 
-	const loop = createSceneLoop(frame);
+	const loop = createSceneLoop(frame, options.onReady);
 
 	function updateModel(updatedModel: ConstellationModel): void {
 		if (updatedModel === knownModel) return;

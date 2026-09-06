@@ -15,8 +15,14 @@
 	let {
 		knowledgeBaseId,
 		brainId,
-		view
-	}: { knowledgeBaseId: string; brainId: string; view: ExpertiseBrainView } = $props();
+		view,
+		onReady
+	}: {
+		knowledgeBaseId: string;
+		brainId: string;
+		view: ExpertiseBrainView;
+		onReady: () => void;
+	} = $props();
 
 	const toolbarTools = useDashboardTools().right;
 	const isOwner = $derived(view.accessRole === 'owner');
@@ -78,6 +84,7 @@
 	contexts={view.contexts}
 	pageIndex={view.pageIndex}
 	pageLinks={view.pageLinks}
+	{onReady}
 />
 {#if isOutOfCredits}
 	<div class="absolute inset-x-4 top-4 z-20 overflow-hidden rounded-2xl border border-hairline">

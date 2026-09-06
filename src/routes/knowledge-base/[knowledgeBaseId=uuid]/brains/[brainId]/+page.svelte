@@ -16,17 +16,20 @@
 
 {#key brainId}
 	<BrainViewFrame brain={data.openBrain}>
-		{#if data.view.kind === 'expertise'}
-			<ExpertiseBrainView {knowledgeBaseId} {brainId} view={data.view} />
-		{:else if data.view.kind === 'experience'}
-			<ExperienceBrainView {knowledgeBaseId} isOwner={data.isOwner} view={data.view} />
-		{:else}
-			<ProcessBrainView
-				{knowledgeBaseId}
-				isOwner={data.isOwner}
-				creditBalance={data.creditBalance}
-				view={data.view}
-			/>
-		{/if}
+		{#snippet children(onReady)}
+			{#if data.view.kind === 'expertise'}
+				<ExpertiseBrainView {knowledgeBaseId} {brainId} view={data.view} {onReady} />
+			{:else if data.view.kind === 'experience'}
+				<ExperienceBrainView {knowledgeBaseId} isOwner={data.isOwner} view={data.view} {onReady} />
+			{:else}
+				<ProcessBrainView
+					{knowledgeBaseId}
+					isOwner={data.isOwner}
+					creditBalance={data.creditBalance}
+					view={data.view}
+					{onReady}
+				/>
+			{/if}
+		{/snippet}
 	</BrainViewFrame>
 {/key}

@@ -1,6 +1,6 @@
 import { createGalaxyFocus, type FocusOptions } from './kbGalaxyFocus';
 import { createGalaxyFraming } from './kbGalaxyFraming';
-import { createKbGalaxyScene } from './kbGalaxyScene';
+import { createKbGalaxyScene, type KbGalaxyCallbacks } from './kbGalaxyScene';
 import { animateSlotHandles, settleSlotHandles, type SlotMotionState } from './slotHandleMotion';
 import { createOrbitRig, prefersReducedMotion } from '../../brain/constellation/orbitRig';
 import { createStage, fitStageTo } from '../../stage/createStage';
@@ -22,7 +22,7 @@ export function createKbGalaxy(
 	canvas: HTMLCanvasElement,
 	container: HTMLElement,
 	initialSlots: ConstellationSlot[],
-	onActivate: (slot: ConstellationSlot) => void
+	callbacks: KbGalaxyCallbacks
 ): KbGalaxyExperience {
 	const isAnimated = !prefersReducedMotion();
 	const stage = createStage(canvas, STAGE_OPTIONS);
@@ -30,19 +30,12 @@ export function createKbGalaxy(
 	stage.camera.position.copy(framing.restingPosition);
 	const controls = createOrbitRig(stage.camera, canvas);
 	const focus = createGalaxyFocus(stage.camera, controls, framing.restingPosition, isAnimated);
-	let hoveredSlotId: string | null = null;
-	const scene = createKbGalaxyScene({
-		canvas,
-		camera: stage.camera,
-		initialSlots,
-		onHover: (slot) => (hoveredSlotId = slot?.id ?? null),
-		onActivate
-	});
+	const scene = createKbGalaxyScene({ canvas, camera: stage.camera, initialSlots, callbacks });
 	const loop = createSceneLoop(frame);
 	const resizeObserver = fitStageTo(stage, container, frameToContainer);
 
 	function motionState(): SlotMotionState {
-		return { isAnimated, hoveredSlotId, focusedSlotId: focus.focusedSlotId() };
+		return { isAnimated, hoveredSlotId: scene.hoveredSlotId(), focusedSlotId: focus.focusedSlotId() };
 	}
 
 	function render(): void {

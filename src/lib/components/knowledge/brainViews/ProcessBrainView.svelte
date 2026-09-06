@@ -15,12 +15,14 @@
 		knowledgeBaseId,
 		isOwner,
 		creditBalance,
-		view
+		view,
+		onReady
 	}: {
 		knowledgeBaseId: string;
 		isOwner: boolean;
 		creditBalance: number | null;
 		view: ProcessBrainView;
+		onReady: () => void;
 	} = $props();
 
 	const toolbarTools = useDashboardTools().right;
@@ -63,7 +65,7 @@
 	</div>
 {/snippet}
 
-<FlowBrain {model} seed={view.workflowId} />
+<FlowBrain {model} seed={view.workflowId} {onReady} />
 {#if isMapShown}
 	<ProcessMapOverlay
 		{model}

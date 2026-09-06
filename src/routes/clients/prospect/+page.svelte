@@ -23,7 +23,10 @@
 	<div class="flex flex-col gap-2">
 		<a href="/clients" class="font-display text-sm text-chalk/50 hover:text-chalk">← Clients</a>
 		<h1 class="font-display text-3xl font-medium">Search Companies House</h1>
-		<p class="text-chalk/70">Every active UK company in a sector and a place, ready to become a lead.</p>
+		<p class="text-chalk/70">
+			Every active UK company in a sector and a place, ready to become a lead. Working a patch?
+			<a href="/clients/map" class="text-go hover:underline">Map an area</a> instead.
+		</p>
 	</div>
 	{#if !data.isConfigured}
 		<FormErrorNote

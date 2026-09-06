@@ -19,6 +19,9 @@
 				{#if note.kind === 'approach'}
 					<span class="text-go">Drafted approach</span>
 				{/if}
+				{#if note.kind === 'research'}
+					<span class="text-go">Found on the web</span>
+				{/if}
 			</p>
 			<p class="mt-1 whitespace-pre-wrap text-sm text-chalk/80">{note.body}</p>
 		</article>

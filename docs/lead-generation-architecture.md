@@ -236,3 +236,96 @@ that was already there, `GET /search/officers`, `GET /officers/{id}/appointments
 appointments at active companies only) and `GET /company/{number}/officers` (active
 only), all on the same key and basic auth. The parsers are tested against fixture JSON;
 nothing in the tests touches the network.
+
+## The patch, and the person on the web
+
+Two more ways in. A postcode is the sharpest tool for working an area: every company on
+the register has a registered office, and a director usually keeps their companies close
+to home. And a person's public presence on the open web says more than the register
+does about what they are building and what they might want automated.
+
+### User stories
+
+| As | I want | So that |
+| --- | --- | --- |
+| Staff | to type a postcode and a radius and see every active company registered inside it, on a map and as a list | I can work an area rather than a name |
+| Staff | to narrow that to SIC codes | the area shows the trades we sell to |
+| Staff | each pin coloured by our standing — not on the register, lead, prospect, client | I see at a glance what is covered and what is untouched |
+| Staff | to see the leads and clients we already hold in that area, whether or not the search returned them | the register has a geography |
+| Staff | to click a pin or a row and add the company as a lead, with or without its directors | the map is a door into the same register, not a separate list |
+| Staff | to find a person on the open web from what we already hold on them — their companies, role, area — and get back a short bio, the roles it found, and labelled links, each with its source | I know who I am calling before I call |
+| Staff | to review those findings and choose which links to keep, with the summary saved as a note | nothing reaches the register that a person has not looked at |
+
+### The views
+
+- `/clients/map` — one form: postcode, radius (1, 3, 5, 10 or 15 miles) and optional SIC
+  codes. Beneath it a map with the search circle drawn, pins coloured by stage, and a list
+  ordered by distance beside it. Choosing a pin or a row opens a panel: name, number,
+  incorporation date, address, SIC codes, distance, and the two doors from the prospect
+  table — Add as lead and Add with directors — or a link to the client when it is already
+  ours. Without `COMPANIES_HOUSE_API_KEY` the map still draws the register in the area
+  and says that the wider search needs the key.
+- `/people/[personId]` — gains Find on the web beside Draft approach. The findings open
+  in a modal: the summary, the roles found (each with where it was read), the links as
+  ticked checkboxes, and every source consulted. Save keeps the ticked links on the person
+  and writes the summary as a note of kind `research`, with the sources beneath it.
+- `/clients` and `/clients/prospect` gain a Map an area link; the company profile on
+  `/clients/[clientId]` gains a postcode field.
+
+### Site map
+
+```
+/clients ──▶ /clients/map ──(add)──▶ /clients/[clientId]
+/clients/prospect ──▶ /clients/map
+/people/[personId] ──(Find on the web)──▶ findings modal ──(save)──▶ /people/[personId]
+```
+
+### The entities
+
+**Client** — gains `postcode`, taken from the registered office when a company arrives
+from Companies House and editable on the profile. Migration 0050 backfills it from the
+address and location already held.
+
+**PostcodeLocation** — `public.postcode_locations`: `postcode`, `outcode`, `latitude`,
+`longitude`, `looked_up_at`. Where a postcode is on the ground, kept once so a repeated
+search or a register pin costs no lookup. Filled from postcodes.io, which is free, keyless
+and open data.
+
+**PersonNote** — `kind` learns `research`. **ClientEvent** — the ledger learns
+`person_researched`, written on each of the person's companies as `approach_drafted` is.
+
+Nothing else is stored. A search result that is not added is not kept; a finding that is
+not saved is gone when the modal closes.
+
+### Commands and queries
+
+| Command | Story it serves |
+| --- | --- |
+| `addProspectAsLead`, `importCompanyOfficers` | unchanged; the map posts to the same actions as the prospect table, now carrying the postcode |
+| `researchPerson` | search the open web, then record the findings through a forced tool |
+| `savePersonFindings` | the ticked links become person links; the summary and sources become a research note |
+
+| Query | Story it serves |
+| --- | --- |
+| `mapArea` | the centre, the companies around it from Companies House, and the register in the area |
+| `lookupPostcode`, `findOutcodesWithin`, `geocodePostcodes` | postcodes.io, through the cache |
+
+The area search is a fan-out: the postcode is geocoded, the outcodes within the radius are
+listed, each outcode is put to the Companies House advanced search as its `location` (which
+matches any address field, so a partial postcode works), the results are merged on company
+number, their postcodes geocoded in bulk through the cache, and anything beyond the radius
+dropped. Companies House caps a search at a few thousand rows and a busy outcode can hold
+more, so each outcode returns its first page only and the view says how many it held.
+
+Person research runs on Claude's web search tool: one call searches — at most five
+searches, located in the UK, briefed with the person's companies, role and area to tell
+namesakes apart — and a second forces the record tool over what the first wrote and the
+URLs it read. Findings are business-capacity only, every one carries the page it came from,
+and nothing is read behind a login: the Prospector's compliance rules apply in full.
+
+### Deliberately not built
+
+Officers are not pinned separately — their correspondence address is often an accountant's.
+Web search does not yet stand in for a missing website on `/clients/research`, though the
+same tool would do it. The map does not draw a polygon; a postcode and a radius are enough
+to work a patch.

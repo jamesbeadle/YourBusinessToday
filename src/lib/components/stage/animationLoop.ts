@@ -21,9 +21,21 @@ export type SceneLoop = {
 	isRunning: () => boolean;
 };
 
-/** A frame loop that can rest and run again; pausing is how a scene is stopped for good. */
-export function createSceneLoop(frame: Frame): SceneLoop {
-	let stop: (() => void) | null = startAnimationLoop(frame);
+/**
+ * A frame loop that can rest and run again; pausing is how a scene is stopped
+ * for good. The first frame drawn is the moment the scene is ready to be seen.
+ */
+export function createSceneLoop(frame: Frame, onFirstFrame: () => void = () => {}): SceneLoop {
+	let hasDrawn = false;
+
+	function drawFrame(deltaSeconds: number, timeSeconds: number): void {
+		frame(deltaSeconds, timeSeconds);
+		if (hasDrawn) return;
+		hasDrawn = true;
+		onFirstFrame();
+	}
+
+	let stop: (() => void) | null = startAnimationLoop(drawFrame);
 
 	function pause(): void {
 		stop?.();
@@ -32,7 +44,7 @@ export function createSceneLoop(frame: Frame): SceneLoop {
 
 	function resume(): void {
 		if (stop !== null) return;
-		stop = startAnimationLoop(frame);
+		stop = startAnimationLoop(drawFrame);
 	}
 
 	return { pause, resume, isRunning: () => stop !== null };

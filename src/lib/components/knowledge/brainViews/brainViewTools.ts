@@ -3,8 +3,7 @@ import type { DashboardTool } from '../dashboard/dashboardTools.svelte';
 import type { KnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 import type { Snippet } from 'svelte';
 
-export type BrainToolKey =
-	'interview' | 'ask' | 'model' | 'contents' | 'map' | 'share' | 'settings';
+export type BrainToolKey = 'ask' | 'draw' | 'model' | 'contents' | 'map' | 'share' | 'settings';
 
 type BrainToolDefinition = { label: string; iconPaths: string[] };
 
@@ -14,8 +13,8 @@ export function brainToolsOwnerFor(kind: KnowledgeKind, brainId: string): string
 }
 
 const brainToolDefinitions: Record<BrainToolKey, BrainToolDefinition> = {
-	interview: { label: 'The interview', iconPaths: sectionIconPaths.interview },
 	ask: { label: 'Ask', iconPaths: sectionIconPaths.terminal },
+	draw: { label: 'Draw the map', iconPaths: sectionIconPaths.interview },
 	model: { label: 'The model', iconPaths: sectionIconPaths.model },
 	contents: { label: 'Contents', iconPaths: sectionIconPaths.contents },
 	map: { label: 'The map', iconPaths: sectionIconPaths.map },

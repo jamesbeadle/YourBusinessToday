@@ -1,7 +1,5 @@
 <script lang="ts">
-	import ConstellationHud from './ConstellationHud.svelte';
-	import NeuronDetailPanel from './NeuronDetailPanel.svelte';
-	import NeuronTooltip from './NeuronTooltip.svelte';
+	import ConstellationOverlays from './ConstellationOverlays.svelte';
 	import { buildConstellationModel } from './constellation/buildConstellationModel';
 	import { createConstellationExploration } from './constellation/constellationExploration.svelte';
 	import { restWhilePageHidden } from '$lib/client/pageVisibility.svelte';
@@ -18,13 +16,15 @@
 		pageBasePath,
 		contexts,
 		pageIndex,
-		pageLinks
+		pageLinks,
+		onReady = () => {}
 	}: {
 		loadPage: (slug: string) => Promise<BrainPagePayload>;
 		pageBasePath: string | null;
 		contexts: BrainContext[];
 		pageIndex: BrainPageSummary[];
 		pageLinks: BrainPageLink[];
+		onReady?: () => void;
 	} = $props();
 
 	const model = $derived(buildConstellationModel(contexts, pageIndex, pageLinks));
@@ -47,7 +47,7 @@
 			containerElement,
 			untrack(() => model),
 			exploration.callbacks,
-			{ shouldCascadeInitialModel: hasWatchedEmptyBrain }
+			{ shouldCascadeInitialModel: hasWatchedEmptyBrain, onReady }
 		);
 		experience = mounted;
 		return () => mounted.destroy();
@@ -56,6 +56,10 @@
 	$effect(() => {
 		if (!hasNeurons) hasWatchedEmptyBrain = true;
 		experience?.updateModel(model);
+	});
+
+	$effect(() => {
+		if (!hasNeurons) untrack(onReady);
 	});
 
 	restWhilePageHidden(() => experience);
@@ -69,25 +73,7 @@
 {#if hasNeurons}
 	<div bind:this={containerElement} class="relative h-full min-h-80 overflow-hidden bg-night">
 		<canvas bind:this={canvasElement} class="h-full w-full"></canvas>
-		<ConstellationHud
-			{contexts}
-			{pageIndex}
-			focusedContextSlug={exploration.focusedContextSlug}
-			selectedSlug={exploration.selectedSlug}
-			onReturnToModel={exploration.returnToModel}
-			onReturnToContext={exploration.returnToContext}
-		/>
-		{#if exploration.hover !== null && exploration.selectedSlug === null}
-			<NeuronTooltip hover={exploration.hover} {contexts} {pageIndex} />
-		{/if}
-		{#if exploration.selectedSlug !== null}
-			<NeuronDetailPanel
-				{loadPage}
-				{pageBasePath}
-				slug={exploration.selectedSlug}
-				onClose={exploration.returnToContext}
-			/>
-		{/if}
+		<ConstellationOverlays {exploration} {loadPage} {pageBasePath} {contexts} {pageIndex} />
 	</div>
 {:else}
 	<div class="flex h-full min-h-80 items-center justify-center text-sm text-chalk/50">

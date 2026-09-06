@@ -7,7 +7,7 @@
 	import WorkspaceChat from '../../workspace/WorkspaceChat.svelte';
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { layoutWorkflowMap } from '$lib/data/mapLayout';
-	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ProcessBrainView } from '$lib/server/knowledge/brainViews/loadProcessBrainView';
 	import type { StationSelection } from '../../map/stationSelection';
@@ -17,17 +17,19 @@
 		knowledgeBaseId,
 		isOwner,
 		creditBalance,
-		view
+		view,
+		onReady
 	}: {
 		knowledgeBaseId: string;
 		isOwner: boolean;
 		creditBalance: number | null;
 		view: ProcessBrainView;
+		onReady: () => void;
 	} = $props();
 
-	const dashboardTools = useDashboardTools();
+	const toolbarTools = useDashboardTools().right;
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, view.workflowId));
-	const toolKeys = $derived(brainToolKeysFor(['interview', 'map'], 'share', isOwner));
+	const toolKeys = $derived(brainToolKeysFor(['draw', 'map'], 'share', isOwner));
 
 	let model: WorkflowModel = $derived(view.latestMap);
 	let selection = $state<StationSelection | null>(null);
@@ -37,22 +39,22 @@
 
 	$effect(() => {
 		const toolsOwner = brainToolsOwnerFor('process', view.workflowId);
-		const tools = brainTools(toolKeys, { interview, map, share });
-		dashboardTools.register(toolsOwner, tools, brainToolsRank);
-		return () => dashboardTools.release(toolsOwner);
+		const tools = brainTools(toolKeys, { draw, map, share });
+		toolbarTools.register(toolsOwner, tools);
+		return () => toolbarTools.release(toolsOwner);
 	});
 
 	$effect(() => {
-		if (dashboardTools.activeKey === 'map') isMapShown = true;
+		if (toolbarTools.activeKey === 'map') isMapShown = true;
 	});
 
 	function closeMap(): void {
 		isMapShown = false;
-		if (dashboardTools.activeKey === 'map') dashboardTools.close();
+		if (toolbarTools.activeKey === 'map') toolbarTools.close();
 	}
 </script>
 
-{#snippet interview()}
+{#snippet draw()}
 	<WorkspaceChat
 		workflowId={view.workflowId}
 		initialMessages={view.messages}
@@ -74,7 +76,7 @@
 	</div>
 {/snippet}
 
-<FlowBrain {model} seed={view.workflowId} />
+<FlowBrain {model} seed={view.workflowId} {onReady} />
 {#if isMapShown}
 	<ProcessMapOverlay
 		{model}

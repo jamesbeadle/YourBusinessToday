@@ -1,16 +1,12 @@
 <script lang="ts">
-	import BrainStrip from './BrainStrip.svelte';
 	import DashboardPanel from './DashboardPanel.svelte';
-	import DashboardTopBar from './DashboardTopBar.svelte';
-	import KbConstellation from '../KbConstellation.svelte';
+	import DashboardScene from './DashboardScene.svelte';
+	import KnowledgeBaseRail from './KnowledgeBaseRail.svelte';
 	import KnowledgeBaseToolset from './KnowledgeBaseToolset.svelte';
-	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
-	import { BrainFlight, provideBrainFlight } from './brainFlight.svelte';
 	import { provideDashboardTools } from './dashboardTools.svelte';
 	import { openingKnowledgeBaseTool } from './knowledgeBaseTools';
-	import { buildConstellationSlots, type ConstellationSlot } from '../constellationSlots';
+	import { buildConstellationSlots } from '../constellationSlots';
 	import { screen } from '$lib/client/screen.svelte';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { onMount, type Snippet } from 'svelte';
 	import type { ChatbotSummary } from '$lib/data/chatbotTypes';
@@ -40,58 +36,36 @@
 		children: Snippet;
 	} = $props();
 
-	const dashboardTools = provideDashboardTools();
+	const dashboardTools = provideDashboardTools(() => !screen.isWideScreen);
 	const slots = $derived(buildConstellationSlots(knowledgeBase.id, brains, processMaps));
 	const openBrainId = $derived(page.params.brainId ?? null);
 	const openSlot = $derived(slots.find((slot) => slot.id === openBrainId) ?? null);
 
-	let constellation = $state<KbConstellation>();
 	let isOutOfCredits = $state(false);
 
-	const flight = provideBrainFlight(new BrainFlight(() => constellation, () => openBrainId));
-
 	onMount(() => {
-		dashboardTools.open(openingKnowledgeBaseTool(page.url, isOwner, screen.isWideScreen));
+		dashboardTools.left.open(openingKnowledgeBaseTool(page.url, isOwner, screen.isWideScreen));
 	});
-
-	function selectSlot(slot: ConstellationSlot): void {
-		if (slot.variant === 'brain') flight.flyInto(slot.id);
-		goto(slot.href, { noScroll: true });
-	}
 </script>
 
-<div class="flex h-full w-full overflow-hidden bg-night">
+<div class="flex h-full w-full flex-col overflow-hidden bg-night lg:flex-row">
 	<KnowledgeBaseToolset
 		{knowledgeBase}
 		{isOwner}
+		openKind={openSlot?.kind ?? null}
 		{shares}
 		{chatbots}
 		{workbench}
 		onOutOfCredits={() => (isOutOfCredits = true)}
 	/>
-	<div class="relative min-w-0 flex-1">
-		<KbConstellation bind:this={constellation} {slots} onSelect={selectSlot} />
+	<KnowledgeBaseRail
+		knowledgeBaseId={knowledgeBase.id}
+		isOnConstellation={openSlot === null}
+		badgeCounts={{ review: workbench.proposals.length }}
+	/>
+	<DashboardPanel side="left" />
+	<DashboardScene {knowledgeBase} {slots} {openBrainId} {isOutOfCredits}>
 		{@render children()}
-		<DashboardTopBar
-			knowledgeBaseId={knowledgeBase.id}
-			{openSlot}
-			badgeCounts={{ review: workbench.proposals.length }}
-		/>
-		<BrainStrip
-			knowledgeBaseId={knowledgeBase.id}
-			{slots}
-			activeSlotId={openBrainId}
-			onSelect={selectSlot}
-		/>
-		{#if isOutOfCredits}
-			<div class="absolute inset-x-4 top-16 z-20 overflow-hidden rounded-2xl border border-hairline">
-				<OutOfCreditsNotice />
-			</div>
-		{/if}
-	</div>
-	{#if dashboardTools.activeTool !== null}
-		<DashboardPanel title={dashboardTools.activeTool.label} onClose={() => dashboardTools.close()}>
-			{@render dashboardTools.activeTool.panel()}
-		</DashboardPanel>
-	{/if}
+	</DashboardScene>
+	<DashboardPanel side="right" />
 </div>

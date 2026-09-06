@@ -1,26 +1,29 @@
-import { dashboardMotion } from './dashboardMotion';
+import { viewFadeMilliseconds } from './dashboardMotion';
+import { FlightLanding } from './flightLanding';
 import { pageVisibility } from '$lib/client/pageVisibility.svelte';
-import { getContext, setContext } from 'svelte';
 import type KbConstellation from '../KbConstellation.svelte';
 
 type Stage = Pick<KbConstellation, 'focusSlot' | 'releaseFocus' | 'pause' | 'resume' | 'hide' | 'show'>;
 
-const restingDelayMilliseconds =
-	dashboardMotion.flightMilliseconds + dashboardMotion.settleAfterFlightMilliseconds;
+type Timer = ReturnType<typeof setTimeout> | undefined;
 
 /**
- * Keeps the galaxy in step with the URL: a brain in the route means the camera
- * is inside it and the galaxy rests unseen once the flight lands; none means
- * the galaxy spins on the ring. Landing directly on a brain cuts instead of
- * flying, and a hidden page rests the galaxy until it is seen again.
- * Create inside a component.
+ * Keeps the galaxy in step with the URL and the brain's view. Opening a brain
+ * flies the camera in and keeps the galaxy spinning until the view has drawn
+ * and faded in over it, then rests the galaxy unseen. Leaving shows the galaxy
+ * again first, lets the view fade out over it, then flies back to the ring.
+ * Landing directly on a brain cuts instead of flying, and a hidden page rests
+ * the galaxy until it is seen again. Create inside a component.
  */
 export class BrainFlight {
 	#stage: () => Stage | undefined;
 	#openBrainId: () => string | null;
-	#hasLanded = false;
-	#landingTime: number | null = null;
-	#landingTimer: ReturnType<typeof setTimeout> | undefined;
+	#hasFollowedRoute = false;
+	#destinationBrainId: string | null = null;
+	#landing = new FlightLanding();
+	#restTimer: Timer;
+	#releaseTimer: Timer;
+	openingBrainId = $state<string | null>(null);
 
 	constructor(stage: () => Stage | undefined, openBrainId: () => string | null) {
 		this.#stage = stage;
@@ -31,32 +34,39 @@ export class BrainFlight {
 
 	/** A view entered by flight waits for the camera to land; a deep link, or a landed camera, shows it at once. */
 	get viewFadeDelayMilliseconds(): number {
-		if (this.#landingTime === null) return 0;
-		return Math.max(0, this.#landingTime - Date.now());
+		return this.#landing.millisecondsUntilLanded;
 	}
 
 	flyInto(brainId: string, isInstant = false): void {
-		this.beginFlight(isInstant);
+		if (this.#destinationBrainId === brainId) return;
+		this.#destinationBrainId = brainId;
+		this.openingBrainId = brainId;
+		this.settleTimers();
+		this.#landing.begin(isInstant);
 		this.wake();
 		this.#stage()?.focusSlot(brainId, { isInstant });
 	}
 
 	flyOut(): void {
-		this.land();
+		if (this.#destinationBrainId === null) return;
+		this.#destinationBrainId = null;
+		this.openingBrainId = null;
+		this.settleTimers();
+		this.#landing.land();
 		this.wake();
-		this.#stage()?.releaseFocus();
+		this.#releaseTimer = setTimeout(() => this.#stage()?.releaseFocus(), viewFadeMilliseconds());
 	}
 
-	private beginFlight(isInstant: boolean): void {
-		if (isInstant) return this.land();
-		clearTimeout(this.#landingTimer);
-		this.#landingTime = Date.now() + dashboardMotion.flightMilliseconds;
-		this.#landingTimer = setTimeout(() => this.land(), dashboardMotion.flightMilliseconds);
+	/** The view has begun fading in over the galaxy, which rests unseen once the fade is done. */
+	settleBehindView(fadeEndsInMilliseconds: number): void {
+		this.openingBrainId = null;
+		clearTimeout(this.#restTimer);
+		this.#restTimer = setTimeout(() => this.rest(), fadeEndsInMilliseconds);
 	}
 
-	private land(): void {
-		clearTimeout(this.#landingTimer);
-		this.#landingTime = null;
+	private settleTimers(): void {
+		clearTimeout(this.#restTimer);
+		clearTimeout(this.#releaseTimer);
 	}
 
 	private wake(): void {
@@ -64,34 +74,22 @@ export class BrainFlight {
 		this.#stage()?.resume();
 	}
 
-	private followRoute(): (() => void) | void {
-		if (this.#stage() === undefined) return;
-		const brainId = this.#openBrainId();
-		const isDeepLink = !this.#hasLanded;
-		this.#hasLanded = true;
-		if (brainId === null) return this.flyOut();
-		this.flyInto(brainId, isDeepLink);
-		const restTimer = setTimeout(() => this.rest(), restingDelayMilliseconds);
-		return () => clearTimeout(restTimer);
-	}
-
 	private rest(): void {
 		this.#stage()?.pause();
 		this.#stage()?.hide();
+	}
+
+	private followRoute(): void {
+		if (this.#stage() === undefined) return;
+		const brainId = this.#openBrainId();
+		const isDeepLink = !this.#hasFollowedRoute;
+		this.#hasFollowedRoute = true;
+		if (brainId === null) return this.flyOut();
+		this.flyInto(brainId, isDeepLink);
 	}
 
 	private restWhileHidden(): void {
 		if (pageVisibility.isHidden) return this.#stage()?.pause();
 		if (this.#openBrainId() === null) this.#stage()?.resume();
 	}
-}
-
-const brainFlightKey = Symbol('brainFlight');
-
-export function provideBrainFlight(flight: BrainFlight): BrainFlight {
-	return setContext(brainFlightKey, flight);
-}
-
-export function useBrainFlight(): BrainFlight {
-	return getContext<BrainFlight>(brainFlightKey);
 }

@@ -1,15 +1,14 @@
 <script lang="ts">
+	import ToolIcon from './ToolIcon.svelte';
 	import type { DashboardTool } from './dashboardTools.svelte';
 
 	let {
 		tools,
 		activeKey,
-		badgeCounts = {},
 		onSelect
 	}: {
 		tools: DashboardTool[];
 		activeKey: string | null;
-		badgeCounts?: Record<string, number>;
 		onSelect: (key: string) => void;
 	} = $props();
 
@@ -18,7 +17,7 @@
 </script>
 
 <nav
-	aria-label="Tools"
+	aria-label="Brain tools"
 	class={[
 		'pointer-events-auto flex shrink-0 items-center gap-0.5 overflow-x-auto rounded-2xl border',
 		'border-hairline bg-night/80 p-1 backdrop-blur-sm scrollbar-hidden',
@@ -40,31 +39,9 @@
 					: 'text-chalk/50 hover:bg-hairline/30 hover:text-chalk'
 			]}
 		>
-			<svg
-				width="18"
-				height="18"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="1.7"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"
-			>
-				{#each tool.iconPaths as pathData (pathData)}
-					<path d={pathData} />
-				{/each}
-			</svg>
+			<ToolIcon iconPaths={tool.iconPaths} />
 			{#if activeKey === tool.key}
 				<span class="hidden font-display text-xs lg:inline">{tool.label}</span>
-			{/if}
-			{#if (badgeCounts[tool.key] ?? 0) > 0}
-				<span
-					class="absolute top-0.5 right-0.5 rounded-full bg-signal px-1 font-display text-[9px]
-						font-medium text-night lg:-top-0.5 lg:-right-0.5"
-				>
-					{badgeCounts[tool.key]}
-				</span>
 			{/if}
 		</button>
 	{/each}

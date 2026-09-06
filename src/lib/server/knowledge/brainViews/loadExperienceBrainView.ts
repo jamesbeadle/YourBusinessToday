@@ -21,27 +21,32 @@ export async function loadExperienceBrainView(
 	knowledgeBaseBrains: KbBrainSummary[]
 ): Promise<ExperienceBrainView> {
 	const domainBrains = knowledgeBaseBrains.filter((candidate) => candidate.category === 'domain');
-	const boundDomainBrainIds =
-		brain.category === 'instance' ? await getBoundDomainBrainIds(supabase, brain.id) : [];
+	const [items, { boundDomainBrainIds, schemaTypes }] = await Promise.all([
+		getBrainItems(supabase, brain.id),
+		boundSchemaFor(supabase, brain)
+	]);
 	return {
 		kind: 'experience',
 		brain,
-		items: await getBrainItems(supabase, brain.id),
+		items,
 		domainBrains,
 		boundDomainBrainIds,
-		schemaTypes: await boundSchemaTypesFor(supabase, boundDomainBrainIds),
+		schemaTypes,
 		dddEditorHref: dddEditorHrefFor(brain, domainBrains)
 	};
 }
 
-async function boundSchemaTypesFor(
+/** An instance brain records events in the terms of the expertise brains it is bound to. */
+async function boundSchemaFor(
 	supabase: SupabaseClient,
-	boundDomainBrainIds: string[]
-): Promise<BoundSchemaType[]> {
+	brain: KbBrainSummary
+): Promise<{ boundDomainBrainIds: string[]; schemaTypes: BoundSchemaType[] }> {
+	if (brain.category !== 'instance') return { boundDomainBrainIds: [], schemaTypes: [] };
+	const boundDomainBrainIds = await getBoundDomainBrainIds(supabase, brain.id);
 	const itemLists = await Promise.all(
 		boundDomainBrainIds.map((domainBrainId) => getBrainItems(supabase, domainBrainId))
 	);
-	return schemaTypesFrom(itemLists.flat());
+	return { boundDomainBrainIds, schemaTypes: schemaTypesFrom(itemLists.flat()) };
 }
 
 function dddEditorHrefFor(brain: KbBrainSummary, domainBrains: KbBrainSummary[]): string | null {

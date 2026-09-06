@@ -17,13 +17,12 @@ export async function loadProcessBrainView(
 	supabase: SupabaseClient,
 	workflowId: string
 ): Promise<ProcessBrainView> {
-	return {
-		kind: 'process',
-		workflowId,
-		messages: await conversationMessages(supabase, workflowId),
-		latestMap: await getLatestWorkflowMap(supabase, workflowId),
-		viewers: await getMapViewers(supabase, workflowId)
-	};
+	const [messages, latestMap, viewers] = await Promise.all([
+		conversationMessages(supabase, workflowId),
+		getLatestWorkflowMap(supabase, workflowId),
+		getMapViewers(supabase, workflowId)
+	]);
+	return { kind: 'process', workflowId, messages, latestMap, viewers };
 }
 
 async function conversationMessages(

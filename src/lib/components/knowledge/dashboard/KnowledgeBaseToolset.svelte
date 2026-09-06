@@ -1,10 +1,10 @@
 <script lang="ts">
 	import ChatbotsPanel from '../../chatbots/ChatbotsPanel.svelte';
 	import ExpertiseWorkbenchPanel from './ExpertiseWorkbenchPanel.svelte';
-	import KbInterviewPanel from '../KbInterviewPanel.svelte';
+	import FocusedInterviewPanel from './FocusedInterviewPanel.svelte';
 	import KbSettingsPanel from '../KbSettingsPanel.svelte';
 	import KnowledgeBaseSharePanel from '../KnowledgeBaseSharePanel.svelte';
-	import { knowledgeBaseToolsRank, useDashboardTools } from './dashboardTools.svelte';
+	import { useDashboardTools } from './dashboardTools.svelte';
 	import {
 		knowledgeBaseToolDefinitions,
 		knowledgeBaseToolKeysFor,
@@ -15,10 +15,12 @@
 	import type { KbWorkbenchData } from '$lib/server/knowledge/kbWorkbenchData';
 	import type { KnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
 	import type { KnowledgeBaseShare } from '$lib/server/knowledge/knowledgeBaseShares';
+	import type { KnowledgeKind } from '$lib/data/knowledge/knowledgeKinds';
 
 	let {
 		knowledgeBase,
 		isOwner,
+		openKind,
 		shares,
 		chatbots,
 		workbench,
@@ -26,6 +28,7 @@
 	}: {
 		knowledgeBase: KnowledgeBase;
 		isOwner: boolean;
+		openKind: KnowledgeKind | null;
 		shares: KnowledgeBaseShare[];
 		chatbots: ChatbotSummary[];
 		workbench: KbWorkbenchData;
@@ -33,7 +36,7 @@
 	} = $props();
 
 	const toolsOwner = 'knowledge-base';
-	const dashboardTools = useDashboardTools();
+	const railTools = useDashboardTools().left;
 
 	const panels: Record<KnowledgeBaseToolKey, Snippet> = {
 		interview: interviewPanel,
@@ -51,15 +54,13 @@
 			...knowledgeBaseToolDefinitions[key],
 			panel: panels[key]
 		}));
-		dashboardTools.register(toolsOwner, tools, knowledgeBaseToolsRank);
-		return () => dashboardTools.release(toolsOwner);
+		railTools.register(toolsOwner, tools);
+		return () => railTools.release(toolsOwner);
 	});
 </script>
 
 {#snippet interviewPanel()}
-	<div class="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
-		<KbInterviewPanel knowledgeBaseId={knowledgeBase.id} />
-	</div>
+	<FocusedInterviewPanel knowledgeBaseId={knowledgeBase.id} {openKind} />
 {/snippet}
 
 {#snippet documentsPanel()}

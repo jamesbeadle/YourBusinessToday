@@ -3,13 +3,11 @@
 	import BrainTerminal from '../../brain/dashboard/BrainTerminal.svelte';
 	import DomainModelIndex from '../../brain/DomainModelIndex.svelte';
 	import ExpertiseSettingsPanel from './ExpertiseSettingsPanel.svelte';
-	import KbInterviewPanel from '../KbInterviewPanel.svelte';
 	import OutOfCreditsNotice from '../../workspace/OutOfCreditsNotice.svelte';
 	import PruneKnowledgeButton from '../../brain/PruneKnowledgeButton.svelte';
 	import { brainToolKeysFor, brainTools, brainToolsOwnerFor } from './brainViewTools';
 	import { fetchBrainPage } from '../../brain/constellation/fetchBrainPage';
-	import { kindInterviewIntros } from '../interviewRequest';
-	import { brainToolsRank, useDashboardTools } from '../dashboard/dashboardTools.svelte';
+	import { useDashboardTools } from '../dashboard/dashboardTools.svelte';
 	import { brainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import { screen } from '$lib/client/screen.svelte';
 	import type { ExpertiseBrainView } from '$lib/server/knowledge/brainViews/loadExpertiseBrainView';
@@ -17,36 +15,36 @@
 	let {
 		knowledgeBaseId,
 		brainId,
-		view
-	}: { knowledgeBaseId: string; brainId: string; view: ExpertiseBrainView } = $props();
+		view,
+		onReady
+	}: {
+		knowledgeBaseId: string;
+		brainId: string;
+		view: ExpertiseBrainView;
+		onReady: () => void;
+	} = $props();
 
-	const dashboardTools = useDashboardTools();
+	const toolbarTools = useDashboardTools().right;
 	const isOwner = $derived(view.accessRole === 'owner');
 	const pageBasePath = $derived(`/workspace/${view.brain.entityId}/domains/${view.brain.id}`);
 	const actionBasePath = $derived(brainHref(knowledgeBaseId, brainId));
-	const toolKeys = $derived(brainToolKeysFor(['interview', 'ask', 'model'], 'settings', isOwner));
+	const toolKeys = $derived(brainToolKeysFor(['ask', 'model'], 'settings', isOwner));
 
 	let constellation = $state<BrainConstellation>();
 	let isOutOfCredits = $state(false);
 
 	$effect(() => {
 		const toolsOwner = brainToolsOwnerFor('expertise', brainId);
-		const tools = brainTools(toolKeys, { interview, ask, model, settings });
-		dashboardTools.register(toolsOwner, tools, brainToolsRank);
-		return () => dashboardTools.release(toolsOwner);
+		const tools = brainTools(toolKeys, { ask, model, settings });
+		toolbarTools.register(toolsOwner, tools);
+		return () => toolbarTools.release(toolsOwner);
 	});
 
 	function openPageInBrain(slug: string): void {
-		if (!screen.isWideScreen) dashboardTools.close();
+		if (!screen.isWideScreen) toolbarTools.close();
 		constellation?.drillToNeuron(slug);
 	}
 </script>
-
-{#snippet interview()}
-	<div class="min-h-0 flex-1 overflow-y-auto p-4">
-		<KbInterviewPanel {knowledgeBaseId} focusKind="expertise" intro={kindInterviewIntros.expertise} />
-	</div>
-{/snippet}
 
 {#snippet ask()}
 	<BrainTerminal
@@ -86,6 +84,7 @@
 	contexts={view.contexts}
 	pageIndex={view.pageIndex}
 	pageLinks={view.pageLinks}
+	{onReady}
 />
 {#if isOutOfCredits}
 	<div class="absolute inset-x-4 top-4 z-20 overflow-hidden rounded-2xl border border-hairline">

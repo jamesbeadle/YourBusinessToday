@@ -29,7 +29,7 @@
 		class={[
 			'flex-1 transition-opacity duration-300',
 			isDashboard && 'h-[calc(100dvh-var(--site-header-height))] overflow-hidden',
-			slowNavigation.isActive && 'pointer-events-none opacity-40'
+			slowNavigation.isActive && !isDashboard && 'pointer-events-none opacity-40'
 		]}
 	>
 		{@render children()}

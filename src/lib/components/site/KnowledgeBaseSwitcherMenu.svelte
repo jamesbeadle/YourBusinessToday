@@ -33,7 +33,7 @@
 ></button>
 <nav
 	aria-label="Knowledge base menu"
-	class="absolute left-0 z-50 mt-3 w-72 rounded-2xl border border-hairline bg-carriage p-2
+	class="absolute top-full left-0 z-50 mt-2 w-72 rounded-2xl border border-hairline bg-carriage p-2
 		shadow-2xl"
 >
 	<ul class="max-h-72 overflow-y-auto">

@@ -1,22 +1,24 @@
 <script lang="ts">
-	import BrainTitleBand from './BrainTitleBand.svelte';
+	import BrainBreadcrumb from './BrainBreadcrumb.svelte';
 	import DashboardToolbar from './DashboardToolbar.svelte';
 	import { topRowHeightPixels } from './dashboardLayout';
 	import { useDashboardTools } from './dashboardTools.svelte';
 	import { newBrainHref } from '$lib/data/knowledge/knowledgeBaseRoutes';
 	import type { ConstellationSlot } from '../constellationSlots';
+	import type { KnowledgeBase } from '$lib/server/knowledge/getKnowledgeBase';
 
 	let {
-		knowledgeBaseId,
+		knowledgeBase,
 		openSlot,
-		badgeCounts
+		openingSlot
 	}: {
-		knowledgeBaseId: string;
+		knowledgeBase: KnowledgeBase;
 		openSlot: ConstellationSlot | null;
-		badgeCounts: Record<string, number>;
+		openingSlot: ConstellationSlot | null;
 	} = $props();
 
-	const dashboardTools = useDashboardTools();
+	const toolbarTools = useDashboardTools().right;
+	const shownSlot = $derived(openingSlot ?? openSlot);
 </script>
 
 <div
@@ -24,9 +26,9 @@
 		px-3"
 	style:height={`${topRowHeightPixels}px`}
 >
-	{#if openSlot === null}
+	{#if shownSlot === null}
 		<a
-			href={newBrainHref(knowledgeBaseId)}
+			href={newBrainHref(knowledgeBase.id)}
 			aria-label="Add a second brain"
 			title="Add a second brain"
 			class="pointer-events-auto min-w-0 shrink rounded-full border border-hairline bg-night/80 px-3
@@ -36,12 +38,13 @@
 			+<span class="hidden sm:inline"> Add a second brain</span>
 		</a>
 	{:else}
-		<BrainTitleBand {openSlot} />
+		<BrainBreadcrumb {knowledgeBase} slot={shownSlot} isOpening={openingSlot !== null} />
+		{#if toolbarTools.tools.length > 0}
+			<DashboardToolbar
+				tools={toolbarTools.tools}
+				activeKey={toolbarTools.activeKey}
+				onSelect={(key) => toolbarTools.toggle(key)}
+			/>
+		{/if}
 	{/if}
-	<DashboardToolbar
-		tools={dashboardTools.tools}
-		activeKey={dashboardTools.activeKey}
-		{badgeCounts}
-		onSelect={(key) => dashboardTools.toggle(key)}
-	/>
 </div>

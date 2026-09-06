@@ -31,15 +31,14 @@ export async function loadExpertiseBrainView(
 	userId: string
 ): Promise<ExpertiseBrainView> {
 	const brain = await requireDomainBrain(supabase, storedBrain);
-	return {
-		kind: 'expertise',
-		brain,
-		accessRole: await resolveBrainAccessRole(supabase, brain, userId),
-		contexts: await getBrainContexts(supabase, brain.id),
-		pageIndex: await getBrainPageIndex(supabase, brain.id),
-		pageLinks: await getBrainPageLinks(supabase, brain.id),
-		conversation: await getBrainConversationThread(supabase, brain.id, 'brain')
-	};
+	const [accessRole, contexts, pageIndex, pageLinks, conversation] = await Promise.all([
+		resolveBrainAccessRole(supabase, brain, userId),
+		getBrainContexts(supabase, brain.id),
+		getBrainPageIndex(supabase, brain.id),
+		getBrainPageLinks(supabase, brain.id),
+		getBrainConversationThread(supabase, brain.id, 'brain')
+	]);
+	return { kind: 'expertise', brain, accessRole, contexts, pageIndex, pageLinks, conversation };
 }
 
 export async function requireDomainBrain(

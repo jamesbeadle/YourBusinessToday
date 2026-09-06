@@ -17,6 +17,17 @@ export type KnowledgeBaseToolDefinition = {
 	iconPaths: string[];
 };
 
+/** The constellation glyph: three brains on a ring, the rail's way to the knowledge base. */
+export const brainsIconPaths = [
+	'M12 3.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+	'M5 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+	'M19 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+	'M10.8 7.2 6.3 13.3',
+	'M13.2 7.2l4.5 6.1',
+	'M7 17.5h10',
+	'M12 12.5h.01'
+];
+
 const chatbotIconPaths = [
 	'M12 2v4',
 	'M5 10a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z',

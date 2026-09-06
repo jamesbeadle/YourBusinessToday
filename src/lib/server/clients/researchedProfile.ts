@@ -24,6 +24,7 @@ export function parseResearchedProfile(
 		profile: {
 			industry: String(toolInput.industry ?? '').trim(),
 			location: String(toolInput.location ?? '').trim(),
+			postcode: '',
 			headcountBand: parseHeadcountBand(toolInput.headcount_band),
 			companyNumber: '',
 			summary: String(toolInput.summary ?? '').trim(),

@@ -24,6 +24,10 @@
 		</div>
 		<div class="flex flex-wrap gap-2">
 			<button type="button" class={quietButtonClasses} onclick={onEdit}>Edit</button>
+			<form method="POST" action="?/researchPerson">
+				<input type="hidden" name="personId" value={person.id} />
+				<SubmitButton class={quietButtonClasses} savingLabel="Searching…">Find on the web</SubmitButton>
+			</form>
 			<form method="POST" action="?/draftApproach">
 				<input type="hidden" name="personId" value={person.id} />
 				<SubmitButton class={confirmButtonClasses} savingLabel="Drafting…">Draft approach</SubmitButton>

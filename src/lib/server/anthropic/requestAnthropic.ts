@@ -2,7 +2,7 @@ import { env } from '$env/dynamic/private';
 import { anthropicMessagesUrl, anthropicVersion } from './anthropicConstants';
 import { recordMeteredCall } from './modelContext';
 import { resolveRequestModel } from './resolveRequestModel';
-import type { AnthropicMessage, AnthropicResponse, AnthropicTool } from './anthropicTypes';
+import type { AnthropicMessage, AnthropicRequestTool, AnthropicResponse } from './anthropicTypes';
 import type { AnthropicUsage } from '$lib/data/anthropicUsage';
 
 const failureDetailLimit = 300;
@@ -10,7 +10,7 @@ const failureDetailLimit = 300;
 export type AnthropicRequest = {
 	system: string;
 	messages: AnthropicMessage[];
-	tools: AnthropicTool[];
+	tools: AnthropicRequestTool[];
 	maxTokens: number;
 	forcedToolName?: string;
 	// Makes the model reply through one of the tools rather than in prose.

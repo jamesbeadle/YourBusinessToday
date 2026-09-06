@@ -20,6 +20,9 @@
 		<FormField label="Location">
 			<input name="location" value={client.profile.location} class={inputClasses} />
 		</FormField>
+		<FormField label="Postcode">
+			<input name="postcode" value={client.profile.postcode} placeholder="GU1 3AA" class={inputClasses} />
+		</FormField>
 		<FormField label="Size">
 			<select name="headcountBand" value={client.profile.headcountBand} class={selectClasses}>
 				{#each headcountBandOrder as band (band)}

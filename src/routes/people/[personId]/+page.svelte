@@ -5,6 +5,7 @@
 	import Modal from '$lib/components/site/Modal.svelte';
 	import PersonCompanyList from '$lib/components/people/PersonCompanyList.svelte';
 	import PersonEventLedger from '$lib/components/people/PersonEventLedger.svelte';
+	import PersonFindingsForm from '$lib/components/people/PersonFindingsForm.svelte';
 	import PersonFieldsForm from '$lib/components/people/PersonFieldsForm.svelte';
 	import PersonHeader from '$lib/components/people/PersonHeader.svelte';
 	import PersonLinkList from '$lib/components/people/PersonLinkList.svelte';
@@ -15,9 +16,11 @@
 
 	let isEditModalOpen = $state(false);
 	let isApproachModalOpen = $state(false);
+	let isFindingsModalOpen = $state(false);
 
 	$effect(() => {
 		isApproachModalOpen = form?.approachDraft !== undefined;
+		isFindingsModalOpen = form?.findings !== undefined;
 	});
 
 	const suggestedGroupName = $derived(suggestedGroupNameFor(data.person.name));
@@ -64,5 +67,11 @@
 <Modal title="Draft approach" bind:isOpen={isApproachModalOpen} maxWidthClass="max-w-2xl">
 	{#if form?.approachDraft !== undefined}
 		<DraftApproachForm draft={form.approachDraft} />
+	{/if}
+</Modal>
+
+<Modal title="Found on the web" bind:isOpen={isFindingsModalOpen} maxWidthClass="max-w-2xl">
+	{#if form?.findings !== undefined}
+		<PersonFindingsForm findings={form.findings} />
 	{/if}
 </Modal>

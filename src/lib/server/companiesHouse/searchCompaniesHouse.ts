@@ -1,5 +1,5 @@
 import { companiesHouseApiOrigin, requestCompaniesHouse } from './companiesHouseRequest';
-import { describeRegisteredAddress } from './registeredAddress';
+import { describeRegisteredAddress, postcodeOfRegisteredAddress } from './registeredAddress';
 
 export type CompaniesHouseSearch = { sicCodes: string[]; location: string };
 
@@ -8,8 +8,11 @@ export type CompaniesHouseCompany = {
 	name: string;
 	incorporatedOn: string;
 	address: string;
+	postcode: string;
 	sicCodes: string[];
 };
+
+export type CompanySearchPage = { companies: CompaniesHouseCompany[]; totalHits: number };
 
 const advancedSearchPath = '/advanced-search/companies';
 const activeCompanyStatus = 'active';
@@ -26,22 +29,31 @@ export function readCompaniesHouseSearch(searchParams: URLSearchParams): Compani
 }
 
 export async function searchCompaniesHouse(
-	search: CompaniesHouseSearch
+	search: CompaniesHouseSearch,
+	pageSize = longestResultPage
 ): Promise<CompaniesHouseCompany[]> {
-	return parseCompanySearch(await requestCompaniesHouse(searchUrlFor(search)));
+	const page = await searchCompaniesHousePage(search, pageSize);
+	return page.companies;
 }
 
-export function parseCompanySearch(body: Record<string, unknown>): CompaniesHouseCompany[] {
+export async function searchCompaniesHousePage(
+	search: CompaniesHouseSearch,
+	pageSize: number
+): Promise<CompanySearchPage> {
+	return parseCompanySearchPage(await requestCompaniesHouse(searchUrlFor(search, pageSize)));
+}
+
+export function parseCompanySearchPage(body: Record<string, unknown>): CompanySearchPage {
 	const items = Array.isArray(body.items) ? (body.items as Record<string, unknown>[]) : [];
-	return items.map(parseCompany);
+	return { companies: items.map(parseCompany), totalHits: Number(body.hits ?? items.length) };
 }
 
-function searchUrlFor(search: CompaniesHouseSearch): URL {
+function searchUrlFor(search: CompaniesHouseSearch, pageSize: number): URL {
 	const url = new URL(advancedSearchPath, companiesHouseApiOrigin);
 	for (const code of search.sicCodes) url.searchParams.append('sic_codes', code);
 	if (search.location !== '') url.searchParams.set('location', search.location);
 	url.searchParams.set('company_status', activeCompanyStatus);
-	url.searchParams.set('size', String(longestResultPage));
+	url.searchParams.set('size', String(pageSize));
 	return url;
 }
 
@@ -51,6 +63,7 @@ function parseCompany(item: Record<string, unknown>): CompaniesHouseCompany {
 		name: String(item.company_name ?? ''),
 		incorporatedOn: String(item.date_of_incorporation ?? ''),
 		address: describeRegisteredAddress(item.registered_office_address),
+		postcode: postcodeOfRegisteredAddress(item.registered_office_address),
 		sicCodes: Array.isArray(item.sic_codes) ? item.sic_codes.map(String) : []
 	};
 }

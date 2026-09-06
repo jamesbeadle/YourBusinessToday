@@ -1,8 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from './createClient';
 import { emptyCompanyProfile } from './companyProfile';
+import { findClientByCompanyNumber, findNumberlessClientByName, stampCompanyNumber } from './findClientByNumber';
+import { postcodeIn } from '$lib/data/postcode';
 
-export type ProspectSeed = { name: string; companyNumber: string; address: string };
+export type ProspectSeed = { name: string; companyNumber: string; address: string; postcode?: string };
 
 export type AddProspectOutcome = { clientId: string; wasAlreadyListed: boolean };
 
@@ -10,7 +12,12 @@ export function readProspectSeed(formData: FormData): ProspectSeed | null {
 	const name = String(formData.get('name') ?? '').trim();
 	const companyNumber = String(formData.get('companyNumber') ?? '').trim();
 	if (name === '' || companyNumber === '') return null;
-	return { name, companyNumber, address: String(formData.get('address') ?? '').trim() };
+	return {
+		name,
+		companyNumber,
+		address: String(formData.get('address') ?? '').trim(),
+		postcode: String(formData.get('postcode') ?? '').trim()
+	};
 }
 
 export async function addProspectAsLead(
@@ -35,7 +42,8 @@ export async function addProspectAsLead(
 			profile: {
 				...emptyCompanyProfile,
 				companyNumber: prospect.companyNumber,
-				location: prospect.address
+				location: prospect.address,
+				postcode: postcodeForProspect(prospect)
 			}
 		},
 		actorAccountId
@@ -43,47 +51,8 @@ export async function addProspectAsLead(
 	return { clientId, wasAlreadyListed: false };
 }
 
-// A lead typed in by hand never captured a company number, so the same
-// company arriving from Companies House claims that row instead of a new one.
-async function findNumberlessClientByName(
-	supabase: SupabaseClient,
-	name: string
-): Promise<string | null> {
-	const { data, error } = await supabase
-		.from('clients')
-		.select('id')
-		.ilike('name', name)
-		.eq('company_number', '')
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	if (data === null) return null;
-	return data.id as string;
-}
-
-async function stampCompanyNumber(
-	supabase: SupabaseClient,
-	clientId: string,
-	companyNumber: string
-): Promise<void> {
-	const { error } = await supabase
-		.from('clients')
-		.update({ company_number: companyNumber })
-		.eq('id', clientId);
-	if (error) throw error;
-}
-
-async function findClientByCompanyNumber(
-	supabase: SupabaseClient,
-	companyNumber: string
-): Promise<string | null> {
-	const { data, error } = await supabase
-		.from('clients')
-		.select('id')
-		.eq('company_number', companyNumber)
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	if (data === null) return null;
-	return data.id as string;
+function postcodeForProspect(prospect: ProspectSeed): string {
+	const given = postcodeIn(prospect.postcode ?? '');
+	if (given !== '') return given;
+	return postcodeIn(prospect.address);
 }

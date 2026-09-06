@@ -1,9 +1,11 @@
 import { parseHeadcountBand, type HeadcountBand } from '$lib/data/headcountBands';
 import { publicUrlOr } from './parsePublicUrl';
+import { postcodeIn } from '$lib/data/postcode';
 
 export type CompanyProfile = {
 	industry: string;
 	location: string;
+	postcode: string;
 	headcountBand: HeadcountBand;
 	companyNumber: string;
 	summary: string;
@@ -14,6 +16,7 @@ export type CompanyProfile = {
 export const emptyCompanyProfile: CompanyProfile = {
 	industry: '',
 	location: '',
+	postcode: '',
 	headcountBand: '',
 	companyNumber: '',
 	summary: '',
@@ -25,6 +28,7 @@ export function parseCompanyProfileRecord(row: Record<string, unknown>): Company
 	return {
 		industry: (row.industry ?? '') as string,
 		location: (row.location ?? '') as string,
+		postcode: (row.postcode ?? '') as string,
 		headcountBand: parseHeadcountBand(row.headcount_band),
 		companyNumber: (row.company_number ?? '') as string,
 		summary: (row.profile_summary ?? '') as string,
@@ -37,6 +41,7 @@ export function readCompanyProfileForm(formData: FormData): CompanyProfile {
 	return {
 		industry: readTrimmed(formData, 'industry'),
 		location: readTrimmed(formData, 'location'),
+		postcode: postcodeIn(readTrimmed(formData, 'postcode')),
 		headcountBand: parseHeadcountBand(formData.get('headcountBand')),
 		companyNumber: readTrimmed(formData, 'companyNumber'),
 		summary: readTrimmed(formData, 'summary'),
@@ -49,6 +54,7 @@ export function toCompanyProfileColumns(profile: CompanyProfile): Record<string,
 	return {
 		industry: profile.industry,
 		location: profile.location,
+		postcode: profile.postcode,
 		headcount_band: profile.headcountBand,
 		company_number: profile.companyNumber,
 		profile_summary: profile.summary,

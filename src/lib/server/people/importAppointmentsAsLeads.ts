@@ -8,6 +8,9 @@ import type { Person } from './personRecord';
 
 export type AppointmentImport = { clientIds: string[]; groupId: string | null };
 
+const groupOwnerRole = 'Owner';
+const companiesHouseSource = 'companies_house';
+
 export function readChosenAppointments(formData: FormData): OfficerAppointment[] {
 	const chosenNumbers = formData.getAll('companyNumber').map(String);
 	const names = formData.getAll('companyName').map(String);
@@ -39,7 +42,12 @@ export async function importAppointmentsAsLeads(
 	}
 	if (groupName === '' || clientIds.length === 0) return { clientIds, groupId: null };
 	const groupId = await groupClientsUnder(supabase, clientIds, { newParentName: groupName }, actorAccountId);
-	await affiliatePersonWithClient(supabase, { personId: person.id, clientId: groupId, role: 'Owner', isPrimary: true });
+	await affiliatePersonWithClient(supabase, {
+		personId: person.id,
+		clientId: groupId,
+		role: groupOwnerRole,
+		isPrimary: true
+	});
 	return { clientIds, groupId };
 }
 
@@ -61,7 +69,7 @@ async function importAppointment(
 		isPrimary: !wasAlreadyListed,
 		officerRole: appointment.officerRole,
 		appointedOn: appointment.appointedOn,
-		source: 'companies_house'
+		source: companiesHouseSource
 	});
 	await recordClientEvent(
 		supabase,

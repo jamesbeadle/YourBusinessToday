@@ -15,18 +15,22 @@ export async function importCompanyOfficers(
 ): Promise<OfficerImport> {
 	const officers = await getCompanyOfficers(client.profile.companyNumber);
 	const outcome: OfficerImport = { importedCount: 0, alreadyListedCount: 0 };
+	const importedNames: string[] = [];
 	for (const officer of officers) {
 		const wasImported = await importOfficer(supabase, client.id, officer);
+		if (wasImported) importedNames.push(officer.name);
 		if (wasImported) outcome.importedCount += 1;
 		if (!wasImported) outcome.alreadyListedCount += 1;
 	}
-	await recordClientEvent(
-		supabase,
-		client.id,
-		'officers_imported',
-		{ imported: outcome.importedCount, names: officers.map((officer) => officer.name).join(', ') },
-		actorAccountId
-	);
+	if (outcome.importedCount > 0) {
+		await recordClientEvent(
+			supabase,
+			client.id,
+			'officers_imported',
+			{ imported: outcome.importedCount, names: importedNames.join(', ') },
+			actorAccountId
+		);
+	}
 	return outcome;
 }
 

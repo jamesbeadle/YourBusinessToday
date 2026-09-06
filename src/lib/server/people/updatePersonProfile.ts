@@ -2,6 +2,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseSeniority, parseWarmth } from '$lib/data/contactProfileFields';
 import { toPersonProfileColumns, type PersonProfile } from './personRecord';
 
+const duplicateRowCode = '23505';
+
+export type PersonProfileSave = 'saved' | 'email_taken';
+
 export type PersonProfileEdit = PersonProfile & {
 	name: string;
 	email: string;
@@ -24,11 +28,13 @@ export function readPersonProfileEdit(formData: FormData): PersonProfileEdit | n
 	};
 }
 
+// An email address names one person, so an edit onto an address another
+// person already holds is refused rather than raised as a database error.
 export async function updatePersonProfile(
 	supabase: SupabaseClient,
 	personId: string,
 	edit: PersonProfileEdit
-): Promise<void> {
+): Promise<PersonProfileSave> {
 	const { error } = await supabase
 		.from('people')
 		.update({
@@ -39,7 +45,9 @@ export async function updatePersonProfile(
 			...toPersonProfileColumns(edit)
 		})
 		.eq('id', personId);
+	if (error !== null && error.code === duplicateRowCode) return 'email_taken';
 	if (error) throw error;
+	return 'saved';
 }
 
 function readTrimmed(formData: FormData, field: string): string {

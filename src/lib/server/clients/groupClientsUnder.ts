@@ -22,7 +22,10 @@ export async function groupClientsUnder(
 	const parentId = await resolveParent(supabase, choice, actorAccountId);
 	const parent = await getClient(supabase, parentId);
 	if (parent === null) throw new Error('The group could not be found');
-	const children = clientIds.filter((clientId) => clientId !== parentId);
+	const ancestors = await ancestorsOf(supabase, parentId);
+	const children = clientIds.filter(
+		(clientId) => clientId !== parentId && !ancestors.includes(clientId)
+	);
 	const { error } = await supabase
 		.from('clients')
 		.update({ parent_client_id: parentId })
@@ -32,6 +35,22 @@ export async function groupClientsUnder(
 		await recordClientEvent(supabase, clientId, 'grouped_under', { group: parent.name }, actorAccountId);
 	}
 	return parentId;
+}
+
+// A company cannot be put under one of its own descendants, or the group
+// would point at itself for ever.
+async function ancestorsOf(supabase: SupabaseClient, clientId: string): Promise<string[]> {
+	const ancestors: string[] = [];
+	let currentId: string | null = clientId;
+	while (currentId !== null && !ancestors.includes(currentId)) {
+		ancestors.push(currentId);
+		const parent: { id: string; parentClientId: string | null } | null = await getClient(
+			supabase,
+			currentId
+		);
+		currentId = parent === null ? null : parent.parentClientId;
+	}
+	return ancestors;
 }
 
 async function resolveParent(

@@ -12,14 +12,20 @@ import type { PersonCompany } from '$lib/server/people/getPersonCompanies';
 
 const notOnCompaniesHouse = 'This person was not found through Companies House, so there is nothing to import.';
 
+// The register being unreachable costs the import panel, never the page.
 export async function pendingAppointmentsFor(
 	person: Person,
 	companies: PersonCompany[]
 ): Promise<OfficerAppointment[] | null> {
 	if (person.officerId === null || !isCompaniesHouseConfigured()) return null;
 	const listedNumbers = new Set(companies.map((company) => company.profile.companyNumber));
-	const { appointments } = await getOfficerAppointments(person.officerId);
-	return appointments.filter((appointment) => !listedNumbers.has(appointment.companyNumber));
+	try {
+		const { appointments } = await getOfficerAppointments(person.officerId);
+		return appointments.filter((appointment) => !listedNumbers.has(appointment.companyNumber));
+	} catch (failure) {
+		console.error('Officer appointments could not be read', failure);
+		return null;
+	}
 }
 
 export const importActions: Actions = {

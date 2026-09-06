@@ -20,7 +20,10 @@ export const personFormActions = {
 		const edit = readPersonProfileEdit(formData);
 		if (personId === '') return fail(400, personRequired);
 		if (edit === null) return fail(400, { message: 'A name is required.' });
-		await updatePersonProfile(locals.supabase, personId, edit);
+		const outcome = await updatePersonProfile(locals.supabase, personId, edit);
+		if (outcome === 'email_taken') {
+			return fail(409, { message: 'That email address already belongs to someone else.' });
+		}
 		await updateAffiliationRole(locals, formData);
 		return { message: `${edit.name} saved.` };
 	},

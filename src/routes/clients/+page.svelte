@@ -20,6 +20,7 @@
 			<p class="text-chalk/70">Everyone we work for, and everyone we hope to.</p>
 		</div>
 		<div class="flex flex-wrap gap-3">
+			<a href="/people" class={quietButtonClasses}>People</a>
 			<a href="/clients/research" class={quietButtonClasses}>Research a company</a>
 			<a href="/clients/prospect" class={quietButtonClasses}>Search Companies House</a>
 		</div>

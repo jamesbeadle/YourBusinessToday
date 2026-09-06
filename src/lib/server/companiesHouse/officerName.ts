@@ -10,11 +10,6 @@ export function displayNameFromSearchTitle(title: string): string {
 	return toTitleCase(title.trim());
 }
 
-export function surnameOf(displayName: string): string {
-	const words = displayName.trim().split(/\s+/);
-	return words[words.length - 1] ?? '';
-}
-
 function toTitleCase(words: string): string {
 	return words
 		.toLowerCase()

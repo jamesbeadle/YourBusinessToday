@@ -1,7 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { affiliatePersonWithClient } from './affiliatePersonWithClient';
 import { findOrCreatePersonFromOfficer } from '$lib/server/people/findOrCreatePersonFromOfficer';
-import { getCompanyOfficers, type CompanyOfficer } from '$lib/server/companiesHouse/getCompanyOfficers';
+import { getCompanyOfficers } from '$lib/server/companiesHouse/getCompanyOfficers';
+import type { CompanyOfficer } from '$lib/server/companiesHouse/companyOfficerRecord';
 import { recordClientEvent } from './recordClientEvent';
 import type { Client } from './clientRecord';
 

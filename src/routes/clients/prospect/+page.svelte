@@ -6,11 +6,13 @@
 
 	let { data, form } = $props();
 
-	const addLeadAction = $derived(
+	const searchQuery = $derived(
 		data.search === null
-			? '?/addLead'
-			: `?/addLead&sicCodes=${encodeURIComponent(data.search.sicCodes.join(','))}&location=${encodeURIComponent(data.search.location)}`
+			? ''
+			: `&sicCodes=${encodeURIComponent(data.search.sicCodes.join(','))}&location=${encodeURIComponent(data.search.location)}`
 	);
+	const addLeadAction = $derived(`?/addLead${searchQuery}`);
+	const addWithDirectorsAction = $derived(`?/addLeadWithDirectors${searchQuery}`);
 </script>
 
 <svelte:head>
@@ -42,6 +44,6 @@
 		<EmptyState message="No active companies matched. Try a broader location or another SIC code." />
 	{/if}
 	{#if data.companies !== null && data.companies.length > 0}
-		<ProspectResultTable companies={data.companies} {addLeadAction} />
+		<ProspectResultTable companies={data.companies} {addLeadAction} {addWithDirectorsAction} />
 	{/if}
 </div>

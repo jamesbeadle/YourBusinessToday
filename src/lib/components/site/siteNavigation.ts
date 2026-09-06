@@ -44,6 +44,7 @@ function managementLinks(access: NavigationAccess): NavigationLink[] {
 	return [
 		{ href: '/projects', label: 'Projects' },
 		{ href: '/clients', label: 'Clients' },
+		{ href: '/people', label: 'People' },
 		{ href: '/requests', label: 'Requests' },
 		...(access.isAdmin ? adminLinks : [])
 	];

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses, quietButtonClasses } from '$lib/components/site/formStyles';
-	import type { ContactLink } from '$lib/server/clients/getContactLinks';
+	import type { PersonLink } from '$lib/server/people/getPersonLinks';
 
-	let { contactId, links }: { contactId: string; links: ContactLink[] } = $props();
+	let { personId, links }: { personId: string; links: PersonLink[] } = $props();
 </script>
 
 <div class="flex flex-col gap-2">
@@ -27,7 +27,7 @@
 		{/each}
 	</ul>
 	<form method="POST" action="?/addLink" class="flex flex-wrap items-center gap-2">
-		<input type="hidden" name="contactId" value={contactId} />
+		<input type="hidden" name="personId" value={personId} />
 		<input
 			name="label"
 			required

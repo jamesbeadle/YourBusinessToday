@@ -13,7 +13,11 @@ export type ClientEventKind =
 	| 'enquiry_received'
 	| 'lead_added'
 	| 'profile_researched'
-	| 'approach_drafted';
+	| 'approach_drafted'
+	| 'person_added'
+	| 'appointments_imported'
+	| 'officers_imported'
+	| 'grouped_under';
 
 export type ClientEvent = {
 	id: string;

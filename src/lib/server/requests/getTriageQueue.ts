@@ -13,7 +13,7 @@ export type QueuedRequest = FeatureRequest & {
 	raisedByName: string;
 };
 
-const listedColumns = `${featureRequestColumns}, projects(name, client_id, clients(name)), client_contacts(name)`;
+const listedColumns = `${featureRequestColumns}, projects(name, client_id, clients(name)), client_contacts(people(name))`;
 
 export async function getTriageQueue(
 	supabase: SupabaseClient,
@@ -32,6 +32,6 @@ export function toQueuedRequest(row: Record<string, any>): QueuedRequest {
 		projectName: row.projects.name as string,
 		clientId: row.projects.client_id as string,
 		clientName: (row.projects.clients?.name ?? '') as string,
-		raisedByName: (row.client_contacts?.name ?? '') as string
+		raisedByName: (row.client_contacts?.people?.name ?? '') as string
 	};
 }

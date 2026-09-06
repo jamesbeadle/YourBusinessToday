@@ -11,6 +11,7 @@ export type Client = {
 	leadSource: LeadSource;
 	profile: CompanyProfile;
 	ownerId: string | null;
+	parentClientId: string | null;
 	isArchived: boolean;
 	createdAt: string;
 };
@@ -25,6 +26,7 @@ export function parseClientRecord(row: Record<string, unknown>): Client {
 		leadSource: parseLeadSource(row.lead_source),
 		profile: parseCompanyProfileRecord(row),
 		ownerId: (row.owner_id ?? null) as string | null,
+		parentClientId: (row.parent_client_id ?? null) as string | null,
 		isArchived: row.is_archived as boolean,
 		createdAt: row.created_at as string
 	};

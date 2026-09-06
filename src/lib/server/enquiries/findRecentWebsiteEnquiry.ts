@@ -10,10 +10,10 @@ export async function findRecentWebsiteEnquiry(
 	const since = new Date(Date.now() - oneDayMilliseconds).toISOString();
 	const { data, error } = await supabase
 		.from('clients')
-		.select('id, client_contacts!inner(email)')
+		.select('id, client_contacts!inner(people!inner(email))')
 		.eq('lead_source', websiteSource)
 		.gt('created_at', since)
-		.eq('client_contacts.email', email)
+		.eq('client_contacts.people.email', email.toLowerCase())
 		.order('created_at', { ascending: false })
 		.limit(1)
 		.maybeSingle();

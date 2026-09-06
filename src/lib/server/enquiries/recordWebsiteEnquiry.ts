@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { addPerson } from '$lib/server/people/addPerson';
+import { affiliatePersonWithClient } from '$lib/server/clients/affiliatePersonWithClient';
 import { recordClientEvent } from '$lib/server/clients/recordClientEvent';
 import { findRecentWebsiteEnquiry } from './findRecentWebsiteEnquiry';
 import type { WebsiteEnquiry } from '$lib/data/enquiryForm';
@@ -15,7 +17,7 @@ export async function recordWebsiteEnquiry(
 	const recentClientId = await findRecentWebsiteEnquiry(supabase, enquiry.email);
 	if (recentClientId !== null) return { clientId: recentClientId, isRepeat: true };
 	const clientId = await insertLead(supabase, enquiry);
-	await insertPrimaryContact(supabase, clientId, enquiry);
+	await affiliateEnquirer(supabase, clientId, enquiry);
 	await recordClientEvent(
 		supabase,
 		clientId,
@@ -42,16 +44,23 @@ async function insertLead(supabase: SupabaseClient, enquiry: WebsiteEnquiry): Pr
 	return data.id;
 }
 
-async function insertPrimaryContact(
+async function affiliateEnquirer(
 	supabase: SupabaseClient,
 	clientId: string,
 	enquiry: WebsiteEnquiry
 ): Promise<void> {
-	const { error } = await supabase.from('client_contacts').insert({
-		client_id: clientId,
+	const { personId } = await addPerson(supabase, {
 		name: enquiry.name,
 		email: enquiry.email,
-		is_primary: true
+		phone: '',
+		seniority: '',
+		leadSource: websiteSource
 	});
-	if (error) throw error;
+	await affiliatePersonWithClient(supabase, {
+		personId,
+		clientId,
+		role: '',
+		isPrimary: true,
+		source: websiteSource
+	});
 }

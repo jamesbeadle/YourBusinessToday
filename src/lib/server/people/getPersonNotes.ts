@@ -1,31 +1,28 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ContactNoteKind } from './addContactNote';
+import type { PersonNoteKind } from './addPersonNote';
 
-export type ContactNote = {
+export type PersonNote = {
 	id: string;
-	contactId: string;
+	personId: string;
 	authorId: string | null;
-	kind: ContactNoteKind;
+	kind: PersonNoteKind;
 	body: string;
 	createdAt: string;
 };
 
-export async function getContactNotes(
-	supabase: SupabaseClient,
-	contactIds: string[]
-): Promise<ContactNote[]> {
-	if (contactIds.length === 0) return [];
+export async function getPersonNotes(supabase: SupabaseClient, personIds: string[]): Promise<PersonNote[]> {
+	if (personIds.length === 0) return [];
 	const { data, error } = await supabase
-		.from('contact_notes')
-		.select('id, contact_id, author_id, kind, body, created_at')
-		.in('contact_id', contactIds)
+		.from('person_notes')
+		.select('id, person_id, author_id, kind, body, created_at')
+		.in('person_id', personIds)
 		.order('created_at', { ascending: false });
 	if (error) throw error;
 	return data.map((row: Record<string, unknown>) => ({
 		id: row.id as string,
-		contactId: row.contact_id as string,
+		personId: row.person_id as string,
 		authorId: (row.author_id ?? null) as string | null,
-		kind: row.kind as ContactNoteKind,
+		kind: row.kind as PersonNoteKind,
 		body: row.body as string,
 		createdAt: row.created_at as string
 	}));

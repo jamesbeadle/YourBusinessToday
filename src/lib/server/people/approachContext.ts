@@ -1,16 +1,19 @@
 import { formatBritishDate } from '$lib/data/britishDate';
 import { headcountBandLabels } from '$lib/data/headcountBands';
+import { clientStageLabels } from '$lib/data/clientLifecycle';
 import { seniorityLabels, warmthLabels } from '$lib/data/contactProfileFields';
-import type { Client } from './clientRecord';
-import type { Person } from './getPeopleForClient';
+import type { PersonCompany } from './getPersonCompanies';
+import type { PersonInFull } from './getPerson';
 
 const nothingRecorded = '(nothing recorded)';
 
-export function describeCompanyForApproach(client: Client): string {
-	const profile = client.profile;
+export function describeCompanyForApproach(company: PersonCompany): string {
+	const profile = company.profile;
 	return [
-		`Company: ${client.name}`,
-		`Website: ${client.website || nothingRecorded}`,
+		`Company: ${company.name}`,
+		`Their part in it: ${company.officerRole || company.role || nothingRecorded}`,
+		`Our standing: ${clientStageLabels[company.stage]}`,
+		`Website: ${company.website || nothingRecorded}`,
 		`Industry: ${profile.industry || nothingRecorded}`,
 		`Location: ${profile.location || nothingRecorded}`,
 		`Size: ${headcountBandLabels[profile.headcountBand]}`,
@@ -19,10 +22,9 @@ export function describeCompanyForApproach(client: Client): string {
 	].join('\n');
 }
 
-export function describePersonForApproach(person: Person): string {
+export function describePersonForApproach(person: PersonInFull): string {
 	return [
 		`Name: ${person.name}`,
-		`Role: ${person.role || nothingRecorded}`,
 		`Seniority: ${seniorityLabels[person.seniority]}`,
 		`Decision maker: ${person.isDecisionMaker ? 'yes' : 'not known to be'}`,
 		`Warmth: ${warmthLabels[person.warmth]}`,
@@ -33,12 +35,12 @@ export function describePersonForApproach(person: Person): string {
 	].join('\n');
 }
 
-function describeLinks(person: Person): string {
+function describeLinks(person: PersonInFull): string {
 	if (person.links.length === 0) return nothingRecorded;
 	return person.links.map((link) => `${link.label} ${link.url}`).join(', ');
 }
 
-function describeNotes(person: Person): string {
+function describeNotes(person: PersonInFull): string {
 	if (person.notes.length === 0) return nothingRecorded;
 	return person.notes
 		.map((note) => `- ${formatBritishDate(note.createdAt)}, ${note.authorName}: ${note.body}`)

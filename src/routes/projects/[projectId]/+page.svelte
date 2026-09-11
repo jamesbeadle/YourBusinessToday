@@ -4,6 +4,7 @@
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
 	import ProjectDetailHeader from '$lib/components/projects/ProjectDetailHeader.svelte';
 	import ProjectMembersPanel from '$lib/components/members/ProjectMembersPanel.svelte';
+	import TaskGoalModal from '$lib/components/projects/TaskGoalModal.svelte';
 	import TaskStatusModal from '$lib/components/projects/TaskStatusModal.svelte';
 	import TaskTreePanel from '$lib/components/projects/TaskTreePanel.svelte';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -12,8 +13,10 @@
 
 	let isTaskModalOpen = $state(false);
 	let isStatusModalOpen = $state(false);
+	let isGoalModalOpen = $state(false);
 	let subtaskParent = $state<TaskTreeNode | null>(null);
 	let statusTask = $state<TaskTreeNode | null>(null);
+	let goalTask = $state<TaskTreeNode | null>(null);
 
 	function openNewTaskModal() {
 		subtaskParent = null;
@@ -28,6 +31,11 @@
 	function openStatusModal(task: TaskTreeNode) {
 		statusTask = task;
 		isStatusModalOpen = true;
+	}
+
+	function openGoalModal(task: TaskTreeNode) {
+		goalTask = task;
+		isGoalModalOpen = true;
 	}
 
 	const taskModalTitle = $derived(
@@ -58,6 +66,7 @@
 		assigneeIdsByTask={data.assigneeIdsByTask}
 		onAddSubtask={openSubtaskModal}
 		onChangeStatus={openStatusModal}
+		onChangeGoal={openGoalModal}
 	/>
 </div>
 
@@ -71,4 +80,14 @@
 
 {#if statusTask !== null}
 	<TaskStatusModal task={statusTask} bind:isOpen={isStatusModalOpen} />
+{/if}
+
+{#if goalTask !== null}
+	<TaskGoalModal
+		taskId={goalTask.id}
+		taskTitle={goalTask.title}
+		currentGoalId={goalTask.goalId}
+		goals={data.goals}
+		bind:isOpen={isGoalModalOpen}
+	/>
 {/if}

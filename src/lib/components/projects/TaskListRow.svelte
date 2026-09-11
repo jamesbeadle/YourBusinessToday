@@ -2,6 +2,7 @@
 	import PriorityControls from './PriorityControls.svelte';
 	import ReorderableRow from '$lib/components/site/ReorderableRow.svelte';
 	import TaskDueDate from './TaskDueDate.svelte';
+	import TaskGoalButton from './TaskGoalButton.svelte';
 	import TaskListRow from './TaskListRow.svelte';
 	import TaskMetaBadges from './TaskMetaBadges.svelte';
 	import TaskStatusButton from './TaskStatusButton.svelte';
@@ -15,8 +16,10 @@
 		isLast,
 		listReorder,
 		assigneeNamesFor,
+		goalTitleFor,
 		onAddSubtask,
-		onChangeStatus
+		onChangeStatus,
+		onChangeGoal
 	}: {
 		task: TaskTreeNode;
 		numberPath: string;
@@ -24,8 +27,10 @@
 		isLast: boolean;
 		listReorder: ListReorder;
 		assigneeNamesFor: (taskId: string) => string[];
+		goalTitleFor: (goalId: string | null) => string | null;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
+		onChangeGoal: (task: TaskTreeNode) => void;
 	} = $props();
 
 	const isDone = $derived(task.status === 'done');
@@ -58,6 +63,7 @@
 				{#if task.dueDate !== null}
 					<TaskDueDate dueDate={task.dueDate} {isDone} />
 				{/if}
+				<TaskGoalButton goalTitle={goalTitleFor(task.goalId)} onOpenPicker={() => onChangeGoal(task)} />
 				<TaskStatusButton status={task.status} kind={task.kind} onOpenPicker={() => onChangeStatus(task)} />
 				<button
 					type="button"
@@ -81,8 +87,10 @@
 						isLast={subtaskIndex === task.subtasks.length - 1}
 						{listReorder}
 						{assigneeNamesFor}
+						{goalTitleFor}
 						{onAddSubtask}
 						{onChangeStatus}
+						{onChangeGoal}
 					/>
 				{/each}
 			</ol>

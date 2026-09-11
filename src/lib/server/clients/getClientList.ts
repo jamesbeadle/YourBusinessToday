@@ -1,11 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ClientStage } from '$lib/data/clientLifecycle';
+import { isAwaitingAnswer, parseTaskKind } from '$lib/data/taskKind';
+import { parseTaskStatus } from '$lib/data/taskStatus';
 import { parseClientRecord, type Client } from './clientRecord';
 
 export type ClientSummary = Client & {
 	primaryContactName: string;
 	projectCount: number;
-	openRequestCount: number;
+	awaitingAnswerCount: number;
 };
 
 export async function getClientList(
@@ -14,14 +16,14 @@ export async function getClientList(
 ): Promise<ClientSummary[]> {
 	const query = supabase
 		.from('clients')
-		.select('*, client_contacts(is_primary, people(name)), projects(id, feature_requests(status))')
+		.select('*, client_contacts(is_primary, people(name)), projects(id, tasks(kind, status))')
 		.order('name');
 	const { data, error } = stage === null ? await query : await query.eq('lifecycle_stage', stage);
 	if (error) throw error;
 	return data.map(toSummary);
 }
 
-type ProjectRow = { feature_requests: { status: string }[] };
+type ProjectRow = { tasks: { kind: string; status: string }[] };
 type ContactRow = { is_primary: boolean; people: { name: string } | null };
 
 function toSummary(row: Record<string, unknown>): ClientSummary {
@@ -30,7 +32,7 @@ function toSummary(row: Record<string, unknown>): ClientSummary {
 		...parseClientRecord(row),
 		primaryContactName: primaryContactName((row.client_contacts ?? []) as ContactRow[]),
 		projectCount: projects.length,
-		openRequestCount: countAwaitingTriage(projects)
+		awaitingAnswerCount: countAwaitingAnswer(projects)
 	};
 }
 
@@ -40,8 +42,8 @@ function primaryContactName(contacts: ContactRow[]): string {
 	return primary.people?.name ?? '';
 }
 
-function countAwaitingTriage(projects: ProjectRow[]): number {
+function countAwaitingAnswer(projects: ProjectRow[]): number {
 	return projects
-		.flatMap((project) => project.feature_requests)
-		.filter((request) => request.status === 'new').length;
+		.flatMap((project) => project.tasks)
+		.filter((task) => isAwaitingAnswer(parseTaskKind(task.kind), parseTaskStatus(task.status))).length;
 }

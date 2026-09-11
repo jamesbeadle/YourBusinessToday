@@ -19,8 +19,8 @@
 				<a href={`/clients/${client.id}`} class="font-display hover:text-signal">{client.name}</a>
 				<p class="text-xs text-chalk/50">
 					{describe(client)}
-					{#if client.openRequestCount > 0}
-						· <span class="text-signal">{client.openRequestCount} awaiting triage</span>
+					{#if client.awaitingAnswerCount > 0}
+						· <span class="text-signal">{client.awaitingAnswerCount} awaiting an answer</span>
 					{/if}
 				</p>
 			</div>

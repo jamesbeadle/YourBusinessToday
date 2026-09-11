@@ -15,7 +15,7 @@
 		creditBalance,
 		isAdmin,
 		isStaff,
-		isClientContact,
+		isProjectMember,
 		unreadNotificationCount,
 		knowledgeBases
 	}: {
@@ -23,7 +23,7 @@
 		creditBalance: number | null;
 		isAdmin: boolean;
 		isStaff: boolean;
-		isClientContact: boolean;
+		isProjectMember: boolean;
 		unreadNotificationCount: number;
 		knowledgeBases: KnowledgeBaseSummary[];
 	} = $props();
@@ -33,7 +33,7 @@
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
 	const menuGroups = $derived(
-		buildMenuGroups({ isSignedIn, isProjectManager, isAdmin, isClientContact })
+		buildMenuGroups({ isSignedIn, isProjectManager, isAdmin, isProjectMember })
 	);
 
 	let isMobileMenuOpen = $state(false);

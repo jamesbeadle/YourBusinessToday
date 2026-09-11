@@ -91,10 +91,5 @@
 </div>
 
 {#if statusTask !== null}
-	<TaskStatusModal
-		taskId={statusTask.id}
-		taskTitle={statusTask.title}
-		currentStatus={statusTask.status}
-		bind:isOpen={isStatusModalOpen}
-	/>
+	<TaskStatusModal task={statusTask} bind:isOpen={isStatusModalOpen} />
 {/if}

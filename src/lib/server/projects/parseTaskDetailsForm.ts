@@ -1,6 +1,7 @@
 import { parseCompletionPercent } from '$lib/data/completionClamp';
 import { parseStoryPoints } from '$lib/data/storyPoints';
 import { parseTaskRoles } from '$lib/data/taskRoles';
+import { parseTaskKind } from '$lib/data/taskKind';
 import { parseTaskStatus } from '$lib/data/taskStatus';
 import type { TaskDetailsUpdate } from '$lib/server/projects/updateTaskDetails';
 
@@ -18,6 +19,8 @@ export function parseTaskDetailsForm(formData: FormData): TaskDetailsSubmission 
 		status: parseTaskStatus(formData.get('status')),
 		dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
 		phaseId: emptyAsNull(String(formData.get('phaseId') ?? '')),
+		goalId: emptyAsNull(String(formData.get('goalId') ?? '')),
+		kind: parseTaskKind(formData.get('kind')),
 		storyPoints: parseStoryPoints(formData.get('storyPoints')),
 		completionPercent: parseCompletionPercent(formData.get('completionPercent')),
 		isUserStory: formData.get('isUserStory') === 'on',

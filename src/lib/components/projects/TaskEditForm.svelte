@@ -2,12 +2,14 @@
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import TaskGoalAndKindFields from './TaskGoalAndKindFields.svelte';
 	import TaskMoveField from './TaskMoveField.svelte';
 	import TaskPlanningFields from './TaskPlanningFields.svelte';
 	import TeamPickerFieldset from './TeamPickerFieldset.svelte';
 	import UserStoryFields from './UserStoryFields.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
+	import type { Goal } from '$lib/server/goals/goalRecord';
 	import type { Phase } from '$lib/server/projects/phaseRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
@@ -18,6 +20,7 @@
 		siblingTasks,
 		staffMembers,
 		phases,
+		goals,
 		assigneeIds,
 		roles,
 		onSaved
@@ -27,6 +30,7 @@
 		siblingTasks: ProjectTask[];
 		staffMembers: StaffMember[];
 		phases: Phase[];
+		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
 		onSaved: () => void;
@@ -72,6 +76,7 @@
 		</label>
 	</div>
 	<TaskPlanningFields {task} {phases} />
+	<TaskGoalAndKindFields {goals} goalId={task.goalId} kind={task.kind} />
 	<TaskMoveField {parentTask} {siblingTasks} />
 	<UserStoryFields {task} />
 	<TeamPickerFieldset {staffMembers} {assigneeIds} {roles} />

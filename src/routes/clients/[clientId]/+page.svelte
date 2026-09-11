@@ -7,7 +7,7 @@
 	import CompanyProfileForm from '$lib/components/clients/CompanyProfileForm.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
-	import RequestTable from '$lib/components/requests/RequestTable.svelte';
+	import SupportTaskTable from '$lib/components/support/SupportTaskTable.svelte';
 	import { clientStageLabels } from '$lib/data/clientLifecycle';
 	import { leadSourceLabels } from '$lib/data/leadSources';
 	import { primaryButtonClasses, quietButtonClasses } from '$lib/components/site/formStyles';
@@ -79,11 +79,11 @@
 	</section>
 
 	<section class="flex flex-col gap-4">
-		<h2 class="font-display text-xl">Requests</h2>
-		{#if data.requests.length === 0}
-			<p class="text-sm text-chalk/50">Nothing asked for yet.</p>
+		<h2 class="font-display text-xl">Support</h2>
+		{#if data.supportTasks.length === 0}
+			<p class="text-sm text-chalk/50">Nothing raised yet.</p>
 		{:else}
-			<RequestTable requests={data.requests} basePath="/requests" />
+			<SupportTaskTable tasks={data.supportTasks} />
 		{/if}
 	</section>
 

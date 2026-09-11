@@ -1,8 +1,7 @@
-import { addTaskComment } from '$lib/server/projects/addTaskComment';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
-import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
+import { objectSchema, readText, textField } from '../actionTypes';
 import { setTaskAssignees } from '$lib/server/projects/setTaskAssignees';
 import type { McpAction } from '../actionTypes';
 import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
@@ -42,25 +41,6 @@ export const taskTeamActions: McpAction[] = [
 			if (chosen.length !== chosenIds.length) return chooseFromDirectory(staffMembers);
 			await setTaskAssignees(caller.supabase, task.id, chosenIds);
 			return `"${task.title}" is now with ${namesOf(chosen)}.`;
-		}
-	},
-	{
-		name: 'add_task_comment',
-		area: 'tasks',
-		audience: 'staff',
-		isWrite: true,
-		summary: 'leave a comment on a task under your own name',
-		inputSchema: objectSchema(
-			{ taskId: taskIdField, body: textField('What you want to say') },
-			['taskId', 'body']
-		),
-		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
-			if (task === null) return noSuchTask;
-			const body = readOptionalText(input, 'body');
-			if (body === null) return 'A comment needs some words in it.';
-			await addTaskComment(caller.supabase, task.id, caller.accountId, body);
-			return `Comment left on "${task.title}".`;
 		}
 	}
 ];

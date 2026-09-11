@@ -2,18 +2,24 @@
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import TaskGoalAndKindFields from './TaskGoalAndKindFields.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import type { Goal } from '$lib/server/goals/goalRecord';
 	import type { Phase } from '$lib/server/projects/phaseRecord';
 
 	let {
 		createAction = '?/createTask',
 		parentTaskId = null,
 		phases = [],
+		goals = [],
+		goalId = null,
 		onCreated
 	}: {
 		createAction?: string;
 		parentTaskId?: string | null;
 		phases?: Phase[];
+		goals?: Goal[];
+		goalId?: string | null;
 		onCreated: () => void;
 	} = $props();
 
@@ -64,6 +70,7 @@
 			</label>
 		{/if}
 	</div>
+	<TaskGoalAndKindFields {goals} {goalId} />
 	<p class="text-xs text-chalk/50">
 		Story points, assignees, and the rest are set on the task page after it's created.
 	</p>

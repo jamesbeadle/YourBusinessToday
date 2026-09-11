@@ -31,14 +31,19 @@ portal and the team's own project management are all working:
   Connect button, then the same commands and queries the site runs, scoped to who you are;
   the public API under `/api/v1` lets other software ask a brain, read its pages and export
   it; [docs/mcp-architecture.md](./docs/mcp-architecture.md) is the design.
-- Clients work in the portal at `/portal` — they raise requests against their projects and
-  follow the thread; staff triage them at `/requests`, keep the client register at
-  `/clients`, and send accepted requests to the Builder — a Claude Code routine per tier
-  that branches, builds, opens a pull request and reports back; merged builds mark the
-  task live and tell the client. Schema changes wait for a person;
-  [docs/client-lifecycle-architecture.md](./docs/client-lifecycle-architecture.md) and
-  [docs/builder-architecture.md](./docs/builder-architecture.md) are the designs.
-- Projects and tasks at `/projects` and `/tasks` are the team's internal task manager —
+- A project is the shared board. It has goals — high level, measurable — and every goal
+  and task carries a conversation. A client's person is added to a project by an admin
+  and works on it through their own Claude: they find the goal, find or raise a support
+  task, post on it, and read what is new in one call; staff answer where the work is and
+  close a support task with a resolution the raiser reads. `/support` lists what is
+  waiting on us; [docs/support-conversations-architecture.md](./docs/support-conversations-architecture.md)
+  is the design.
+- Staff keep the client register at `/clients` and send tasks to the Builder — a Claude
+  Code routine per tier that branches, builds, opens a pull request and reports back;
+  merged builds mark the task live and say so in its conversation. Schema changes wait
+  for a person; [docs/client-lifecycle-architecture.md](./docs/client-lifecycle-architecture.md)
+  and [docs/builder-architecture.md](./docs/builder-architecture.md) are the designs.
+- Projects and tasks at `/projects` and `/tasks` are the team's task manager — goals,
   phases, subtasks, assignees and status, for the consultancy's own work as much as the
   client's.
 - Admins (`/admin`) can set the site model — the Claude model behind every agent reply —

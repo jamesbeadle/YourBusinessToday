@@ -1,8 +1,11 @@
 import { accountActions } from './actions/accountActions';
 import { accountingActions } from './actions/accountingActions';
 import { clientActions } from './actions/clientActions';
+import { conversationActions } from './actions/conversationActions';
+import { goalActions } from './actions/goalActions';
 import { projectActions } from './actions/projectActions';
-import { requestActions } from './actions/requestActions';
+import { projectMemberActions } from './actions/projectMemberActions';
+import { supportTaskActions } from './actions/supportTaskActions';
 import { taskActions } from './actions/taskActions';
 import type { ActionArea, McpAction } from './actionTypes';
 import type { AccountStanding } from './resolveAccountStanding';
@@ -10,8 +13,11 @@ import type { AccountStanding } from './resolveAccountStanding';
 const everyAction: McpAction[] = [
 	...accountActions,
 	...clientActions,
-	...requestActions,
 	...projectActions,
+	...projectMemberActions,
+	...goalActions,
+	...supportTaskActions,
+	...conversationActions,
 	...taskActions,
 	...accountingActions
 ];

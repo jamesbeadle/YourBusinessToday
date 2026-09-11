@@ -19,6 +19,7 @@ export function readTaskDetailsEdit(
 		details: readOptionalText(input, 'details') ?? task.details,
 		dueDate: readOptionalText(input, 'dueDate') ?? task.dueDate,
 		phaseId: readOptionalText(input, 'phaseId') ?? task.phaseId,
+		goalId: readOptionalText(input, 'goalId') ?? task.goalId,
 		storyPoints,
 		completionPercent: readCompletionPercent(input, task)
 	};

@@ -1,4 +1,4 @@
-import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { postMessage } from '$lib/server/conversations/postMessage';
 import { builderRoutineFor } from './builderRoutines';
 import { builderTierFor, builderTierLabels, type BuilderTier } from '$lib/data/builderTier';
 import { canSendToBuild, sendRefusalSentences } from './canSendToBuild';
@@ -69,6 +69,12 @@ async function recordFireFailure(
 ): Promise<SendOutcome> {
 	const reason = failure instanceof Error ? failure.message : 'The routine could not be reached.';
 	await updateTaskBuild(supabase, task.id, { buildStatus: 'not_sent' });
-	await addTaskComment(supabase, task.id, actorAccountId, `Could not send to build: ${reason}`);
+	await postMessage(
+		supabase,
+		{ taskId: task.id },
+		actorAccountId,
+		`Could not send to build: ${reason}`,
+		true
+	);
 	return { kind: 'refused', sentence: `Not sent. ${reason}` };
 }

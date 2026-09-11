@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { getNotificationList } from '$lib/server/notifications/getNotificationList';
-import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
+import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { markAllNotificationsRead } from '$lib/server/notifications/markAllNotificationsRead';
 import { markNotificationRead } from '$lib/server/notifications/markNotificationRead';
 import { requireStaff } from '$lib/server/auth/requireStaff';
@@ -8,10 +8,9 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = await requireStaff(locals);
-	return {
-		notifications: await getNotificationList(locals.supabase, user.id),
-		staffMembers: await getStaffDirectory(locals.supabase)
-	};
+	const notifications = await getNotificationList(locals.supabase, user.id);
+	const authorIds = notifications.map((notification) => notification.messageAuthorId);
+	return { notifications, authors: await getAccountDirectory(locals.supabase, authorIds) };
 };
 
 export const actions: Actions = {

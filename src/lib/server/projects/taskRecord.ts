@@ -1,5 +1,6 @@
 import { parseBuildStatus, type BuildStatus } from '$lib/data/buildStatus';
 import { parseStoryPoints } from '$lib/data/storyPoints';
+import { parseTaskKind, type TaskKind } from '$lib/data/taskKind';
 import { parseTaskStatus, type TaskStatus } from '$lib/data/taskStatus';
 
 export type ProjectTask = {
@@ -7,6 +8,8 @@ export type ProjectTask = {
 	projectId: string;
 	parentTaskId: string | null;
 	phaseId: string | null;
+	goalId: string | null;
+	kind: TaskKind;
 	title: string;
 	details: string;
 	status: TaskStatus;
@@ -24,6 +27,9 @@ export type ProjectTask = {
 	pullRequestUrl: string;
 	buildSessionUrl: string;
 	hasMigration: boolean;
+	resolution: string;
+	resolvedAt: string | null;
+	createdBy: string;
 	createdAt: string;
 };
 
@@ -33,6 +39,8 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 		projectId: row.project_id as string,
 		parentTaskId: (row.parent_task_id as string) ?? null,
 		phaseId: (row.phase_id as string) ?? null,
+		goalId: (row.goal_id as string) ?? null,
+		kind: parseTaskKind(row.kind),
 		title: row.title as string,
 		details: row.details as string,
 		status: parseTaskStatus(row.status),
@@ -50,6 +58,9 @@ export function parseTaskRecord(row: Record<string, unknown>): ProjectTask {
 		pullRequestUrl: (row.pull_request_url as string) ?? '',
 		buildSessionUrl: (row.build_session_url as string) ?? '',
 		hasMigration: row.has_migration === true,
+		resolution: (row.resolution as string) ?? '',
+		resolvedAt: (row.resolved_at as string) ?? null,
+		createdBy: row.created_by as string,
 		createdAt: row.created_at as string
 	};
 }

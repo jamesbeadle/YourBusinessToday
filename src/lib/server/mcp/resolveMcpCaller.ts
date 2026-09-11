@@ -1,11 +1,6 @@
 import { bearerToken, hashApiToken } from '$lib/server/tokens/apiToken';
 import { hashSecret } from '$lib/server/oauth/oauthTokens';
 import { resolveAccountStanding, type AccountStanding } from './resolveAccountStanding';
-import {
-	clientContactColumns,
-	parseClientContactRecord,
-	type ClientContact
-} from '$lib/server/clients/clientContactRecord';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -34,9 +29,7 @@ async function resolveOauthCaller(
 	if (data === null || data.kind !== 'access' || data.revoked_at !== null) return null;
 	if (new Date(data.expires_at).getTime() < Date.now()) return null;
 	await stampUse(supabase, 'oauth_tokens', data.id);
-	const standing = await resolveAccountStanding(supabase, data.account_id);
-	if (standing.role === 'none') return null;
-	return { ...standing, supabase };
+	return callerFor(supabase, data.account_id);
 }
 
 async function resolveContactTokenCaller(
@@ -45,28 +38,21 @@ async function resolveContactTokenCaller(
 ): Promise<McpCaller | null> {
 	const { data, error } = await supabase
 		.from('client_api_tokens')
-		.select(`id, revoked_at, client_contacts(${clientContactColumns})`)
+		.select('id, revoked_at, client_contacts(account_id)')
 		.eq('token_hash', hashApiToken(token))
 		.maybeSingle();
 	if (error) throw error;
 	if (data === null || data.revoked_at !== null) return null;
-	const contact = parseClientContactRecord(data.client_contacts as unknown as Record<string, unknown>);
-	if (await isAccountRestricted(supabase, contact)) return null;
+	const contact = data.client_contacts as unknown as { account_id: string | null } | null;
+	if (contact === null || contact.account_id === null) return null;
 	await stampUse(supabase, 'client_api_tokens', data.id);
-	return {
-		supabase,
-		accountId: contact.accountId ?? '',
-		email: contact.email,
-		role: 'contact',
-		isAdmin: false,
-		contact
-	};
+	return callerFor(supabase, contact.account_id);
 }
 
-async function isAccountRestricted(supabase: SupabaseClient, contact: ClientContact): Promise<boolean> {
-	if (contact.accountId === null) return false;
-	const standing = await resolveAccountStanding(supabase, contact.accountId);
-	return standing.role === 'none';
+async function callerFor(supabase: SupabaseClient, accountId: string): Promise<McpCaller | null> {
+	const standing = await resolveAccountStanding(supabase, accountId);
+	if (standing.role === 'none') return null;
+	return { ...standing, supabase };
 }
 
 async function stampUse(supabase: SupabaseClient, table: string, rowId: string): Promise<void> {

@@ -8,6 +8,8 @@ import { parseTaskStatus } from '$lib/data/taskStatus';
 import { placeGlobalTask } from '$lib/server/projects/placeGlobalTask';
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import { resolveViewedStaffMember } from '$lib/server/projects/resolveViewedStaffMember';
+import { getTask } from '$lib/server/projects/getTask';
+import { statusChangeRefusal } from '$lib/server/support/statusChangeRefusal';
 import { updateTaskStatus } from '$lib/server/projects/updateTaskStatus';
 import type { TaskMoveDirection } from '$lib/server/projects/moveTask';
 import type { Actions, PageServerLoad } from './$types';
@@ -62,9 +64,12 @@ export const actions: Actions = {
 	setStatus: async ({ locals, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
-		const taskId = String(formData.get('taskId') ?? '');
-		if (taskId === '') return fail(400, { message: 'A task is required.' });
-		await updateTaskStatus(locals.supabase, taskId, parseTaskStatus(formData.get('status')));
+		const task = await getTask(locals.supabase, String(formData.get('taskId') ?? ''));
+		if (task === null) return fail(400, { message: 'A task is required.' });
+		const status = parseTaskStatus(formData.get('status'));
+		const refusal = statusChangeRefusal(task, status);
+		if (refusal !== null) return fail(400, { message: refusal });
+		await updateTaskStatus(locals.supabase, task.id, status);
 		return {};
 	}
 };

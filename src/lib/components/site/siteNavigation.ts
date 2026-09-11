@@ -12,7 +12,7 @@ export type NavigationAccess = {
 	isSignedIn: boolean;
 	isProjectManager: boolean;
 	isAdmin: boolean;
-	isClientContact: boolean;
+	isProjectMember: boolean;
 };
 
 export const primaryNavigationLinks: NavigationLink[] = [
@@ -26,7 +26,7 @@ export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {
 	if (access.isProjectManager) {
 		groups.push({ label: 'Manage', links: managementLinks(access) });
 	}
-	if (access.isClientContact) {
+	if (access.isProjectMember) {
 		groups.push({ label: 'Your projects', links: portalLinks });
 	}
 	groups.push({ label: 'Account', links: accountLinks(access) });
@@ -38,14 +38,14 @@ const adminLinks: NavigationLink[] = [
 	{ href: '/admin', label: 'Admin' }
 ];
 
-const portalLinks: NavigationLink[] = [{ href: '/portal', label: 'Projects and requests' }];
+const portalLinks: NavigationLink[] = [{ href: '/portal', label: 'Your projects' }];
 
 function managementLinks(access: NavigationAccess): NavigationLink[] {
 	return [
 		{ href: '/projects', label: 'Projects' },
 		{ href: '/clients', label: 'Clients' },
 		{ href: '/people', label: 'People' },
-		{ href: '/requests', label: 'Requests' },
+		{ href: '/support', label: 'Support' },
 		...(access.isAdmin ? adminLinks : [])
 	];
 }

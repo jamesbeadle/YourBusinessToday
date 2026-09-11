@@ -1,10 +1,11 @@
-import { commentOnFeatureRequest } from '$lib/server/requests/commentOnFeatureRequest';
 import { getProject } from '$lib/server/projects/getProject';
 import { getTask } from '$lib/server/projects/getTask';
+import { postMessage } from '$lib/server/conversations/postMessage';
 import { recordClientEvent } from '$lib/server/clients/recordClientEvent';
 import { taskIdFromBranchName } from './buildBranchName';
 import { updateTaskBuild } from './updateTaskBuild';
 import { updateTaskStatus } from '$lib/server/projects/updateTaskStatus';
+import type { ProjectTask } from '$lib/server/projects/taskRecord';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type LiveOutcome = 'marked' | 'not_a_build' | 'no_such_task';
@@ -22,7 +23,7 @@ export async function markBuildLive(
 	if (project === null) return 'no_such_task';
 	await updateTaskBuild(supabase, task.id, { buildStatus: 'live', pullRequestUrl });
 	await updateTaskStatus(supabase, task.id, 'done');
-	await tellTheClient(supabase, task.id, project.ownerId, project.environmentUrl);
+	await tellTheRaiser(supabase, task, project.ownerId, project.environmentUrl);
 	if (project.clientId !== null) {
 		await recordClientEvent(
 			supabase,
@@ -35,20 +36,27 @@ export async function markBuildLive(
 	return 'marked';
 }
 
-async function tellTheClient(
+async function tellTheRaiser(
 	supabase: SupabaseClient,
-	taskId: string,
+	task: ProjectTask,
 	ownerAccountId: string,
 	environmentUrl: string
 ): Promise<void> {
-	const { data, error } = await supabase
-		.from('feature_requests')
-		.select('id')
-		.eq('task_id', taskId)
-		.maybeSingle();
+	const sentence = liveSentence(environmentUrl);
+	if (task.kind === 'support') await recordResolution(supabase, task.id, sentence);
+	await postMessage(supabase, { taskId: task.id }, ownerAccountId, sentence, false);
+}
+
+async function recordResolution(
+	supabase: SupabaseClient,
+	taskId: string,
+	resolution: string
+): Promise<void> {
+	const { error } = await supabase
+		.from('tasks')
+		.update({ resolution, resolved_at: new Date().toISOString() })
+		.eq('id', taskId);
 	if (error) throw error;
-	if (data === null) return;
-	await commentOnFeatureRequest(supabase, data.id, ownerAccountId, liveSentence(environmentUrl));
 }
 
 function liveSentence(environmentUrl: string): string {

@@ -74,7 +74,7 @@
 			{#if task.dueDate !== null}
 				<TaskDueDate dueDate={task.dueDate} {isDone} />
 			{/if}
-			<TaskStatusButton status={task.status} onOpenPicker={() => onChangeStatus(task)} />
+			<TaskStatusButton status={task.status} kind={task.kind} onOpenPicker={() => onChangeStatus(task)} />
 		</div>
 	{/snippet}
 </ReorderableRow>

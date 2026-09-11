@@ -13,8 +13,8 @@
 					{project.repositoryUrl === '' ? 'No repository recorded' : project.repositoryUrl}
 				</p>
 			</div>
-			{#if project.openRequestCount > 0}
-				<span class="text-xs text-signal">{project.openRequestCount} awaiting triage</span>
+			{#if project.awaitingAnswerCount > 0}
+				<span class="text-xs text-signal">{project.awaitingAnswerCount} awaiting an answer</span>
 			{/if}
 		</li>
 	{/each}

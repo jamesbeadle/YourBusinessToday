@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { taskStatusLabels } from '$lib/data/taskStatus';
+	import { taskStatusLabelFor } from '$lib/data/taskKind';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
 	let {
@@ -35,7 +35,7 @@
 					>
 						<span class="truncate font-display">{subtask.title}</span>
 						<span class="font-display text-xs text-chalk/50">
-							{taskStatusLabels[subtask.status]}
+							{taskStatusLabelFor(subtask.kind, subtask.status)}
 						</span>
 					</a>
 				</li>

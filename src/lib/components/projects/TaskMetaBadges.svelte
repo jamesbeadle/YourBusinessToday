@@ -1,10 +1,12 @@
 <script lang="ts">
 	import BuildStatusPill from './BuildStatusPill.svelte';
+	import TaskKindPill from './TaskKindPill.svelte';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
 	let { task }: { task: ProjectTask } = $props();
 </script>
 
+<TaskKindPill kind={task.kind} status={task.status} />
 {#if task.buildStatus !== 'not_sent'}
 	<BuildStatusPill status={task.buildStatus} />
 {/if}

@@ -1,13 +1,7 @@
 import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
 import type { TaskAttachment } from '$lib/server/projects/attachmentRecord';
-import type { TaskComment } from '$lib/server/projects/getTaskComments';
 
 const formerStaffName = 'Former staff';
-
-export function withAuthorNames(comments: TaskComment[], staffMembers: StaffMember[]) {
-	const staffNameOf = staffNameLookup(staffMembers);
-	return comments.map((comment) => ({ ...comment, authorName: staffNameOf(comment.authorId) }));
-}
 
 export function withUploaderNames(attachments: TaskAttachment[], staffMembers: StaffMember[]) {
 	const staffNameOf = staffNameLookup(staffMembers);

@@ -33,7 +33,7 @@
 			<span class="text-chalk/60"> commented on </span>
 			<span class="font-display text-chalk/90">{notification.taskTitle}</span>
 		</p>
-		<p class="truncate text-sm text-chalk/60">{notification.commentBody}</p>
+		<p class="truncate text-sm text-chalk/60">{notification.messageBody}</p>
 		<p class="text-xs text-chalk/40">{formattedDate}</p>
 	</div>
 	<form method="POST" action="?/openNotification" use:enhance={tracker.submit()}>

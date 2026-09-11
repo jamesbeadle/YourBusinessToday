@@ -65,7 +65,7 @@
 					<TaskDueDate dueDate={task.dueDate} {isDone} />
 				{/if}
 				<TaskPhaseButton {phaseName} onOpenPicker={() => onChangePhase(task)} />
-				<TaskStatusButton status={task.status} onOpenPicker={() => onChangeStatus(task)} />
+				<TaskStatusButton status={task.status} kind={task.kind} onOpenPicker={() => onChangeStatus(task)} />
 				<button
 					type="button"
 					onclick={() => onAddSubtask(task)}

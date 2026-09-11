@@ -1,5 +1,10 @@
 # Client Lifecycle — Architecture
 
+> Superseded in part. Feature requests folded into support tasks on the project's own
+> tree, and client access became explicit project membership — see
+> [support-conversations-architecture.md](./support-conversations-architecture.md). The
+> register, contacts, invites and project ownership below still stand.
+
 How a stranger becomes a contact, a contact becomes a client, a client's products become
 projects we run, and the things those clients ask for become tasks in the backlog.
 

@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
+	import { taskStatusLabelFor, type TaskKind } from '$lib/data/taskKind';
+	import type { TaskStatus } from '$lib/data/taskStatus';
 
-	let { status, onOpenPicker }: { status: TaskStatus; onOpenPicker: () => void } = $props();
+	let {
+		status,
+		kind = 'work',
+		onOpenPicker
+	}: { status: TaskStatus; kind?: TaskKind; onOpenPicker: () => void } = $props();
 
 	const statusStyles: Record<TaskStatus, string> = {
 		backlog: 'border-hairline text-chalk/70 hover:border-chalk/50',
@@ -16,5 +21,5 @@
 	title="Change status"
 	class={`w-28 rounded-full border px-3 py-1.5 font-display text-xs transition ${statusStyles[status]}`}
 >
-	{taskStatusLabels[status]}
+	{taskStatusLabelFor(kind, status)}
 </button>

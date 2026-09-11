@@ -2,15 +2,13 @@
 	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
 	import BuildPanel from '$lib/components/projects/BuildPanel.svelte';
 	import ChecklistSection from '$lib/components/projects/ChecklistSection.svelte';
-	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
-	import Modal from '$lib/components/site/Modal.svelte';
-	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
+	import ConversationThread from '$lib/components/conversations/ConversationThread.svelte';
+	import ResolveSupportTaskForm from '$lib/components/support/ResolveSupportTaskForm.svelte';
 	import SubtaskList from '$lib/components/projects/SubtaskList.svelte';
 	import TaskAttachmentsSection from '$lib/components/projects/TaskAttachmentsSection.svelte';
-	import TaskCommentThread from '$lib/components/projects/TaskCommentThread.svelte';
 	import TaskDetailHeader from '$lib/components/projects/TaskDetailHeader.svelte';
-	import TaskEditForm from '$lib/components/projects/TaskEditForm.svelte';
 	import TaskOverviewPanel from '$lib/components/projects/TaskOverviewPanel.svelte';
+	import TaskPageModals from '$lib/components/projects/TaskPageModals.svelte';
 
 	let { data, form } = $props();
 
@@ -20,6 +18,12 @@
 
 	const phaseName = $derived(
 		data.phases.find((phase) => phase.id === data.task.phaseId)?.name ?? null
+	);
+	const goalTitle = $derived(
+		data.goals.find((goal) => goal.id === data.task.goalId)?.title ?? null
+	);
+	const isAwaitingResolution = $derived(
+		data.task.kind === 'support' && data.task.status !== 'done'
 	);
 	const assigneeNames = $derived(
 		data.staffMembers
@@ -40,9 +44,14 @@
 	<TaskOverviewPanel
 		task={data.task}
 		{phaseName}
+		{goalTitle}
 		{assigneeNames}
+		raisedByName={data.raisedByName}
 		onEdit={() => (isEditModalOpen = true)}
 	/>
+	{#if isAwaitingResolution}
+		<ResolveSupportTaskForm />
+	{/if}
 	<AcceptanceCriteriaSection criteria={data.criteria} />
 	{#if data.project.repositoryUrl !== ''}
 		<BuildPanel task={data.task} project={data.project} />
@@ -54,7 +63,7 @@
 		projectId={data.project.id}
 		taskId={data.task.id}
 	/>
-	<TaskCommentThread comments={data.comments} />
+	<ConversationThread messages={data.messages} canMarkInternal />
 	<button
 		type="button"
 		onclick={() => (isDeleteModalOpen = true)}
@@ -65,32 +74,16 @@
 	</button>
 </div>
 
-<Modal title="Edit task" maxWidthClass="max-w-2xl" bind:isOpen={isEditModalOpen}>
-	<TaskEditForm
-		task={data.task}
-		parentTask={data.parentTask}
-		siblingTasks={data.siblingTasks}
-		staffMembers={data.staffMembers}
-		phases={data.phases}
-		assigneeIds={data.assigneeIds}
-		roles={data.roles}
-		onSaved={() => (isEditModalOpen = false)}
-	/>
-</Modal>
-
-<Modal title={`New subtask of “${data.task.title}”`} bind:isOpen={isSubtaskModalOpen}>
-	<NewTaskForm
-		createAction="?/addSubtask"
-		parentTaskId={data.task.id}
-		onCreated={() => (isSubtaskModalOpen = false)}
-	/>
-</Modal>
-
-<DangerConfirmModal
-	title="Delete task"
-	description={`This permanently deletes “${data.task.title}”, its subtasks, and their comments. This cannot be undone.`}
-	action="?/deleteTask"
-	fields={{}}
-	submitLabel="Delete task"
-	bind:isOpen={isDeleteModalOpen}
+<TaskPageModals
+	task={data.task}
+	parentTask={data.parentTask}
+	siblingTasks={data.siblingTasks}
+	staffMembers={data.staffMembers}
+	phases={data.phases}
+	goals={data.goals}
+	assigneeIds={data.assigneeIds}
+	roles={data.roles}
+	bind:isEditModalOpen
+	bind:isSubtaskModalOpen
+	bind:isDeleteModalOpen
 />

@@ -21,7 +21,7 @@
 		creditBalance={data.creditBalance}
 		isAdmin={data.isAdmin}
 		isStaff={data.isStaff}
-		isClientContact={data.isClientContact}
+		isProjectMember={data.isProjectMember}
 		unreadNotificationCount={data.unreadNotificationCount}
 		knowledgeBases={data.knowledgeBases}
 	/>

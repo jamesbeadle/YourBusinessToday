@@ -20,7 +20,7 @@ function describeClientLine(client: ClientSummary): string {
 		`id ${client.id}`,
 		client.primaryContactName === '' ? 'no named contact' : client.primaryContactName,
 		`${client.projectCount} project(s)`,
-		`${client.openRequestCount} request(s) awaiting triage`
+		`${client.awaitingAnswerCount} support task(s) awaiting an answer`
 	].join(' — ');
 }
 
@@ -57,7 +57,7 @@ function describeContactRole(contact: ClientContact): string {
 }
 
 function describeProjectLine(project: ClientProject): string {
-	const awaiting = `${project.openRequestCount} request(s) awaiting triage`;
+	const awaiting = `${project.awaitingAnswerCount} support task(s) awaiting an answer`;
 	return `${project.name} — id ${project.id} — ${awaiting}`;
 }
 

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { TaskKind } from '$lib/data/taskKind';
 import type { TaskStatus } from '$lib/data/taskStatus';
 
 export type TaskDetailsUpdate = {
@@ -7,6 +8,8 @@ export type TaskDetailsUpdate = {
 	status: TaskStatus;
 	dueDate: string | null;
 	phaseId: string | null;
+	goalId: string | null;
+	kind: TaskKind;
 	storyPoints: number;
 	completionPercent: number;
 	isUserStory: boolean;
@@ -28,6 +31,8 @@ export async function updateTaskDetails(
 			status: update.status,
 			due_date: update.dueDate,
 			phase_id: update.phaseId,
+			goal_id: update.goalId,
+			kind: update.kind,
 			story_points: update.storyPoints,
 			completion_percent: completionPercentFor(update),
 			is_user_story: update.isUserStory,

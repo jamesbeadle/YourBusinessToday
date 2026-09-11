@@ -1,17 +1,22 @@
 <script lang="ts">
+	import SupportTaskFacts from '$lib/components/support/SupportTaskFacts.svelte';
 	import TaskDueDate from './TaskDueDate.svelte';
-	import { taskStatusLabels } from '$lib/data/taskStatus';
+	import { taskStatusLabelFor } from '$lib/data/taskKind';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
 	let {
 		task,
 		phaseName,
+		goalTitle,
 		assigneeNames,
+		raisedByName,
 		onEdit
 	}: {
 		task: ProjectTask;
 		phaseName: string | null;
+		goalTitle: string | null;
 		assigneeNames: string[];
+		raisedByName: string;
 		onEdit: () => void;
 	} = $props();
 
@@ -30,7 +35,11 @@
 		<div class="flex flex-wrap gap-x-8 gap-y-4">
 			<div class={factClasses}>
 				<span class={factLabelClasses}>Status</span>
-				<span class="font-display text-sm">{taskStatusLabels[task.status]}</span>
+				<span class="font-display text-sm">{taskStatusLabelFor(task.kind, task.status)}</span>
+			</div>
+			<div class={factClasses}>
+				<span class={factLabelClasses}>Goal</span>
+				<span class="font-display text-sm">{goalTitle ?? '—'}</span>
 			</div>
 			<div class={factClasses}>
 				<span class={factLabelClasses}>Phase</span>
@@ -68,6 +77,9 @@
 			Edit task
 		</button>
 	</div>
+	{#if task.kind === 'support'}
+		<SupportTaskFacts {task} {raisedByName} />
+	{/if}
 	{#if storySentence !== null}
 		<p class="rounded-2xl border border-caution/40 bg-caution/10 px-5 py-3 text-sm text-caution">
 			{storySentence}

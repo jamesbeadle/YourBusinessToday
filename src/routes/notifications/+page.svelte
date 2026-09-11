@@ -3,6 +3,7 @@
 	import NotificationRow from '$lib/components/projects/NotificationRow.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
+	import { accountNameLookup } from '$lib/data/accountNames';
 
 	let { data } = $props();
 
@@ -10,10 +11,7 @@
 
 	const hasUnread = $derived(data.notifications.some((notification) => !notification.isRead));
 
-	function authorName(authorId: string): string {
-		const author = data.staffMembers.find((staffMember) => staffMember.id === authorId);
-		return author?.name ?? 'Former staff';
-	}
+	const authorName = $derived(accountNameLookup(data.authors));
 </script>
 
 <svelte:head>
@@ -38,12 +36,12 @@
 	</div>
 	{#if data.notifications.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			Nothing yet — you'll be notified when someone comments on a task assigned to you.
+			Nothing yet — you'll be notified when someone posts on a task assigned to you.
 		</p>
 	{:else}
 		<ul class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
 			{#each data.notifications as notification (notification.id)}
-				<NotificationRow {notification} authorName={authorName(notification.commentAuthorId)} />
+				<NotificationRow {notification} authorName={authorName(notification.messageAuthorId)} />
 			{/each}
 		</ul>
 	{/if}

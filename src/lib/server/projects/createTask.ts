@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { parseTaskKind, type TaskKind } from '$lib/data/taskKind';
 import {
 	getNextGlobalPriority,
 	getNextSiblingPriority
@@ -10,6 +11,8 @@ export type NewTaskSeed = {
 	dueDate: string | null;
 	phaseId: string | null;
 	parentTaskId: string | null;
+	goalId: string | null;
+	kind: TaskKind;
 };
 
 export function readNewTaskSeed(formData: FormData): NewTaskSeed | null {
@@ -20,7 +23,9 @@ export function readNewTaskSeed(formData: FormData): NewTaskSeed | null {
 		details: String(formData.get('details') ?? '').trim(),
 		dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
 		phaseId: emptyAsNull(String(formData.get('phaseId') ?? '')),
-		parentTaskId: emptyAsNull(String(formData.get('parentTaskId') ?? ''))
+		parentTaskId: emptyAsNull(String(formData.get('parentTaskId') ?? '')),
+		goalId: emptyAsNull(String(formData.get('goalId') ?? '')),
+		kind: parseTaskKind(formData.get('kind'))
 	};
 }
 
@@ -38,6 +43,8 @@ export async function createTask(
 			project_id: projectId,
 			parent_task_id: seed.parentTaskId,
 			phase_id: seed.phaseId,
+			goal_id: seed.goalId,
+			kind: seed.kind,
 			title: seed.title,
 			details: seed.details,
 			due_date: seed.dueDate,

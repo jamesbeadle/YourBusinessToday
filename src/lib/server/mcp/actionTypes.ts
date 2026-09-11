@@ -3,12 +3,14 @@ import type { McpCaller } from './resolveMcpCaller';
 export type ActionArea =
 	| 'account'
 	| 'clients'
-	| 'requests'
 	| 'projects'
+	| 'goals'
+	| 'support'
+	| 'conversations'
 	| 'tasks'
 	| 'accounting';
 
-export type ActionAudience = 'staff' | 'admin' | 'contact' | 'everyone';
+export type ActionAudience = 'staff' | 'admin' | 'member' | 'everyone';
 
 export type McpAction = {
 	name: string;

@@ -1,12 +1,14 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
-import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { accountNameLookup } from '$lib/data/accountNames';
 import { attachmentActions } from './attachmentActions';
 import { buildActions } from './buildActions';
 import { checklistActions } from './checklistActions';
+import { conversationActions } from './conversationActions';
 import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
 import { deleteTask } from '$lib/server/projects/deleteTask';
+import { getTask } from '$lib/server/projects/getTask';
 import { getTaskFamily } from '$lib/server/projects/getTaskFamily';
 import { applyTaskMoveChoice, parseTaskMoveChoice } from '$lib/server/projects/taskMoveChoice';
 import { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
@@ -16,7 +18,9 @@ import { setCriterionMet } from '$lib/server/projects/setCriterionMet';
 import { setTaskAssignees } from '$lib/server/projects/setTaskAssignees';
 import { setTaskRoles } from '$lib/server/projects/setTaskRoles';
 import { updateTaskDetails } from '$lib/server/projects/updateTaskDetails';
-import { withAuthorNames, withUploaderNames } from '$lib/server/projects/staffNames';
+import { statusChangeRefusal } from '$lib/server/support/statusChangeRefusal';
+import { withAuthorNames } from '$lib/server/conversations/withAuthorNames';
+import { withUploaderNames } from '$lib/server/projects/staffNames';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -26,7 +30,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		...workspace,
 		...(await getTaskFamily(locals.supabase, workspace.task)),
-		comments: withAuthorNames(workspace.comments, workspace.staffMembers),
+		messages: withAuthorNames(workspace.messages, workspace.accounts),
+		raisedByName: accountNameLookup(workspace.accounts)(workspace.task.createdBy),
 		attachments: withUploaderNames(workspace.attachments, workspace.staffMembers)
 	};
 };
@@ -35,11 +40,16 @@ export const actions: Actions = {
 	...checklistActions,
 	...buildActions,
 	...attachmentActions,
+	...conversationActions,
 	saveTask: async ({ locals, params, request }) => {
 		await requireStaff(locals);
 		const formData = await request.formData();
 		const submission = parseTaskDetailsForm(formData);
 		if (submission === null) return fail(400, { message: 'A task title is required.' });
+		const task = await getTask(locals.supabase, params.taskId);
+		if (task === null) return fail(404, { message: 'Task not found.' });
+		const refusal = statusChangeRefusal(task, submission.status);
+		if (refusal !== null) return fail(400, { message: refusal });
 		await updateTaskDetails(locals.supabase, params.taskId, submission);
 		await setTaskAssignees(locals.supabase, params.taskId, submission.assigneeIds);
 		await setTaskRoles(locals.supabase, params.taskId, submission.roles);
@@ -52,14 +62,6 @@ export const actions: Actions = {
 		const seed = readNewTaskSeed(await request.formData());
 		if (seed === null) return fail(400, { message: 'A subtask title is required.' });
 		await createTask(locals.supabase, params.projectId, seed, user.id);
-		return {};
-	},
-	addComment: async ({ locals, params, request }) => {
-		const user = await requireStaff(locals);
-		const formData = await request.formData();
-		const body = String(formData.get('body') ?? '').trim();
-		if (body === '') return fail(400, { message: 'A comment needs some text.' });
-		await addTaskComment(locals.supabase, params.taskId, user.id, body);
 		return {};
 	},
 	addCriterion: async ({ locals, params, request }) => {

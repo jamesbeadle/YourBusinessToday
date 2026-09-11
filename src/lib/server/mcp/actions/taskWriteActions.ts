@@ -5,6 +5,7 @@ import { getTask } from '$lib/server/projects/getTask';
 import { noSuchProject } from './describeProject';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
+import { parseTaskKind, taskKindOrder } from '$lib/data/taskKind';
 import { readTaskDetailsEdit, wrongStoryPoints } from './taskDetailsEdit';
 import { updateTaskDetails } from '$lib/server/projects/updateTaskDetails';
 import type { McpAction } from '../actionTypes';
@@ -32,7 +33,9 @@ export const taskWriteActions: McpAction[] = [
 				details: textField('What the task involves'),
 				dueDate: textField('When it is due, as YYYY-MM-DD'),
 				phaseId: textField('The phase it sits in'),
-				parentTaskId: textField('The task it is a subtask of')
+				goalId: textField('The goal it serves, as given by find_goals'),
+				parentTaskId: textField('The task it is a subtask of'),
+				kind: textField(`${taskKindOrder.join(' or ')} — work unless somebody is waiting on an answer`)
 			},
 			['projectId', 'title']
 		),
@@ -49,7 +52,9 @@ export const taskWriteActions: McpAction[] = [
 					details: readText(input, 'details'),
 					dueDate: readOptionalText(input, 'dueDate'),
 					phaseId: readOptionalText(input, 'phaseId'),
-					parentTaskId: readOptionalText(input, 'parentTaskId')
+					parentTaskId: readOptionalText(input, 'parentTaskId'),
+					goalId: readOptionalText(input, 'goalId'),
+					kind: parseTaskKind(readText(input, 'kind'))
 				},
 				caller.accountId
 			);
@@ -61,11 +66,11 @@ export const taskWriteActions: McpAction[] = [
 		area: 'tasks',
 		audience: 'staff',
 		isWrite: true,
-		summary: 'change a task title, details, due date, phase, story points or percent done',
+		summary: 'change a task title, details, due date, phase, goal, story points or percent done',
 		guidance:
 			`Story points are the Fibonacci run ${fibonacciStoryPoints.join(', ')}, with ` +
-			'nothing in between. A task promoted from a client request carries the words the ' +
-			'client used, so add to the details rather than rewriting them.',
+			'nothing in between. A support task carries the words the person who raised it used, ' +
+			'so add to the details rather than rewriting them.',
 		inputSchema: objectSchema(
 			{
 				taskId: taskIdField,
@@ -73,6 +78,7 @@ export const taskWriteActions: McpAction[] = [
 				details: textField(`New details${keepText}`),
 				dueDate: textField(`A new due date, as YYYY-MM-DD${keepText}`),
 				phaseId: textField(`The phase it sits in${keepText}`),
+				goalId: textField(`The goal it serves${keepText}`),
 				storyPoints: storyPointsField,
 				completionPercent: { type: 'number', description: 'How far through it is, 0 to 100' }
 			},

@@ -1,5 +1,6 @@
 import { objectSchema } from '../actionTypes';
 import type { McpAction } from '../actionTypes';
+import type { McpCaller } from '../resolveMcpCaller';
 
 export const accountActions: McpAction[] = [
 	{
@@ -9,18 +10,12 @@ export const accountActions: McpAction[] = [
 		isWrite: false,
 		summary: 'Your email address, your standing here, and what that lets you do',
 		inputSchema: objectSchema({}),
-		run: async (caller) =>
-			[
-				`Email: ${caller.email}`,
-				`Standing: ${caller.role === 'staff' ? standingOfStaff(caller.isAdmin) : 'client contact'}`,
-				caller.contact === null ? null : `Contact record: ${caller.contact.name} (${caller.contact.email})`
-			]
-				.filter((line) => line !== null)
-				.join('\n')
+		run: async (caller) => [`Email: ${caller.email}`, `Standing: ${standingOf(caller)}`].join('\n')
 	}
 ];
 
-function standingOfStaff(isAdmin: boolean): string {
-	if (isAdmin) return 'administrator';
-	return 'staff';
+function standingOf(caller: McpCaller): string {
+	if (caller.isAdmin) return 'administrator';
+	if (caller.role === 'staff') return 'staff';
+	return `project member (${caller.memberProjectIds.length} project(s))`;
 }

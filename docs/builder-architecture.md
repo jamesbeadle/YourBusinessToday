@@ -1,5 +1,13 @@
 # The Builder — Architecture
 
+> Since the fold described in
+> [support-conversations-architecture.md](./support-conversations-architecture.md) there is
+> no request page: a support task is a task, so the Builder starts from the task page's
+> Send to build, and a merged build posts "this is now live" into the task's conversation
+> and records it as the support task's resolution. References below to
+> `/requests/[requestId]`, `acceptAndBuild` and `commentOnFeatureRequest` describe the
+> earlier shape.
+
 How an accepted feature request becomes a pull request, and a merged pull request becomes
 a message to the client saying it is live — with no repository pulled by hand, no prompt
 retyped, and one human decision kept in the loop: the schema.

@@ -5,7 +5,7 @@ import { getClientEvents } from '$lib/server/clients/getClientEvents';
 import { getClientPeople } from '$lib/server/clients/getClientPeople';
 import { getClientProjects } from '$lib/server/clients/getClientProjects';
 import { getGroupParents } from '$lib/server/clients/getGroupParents';
-import { getRequestsForClient } from '$lib/server/requests/getRequestsForClient';
+import { getSupportTasksForClient } from '$lib/server/support/getOpenSupportTasks';
 import { getUnassignedProjects } from '$lib/server/projects/getUnassignedProjects';
 import { approachFormActions } from '$lib/server/people/approachFormActions';
 import { groupActions } from './groupActions';
@@ -20,11 +20,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	await requireStaff(locals);
 	const client = await getClient(locals.supabase, params.clientId);
 	if (client === null) error(404, 'That client could not be found');
-	const [people, projects, requests, unassignedProjects, events, children, parents, parent] =
+	const [people, projects, supportTasks, unassignedProjects, events, children, parents, parent] =
 		await Promise.all([
 			getClientPeople(locals.supabase, client.id),
 			getClientProjects(locals.supabase, client.id),
-			getRequestsForClient(locals.supabase, client.id),
+			getSupportTasksForClient(locals.supabase, client.id),
 			getUnassignedProjects(locals.supabase),
 			getClientEvents(locals.supabase, client.id),
 			getClientChildren(locals.supabase, client.id),
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		client,
 		people,
 		projects,
-		requests,
+		supportTasks,
 		unassignedProjects,
 		events,
 		children,

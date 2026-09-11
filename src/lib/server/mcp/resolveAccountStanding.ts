@@ -1,15 +1,14 @@
-import { resolveContactForAccount } from '$lib/server/clients/resolveContactForAccount';
-import type { ClientContact } from '$lib/server/clients/clientContactRecord';
+import { getMemberProjectIds } from '$lib/server/members/getMemberProjectIds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type McpRole = 'staff' | 'contact' | 'none';
+export type McpRole = 'staff' | 'member' | 'none';
 
 export type AccountStanding = {
 	accountId: string;
 	email: string;
 	role: McpRole;
 	isAdmin: boolean;
-	contact: ClientContact | null;
+	memberProjectIds: string[];
 };
 
 export async function resolveAccountStanding(
@@ -23,13 +22,15 @@ export async function resolveAccountStanding(
 		.maybeSingle();
 	if (error) throw error;
 	const email = data?.email ?? '';
-	if (data?.is_restricted === true) {
-		return { accountId, email, role: 'none', isAdmin: false, contact: null };
-	}
+	if (data?.is_restricted === true) return nobody(accountId, email);
 	if (data?.is_staff === true || data?.is_admin === true) {
-		return { accountId, email, role: 'staff', isAdmin: data.is_admin === true, contact: null };
+		return { accountId, email, role: 'staff', isAdmin: data.is_admin === true, memberProjectIds: [] };
 	}
-	const contact = await resolveContactForAccount(supabase, accountId);
-	if (contact === null) return { accountId, email, role: 'none', isAdmin: false, contact: null };
-	return { accountId, email, role: 'contact', isAdmin: false, contact };
+	const memberProjectIds = await getMemberProjectIds(supabase, accountId);
+	if (memberProjectIds.length === 0) return nobody(accountId, email);
+	return { accountId, email, role: 'member', isAdmin: false, memberProjectIds };
+}
+
+function nobody(accountId: string, email: string): AccountStanding {
+	return { accountId, email, role: 'none', isAdmin: false, memberProjectIds: [] };
 }

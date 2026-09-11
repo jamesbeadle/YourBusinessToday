@@ -2,8 +2,9 @@
 
 One endpoint, `/api/mcp`, that lets a person's own Claude do what they could do on the
 site — without a browser, an email, or a login prompt in the middle of their work. Who
-they are decides what that is: staff work on the business; a client contact reaches only
-their own company's projects and requests.
+they are decides what that is: staff work on the business; a project member reaches only
+the projects an administrator has added them to — their goals, tasks and conversations
+(see [support-conversations-architecture.md](./support-conversations-architecture.md)).
 
 It adds no domain. Every action here is a second face on a command or query the site
 already runs. If an action needs something the site does not define, the domain is wrong —
@@ -13,9 +14,9 @@ fix it there, not here.
 
 | As | I want | So that |
 | --- | --- | --- |
-| Client contact | to raise a feature request from inside Claude, where I noticed the problem | the ask happens while I still remember the detail |
-| Client contact | to list my requests, read a thread and reply | clarification costs one message, not one email chain |
-| Client contact | to see which of our projects I can raise requests against | I aim the request at the right one |
+| Project member | to find the goal and task something relates to, or raise a support task, from inside Claude | the ask lands in the right place while I still remember the detail |
+| Project member | to post on a goal or task and read everything said to me since I last looked | clarification costs one message, not one WhatsApp relay |
+| Project member | to see which projects I can reach | I aim at the right one |
 | Staff | to triage requests, run projects and tasks, and keep the books from Claude | the admin happens where the thinking happens |
 | Anyone | to press Connect in Claude and arrive as myself | there is no token to copy and nothing to paste |
 
@@ -31,19 +32,21 @@ Claude sees four tools, the same four for everyone:
 | `perform_action` | run one action by name with its input |
 
 The actions live in `src/lib/server/mcp/actions/`, one file per concern, gathered by area
-(`account`, `clients`, `requests`, `projects`, `tasks`, `accounting`) into
-`actionRegistry.ts`. Each action names its audience — `everyone`, `contact`, `staff` or
-`admin` — and the registry filters by the caller's standing on every lookup, so a contact
-cannot list, describe or run a staff action; it does not exist for them. Accounting is
-`admin`, matching the site.
+(`account`, `clients`, `projects`, `goals`, `support`, `conversations`, `tasks`,
+`accounting`) into `actionRegistry.ts`. Each action names its audience — `everyone`,
+`member`, `staff` or `admin` — and the registry filters by the caller's standing on every
+lookup, so a member cannot list, describe or run a staff action; it does not exist for
+them. An `everyone` action that touches a project checks `canReachProject` itself.
+Accounting is `admin`, matching the site.
 
 This shape keeps the tool list small and stable while the site grows: adding a capability
 is adding an action file, never a tool. Tool descriptions are prose the caller's Claude
 reads, so they name the domain plainly.
 
 Every action runs against the service-role Supabase client, so row-level security is
-not the gate here — the action code is. Contact actions resolve the company from the
-token, never from input, and refuse anything that is not theirs.
+not the gate here — the action code is. A member's projects come from `project_members`
+at token resolution, never from input, and every shared action refuses a project that is
+not among them.
 
 ## The route
 
@@ -92,9 +95,10 @@ own form-origin check would refuse. That check is therefore off in `svelte.confi
 re-implemented in `hooks.server.ts` through `src/lib/server/http/crossSiteFormSubmission.ts`,
 which exempts exactly that one path and keeps every other form as protected as it was.
 
-**Client access token** — `ybt_` prefix, minted at `/portal/access` by a contact
-themselves, for MCP clients that take a bearer header and nothing else. It can only ever
-be a contact, and a restricted account's token stops working the day the account is
+**Client access token** — `ybt_` prefix, minted at `/portal/access` by a client contact
+themselves, for MCP clients that take a bearer header and nothing else. It resolves to
+the contact's account and from there to their memberships, so it reaches exactly what
+signing in would, and a restricted account's token stops working the day the account is
 restricted.
 
 Tables: `client_api_tokens` (0036), `oauth_clients`, `oauth_authorization_codes`,
@@ -102,12 +106,12 @@ Tables: `client_api_tokens` (0036), `oauth_clients`, `oauth_authorization_codes`
 
 ## Abuse and limits
 
-The caller's Claude is an eager agent. Two limits, both named constants in
-`requestLimits.ts`: a body cap on a raised request, so a runaway agent cannot paste a
-repository into `want`; and a per-contact daily ceiling on raising requests, above which
-the action returns a plain refusal rather than an error. Duplicate suppression is a
-courtesy: a request whose title matches an open one of theirs returns the existing
-reference and says so.
+The caller's Claude is an eager agent. Two limits, both named constants: a body cap on a
+message or a raised support task (`longestMessageBody`), so a runaway agent cannot paste
+a repository into `want`; and a per-account daily ceiling on raising support tasks
+(`dailyRaiseCeiling`), above which the action returns a plain refusal rather than an
+error. Duplicates are avoided by doctrine rather than code: every write action's guidance
+says search first and post on the match.
 
 ## Status
 
@@ -135,4 +139,3 @@ MCP runs on; without it every action that reads the directory failed.
   caught by the database and reported honestly, but a read-and-refuse in the action would
   read better. `create_task` in particular accepts a phase or parent from another project.
 - Input for `create_invoice`/`add_invoice_line` accepts zero and negative quantities.
-- The thread views name no authors; a contact cannot tell their message from ours.

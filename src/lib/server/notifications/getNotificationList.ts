@@ -12,7 +12,9 @@ export async function getNotificationList(
 ): Promise<NotificationListItem[]> {
 	const { data, error } = await supabase
 		.from('notifications')
-		.select('*, tasks(title, project_id), task_comments(body, author_id)')
+		.select(
+			'*, tasks(title, project_id), task_comments(body, author_id), conversation_messages(body, author_account_id)'
+		)
 		.eq('recipient_id', recipientId)
 		.order('created_at', { ascending: false })
 		.limit(notificationPageSize);

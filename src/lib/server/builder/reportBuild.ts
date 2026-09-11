@@ -1,4 +1,4 @@
-import { addTaskComment } from '$lib/server/projects/addTaskComment';
+import { postMessage } from '$lib/server/conversations/postMessage';
 import { isBuildInFlight } from '$lib/data/buildStatus';
 import { updateTaskBuild } from './updateTaskBuild';
 import type { ProjectTask } from '$lib/server/projects/taskRecord';
@@ -25,7 +25,7 @@ export async function reportBuild(
 		pullRequestUrl: report.pullRequestUrl,
 		hasMigration: report.hasMigration
 	});
-	await addTaskComment(supabase, task.id, authorAccountId, commentFor(report));
+	await postMessage(supabase, { taskId: task.id }, authorAccountId, commentFor(report), true);
 	return 'recorded';
 }
 

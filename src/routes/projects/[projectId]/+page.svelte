@@ -2,10 +2,8 @@
 	import GoalListPanel from '$lib/components/goals/GoalListPanel.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
-	import PhaseListPanel from '$lib/components/projects/PhaseListPanel.svelte';
 	import ProjectDetailHeader from '$lib/components/projects/ProjectDetailHeader.svelte';
 	import ProjectMembersPanel from '$lib/components/members/ProjectMembersPanel.svelte';
-	import TaskPhaseModal from '$lib/components/projects/TaskPhaseModal.svelte';
 	import TaskStatusModal from '$lib/components/projects/TaskStatusModal.svelte';
 	import TaskTreePanel from '$lib/components/projects/TaskTreePanel.svelte';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -14,10 +12,8 @@
 
 	let isTaskModalOpen = $state(false);
 	let isStatusModalOpen = $state(false);
-	let isPhaseModalOpen = $state(false);
 	let subtaskParent = $state<TaskTreeNode | null>(null);
 	let statusTask = $state<TaskTreeNode | null>(null);
-	let phaseTask = $state<TaskTreeNode | null>(null);
 
 	function openNewTaskModal() {
 		subtaskParent = null;
@@ -32,11 +28,6 @@
 	function openStatusModal(task: TaskTreeNode) {
 		statusTask = task;
 		isStatusModalOpen = true;
-	}
-
-	function openPhaseModal(task: TaskTreeNode) {
-		phaseTask = task;
-		isPhaseModalOpen = true;
 	}
 
 	const taskModalTitle = $derived(
@@ -56,25 +47,23 @@
 		</p>
 	{/if}
 	<GoalListPanel goalSummaries={data.goalSummaries} />
-	<PhaseListPanel phaseSummaries={data.phaseSummaries} />
 	{#if data.members !== null}
 		<ProjectMembersPanel members={data.members} />
 	{/if}
 	<TaskTreePanel
 		taskTree={data.taskTree}
-		phaseSummaries={data.phaseSummaries}
+		projectId={data.project.id}
+		goals={data.goals}
 		staffMembers={data.staffMembers}
 		assigneeIdsByTask={data.assigneeIdsByTask}
 		onAddSubtask={openSubtaskModal}
 		onChangeStatus={openStatusModal}
-		onChangePhase={openPhaseModal}
 	/>
 </div>
 
 <Modal title={taskModalTitle} bind:isOpen={isTaskModalOpen}>
 	<NewTaskForm
 		parentTaskId={subtaskParent?.id ?? null}
-		phases={data.phaseSummaries}
 		goals={data.goals}
 		onCreated={() => (isTaskModalOpen = false)}
 	/>
@@ -82,14 +71,4 @@
 
 {#if statusTask !== null}
 	<TaskStatusModal task={statusTask} bind:isOpen={isStatusModalOpen} />
-{/if}
-
-{#if phaseTask !== null}
-	<TaskPhaseModal
-		taskId={phaseTask.id}
-		taskTitle={phaseTask.title}
-		currentPhaseId={phaseTask.phaseId}
-		phaseSummaries={data.phaseSummaries}
-		bind:isOpen={isPhaseModalOpen}
-	/>
 {/if}

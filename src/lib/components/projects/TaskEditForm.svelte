@@ -10,7 +10,6 @@
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
 	import type { Goal } from '$lib/server/goals/goalRecord';
-	import type { Phase } from '$lib/server/projects/phaseRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
 
@@ -19,7 +18,6 @@
 		parentTask,
 		siblingTasks,
 		staffMembers,
-		phases,
 		goals,
 		assigneeIds,
 		roles,
@@ -29,7 +27,6 @@
 		parentTask: ProjectTask | null;
 		siblingTasks: ProjectTask[];
 		staffMembers: StaffMember[];
-		phases: Phase[];
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
@@ -75,7 +72,7 @@
 			<input name="dueDate" type="date" value={task.dueDate ?? ''} class={fieldClasses} />
 		</label>
 	</div>
-	<TaskPlanningFields {task} {phases} />
+	<TaskPlanningFields {task} />
 	<TaskGoalAndKindFields {goals} goalId={task.goalId} kind={task.kind} />
 	<TaskMoveField {parentTask} {siblingTasks} />
 	<UserStoryFields {task} />

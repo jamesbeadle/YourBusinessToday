@@ -7,7 +7,6 @@ import { parseTaskStatus } from '$lib/data/taskStatus';
 import { placeTask } from '$lib/server/projects/placeTask';
 import { requireStaff } from '$lib/server/auth/requireStaff';
 import { statusChangeRefusal } from '$lib/server/support/statusChangeRefusal';
-import { updateTaskPhase } from '$lib/server/projects/updateTaskPhase';
 import { updateTaskStatus } from '$lib/server/projects/updateTaskStatus';
 import type { Actions } from './$types';
 
@@ -49,15 +48,6 @@ export const taskActions = {
 		const refusal = statusChangeRefusal(task, status);
 		if (refusal !== null) return fail(400, { message: refusal });
 		await updateTaskStatus(locals.supabase, task.id, status);
-		return {};
-	},
-	setPhase: async ({ locals, request }) => {
-		await requireStaff(locals);
-		const formData = await request.formData();
-		const taskId = String(formData.get('taskId') ?? '');
-		if (taskId === '') return fail(400, { message: 'A task is required.' });
-		const phaseId = String(formData.get('phaseId') ?? '');
-		await updateTaskPhase(locals.supabase, taskId, phaseId === '' ? null : phaseId);
 		return {};
 	}
 } satisfies Actions;

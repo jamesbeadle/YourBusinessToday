@@ -5,25 +5,20 @@
 	import TaskGoalAndKindFields from './TaskGoalAndKindFields.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import type { Goal } from '$lib/server/goals/goalRecord';
-	import type { Phase } from '$lib/server/projects/phaseRecord';
 
 	let {
 		createAction = '?/createTask',
 		parentTaskId = null,
-		phases = [],
 		goals = [],
 		goalId = null,
 		onCreated
 	}: {
 		createAction?: string;
 		parentTaskId?: string | null;
-		phases?: Phase[];
 		goals?: Goal[];
 		goalId?: string | null;
 		onCreated: () => void;
 	} = $props();
-
-	const shouldOfferPhase = $derived(parentTaskId === null && phases.length > 0);
 
 	const tracker = new FormTracker();
 
@@ -53,23 +48,10 @@
 			class={fieldClasses}
 		></textarea>
 	</label>
-	<div class="grid gap-4 sm:grid-cols-2">
-		<label class="flex flex-col gap-1">
-			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Due date</span>
-			<input name="dueDate" type="date" class={fieldClasses} />
-		</label>
-		{#if shouldOfferPhase}
-			<label class="flex flex-col gap-1">
-				<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Phase</span>
-				<select name="phaseId" class={fieldClasses}>
-					<option value="">No phase</option>
-					{#each phases as phase (phase.id)}
-						<option value={phase.id}>{phase.name}</option>
-					{/each}
-				</select>
-			</label>
-		{/if}
-	</div>
+	<label class="flex flex-col gap-1">
+		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Due date</span>
+		<input name="dueDate" type="date" class={fieldClasses} />
+	</label>
 	<TaskGoalAndKindFields {goals} {goalId} />
 	<p class="text-xs text-chalk/50">
 		Story points, assignees, and the rest are set on the task page after it's created.

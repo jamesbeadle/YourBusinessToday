@@ -32,7 +32,6 @@ export const taskWriteActions: McpAction[] = [
 				title: textField('What the task is called'),
 				details: textField('What the task involves'),
 				dueDate: textField('When it is due, as YYYY-MM-DD'),
-				phaseId: textField('The phase it sits in'),
 				goalId: textField('The goal it serves, as given by find_goals'),
 				parentTaskId: textField('The task it is a subtask of'),
 				kind: textField(`${taskKindOrder.join(' or ')} — work unless somebody is waiting on an answer`)
@@ -51,7 +50,6 @@ export const taskWriteActions: McpAction[] = [
 					title,
 					details: readText(input, 'details'),
 					dueDate: readOptionalText(input, 'dueDate'),
-					phaseId: readOptionalText(input, 'phaseId'),
 					parentTaskId: readOptionalText(input, 'parentTaskId'),
 					goalId: readOptionalText(input, 'goalId'),
 					kind: parseTaskKind(readText(input, 'kind'))
@@ -66,7 +64,7 @@ export const taskWriteActions: McpAction[] = [
 		area: 'tasks',
 		audience: 'staff',
 		isWrite: true,
-		summary: 'change a task title, details, due date, phase, goal, story points or percent done',
+		summary: 'change a task title, details, due date, goal, story points or percent done',
 		guidance:
 			`Story points are the Fibonacci run ${fibonacciStoryPoints.join(', ')}, with ` +
 			'nothing in between. A support task carries the words the person who raised it used, ' +
@@ -77,7 +75,6 @@ export const taskWriteActions: McpAction[] = [
 				title: textField(`A new title${keepText}`),
 				details: textField(`New details${keepText}`),
 				dueDate: textField(`A new due date, as YYYY-MM-DD${keepText}`),
-				phaseId: textField(`The phase it sits in${keepText}`),
 				goalId: textField(`The goal it serves${keepText}`),
 				storyPoints: storyPointsField,
 				completionPercent: { type: 'number', description: 'How far through it is, 0 to 100' }

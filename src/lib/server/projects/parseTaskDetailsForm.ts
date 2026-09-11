@@ -18,7 +18,6 @@ export function parseTaskDetailsForm(formData: FormData): TaskDetailsSubmission 
 		details: String(formData.get('details') ?? '').trim(),
 		status: parseTaskStatus(formData.get('status')),
 		dueDate: emptyAsNull(String(formData.get('dueDate') ?? '')),
-		phaseId: emptyAsNull(String(formData.get('phaseId') ?? '')),
 		goalId: emptyAsNull(String(formData.get('goalId') ?? '')),
 		kind: parseTaskKind(formData.get('kind')),
 		storyPoints: parseStoryPoints(formData.get('storyPoints')),

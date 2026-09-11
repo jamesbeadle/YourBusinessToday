@@ -16,7 +16,7 @@ export function describeTask(workspace: TaskWorkspace): string {
 	return [
 		headline(task),
 		`Project: ${workspace.project.name} (id: ${workspace.project.id})`,
-		`Goal: ${goalTitle(workspace)}. Phase: ${phaseName(workspace)}. Due: ${task.dueDate ?? 'no date set'}.`,
+		`Goal: ${goalTitle(workspace)}. Due: ${task.dueDate ?? 'no date set'}.`,
 		raisedByLine(workspace),
 		teamLine(workspace),
 		storyLine(task),
@@ -48,12 +48,6 @@ function raisedByLine(workspace: TaskWorkspace): string | null {
 	const raiser = accountNameLookup(workspace.accounts)(task.createdBy);
 	if (task.resolution === '') return `Raised by ${raiser}; awaiting our answer.`;
 	return `Raised by ${raiser}. Resolution: ${task.resolution}`;
-}
-
-function phaseName(workspace: TaskWorkspace): string {
-	const phase = workspace.phases.find((candidate) => candidate.id === workspace.task.phaseId);
-	if (phase === undefined) return 'none';
-	return phase.name;
 }
 
 function teamLine(workspace: TaskWorkspace): string {

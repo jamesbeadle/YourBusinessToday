@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseTaskRecord, type ProjectTask } from '$lib/server/projects/taskRecord';
 import { reparentTask } from '$lib/server/projects/reparentTask';
+import { updateTaskGoal } from '$lib/server/projects/updateTaskGoal';
 import {
 	reassignValuesInOrder,
 	reorderByDrop,
@@ -28,7 +29,8 @@ export async function placeTask(
  * A drop beside a task in another sibling group first moves the dragged task
  * into that group. If the move is refused (a cycle, or a missing parent), the
  * returned task keeps its old group, so the reorder that follows finds no
- * shared siblings and settles as a no-op.
+ * shared siblings and settles as a no-op. At the top level the backlog is
+ * shown grouped by goal, so a drop beside a task under another goal joins it.
  */
 async function movedTaskBesideTarget(
 	supabase: SupabaseClient,
@@ -36,9 +38,17 @@ async function movedTaskBesideTarget(
 	targetTask: ProjectTask
 ): Promise<ProjectTask | null> {
 	const movedTask = await findTask(supabase, movedTaskId);
-	if (movedTask === null || movedTask.parentTaskId === targetTask.parentTaskId) return movedTask;
+	if (movedTask === null) return null;
+	if (isTopLevelMoveAcrossGoals(movedTask, targetTask)) {
+		await updateTaskGoal(supabase, movedTaskId, targetTask.goalId);
+	}
+	if (movedTask.parentTaskId === targetTask.parentTaskId) return findTask(supabase, movedTaskId);
 	await reparentTask(supabase, movedTaskId, targetTask.parentTaskId);
 	return findTask(supabase, movedTaskId);
+}
+
+function isTopLevelMoveAcrossGoals(movedTask: ProjectTask, targetTask: ProjectTask): boolean {
+	return targetTask.parentTaskId === null && movedTask.goalId !== targetTask.goalId;
 }
 
 async function applyNewOrder(supabase: SupabaseClient, siblings: ProjectTask[]): Promise<void> {

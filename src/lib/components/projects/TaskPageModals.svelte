@@ -4,7 +4,6 @@
 	import NewTaskForm from './NewTaskForm.svelte';
 	import TaskEditForm from './TaskEditForm.svelte';
 	import type { Goal } from '$lib/server/goals/goalRecord';
-	import type { Phase } from '$lib/server/projects/phaseRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
 
@@ -13,7 +12,6 @@
 		parentTask,
 		siblingTasks,
 		staffMembers,
-		phases,
 		goals,
 		assigneeIds,
 		roles,
@@ -25,7 +23,6 @@
 		parentTask: ProjectTask | null;
 		siblingTasks: ProjectTask[];
 		staffMembers: StaffMember[];
-		phases: Phase[];
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
@@ -41,7 +38,6 @@
 		{parentTask}
 		{siblingTasks}
 		{staffMembers}
-		{phases}
 		{goals}
 		{assigneeIds}
 		{roles}

@@ -1,6 +1,7 @@
+import { goalLine } from './describeGoal';
 import { projectStatusLabels } from '$lib/data/projectStatus';
-import { taskStatusLabels } from '$lib/data/taskStatus';
-import type { PhaseSummary } from '$lib/server/projects/getPhaseSummaries';
+import { taskKindLabels, taskStatusLabelFor } from '$lib/data/taskKind';
+import type { Goal } from '$lib/server/goals/goalRecord';
 import type { Project } from '$lib/server/projects/projectRecord';
 import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -14,45 +15,39 @@ export function describeProjectLine(project: ProjectSummary): string {
 	return `${project.name} — ${status}, ${project.openTaskCount} open (id: ${project.id})`;
 }
 
-export function describeProject(
-	project: Project,
-	phases: PhaseSummary[],
-	backlog: TaskTreeNode[]
-): string {
+export function describeProject(project: Project, goals: Goal[], backlog: TaskTreeNode[]): string {
 	return [
 		`${project.name} — ${projectStatusLabels[project.status]} (id: ${project.id})`,
 		project.description === '' ? 'No description yet.' : project.description,
 		'',
-		'Phases:',
-		...phaseLines(phases),
+		'Goals:',
+		...goalLines(goals),
 		'',
 		'Backlog:',
-		...backlogLines(backlog)
+		...backlogLines(backlog, goals)
 	].join('\n');
 }
 
-function phaseLines(phases: PhaseSummary[]): string[] {
-	if (phases.length === 0) return ['None yet.'];
-	return phases.map(phaseLine);
+function goalLines(goals: Goal[]): string[] {
+	if (goals.length === 0) return ['None yet.'];
+	return goals.map(goalLine);
 }
 
-function phaseLine(phase: PhaseSummary): string {
-	return `${phase.name} — ${phase.completionPercent}% of ${phase.taskCount} tasks (id: ${phase.id})`;
-}
-
-function backlogLines(tasks: TaskTreeNode[]): string[] {
+function backlogLines(tasks: TaskTreeNode[], goals: Goal[]): string[] {
 	if (tasks.length === 0) return ['Nothing in the backlog yet.'];
-	return tasks.flatMap((task) => taskLines(task, ''));
+	return tasks.flatMap((task) => taskLines(task, '', goals));
 }
 
-function taskLines(task: TaskTreeNode, indent: string): string[] {
+function taskLines(task: TaskTreeNode, indent: string, goals: Goal[]): string[] {
 	return [
-		taskLine(task, indent),
-		...task.subtasks.flatMap((subtask) => taskLines(subtask, `${indent}${subtaskIndent}`))
+		taskLine(task, indent, goals),
+		...task.subtasks.flatMap((subtask) => taskLines(subtask, `${indent}${subtaskIndent}`, goals))
 	];
 }
 
-function taskLine(task: TaskTreeNode, indent: string): string {
-	const status = taskStatusLabels[task.status];
-	return `${indent}${task.title} — ${status}, ${task.storyPoints} points (id: ${task.id})`;
+function taskLine(task: TaskTreeNode, indent: string, goals: Goal[]): string {
+	const status = taskStatusLabelFor(task.kind, task.status);
+	const goal = goals.find((candidate) => candidate.id === task.goalId);
+	const underGoal = goal === undefined ? '' : `, under "${goal.title}"`;
+	return `${indent}${task.title} — ${taskKindLabels[task.kind]} task, ${status}, ${task.storyPoints} points${underGoal} (id: ${task.id})`;
 }

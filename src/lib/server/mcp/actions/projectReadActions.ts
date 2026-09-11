@@ -1,9 +1,8 @@
 import { buildTaskTree } from '$lib/server/projects/buildTaskTree';
 import { describeProject, describeProjectLine, noSuchProject } from './describeProject';
-import { getPhaseSummaries } from '$lib/server/projects/getPhaseSummaries';
 import { getProject } from '$lib/server/projects/getProject';
 import { getProjectList } from '$lib/server/projects/getProjectList';
-import { getProjectPhases } from '$lib/server/projects/getProjectPhases';
+import { getProjectGoals } from '$lib/server/goals/getProjectGoals';
 import { getProjectTasks } from '$lib/server/projects/getProjectTasks';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
@@ -38,15 +37,15 @@ export const projectReadActions: McpAction[] = [
 		area: 'projects',
 		audience: 'staff',
 		isWrite: false,
-		summary: 'read one project with its phases and its whole backlog',
+		summary: 'read one project with its goals and its whole backlog',
 		inputSchema: objectSchema({ projectId: textField('The project id') }, ['projectId']),
 		run: async (caller, input) => {
 			const projectId = readText(input, 'projectId');
 			const project = await getProject(caller.supabase, projectId);
 			if (project === null) return noSuchProject;
 			const tasks = await getProjectTasks(caller.supabase, projectId);
-			const phases = await getProjectPhases(caller.supabase, projectId);
-			return describeProject(project, getPhaseSummaries(phases, tasks), buildTaskTree(tasks));
+			const goals = await getProjectGoals(caller.supabase, projectId);
+			return describeProject(project, goals, buildTaskTree(tasks));
 		}
 	}
 ];

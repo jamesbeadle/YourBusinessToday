@@ -1,9 +1,11 @@
+import { weightedCompletionPercent } from '$lib/data/completionSummary';
 import type { Goal } from './goalRecord';
 import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
 export type GoalSummary = Goal & {
 	taskCount: number;
 	doneTaskCount: number;
+	completionPercent: number;
 	awaitingAnswerCount: number;
 };
 
@@ -16,6 +18,7 @@ function summariseGoal(goal: Goal, goalTasks: ProjectTask[]): GoalSummary {
 		...goal,
 		taskCount: goalTasks.length,
 		doneTaskCount: goalTasks.filter((task) => task.status === 'done').length,
+		completionPercent: weightedCompletionPercent(goalTasks),
 		awaitingAnswerCount: goalTasks.filter(
 			(task) => task.kind === 'support' && task.status === 'backlog'
 		).length

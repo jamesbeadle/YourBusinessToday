@@ -4,7 +4,6 @@
 	import TaskDueDate from './TaskDueDate.svelte';
 	import TaskListRow from './TaskListRow.svelte';
 	import TaskMetaBadges from './TaskMetaBadges.svelte';
-	import TaskPhaseButton from './TaskPhaseButton.svelte';
 	import TaskStatusButton from './TaskStatusButton.svelte';
 	import type { ListReorder } from '$lib/client/listReorder.svelte';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -16,10 +15,8 @@
 		isLast,
 		listReorder,
 		assigneeNamesFor,
-		phaseNameFor,
 		onAddSubtask,
-		onChangeStatus,
-		onChangePhase
+		onChangeStatus
 	}: {
 		task: TaskTreeNode;
 		numberPath: string;
@@ -27,14 +24,11 @@
 		isLast: boolean;
 		listReorder: ListReorder;
 		assigneeNamesFor: (taskId: string) => string[];
-		phaseNameFor: (phaseId: string | null) => string | null;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
-		onChangePhase: (task: TaskTreeNode) => void;
 	} = $props();
 
 	const isDone = $derived(task.status === 'done');
-	const phaseName = $derived(phaseNameFor(task.phaseId));
 	const assigneeSubtitle = $derived(assigneeNamesFor(task.id).join(', '));
 </script>
 
@@ -64,7 +58,6 @@
 				{#if task.dueDate !== null}
 					<TaskDueDate dueDate={task.dueDate} {isDone} />
 				{/if}
-				<TaskPhaseButton {phaseName} onOpenPicker={() => onChangePhase(task)} />
 				<TaskStatusButton status={task.status} kind={task.kind} onOpenPicker={() => onChangeStatus(task)} />
 				<button
 					type="button"
@@ -88,10 +81,8 @@
 						isLast={subtaskIndex === task.subtasks.length - 1}
 						{listReorder}
 						{assigneeNamesFor}
-						{phaseNameFor}
 						{onAddSubtask}
 						{onChangeStatus}
-						{onChangePhase}
 					/>
 				{/each}
 			</ol>

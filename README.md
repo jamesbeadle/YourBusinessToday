@@ -44,7 +44,7 @@ portal and the team's own project management are all working:
   for a person; [docs/client-lifecycle-architecture.md](./docs/client-lifecycle-architecture.md)
   and [docs/builder-architecture.md](./docs/builder-architecture.md) are the designs.
 - Projects and tasks at `/projects` and `/tasks` are the team's task manager — goals,
-  phases, subtasks, assignees and status, for the consultancy's own work as much as the
+  subtasks, assignees and status, for the consultancy's own work as much as the
   client's.
 - Admins (`/admin`) can set the site model — the Claude model behind every agent reply —
   grant promotional credits, restrict accounts, and delete accounts. The first admin is

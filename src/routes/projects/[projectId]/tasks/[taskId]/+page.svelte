@@ -16,9 +16,6 @@
 	let isSubtaskModalOpen = $state(false);
 	let isDeleteModalOpen = $state(false);
 
-	const phaseName = $derived(
-		data.phases.find((phase) => phase.id === data.task.phaseId)?.name ?? null
-	);
 	const goalTitle = $derived(
 		data.goals.find((goal) => goal.id === data.task.goalId)?.title ?? null
 	);
@@ -43,7 +40,6 @@
 	{/if}
 	<TaskOverviewPanel
 		task={data.task}
-		{phaseName}
 		{goalTitle}
 		{assigneeNames}
 		raisedByName={data.raisedByName}
@@ -79,7 +75,6 @@
 	parentTask={data.parentTask}
 	siblingTasks={data.siblingTasks}
 	staffMembers={data.staffMembers}
-	phases={data.phases}
 	goals={data.goals}
 	assigneeIds={data.assigneeIds}
 	roles={data.roles}

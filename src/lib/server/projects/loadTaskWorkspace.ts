@@ -2,7 +2,6 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { getProject } from '$lib/server/projects/getProject';
 import { getProjectGoals } from '$lib/server/goals/getProjectGoals';
-import { getProjectPhases } from '$lib/server/projects/getProjectPhases';
 import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
 import { getTask } from '$lib/server/projects/getTask';
 import { getTaskAcceptanceCriteria } from '$lib/server/projects/getTaskAcceptanceCriteria';
@@ -24,7 +23,6 @@ export async function loadTaskWorkspace(
 	if (task === null || project === null) return null;
 	const [
 		staffMembers,
-		phases,
 		goals,
 		messages,
 		criteria,
@@ -34,7 +32,6 @@ export async function loadTaskWorkspace(
 		roles
 	] = await Promise.all([
 		getStaffDirectory(supabase),
-		getProjectPhases(supabase, projectId),
 		getProjectGoals(supabase, projectId),
 		getThread(supabase, { taskId }, true),
 		getTaskAcceptanceCriteria(supabase, taskId),
@@ -48,7 +45,6 @@ export async function loadTaskWorkspace(
 		task,
 		project,
 		staffMembers,
-		phases,
 		goals,
 		messages,
 		accounts: await getAccountDirectory(supabase, authorIds),

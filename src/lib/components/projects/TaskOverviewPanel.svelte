@@ -6,14 +6,12 @@
 
 	let {
 		task,
-		phaseName,
 		goalTitle,
 		assigneeNames,
 		raisedByName,
 		onEdit
 	}: {
 		task: ProjectTask;
-		phaseName: string | null;
 		goalTitle: string | null;
 		assigneeNames: string[];
 		raisedByName: string;
@@ -40,10 +38,6 @@
 			<div class={factClasses}>
 				<span class={factLabelClasses}>Goal</span>
 				<span class="font-display text-sm">{goalTitle ?? '—'}</span>
-			</div>
-			<div class={factClasses}>
-				<span class={factLabelClasses}>Phase</span>
-				<span class="font-display text-sm">{phaseName ?? '—'}</span>
 			</div>
 			<div class={factClasses}>
 				<span class={factLabelClasses}>Due</span>

@@ -16,7 +16,8 @@
 		staffMembers,
 		assigneeIdsByTask,
 		onAddSubtask,
-		onChangeStatus
+		onChangeStatus,
+		onChangeGoal
 	}: {
 		taskTree: TaskTreeNode[];
 		projectId: string;
@@ -25,6 +26,7 @@
 		assigneeIdsByTask: Record<string, string[]>;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
+		onChangeGoal: (task: TaskTreeNode) => void;
 	} = $props();
 
 	let shouldIncludeDone = $state(false);
@@ -42,6 +44,10 @@
 			? 'Everything here is done — switch the filter to All to see finished tasks.'
 			: 'No tasks yet — add one.'
 	);
+
+	function goalTitleFor(goalId: string | null): string | null {
+		return goals.find((goal) => goal.id === goalId)?.title ?? null;
+	}
 
 	function assigneeNamesFor(taskId: string): string[] {
 		const assigneeIds = assigneeIdsByTask[taskId] ?? [];
@@ -68,8 +74,10 @@
 					{projectId}
 					{listReorder}
 					{assigneeNamesFor}
+					{goalTitleFor}
 					{onAddSubtask}
 					{onChangeStatus}
+					{onChangeGoal}
 				/>
 			{/each}
 		</div>

@@ -9,15 +9,19 @@
 		projectId,
 		listReorder,
 		assigneeNamesFor,
+		goalTitleFor,
 		onAddSubtask,
-		onChangeStatus
+		onChangeStatus,
+		onChangeGoal
 	}: {
 		group: TaskGroup;
 		projectId: string;
 		listReorder: ListReorder;
 		assigneeNamesFor: (taskId: string) => string[];
+		goalTitleFor: (goalId: string | null) => string | null;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
+		onChangeGoal: (task: TaskTreeNode) => void;
 	} = $props();
 
 	const taskCountLabel = $derived(
@@ -48,8 +52,10 @@
 				isLast={taskIndex === group.tasks.length - 1}
 				{listReorder}
 				{assigneeNamesFor}
+				{goalTitleFor}
 				{onAddSubtask}
 				{onChangeStatus}
+				{onChangeGoal}
 			/>
 		{/each}
 	</ol>

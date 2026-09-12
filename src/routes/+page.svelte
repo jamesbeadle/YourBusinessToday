@@ -3,14 +3,12 @@
 	import CaseStudySection from '$lib/components/home/CaseStudySection.svelte';
 	import ConsultancySection from '$lib/components/home/ConsultancySection.svelte';
 	import HeroSection from '$lib/components/home/HeroSection.svelte';
-	import KnowledgeKindsSection from '$lib/components/home/KnowledgeKindsSection.svelte';
-	import OneConversationSection from '$lib/components/home/OneConversationSection.svelte';
 	import ServicesSection from '$lib/components/home/ServicesSection.svelte';
 	import { companyDetails } from '$lib/data/companyDetails';
 
 	const pageTitle = 'Your Business Today — consultants who know your business';
 	const pageDescription =
-		'Your Business Today is a consultancy that automates a business. We learn how yours really runs, automate the work that repeats, and keep everything we learn in a knowledge base that stays yours — with chatbots for your staff and an MCP connection for Claude.';
+		'Your Business Today is a consultancy that automates a business. We learn how yours really runs, automate the work that repeats, and hand you tools built for the way you already work.';
 	const shareImageUrl = `${companyDetails.websiteUrl}/favicon.svg`;
 </script>
 
@@ -27,7 +25,5 @@
 <HeroSection />
 <ConsultancySection />
 <CaseStudySection />
-<KnowledgeKindsSection />
-<OneConversationSection />
 <ServicesSection />
 <BenefitsSection />

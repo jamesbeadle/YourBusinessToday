@@ -5,10 +5,10 @@
 		Your message is with the team. Expect a reply by email within a couple of working days.
 	</p>
 	<a
-		href="/knowledge-base"
+		href="/vision"
 		class="self-start rounded-full border border-hairline px-6 py-2.5 font-display text-sm
 			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
 	>
-		Build your knowledge base while you wait
+		Read what we're building while you wait
 	</a>
 </div>

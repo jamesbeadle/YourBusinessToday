@@ -13,8 +13,7 @@
 		<p class="max-w-prose text-lg text-chalk/70">
 			We automate businesses. It starts with learning how yours really runs — the rules of your
 			trade, the jobs you have done, the way work moves from enquiry to invoice — and ends with
-			the repetitive parts running themselves. Everything we learn is kept in a knowledge base
-			that stays yours.
+			the repetitive parts running themselves. The tools we build stay yours.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
@@ -25,11 +24,11 @@
 				Talk to us
 			</a>
 			<a
-				href="/knowledge-base"
+				href="/vision"
 				class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
 					transition hover:border-chalk/40 hover:text-chalk"
 			>
-				Build your knowledge base
+				What we're building
 			</a>
 		</div>
 	</div>

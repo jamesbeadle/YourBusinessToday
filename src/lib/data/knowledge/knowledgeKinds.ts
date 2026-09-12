@@ -1,5 +1,3 @@
-import type { BrainCategory } from './knowledgeTypes';
-
 export type KnowledgeKind = 'expertise' | 'experience' | 'process';
 
 export type KnowledgeKindDefinition = {
@@ -37,15 +35,6 @@ export const knowledgeKinds: KnowledgeKindDefinition[] = [
 	}
 ];
 
-const kindByCategory: Record<BrainCategory, KnowledgeKind> = {
-	domain: 'expertise',
-	instance: 'experience'
-};
-
 export function findKnowledgeKind(kind: KnowledgeKind): KnowledgeKindDefinition {
 	return knowledgeKinds.find((definition) => definition.kind === kind) ?? knowledgeKinds[0];
-}
-
-export function kindForCategory(category: BrainCategory): KnowledgeKindDefinition {
-	return findKnowledgeKind(kindByCategory[category]);
 }

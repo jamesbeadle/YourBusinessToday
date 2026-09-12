@@ -17,8 +17,8 @@ export type NavigationAccess = {
 
 export const primaryNavigationLinks: NavigationLink[] = [
 	{ href: '/', label: 'Home' },
-	{ href: '/knowledge-base', label: 'Knowledge Base' },
-	{ href: '/chatbots', label: 'Chatbots' }
+	{ href: '/vision', label: 'What we build' },
+	{ href: '/contact', label: 'Contact' }
 ];
 
 export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {

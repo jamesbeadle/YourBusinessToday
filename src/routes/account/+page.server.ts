@@ -8,7 +8,6 @@ import {
 } from '$lib/server/anthropic/userModelPreference';
 import { isLadderModel } from '$lib/data/modelLadder';
 import { getDisplayName } from '$lib/server/auth/getDisplayName';
-import { getPurchaseHistory } from '$lib/server/credits/getPurchaseHistory';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { saveDisplayName } from '$lib/server/auth/saveDisplayName';
 import type { Actions, PageServerLoad } from './$types';
@@ -18,7 +17,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		modelId: (await getUserModelPreference(locals.supabase)) ?? (await siteModelOrDefault()),
 		adminPinnedModel: await getAdminPinnedModel(locals.supabase),
-		purchases: await getPurchaseHistory(locals.supabase),
 		displayName: await getDisplayName(locals.supabase)
 	};
 };

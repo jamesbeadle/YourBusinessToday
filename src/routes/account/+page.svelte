@@ -3,7 +3,6 @@
 	import DisplayNameForm from '$lib/components/account/DisplayNameForm.svelte';
 	import ModelChoicePanel from '$lib/components/account/ModelChoicePanel.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
-	import PurchaseHistoryTable from '$lib/components/account/PurchaseHistoryTable.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 
@@ -54,21 +53,7 @@
 			Edit profile
 		</button>
 	</div>
-	<div class="flex items-center justify-between rounded-2xl border border-hairline bg-carriage p-6">
-		<div>
-			<p class="font-display text-sm tracking-widest text-chalk/50 uppercase">Credit balance</p>
-			<p class="font-display text-4xl font-medium">{data.creditBalance}</p>
-		</div>
-		<a
-			href="/account/credits"
-			class="rounded-full bg-go px-6 py-3 font-display text-sm font-medium text-night transition
-				hover:brightness-110"
-		>
-			Top up
-		</a>
-	</div>
 	<ModelChoicePanel modelId={data.modelId} adminPinnedModel={data.adminPinnedModel} />
-	<PurchaseHistoryTable purchases={data.purchases} />
 </div>
 
 <Modal title="Edit profile" bind:isOpen={isProfileModalOpen}>

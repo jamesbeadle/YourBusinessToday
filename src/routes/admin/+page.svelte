@@ -1,5 +1,4 @@
 <script lang="ts">
-	import AdminPurchasesTable from '$lib/components/admin/AdminPurchasesTable.svelte';
 	import AdminUserRow from '$lib/components/admin/AdminUserRow.svelte';
 	import SiteModelPanel from '$lib/components/admin/SiteModelPanel.svelte';
 
@@ -35,5 +34,4 @@
 			<AdminUserRow {user} />
 		{/each}
 	</ul>
-	<AdminPurchasesTable purchases={data.purchases} />
 </div>

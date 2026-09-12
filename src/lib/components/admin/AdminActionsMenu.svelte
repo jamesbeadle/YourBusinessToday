@@ -2,7 +2,7 @@
 	import AdminMenuAction from '$lib/components/admin/AdminMenuAction.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
-	let { user, onAdjustCredits }: { user: AdminUserSummary; onAdjustCredits: () => void } = $props();
+	let { user }: { user: AdminUserSummary } = $props();
 
 	let isOpen = $state(false);
 	let menuElement: HTMLElement | undefined = $state();
@@ -15,11 +15,6 @@
 		if (!isOpen) return;
 		if (menuElement?.contains(event.target as Node)) return;
 		close();
-	}
-
-	function openAdjustModal() {
-		close();
-		onAdjustCredits();
 	}
 </script>
 
@@ -44,14 +39,6 @@
 			class="absolute right-0 top-full z-10 mt-2 flex w-52 flex-col rounded-2xl border
 				border-hairline bg-night p-2 shadow-xl"
 		>
-			<button
-				type="button"
-				onclick={openAdjustModal}
-				class="w-full rounded-xl px-3 py-2 text-left font-display text-sm text-chalk/80
-					transition hover:bg-hairline/40 hover:text-chalk"
-			>
-				Adjust credits…
-			</button>
 			<AdminMenuAction
 				action="?/setStaff"
 				fields={{ targetEmail: user.email, shouldBeStaff: user.isStaff ? 'false' : 'true' }}

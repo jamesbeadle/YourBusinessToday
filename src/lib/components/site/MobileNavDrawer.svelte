@@ -1,18 +1,15 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import CreditBalancePill from './CreditBalancePill.svelte';
 	import MobileNavGroup from './MobileNavGroup.svelte';
 	import type { NavigationGroup } from './siteNavigation';
 
 	let {
 		menuGroups,
 		isSignedIn,
-		creditBalance,
 		onClose
 	}: {
 		menuGroups: NavigationGroup[];
 		isSignedIn: boolean;
-		creditBalance: number;
 		onClose: () => void;
 	} = $props();
 
@@ -67,9 +64,4 @@
 	{#each menuGroups as menuGroup (menuGroup.label)}
 		<MobileNavGroup group={menuGroup} onNavigate={onClose} />
 	{/each}
-	{#if isSignedIn}
-		<div class="mt-2 border-t border-hairline px-3 py-3">
-			<CreditBalancePill balance={creditBalance} />
-		</div>
-	{/if}
 </nav>

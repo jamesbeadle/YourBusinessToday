@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { contentKindFor } from '$lib/data/taskAttachmentRules';
 import { downloadAttachmentFile } from './downloadAttachmentFile';
-import { extractWordDocumentText } from '$lib/server/brain/extractWordDocumentText';
+import { extractWordDocumentText } from '$lib/server/documents/extractWordDocumentText';
 import type { TaskAttachment } from './attachmentRecord';
 
 export const maxAttachmentTextCharacters = 200_000;

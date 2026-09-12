@@ -1,4 +1,4 @@
-import { htmlToPlainText } from '$lib/server/brain/htmlToPlainText';
+import { htmlToPlainText } from '$lib/server/documents/htmlToPlainText';
 import { parsePublicUrl } from './parsePublicUrl';
 
 export type PublicPage = { url: string; html: string; text: string };

@@ -1,7 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { adjustCredits, readCreditAdjustment } from '$lib/server/admin/adjustCredits';
 import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
-import { getAdminPurchaseList } from '$lib/server/admin/getAdminPurchaseList';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { getSiteModel } from '$lib/server/anthropic/getSiteModel';
 import { isKnownSiteModel } from '$lib/data/siteModels';
@@ -12,13 +10,10 @@ import { setUserModel } from '$lib/server/admin/setUserModel';
 import { setStaffAccess } from '$lib/server/admin/setStaffAccess';
 import type { Actions, PageServerLoad } from './$types';
 
-const signedNumber = new Intl.NumberFormat('en-GB', { signDisplay: 'always' });
-
 export const load: PageServerLoad = async ({ locals }) => {
 	await requireAdmin(locals);
 	return {
 		users: await getAdminUserList(locals.supabase),
-		purchases: await getAdminPurchaseList(),
 		siteModel: await getSiteModel()
 	};
 };
@@ -49,16 +44,6 @@ export const actions: Actions = {
 				modelId === ''
 					? `${targetEmail} now follows the site model.`
 					: `${targetEmail} now runs on ${modelId}.`
-		};
-	},
-	adjustCredits: async ({ locals, request }) => {
-		await requireAdmin(locals);
-		const adjustment = readCreditAdjustment(await request.formData());
-		if ('message' in adjustment) return fail(400, adjustment);
-		const newBalance = await adjustCredits(locals.supabase, adjustment);
-		const signedDelta = signedNumber.format(adjustment.creditDelta);
-		return {
-			message: `${adjustment.targetEmail} adjusted by ${signedDelta} credits — balance ${newBalance}.`
 		};
 	},
 	setRestriction: async ({ locals, request }) => {

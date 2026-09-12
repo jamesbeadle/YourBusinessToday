@@ -1,8 +1,8 @@
-import { hasOnlyChatbotMemberships } from '$lib/server/chatbots/hasOnlyChatbotMemberships';
+import { getMemberProjectIds } from '$lib/server/members/getMemberProjectIds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const defaultDestination = '/knowledge-base';
-export const chatbotsDestination = '/chatbots';
+export const defaultDestination = '/';
+export const clientPortalDestination = '/portal';
 
 /** Only a same-site path is safe to send someone to; anything else lands on the default. */
 export function localDestinationOrDefault(destination: string | null): string {
@@ -21,9 +21,10 @@ export async function destinationAfterSignIn(
 	return homeDestinationFor(locals.supabase, user.id);
 }
 
-/** /chatbots for someone who only asks bots; the knowledge base for everyone else. */
+/** The portal for a client's person; the front page for everyone else. */
 export async function homeDestinationFor(supabase: SupabaseClient, userId: string): Promise<string> {
-	if (await hasOnlyChatbotMemberships(supabase, userId)) return chatbotsDestination;
+	const memberProjectIds = await getMemberProjectIds(supabase, userId);
+	if (memberProjectIds.length > 0) return clientPortalDestination;
 	return defaultDestination;
 }
 

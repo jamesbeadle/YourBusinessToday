@@ -1,34 +1,24 @@
 <script lang="ts">
 	import AccountMenu from './AccountMenu.svelte';
 	import BrandWordmark from './BrandWordmark.svelte';
-	import CreditBalancePill from './CreditBalancePill.svelte';
-	import KnowledgeBaseSwitcher from './KnowledgeBaseSwitcher.svelte';
 	import MobileMenuButton from './MobileMenuButton.svelte';
 	import MobileNavDrawer from './MobileNavDrawer.svelte';
 	import NotificationsBell from './NotificationsBell.svelte';
 	import { buildMenuGroups } from './siteNavigation';
-	import { page } from '$app/state';
-	import type { KnowledgeBaseSummary } from '$lib/data/knowledge/knowledgeTypes';
 
 	let {
 		userEmail,
-		creditBalance,
 		isAdmin,
 		isStaff,
 		isProjectMember,
-		unreadNotificationCount,
-		knowledgeBases
+		unreadNotificationCount
 	}: {
 		userEmail: string | null;
-		creditBalance: number | null;
 		isAdmin: boolean;
 		isStaff: boolean;
 		isProjectMember: boolean;
 		unreadNotificationCount: number;
-		knowledgeBases: KnowledgeBaseSummary[];
 	} = $props();
-
-	const openKnowledgeBaseId = $derived(page.params.knowledgeBaseId ?? null);
 
 	const isSignedIn = $derived(userEmail !== null);
 	const isProjectManager = $derived(isStaff || isAdmin);
@@ -50,17 +40,12 @@
 			<a href="/" class="flex shrink-0 items-center">
 				<BrandWordmark fontSize={26} />
 			</a>
-			{#if openKnowledgeBaseId !== null}
-				<KnowledgeBaseSwitcher {knowledgeBases} currentKnowledgeBaseId={openKnowledgeBaseId} />
-			{/if}
 		</div>
 		<nav class="hidden shrink-0 items-center gap-6 md:flex">
 			{#if isProjectManager}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}
-			{#if isSignedIn}
-				<CreditBalancePill balance={creditBalance ?? 0} isUnitHiddenOnNarrowScreens />
-			{:else}
+			{#if !isSignedIn}
 				<a
 					href="/account/sign-in"
 					class="rounded-full bg-signal px-5 py-2 font-display text-sm font-medium text-night
@@ -81,5 +66,5 @@
 </header>
 
 {#if isMobileMenuOpen}
-	<MobileNavDrawer {menuGroups} {isSignedIn} creditBalance={creditBalance ?? 0} onClose={closeMobileMenu} />
+	<MobileNavDrawer {menuGroups} {isSignedIn} onClose={closeMobileMenu} />
 {/if}

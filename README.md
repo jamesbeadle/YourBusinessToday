@@ -1,36 +1,23 @@
 # Your Business Today (YBT)
 
-A consultancy that automates a business, and the product it runs on: Knowledge Bases that
-hold what a business knows, has done, and how it works, so that people and AI can ask them.
+A consultancy that automates a business: we learn how a business really runs, then build
+the tools that run it.
 
 ## Status
 
-Early access. Accounts, credits, Knowledge Bases, chatbots, the MCP server, the client
-portal and the team's own project management are all working:
+The consultancy runs on this: clients, projects, the client portal, support, the Builder
+and the books are all working.
 
 - Sign in with Google, or with an email address and a password — new accounts confirm
-  their address by email and start with zero credits, and a forgotten password is reset
-  from the sign-in page; [docs/auth-setup.md](./docs/auth-setup.md) covers the provider
-  configuration.
-- Buy credit packs at `/account/credits` — live Stripe Checkout with webhook fulfilment
-  when keys are set, a placeholder otherwise; [docs/stripe-setup.md](./docs/stripe-setup.md)
-  covers the keys and the unit economics.
-- Build a Knowledge Base at `/knowledge-base` — one dashboard per base, with a header
-  switcher between bases, and three brains per base: expertise (what the business knows,
-  as a domain model), experience (what it has done, as case files) and process (how it
-  works, as flows of work). Each is built by interview with an agent or by
-  uploading the documents the business already files, and every answer is grounded in
-  those pages with citations; [docs/domain-brain-architecture.md](./docs/domain-brain-architecture.md)
-  and [docs/process-brain-architecture.md](./docs/process-brain-architecture.md) cover the
-  design.
-- Hand a chatbot to staff at `/chatbots` — the first tool built on a Knowledge Base. A
-  manager names a bot on their base, invites members by email, funds it from their own
-  credits and sets each member's allowance; members ask, and never open the base itself;
-  [docs/chatbot-architecture.md](./docs/chatbot-architecture.md) is the design.
-- Connect your own Claude through the MCP server at `/api/mcp` — OAuth sign-in from the
-  Connect button, then the same commands and queries the site runs, scoped to who you are;
-  the public API under `/api/v1` lets other software ask a brain, read its pages and export
-  it; [docs/mcp-architecture.md](./docs/mcp-architecture.md) is the design.
+  their address by email, and a forgotten password is reset from the sign-in page;
+  [docs/auth-setup.md](./docs/auth-setup.md) covers the provider configuration.
+- Staff keep the client register at `/clients` — leads from the website land there, and a
+  client moves through its lifecycle from lead to live;
+  [docs/client-lifecycle-architecture.md](./docs/client-lifecycle-architecture.md) is the design.
+- People at `/people` is the directory behind the register: who we know, where they work,
+  what we last said to them, and a researched approach when we want to open a conversation;
+  [docs/lead-generation-architecture.md](./docs/lead-generation-architecture.md) and
+  [docs/prospector-architecture.md](./docs/prospector-architecture.md) cover finding them.
 - A project is the shared board. It has goals — high level, measurable — and every goal
   and task carries a conversation. A client's person is added to a project by an admin
   and works on it through their own Claude: they find the goal, find or raise a support
@@ -38,20 +25,23 @@ portal and the team's own project management are all working:
   close a support task with a resolution the raiser reads. `/support` lists what is
   waiting on us; [docs/support-conversations-architecture.md](./docs/support-conversations-architecture.md)
   is the design.
-- Staff keep the client register at `/clients` and send tasks to the Builder — a Claude
-  Code routine per tier that branches, builds, opens a pull request and reports back;
-  merged builds mark the task live and say so in its conversation. Schema changes wait
-  for a person; [docs/client-lifecycle-architecture.md](./docs/client-lifecycle-architecture.md)
-  and [docs/builder-architecture.md](./docs/builder-architecture.md) are the designs.
 - Projects and tasks at `/projects` and `/tasks` are the team's task manager — goals,
-  subtasks, assignees and status, for the consultancy's own work as much as the
-  client's.
+  subtasks, assignees and status, for the consultancy's own work as much as the client's.
+- Send a task to the Builder — a Claude Code routine per tier that branches, builds, opens
+  a pull request and reports back; merged builds mark the task live and say so in its
+  conversation. Schema changes wait for a person;
+  [docs/builder-architecture.md](./docs/builder-architecture.md) is the design.
+- The books are at `/accounting` — ledger accounts, cost centres, journals, invoices and
+  expenses, with a profit and loss and a balance sheet.
+- Clients reach the portal through their own Claude at `/api/mcp` — OAuth sign-in from the
+  Connect button, scoped to the projects they are on;
+  [docs/mcp-architecture.md](./docs/mcp-architecture.md) is the design.
 - Admins (`/admin`) can set the site model — the Claude model behind every agent reply —
-  grant promotional credits, restrict accounts, and delete accounts. The first admin is
-  bootstrapped by email on signup.
+  restrict accounts, and delete accounts. The first admin is bootstrapped by email on signup.
 
-The agents use the Claude API when `ANTHROPIC_API_KEY` is set, and fall back to a scripted
-interviewer when it is not.
+The product this consultancy sells and implements — Knowledge Bases, the brains inside
+them, chatbots, the marketplace and the hive mind — lives separately in
+[YourBrainToday](https://github.com/jamesbeadle/YourBrainToday).
 
 ## Running locally
 
@@ -65,18 +55,13 @@ npm run dev
 | --- | --- |
 | `PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key |
-| `ANTHROPIC_API_KEY` | Claude API key — optional, scripted agent without it |
-| `STRIPE_SECRET_KEY` | Stripe secret key — optional, placeholder checkout without it |
-| `STRIPE_WEBHOOK_SECRET` | Signing secret for `/api/stripe-webhook` |
-| `SUPABASE_SECRET_KEY` | Supabase secret key — used by the Stripe webhook and to read the site model |
-| `RESEND_API_KEY` / `EMAIL_FROM` | Resend API key and sender address for transactional email — optional, sending is skipped without them |
-| `BUILDER_{EASY,MEDIUM,HARD}_ROUTINE_URL` / `_TOKEN` | Fire endpoint and token of the Claude Code routine for each tier — optional, sending to build refuses politely without them |
+| `ANTHROPIC_API_KEY` | Claude API key — company and person research, and drafted approaches |
+| `SUPABASE_SECRET_KEY` | Supabase secret key — used by the MCP server and to read the site model |
+| `COMPANIES_HOUSE_API_KEY` | Companies House company and officer search |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Resend API key and sender address for transactional email |
+| `ENQUIRY_NOTIFICATION_EMAIL` | Where website enquiries from `/contact` are sent |
+| `BUILDER_{EASY,MEDIUM,HARD}_ROUTINE_URL` / `_TOKEN` | Fire endpoint and token of the Claude Code routine for each tier |
 | `GITHUB_WEBHOOK_SECRET` | Secret on the GitHub webhook that tells a task its build merged |
-
-## Architecture
-
-The agent roadmap — interviewer, cartographer, surveyor, planner — lives in
-[docs/agent-architecture.md](./docs/agent-architecture.md).
 
 ## Stack
 

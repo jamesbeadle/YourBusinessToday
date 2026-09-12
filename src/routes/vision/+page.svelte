@@ -72,12 +72,5 @@
 		>
 			Talk to us
 		</a>
-		<a
-			href="/knowledge-base"
-			class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
-				transition hover:border-chalk/40 hover:text-chalk"
-		>
-			Build your knowledge base
-		</a>
 	</div>
 </article>

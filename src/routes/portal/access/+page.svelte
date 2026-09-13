@@ -1,6 +1,6 @@
 <script lang="ts">
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
-	import FormField from '$lib/components/accounting/FormField.svelte';
+	import FormField from '$lib/components/site/FormField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { formatBritishDate } from '$lib/data/britishDate';
 	import { inputClasses, quietButtonClasses } from '$lib/components/site/formStyles';

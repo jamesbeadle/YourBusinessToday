@@ -1,5 +1,4 @@
 import { accountActions } from './actions/accountActions';
-import { accountingActions } from './actions/accountingActions';
 import { clientActions } from './actions/clientActions';
 import { conversationActions } from './actions/conversationActions';
 import { goalActions } from './actions/goalActions';
@@ -18,8 +17,7 @@ const everyAction: McpAction[] = [
 	...goalActions,
 	...supportTaskActions,
 	...conversationActions,
-	...taskActions,
-	...accountingActions
+	...taskActions
 ];
 
 export function actionsFor(standing: AccountStanding, area: ActionArea | null): McpAction[] {

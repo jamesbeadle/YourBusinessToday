@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FormField from '$lib/components/accounting/FormField.svelte';
+	import FormField from '$lib/components/site/FormField.svelte';
 	import FoundLinkChoices from './FoundLinkChoices.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses } from '$lib/components/site/formStyles';

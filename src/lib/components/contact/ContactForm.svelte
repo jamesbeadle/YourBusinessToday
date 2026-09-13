@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
-	import FormField from '$lib/components/accounting/FormField.svelte';
+	import FormField from '$lib/components/site/FormField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses, primaryButtonClasses } from '$lib/components/site/formStyles';
 	import { FormTracker } from '$lib/client/formTracker.svelte';

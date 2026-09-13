@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AddLeadForm from '$lib/components/clients/AddLeadForm.svelte';
 	import ClientTable from '$lib/components/clients/ClientTable.svelte';
-	import EmptyState from '$lib/components/accounting/EmptyState.svelte';
+	import EmptyState from '$lib/components/site/EmptyState.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import StageFilterTabs from '$lib/components/clients/StageFilterTabs.svelte';
 	import { quietButtonClasses } from '$lib/components/site/formStyles';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EmptyState from '$lib/components/accounting/EmptyState.svelte';
+	import EmptyState from '$lib/components/site/EmptyState.svelte';
 	import { projectStatusLabels } from '$lib/data/projectStatus';
 
 	let { data } = $props();

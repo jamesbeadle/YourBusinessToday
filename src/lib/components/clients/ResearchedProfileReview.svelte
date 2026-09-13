@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FormField from '$lib/components/accounting/FormField.svelte';
+	import FormField from '$lib/components/site/FormField.svelte';
 	import ResearchedPeopleFields from './ResearchedPeopleFields.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { headcountBandLabels, headcountBandOrder } from '$lib/data/headcountBands';

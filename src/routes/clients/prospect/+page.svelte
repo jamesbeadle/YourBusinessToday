@@ -1,5 +1,5 @@
 <script lang="ts">
-	import EmptyState from '$lib/components/accounting/EmptyState.svelte';
+	import EmptyState from '$lib/components/site/EmptyState.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import ProspectResultTable from '$lib/components/clients/ProspectResultTable.svelte';
 	import ProspectSearchForm from '$lib/components/clients/ProspectSearchForm.svelte';

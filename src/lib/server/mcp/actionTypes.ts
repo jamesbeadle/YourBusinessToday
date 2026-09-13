@@ -7,8 +7,7 @@ export type ActionArea =
 	| 'goals'
 	| 'support'
 	| 'conversations'
-	| 'tasks'
-	| 'accounting';
+	| 'tasks';
 
 export type ActionAudience = 'staff' | 'admin' | 'member' | 'everyone';
 

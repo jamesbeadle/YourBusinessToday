@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FormField from '$lib/components/accounting/FormField.svelte';
+	import FormField from '$lib/components/site/FormField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { inputClasses, selectClasses } from '$lib/components/site/formStyles';
 	import type { UnassignedProject } from '$lib/server/projects/getUnassignedProjects';

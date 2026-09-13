@@ -33,10 +33,7 @@ export function buildMenuGroups(access: NavigationAccess): NavigationGroup[] {
 	return groups;
 }
 
-const adminLinks: NavigationLink[] = [
-	{ href: '/accounting', label: 'Accounting' },
-	{ href: '/admin', label: 'Admin' }
-];
+const adminLinks: NavigationLink[] = [{ href: '/admin', label: 'Admin' }];
 
 const portalLinks: NavigationLink[] = [{ href: '/portal', label: 'Your projects' }];
 

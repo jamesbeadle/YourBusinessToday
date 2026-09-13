@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AddPersonForm from '$lib/components/people/AddPersonForm.svelte';
-	import EmptyState from '$lib/components/accounting/EmptyState.svelte';
+	import EmptyState from '$lib/components/site/EmptyState.svelte';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import OfficerResultList from '$lib/components/people/OfficerResultList.svelte';
 	import OfficerSearchForm from '$lib/components/people/OfficerSearchForm.svelte';

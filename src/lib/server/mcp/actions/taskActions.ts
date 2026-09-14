@@ -1,6 +1,13 @@
 import { acceptanceCriterionActions } from './acceptanceCriterionActions';
 import { buildDispatchActions } from './buildDispatchActions';
 import { builderActions } from './builderActions';
+import { checklistActions } from './checklistActions';
+import { checklistItemActions } from './checklistItemActions';
+import { taskOrderActions } from './taskOrderActions';
+import { taskParentActions } from './taskParentActions';
+import { taskQueueActions } from './taskQueueActions';
+import { taskRemovalActions } from './taskRemovalActions';
+import { taskRoleActions } from './taskRoleActions';
 import { taskAttachmentReadActions } from './taskAttachmentReadActions';
 import { taskAttachmentWriteActions } from './taskAttachmentWriteActions';
 import { taskReadActions } from './taskReadActions';
@@ -16,7 +23,14 @@ export const taskActions: McpAction[] = [
 	...taskStatusActions,
 	...taskStoryActions,
 	...taskTeamActions,
+	...taskRoleActions,
+	...taskOrderActions,
+	...taskQueueActions,
+	...taskParentActions,
+	...taskRemovalActions,
 	...acceptanceCriterionActions,
+	...checklistActions,
+	...checklistItemActions,
 	...taskAttachmentReadActions,
 	...taskAttachmentWriteActions,
 	...buildDispatchActions,

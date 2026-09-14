@@ -4,12 +4,15 @@ export async function addChecklistItem(
 	supabase: SupabaseClient,
 	checklistId: string,
 	description: string
-): Promise<void> {
+): Promise<string> {
 	const nextPosition = (await getHighestPosition(supabase, checklistId)) + 1;
-	const { error } = await supabase
+	const { data, error } = await supabase
 		.from('task_checklist_items')
-		.insert({ checklist_id: checklistId, description, position: nextPosition });
+		.insert({ checklist_id: checklistId, description, position: nextPosition })
+		.select('id')
+		.single();
 	if (error) throw error;
+	return data.id;
 }
 
 async function getHighestPosition(supabase: SupabaseClient, checklistId: string): Promise<number> {

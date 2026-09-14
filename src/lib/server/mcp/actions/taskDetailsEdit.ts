@@ -1,5 +1,6 @@
 import { fibonacciStoryPoints } from '$lib/data/storyPoints';
 import { parseCompletionPercent } from '$lib/data/completionClamp';
+import { parseTaskKind } from '$lib/data/taskKind';
 import { readOptionalText } from '../actionTypes';
 import type { ProjectTask } from '$lib/server/projects/taskRecord';
 import type { TaskDetailsUpdate } from '$lib/server/projects/updateTaskDetails';
@@ -19,6 +20,7 @@ export function readTaskDetailsEdit(
 		details: readOptionalText(input, 'details') ?? task.details,
 		dueDate: readOptionalText(input, 'dueDate') ?? task.dueDate,
 		goalId: readOptionalText(input, 'goalId') ?? task.goalId,
+		kind: readKind(input, task),
 		storyPoints,
 		completionPercent: readCompletionPercent(input, task)
 	};
@@ -34,4 +36,10 @@ function readCompletionPercent(input: Record<string, unknown>, task: ProjectTask
 	const chosen = input.completionPercent;
 	if (chosen === undefined || chosen === null) return task.completionPercent;
 	return parseCompletionPercent(chosen);
+}
+
+function readKind(input: Record<string, unknown>, task: ProjectTask): ProjectTask['kind'] {
+	const chosen = readOptionalText(input, 'kind');
+	if (chosen === null) return task.kind;
+	return parseTaskKind(chosen);
 }

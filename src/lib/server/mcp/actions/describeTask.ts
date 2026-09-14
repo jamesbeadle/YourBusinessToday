@@ -5,7 +5,7 @@ import { threadLines } from './describeMessages';
 import type { AcceptanceCriterion } from '$lib/server/projects/criterionRecord';
 import type { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
 import type { ProjectTask } from '$lib/server/projects/taskRecord';
-import type { TaskChecklist } from '$lib/server/projects/checklistRecord';
+import type { ChecklistItem, TaskChecklist } from '$lib/server/projects/checklistRecord';
 
 export type TaskWorkspace = NonNullable<Awaited<ReturnType<typeof loadTaskWorkspace>>>;
 
@@ -76,9 +76,13 @@ function criterionLine(criterion: AcceptanceCriterion): string {
 
 function checklistLines(checklists: TaskChecklist[]): string[] {
 	return checklists.flatMap((checklist) => [
-		`Checklist "${checklist.title}":`,
-		...checklist.items.map((item) => `- ${item.description} (${itemState(item.isDone)})`)
+		`Checklist "${checklist.title}" (id: ${checklist.id}):`,
+		...checklist.items.map(checklistItemLine)
 	]);
+}
+
+function checklistItemLine(item: ChecklistItem): string {
+	return `- ${item.description} (${itemState(item.isDone)}, id: ${item.id})`;
 }
 
 function itemState(isDone: boolean): string {

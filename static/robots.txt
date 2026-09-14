@@ -1,7 +1,6 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow: /admin
-Disallow: /accounting
 Disallow: /api
 Disallow: /oauth
 Disallow: /trade-talk

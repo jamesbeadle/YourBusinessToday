@@ -3,6 +3,7 @@ import { deleteUserAccount } from '$lib/server/admin/deleteUserAccount';
 import { getAdminUserList } from '$lib/server/admin/getAdminUserList';
 import { getSiteModel } from '$lib/server/anthropic/getSiteModel';
 import { isKnownSiteModel } from '$lib/data/siteModels';
+import { passwordActions } from './passwordActions';
 import { requireAdmin } from '$lib/server/admin/requireAdmin';
 import { setAccountRestriction } from '$lib/server/admin/setAccountRestriction';
 import { setSiteModel } from '$lib/server/admin/setSiteModel';
@@ -19,6 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
+	...passwordActions,
 	setSiteModel: async ({ locals, request }) => {
 		await requireAdmin(locals);
 		const formData = await request.formData();

@@ -14,8 +14,13 @@
 
 	function closeOnOutsideClick(event: MouseEvent) {
 		if (!isOpen) return;
-		if (menuElement?.contains(event.target as Node)) return;
+		if (isInsideMenu(event.target as Node)) return;
 		close();
+	}
+
+	function isInsideMenu(clicked: Node): boolean {
+		const hasLeftThePage = !clicked.isConnected;
+		return hasLeftThePage || menuElement?.contains(clicked) === true;
 	}
 </script>
 

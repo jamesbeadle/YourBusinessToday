@@ -1,11 +1,12 @@
 <script lang="ts">
 	import AdminMenuAction from '$lib/components/admin/AdminMenuAction.svelte';
-	import AdminSetPasswordAction from '$lib/components/admin/AdminSetPasswordAction.svelte';
+	import SetPasswordModal from '$lib/components/admin/SetPasswordModal.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user }: { user: AdminUserSummary } = $props();
 
 	let isOpen = $state(false);
+	let isSetPasswordOpen = $state(false);
 	let menuElement: HTMLElement | undefined = $state();
 
 	function close() {
@@ -14,13 +15,13 @@
 
 	function closeOnOutsideClick(event: MouseEvent) {
 		if (!isOpen) return;
-		if (isInsideMenu(event.target as Node)) return;
+		if (menuElement?.contains(event.target as Node)) return;
 		close();
 	}
 
-	function isInsideMenu(clicked: Node): boolean {
-		const hasLeftThePage = !clicked.isConnected;
-		return hasLeftThePage || menuElement?.contains(clicked) === true;
+	function openSetPassword() {
+		close();
+		isSetPasswordOpen = true;
 	}
 </script>
 
@@ -51,7 +52,14 @@
 				label="Send password reset"
 				onDone={close}
 			/>
-			<AdminSetPasswordAction targetEmail={user.email} onDone={close} />
+			<button
+				type="button"
+				onclick={openSetPassword}
+				class="w-full rounded-xl px-3 py-2 text-left font-display text-sm text-chalk/80 transition
+					hover:bg-hairline/40 hover:text-chalk"
+			>
+				Set password
+			</button>
 			<AdminMenuAction
 				action="?/setStaff"
 				fields={{ targetEmail: user.email, shouldBeStaff: user.isStaff ? 'false' : 'true' }}
@@ -77,3 +85,5 @@
 		</div>
 	{/if}
 </div>
+
+<SetPasswordModal targetEmail={user.email} bind:isOpen={isSetPasswordOpen} />

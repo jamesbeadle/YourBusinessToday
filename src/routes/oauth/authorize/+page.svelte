@@ -4,10 +4,13 @@
 
 	let { data } = $props();
 
+	const projects = $derived(
+		`${data.ownedProjectCount} project${data.ownedProjectCount === 1 ? '' : 's'} of your own and ${data.memberProjectCount} you are on as a team member`
+	);
 	const standing = $derived(
-		data.role === 'staff'
+		data.isStaff
 			? `${data.isAdmin ? 'an administrator' : 'a member of staff'} — it will be able to do what you can do across the whole site`
-			: 'a client contact — it will only ever see your own company\'s projects and requests'
+			: `an account holder with ${projects} — it will reach exactly those and nothing else`
 	);
 </script>
 

@@ -1,5 +1,5 @@
+import { reachableTask } from '../projectAccess';
 import { getProject } from '$lib/server/projects/getProject';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { reviseBuildBrief } from '$lib/server/builder/reviseBuildBrief';
@@ -19,7 +19,7 @@ export const buildDispatchActions: McpAction[] = [
 			['taskId', 'brief']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const revision = await reviseBuildBrief(caller.supabase, task, readText(input, 'brief'));
 			if (revision === 'empty') return 'Write the brief first.';
@@ -38,7 +38,7 @@ export const buildDispatchActions: McpAction[] = [
 			'easy Builder, 5 to 8 to medium, 13 and above to hard. Answers with the run URL.',
 		inputSchema: objectSchema({ taskId: textField('The task id') }, ['taskId']),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const project = await getProject(caller.supabase, task.projectId);
 			if (project === null) return noSuchTask;

@@ -3,10 +3,7 @@
 	import MessageRow from './MessageRow.svelte';
 	import type { NamedMessage } from '$lib/server/conversations/withAuthorNames';
 
-	let {
-		messages,
-		canMarkInternal = false
-	}: { messages: NamedMessage[]; canMarkInternal?: boolean } = $props();
+	let { messages }: { messages: NamedMessage[] } = $props();
 </script>
 
 <section class="flex flex-col gap-3">
@@ -23,5 +20,5 @@
 			{/each}
 		</ul>
 	{/if}
-	<ConversationComposer {canMarkInternal} />
+	<ConversationComposer />
 </section>

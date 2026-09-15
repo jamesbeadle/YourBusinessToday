@@ -10,21 +10,16 @@
 		userEmail,
 		isAdmin,
 		isStaff,
-		isProjectMember,
 		unreadNotificationCount
 	}: {
 		userEmail: string | null;
 		isAdmin: boolean;
 		isStaff: boolean;
-		isProjectMember: boolean;
 		unreadNotificationCount: number;
 	} = $props();
 
 	const isSignedIn = $derived(userEmail !== null);
-	const isProjectManager = $derived(isStaff || isAdmin);
-	const menuGroups = $derived(
-		buildMenuGroups({ isSignedIn, isProjectManager, isAdmin, isProjectMember })
-	);
+	const menuGroups = $derived(buildMenuGroups({ isSignedIn, isStaff: isStaff || isAdmin, isAdmin }));
 
 	let isMobileMenuOpen = $state(false);
 
@@ -42,7 +37,7 @@
 			</a>
 		</div>
 		<nav class="hidden shrink-0 items-center gap-6 md:flex">
-			{#if isProjectManager}
+			{#if isSignedIn}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}
 			{#if !isSignedIn}
@@ -57,7 +52,7 @@
 			<AccountMenu {menuGroups} />
 		</nav>
 		<div class="flex shrink-0 items-center gap-4 md:hidden">
-			{#if isProjectManager}
+			{#if isSignedIn}
 				<NotificationsBell unreadCount={unreadNotificationCount} />
 			{/if}
 			<MobileMenuButton onOpen={openMobileMenu} />

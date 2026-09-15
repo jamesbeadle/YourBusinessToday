@@ -1,51 +1,56 @@
 import { buildTaskTree } from '$lib/server/projects/buildTaskTree';
 import { describeProject, describeProjectLine, noSuchProject } from './describeProject';
-import { getProject } from '$lib/server/projects/getProject';
-import { getProjectList } from '$lib/server/projects/getProjectList';
 import { getProjectGoals } from '$lib/server/goals/getProjectGoals';
+import { getProjectList } from '$lib/server/projects/getProjectList';
 import { getProjectTasks } from '$lib/server/projects/getProjectTasks';
-import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
-import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
-import { resolveViewedStaffMember } from '$lib/server/projects/resolveViewedStaffMember';
+import { getTeamProjects, type TeamProject } from '$lib/server/members/getTeamProjects';
+import { objectSchema, readText, textField } from '../actionTypes';
+import { projectStatusLabels } from '$lib/data/projectStatus';
+import { reachableProject } from '../projectAccess';
 import type { McpAction } from '../actionTypes';
 
 export const projectReadActions: McpAction[] = [
 	{
 		name: 'list_projects',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: false,
-		summary: 'list the projects on a staff board with their open task counts',
-		inputSchema: objectSchema({
-			staffMemberId: textField('Whose board to read — defaults to your own')
-		}),
-		run: async (caller, input) => {
-			const staffMembers = await getStaffDirectory(caller.supabase);
-			const staffMember = resolveViewedStaffMember(
-				readOptionalText(input, 'staffMemberId'),
-				staffMembers,
-				caller.accountId
-			);
-			const projects = await getProjectList(caller.supabase, staffMember.id);
-			if (projects.length === 0) return `${staffMember.name} has no projects.`;
-			const lines = projects.map(describeProjectLine);
-			return [`Projects for ${staffMember.name}:`, ...lines].join('\n');
+		summary:
+			'the projects you own, in priority order, then the projects you are on as a team member',
+		inputSchema: objectSchema({}),
+		run: async (caller) => {
+			const owned = await getProjectList(caller.supabase, caller.accountId);
+			const team = await getTeamProjects(caller.supabase, caller.accountId);
+			if (owned.length === 0 && team.length === 0) {
+				return 'You have no projects yet. Call create_project to start one.';
+			}
+			return [
+				'Your projects:',
+				...(owned.length === 0 ? ['None yet.'] : owned.map(describeProjectLine)),
+				'',
+				'Team projects:',
+				...(team.length === 0 ? ['None yet.'] : team.map(teamProjectLine))
+			].join('\n');
 		}
 	},
 	{
 		name: 'read_project',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: false,
 		summary: 'read one project with its goals and its whole backlog',
 		inputSchema: objectSchema({ projectId: textField('The project id') }, ['projectId']),
 		run: async (caller, input) => {
-			const projectId = readText(input, 'projectId');
-			const project = await getProject(caller.supabase, projectId);
+			const project = await reachableProject(caller, readText(input, 'projectId'));
 			if (project === null) return noSuchProject;
-			const tasks = await getProjectTasks(caller.supabase, projectId);
-			const goals = await getProjectGoals(caller.supabase, projectId);
+			const tasks = await getProjectTasks(caller.supabase, project.id);
+			const goals = await getProjectGoals(caller.supabase, project.id);
 			return describeProject(project, goals, buildTaskTree(tasks));
 		}
 	}
 ];
+
+function teamProjectLine(project: TeamProject): string {
+	const status = projectStatusLabels[project.status];
+	return `${project.name} — ${status}, ${project.openTaskCount} open, owned by ${project.ownerName} (id: ${project.id})`;
+}

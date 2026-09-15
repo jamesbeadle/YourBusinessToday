@@ -1,28 +1,42 @@
 import { fail } from '@sveltejs/kit';
-import { addProjectMember } from '$lib/server/members/addProjectMember';
-import { findAccountByEmail } from '$lib/server/accounts/findAccountByEmail';
+import { getCurrentAccount } from '$lib/server/accounts/getCurrentAccount';
+import { getProjectPeople } from '$lib/server/members/getProjectPeople';
+import { inviteOutcomeMessage } from '$lib/server/members/inviteOutcomeMessage';
+import { inviteToProject } from '$lib/server/members/inviteToProject';
 import { removeProjectMember } from '$lib/server/members/removeProjectMember';
-import { requireAdmin } from '$lib/server/admin/requireAdmin';
-import { requireUser } from '$lib/server/auth/requireUser';
+import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
+import { transferProjectOwnership } from '$lib/server/members/transferProjectOwnership';
 import type { Actions } from './$types';
 
 export const memberActions = {
-	addMember: async ({ locals, params, request }) => {
-		await requireAdmin(locals);
-		const user = await requireUser(locals);
+	invitePerson: async ({ locals, params, request, url }) => {
+		const { user, project } = await requireProjectOwner(locals, params.projectId);
 		const email = String((await request.formData()).get('email') ?? '').trim();
-		const account = await findAccountByEmail(locals.supabase, email);
-		if (account === null) {
-			return fail(400, { message: 'Nobody has signed up with that address yet.' });
-		}
-		await addProjectMember(locals.supabase, params.projectId, account.id, user.id);
-		return { message: `${account.name} can now reach this project.` };
+		if (email === '') return fail(400, { message: 'An email address is required.' });
+		const people = await getProjectPeople(locals.supabase, project.id);
+		const outcome = await inviteToProject(locals.supabase, {
+			project,
+			email,
+			inviter: await getCurrentAccount(locals.supabase, user),
+			origin: url.origin,
+			memberIds: people.map((person) => person.id)
+		});
+		const { isRefusal, message } = inviteOutcomeMessage(outcome, email);
+		if (isRefusal) return fail(400, { message });
+		return { message };
 	},
 	removeMember: async ({ locals, params, request }) => {
-		await requireAdmin(locals);
+		await requireProjectOwner(locals, params.projectId);
 		const accountId = String((await request.formData()).get('accountId') ?? '');
 		if (accountId === '') return fail(400, { message: 'A member is required.' });
 		await removeProjectMember(locals.supabase, params.projectId, accountId);
 		return {};
+	},
+	transferOwnership: async ({ locals, params, request }) => {
+		await requireProjectOwner(locals, params.projectId);
+		const newOwnerId = String((await request.formData()).get('accountId') ?? '');
+		if (newOwnerId === '') return fail(400, { message: 'Choose who takes the project on.' });
+		await transferProjectOwnership(locals.supabase, params.projectId, newOwnerId);
+		return { message: 'The project has a new owner. You are still on it as a member.' };
 	}
 } satisfies Actions;

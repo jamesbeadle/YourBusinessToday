@@ -4,8 +4,6 @@
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 
-	let { canMarkInternal }: { canMarkInternal: boolean } = $props();
-
 	const tracker = new FormTracker();
 </script>
 
@@ -34,10 +32,4 @@
 			Post
 		</SubmitButton>
 	</div>
-	{#if canMarkInternal}
-		<label class="flex items-center gap-2 text-xs text-chalk/60">
-			<input type="checkbox" name="isInternal" class="accent-caution" />
-			Internal — staff only, hidden from project members
-		</label>
-	{/if}
 </form>

@@ -5,8 +5,8 @@ the tools that run it.
 
 ## Status
 
-The consultancy runs on this: clients, projects, the client portal, support, the Builder
-and the books are all working.
+The consultancy runs on this: clients, projects, support and the Builder are all working.
+The books live in their own house, Your Books Today.
 
 - Sign in with Google, or with an email address and a password — new accounts confirm
   their address by email, and a forgotten password is reset from the sign-in page;
@@ -18,23 +18,24 @@ and the books are all working.
   what we last said to them, and a researched approach when we want to open a conversation;
   [docs/lead-generation-architecture.md](./docs/lead-generation-architecture.md) and
   [docs/prospector-architecture.md](./docs/prospector-architecture.md) cover finding them.
-- A project is the shared board. It has goals — high level, measurable — and every goal
-  and task carries a conversation. A client's person is added to a project by an admin
-  and works on it through their own Claude: they find the goal, find or raise a support
-  task, post on it, and read what is new in one call; staff answer where the work is and
-  close a support task with a resolution the raiser reads. `/support` lists what is
-  waiting on us; [docs/support-conversations-architecture.md](./docs/support-conversations-architecture.md)
+- A project belongs to its owner and is worked by its team. Anyone with an account
+  creates projects they own; the owner invites people by email, removes them, and can hand
+  the project on. Everyone on a project works its goals — high level, measurable — and its
+  tasks, and every goal and task carries a conversation. `/projects` shows your projects
+  and your team projects; `/tasks` is your queue across the projects you own, with a Team
+  filter for what is assigned to you elsewhere. Anyone on a project can do all of this
+  through their own Claude at `/api/mcp` too.
+- Support tasks are how a member raises something that needs an answer: find the goal,
+  find or raise the task, post on it, read what is new in one call; the owner answers where
+  the work is and closes it with a resolution the raiser reads. `/support` lists what is
+  waiting on you; [docs/support-conversations-architecture.md](./docs/support-conversations-architecture.md)
   is the design.
-- Projects and tasks at `/projects` and `/tasks` are the team's task manager — goals,
-  subtasks, assignees and status, for the consultancy's own work as much as the client's.
 - Send a task to the Builder — a Claude Code routine per tier that branches, builds, opens
   a pull request and reports back; merged builds mark the task live and say so in its
   conversation. Schema changes wait for a person;
   [docs/builder-architecture.md](./docs/builder-architecture.md) is the design.
-- The books are at `/accounting` — ledger accounts, cost centres, journals, invoices and
-  expenses, with a profit and loss and a balance sheet.
-- Clients reach the portal through their own Claude at `/api/mcp` — OAuth sign-in from the
-  Connect button, scoped to the projects they are on;
+- The MCP server at `/api/mcp` is the same product as the site: OAuth sign-in from the
+  Connect button, every action gated by the caller's standing on each project;
   [docs/mcp-architecture.md](./docs/mcp-architecture.md) is the design.
 - Admins (`/admin`) can set the site model — the Claude model behind every agent reply —
   restrict accounts, and delete accounts. The first admin is bootstrapped by email on signup.

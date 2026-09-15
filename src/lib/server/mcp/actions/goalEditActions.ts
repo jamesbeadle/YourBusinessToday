@@ -1,5 +1,5 @@
+import { reachableGoal } from '../projectAccess';
 import { deleteGoal } from '$lib/server/goals/deleteGoal';
-import { getGoal } from '$lib/server/goals/getGoal';
 import { goalIdField } from './goalReadActions';
 import { noSuchGoal } from './describeGoal';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
@@ -12,7 +12,7 @@ export const goalEditActions: McpAction[] = [
 	{
 		name: 'update_goal',
 		area: 'goals',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'reword a goal or change how it will be measured',
 		guidance:
@@ -27,7 +27,7 @@ export const goalEditActions: McpAction[] = [
 			['goalId']
 		),
 		run: async (caller, input) => {
-			const goal = await getGoal(caller.supabase, readText(input, 'goalId'));
+			const goal = await reachableGoal(caller, readText(input, 'goalId'));
 			if (goal === null) return noSuchGoal;
 			const title = readOptionalText(input, 'title') ?? goal.title;
 			const measure = readOptionalText(input, 'measure') ?? goal.measure;
@@ -42,7 +42,7 @@ export const goalEditActions: McpAction[] = [
 	{
 		name: 'delete_goal',
 		area: 'goals',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'delete a goal and its conversation — the tasks under it stay, with no goal',
 		guidance:
@@ -50,7 +50,7 @@ export const goalEditActions: McpAction[] = [
 			'set_goal_status, so the record stays; delete only what was created by mistake.',
 		inputSchema: objectSchema({ goalId: goalIdField }, ['goalId']),
 		run: async (caller, input) => {
-			const goal = await getGoal(caller.supabase, readText(input, 'goalId'));
+			const goal = await reachableGoal(caller, readText(input, 'goalId'));
 			if (goal === null) return noSuchGoal;
 			await deleteGoal(caller.supabase, goal.id);
 			return `"${goal.title}" deleted. Its tasks are still on the project, under no goal.`;

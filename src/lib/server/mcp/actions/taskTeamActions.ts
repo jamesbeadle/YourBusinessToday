@@ -1,64 +1,63 @@
-import { getStaffDirectory } from '$lib/server/projects/getStaffDirectory';
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
+import { getProjectPeople } from '$lib/server/members/getProjectPeople';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { setTaskAssignees } from '$lib/server/projects/setTaskAssignees';
 import type { McpAction } from '../actionTypes';
-import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
 const taskIdField = textField('The task id');
 const nameEveryoneAsAList =
-	'Pass staffMemberIds as a list of ids — an empty list to unassign everyone.';
+	'Pass accountIds as a list of ids — an empty list to unassign everyone.';
 
 export const taskTeamActions: McpAction[] = [
 	{
 		name: 'set_task_assignees',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
-		summary: 'say which staff members are working on a task',
+		summary: 'say who on the project is working on a task',
 		guidance:
 			'This replaces the whole list, so name everyone who should be on the task, not ' +
-			'only the person joining. An empty list leaves the task unassigned.',
+			'only the person joining. An empty list leaves the task unassigned. Only people on the ' +
+			'project can be assigned; list_project_people gives their ids.',
 		inputSchema: objectSchema(
 			{
 				taskId: taskIdField,
-				staffMemberIds: {
+				accountIds: {
 					type: 'array',
 					items: { type: 'string' },
 					description: 'Everyone who should be on the task'
 				}
 			},
-			['taskId', 'staffMemberIds']
+			['taskId', 'accountIds']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
-			const staffMembers = await getStaffDirectory(caller.supabase);
-			const chosenIds = readStaffMemberIds(input);
+			const people = await getProjectPeople(caller.supabase, task.projectId);
+			const chosenIds = readAccountIds(input);
 			if (chosenIds === null) return nameEveryoneAsAList;
-			const chosen = staffMembers.filter((member) => chosenIds.includes(member.id));
-			if (chosen.length !== chosenIds.length) return chooseFromDirectory(staffMembers);
+			const chosen = people.filter((person) => chosenIds.includes(person.id));
+			if (chosen.length !== chosenIds.length) return chooseFromProject(people);
 			await setTaskAssignees(caller.supabase, task.id, chosenIds);
 			return `"${task.title}" is now with ${namesOf(chosen)}.`;
 		}
 	}
 ];
 
-function readStaffMemberIds(input: Record<string, unknown>): string[] | null {
-	const chosenIds = input.staffMemberIds;
+function readAccountIds(input: Record<string, unknown>): string[] | null {
+	const chosenIds = input.accountIds;
 	if (!Array.isArray(chosenIds)) return null;
 	return [...new Set(chosenIds.map(String))];
 }
 
-function namesOf(staffMembers: StaffMember[]): string {
-	if (staffMembers.length === 0) return 'nobody';
-	return staffMembers.map((staffMember) => staffMember.name).join(', ');
+function namesOf(people: ProjectPerson[]): string {
+	if (people.length === 0) return 'nobody';
+	return people.map((person) => person.name).join(', ');
 }
 
-function chooseFromDirectory(staffMembers: StaffMember[]): string {
-	const choices = staffMembers
-		.map((staffMember) => `${staffMember.name} (id: ${staffMember.id})`)
-		.join(', ');
-	return `Not everyone you named is on staff. The people you can assign are: ${choices}.`;
+function chooseFromProject(people: ProjectPerson[]): string {
+	const choices = people.map((person) => `${person.name} (id: ${person.id})`).join(', ');
+	return `Not everyone you named is on this project. The people you can assign are: ${choices}.`;
 }

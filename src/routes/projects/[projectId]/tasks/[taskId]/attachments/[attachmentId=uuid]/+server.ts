@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { findTaskAttachment } from '$lib/server/projects/findTaskAttachment';
-import { requireStaff } from '$lib/server/auth/requireStaff';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import {
 	clickThroughLifetimeSeconds,
 	signAttachmentLink,
@@ -9,7 +9,7 @@ import {
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals, params, url }) => {
-	await requireStaff(locals);
+	await requireProjectAccess(locals, params.projectId);
 	const attachment = await findTaskAttachment(locals.supabase, params.taskId, params.attachmentId);
 	if (attachment === null) error(404, 'Attachment not found');
 	const signedLink = await signAttachmentLink(

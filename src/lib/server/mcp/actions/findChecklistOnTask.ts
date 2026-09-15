@@ -1,4 +1,4 @@
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
 import { getTaskChecklists } from '$lib/server/projects/getTaskChecklists';
 import { noSuchTask } from './describeTask';
 import { readText, textField } from '../actionTypes';
@@ -20,7 +20,7 @@ export async function findChecklistOnTask(
 	caller: McpCaller,
 	input: Record<string, unknown>
 ): Promise<ChecklistOnTask | string> {
-	const task = await getTask(caller.supabase, readText(input, 'taskId'));
+	const task = await reachableTask(caller, readText(input, 'taskId'));
 	if (task === null) return noSuchTask;
 	const checklists = await getTaskChecklists(caller.supabase, task.id);
 	const checklistId = readText(input, 'checklistId');

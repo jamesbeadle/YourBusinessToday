@@ -11,13 +11,13 @@
 	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
 	import type { Goal } from '$lib/server/goals/goalRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
-	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
 	let {
 		task,
 		parentTask,
 		siblingTasks,
-		staffMembers,
+		people,
 		goals,
 		assigneeIds,
 		roles,
@@ -26,7 +26,7 @@
 		task: ProjectTask;
 		parentTask: ProjectTask | null;
 		siblingTasks: ProjectTask[];
-		staffMembers: StaffMember[];
+		people: ProjectPerson[];
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
@@ -76,7 +76,7 @@
 	<TaskGoalAndKindFields {goals} goalId={task.goalId} kind={task.kind} />
 	<TaskMoveField {parentTask} {siblingTasks} />
 	<UserStoryFields {task} />
-	<TeamPickerFieldset {staffMembers} {assigneeIds} {roles} />
+	<TeamPickerFieldset {people} {assigneeIds} {roles} />
 	<FormErrorNote message={tracker.errorMessage} />
 	<SubmitButton
 		isSaving={tracker.isSaving}

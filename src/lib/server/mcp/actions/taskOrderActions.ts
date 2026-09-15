@@ -1,4 +1,4 @@
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
 import { moveTask } from '$lib/server/projects/moveTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
@@ -20,7 +20,7 @@ export const taskOrderActions: McpAction[] = [
 	{
 		name: 'move_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'move a task one place up or down among the tasks beside it',
 		guidance:
@@ -31,7 +31,7 @@ export const taskOrderActions: McpAction[] = [
 			'direction'
 		]),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const direction = readMoveDirection(input);
 			if (direction === null) return sayWhichDirection;
@@ -42,7 +42,7 @@ export const taskOrderActions: McpAction[] = [
 	{
 		name: 'place_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'place a task directly before or after another task in the same project',
 		guidance:
@@ -57,8 +57,8 @@ export const taskOrderActions: McpAction[] = [
 			['taskId', 'targetTaskId', 'placement']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
-			const targetTask = await getTask(caller.supabase, readText(input, 'targetTaskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
+			const targetTask = await reachableTask(caller, readText(input, 'targetTaskId'));
 			if (task === null || targetTask === null) return bothTasksNeeded;
 			if (task.projectId !== targetTask.projectId) return 'Both tasks must be on one project.';
 			const placement = readBesidePlacement(input);

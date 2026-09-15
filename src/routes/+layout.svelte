@@ -17,7 +17,6 @@
 		userEmail={data.userEmail}
 		isAdmin={data.isAdmin}
 		isStaff={data.isStaff}
-		isProjectMember={data.isProjectMember}
 		unreadNotificationCount={data.unreadNotificationCount}
 	/>
 	<main

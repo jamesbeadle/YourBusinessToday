@@ -4,13 +4,14 @@ import { getProjectPeople } from '$lib/server/members/getProjectPeople';
 import { inviteOutcomeMessage } from '$lib/server/members/inviteOutcomeMessage';
 import { inviteToProject } from '$lib/server/members/inviteToProject';
 import { removeProjectMember } from '$lib/server/members/removeProjectMember';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
 import { transferProjectOwnership } from '$lib/server/members/transferProjectOwnership';
 import type { Actions } from './$types';
 
 export const memberActions = {
 	invitePerson: async ({ locals, params, request, url }) => {
-		const { user, project } = await requireProjectOwner(locals, params.projectId);
+		const { user, project } = await requireProjectAccess(locals, params.projectId);
 		const email = String((await request.formData()).get('email') ?? '').trim();
 		if (email === '') return fail(400, { message: 'An email address is required.' });
 		const people = await getProjectPeople(locals.supabase, project.id);
@@ -26,7 +27,7 @@ export const memberActions = {
 		return { message };
 	},
 	removeMember: async ({ locals, params, request }) => {
-		await requireProjectOwner(locals, params.projectId);
+		await requireProjectAccess(locals, params.projectId);
 		const accountId = String((await request.formData()).get('accountId') ?? '');
 		if (accountId === '') return fail(400, { message: 'A member is required.' });
 		await removeProjectMember(locals.supabase, params.projectId, accountId);

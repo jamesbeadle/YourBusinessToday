@@ -3,10 +3,10 @@ import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { getProjectPeople } from '$lib/server/members/getProjectPeople';
 import { inviteOutcomeMessage } from '$lib/server/members/inviteOutcomeMessage';
 import { inviteToProject } from '$lib/server/members/inviteToProject';
-import { notTheOwner, ownedProject, reachableProject } from '../projectAccess';
 import { noSuchProject } from './describeProject';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { projectIdField } from './findMemberOn';
+import { reachableProject } from '../projectAccess';
 import type { Account } from '$lib/server/accounts/accountRecord';
 import type { McpAction } from '../actionTypes';
 import type { McpCaller } from '../resolveMcpCaller';
@@ -32,18 +32,18 @@ export const projectPeopleActions: McpAction[] = [
 		area: 'projects',
 		audience: 'everyone',
 		isWrite: true,
-		summary: 'bring someone on to a project you own, by email — they join at once and are emailed',
+		summary: 'bring someone on to a project you are on, by email — they join at once and are emailed',
 		guidance:
-			'Owners only. Someone new here gets a link to set a password; someone with an account ' +
-			'is told to sign in. Once on the project they work its goals and tasks as you do, and ' +
-			'reach nothing else of yours.',
+			'Someone new here gets a link to set a password; someone with an account is told to ' +
+			'sign in. Once on the project they work and manage it as you do, and reach nothing ' +
+			'else of yours.',
 		inputSchema: objectSchema(
 			{ projectId: projectIdField, email: textField('Their email address') },
 			['projectId', 'email']
 		),
 		run: async (caller, input) => {
-			const project = await ownedProject(caller, readText(input, 'projectId'));
-			if (project === null) return notTheOwner;
+			const project = await reachableProject(caller, readText(input, 'projectId'));
+			if (project === null) return noSuchProject;
 			const email = readText(input, 'email');
 			const people = await getProjectPeople(caller.supabase, project.id);
 			const outcome = await inviteToProject(caller.supabase, {

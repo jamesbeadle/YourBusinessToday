@@ -1,6 +1,7 @@
 import { deleteProject } from '$lib/server/projects/deleteProject';
-import { notTheOwner, ownedProject } from '../projectAccess';
+import { noSuchProject } from './describeProject';
 import { objectSchema, readText, textField } from '../actionTypes';
+import { reachableProject } from '../projectAccess';
 import type { McpAction } from '../actionTypes';
 
 export const projectRemovalActions: McpAction[] = [
@@ -16,8 +17,8 @@ export const projectRemovalActions: McpAction[] = [
 			'set to complete instead.',
 		inputSchema: objectSchema({ projectId: textField('The project id') }, ['projectId']),
 		run: async (caller, input) => {
-			const project = await ownedProject(caller, readText(input, 'projectId'));
-			if (project === null) return notTheOwner;
+			const project = await reachableProject(caller, readText(input, 'projectId'));
+			if (project === null) return noSuchProject;
 			await deleteProject(caller.supabase, project.id);
 			return `${project.name} and everything in it is deleted.`;
 		}

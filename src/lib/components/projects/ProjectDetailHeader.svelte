@@ -4,11 +4,7 @@
 	import ProjectStatusBadge from './ProjectStatusBadge.svelte';
 	import type { Project } from '$lib/server/projects/projectRecord';
 
-	let {
-		project,
-		isOwner,
-		onAddTask
-	}: { project: Project; isOwner: boolean; onAddTask: () => void } = $props();
+	let { project, onAddTask }: { project: Project; onAddTask: () => void } = $props();
 
 	let isEditModalOpen = $state(false);
 </script>
@@ -23,16 +19,14 @@
 			<ProjectStatusBadge status={project.status} />
 		</div>
 		<div class="flex items-center gap-2">
-			{#if isOwner}
-				<button
-					type="button"
-					onclick={() => (isEditModalOpen = true)}
-					class="rounded-full border border-hairline px-5 py-2 font-display text-sm text-chalk/70
-						transition hover:border-go hover:text-go"
-				>
-					Edit
-				</button>
-			{/if}
+			<button
+				type="button"
+				onclick={() => (isEditModalOpen = true)}
+				class="rounded-full border border-hairline px-5 py-2 font-display text-sm text-chalk/70
+					transition hover:border-go hover:text-go"
+			>
+				Edit
+			</button>
 			<button
 				type="button"
 				onclick={onAddTask}

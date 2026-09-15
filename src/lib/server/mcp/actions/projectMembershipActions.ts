@@ -1,5 +1,6 @@
 import { accountIdField, findMemberOn, projectIdField } from './findMemberOn';
-import { notTheOwner, ownedProject } from '../projectAccess';
+import { noSuchProject } from './describeProject';
+import { notTheOwner, ownedProject, reachableProject } from '../projectAccess';
 import { objectSchema, readText } from '../actionTypes';
 import { removeProjectMember } from '$lib/server/members/removeProjectMember';
 import { transferProjectOwnership } from '$lib/server/members/transferProjectOwnership';
@@ -16,11 +17,11 @@ export const projectMembershipActions: McpAction[] = [
 		area: 'projects',
 		audience: 'everyone',
 		isWrite: true,
-		summary: 'take a member off a project you own — they lose access at once',
+		summary: 'take a member off a project you are on — they lose access at once',
 		inputSchema: memberFields,
 		run: async (caller, input) => {
-			const project = await ownedProject(caller, readText(input, 'projectId'));
-			if (project === null) return notTheOwner;
+			const project = await reachableProject(caller, readText(input, 'projectId'));
+			if (project === null) return noSuchProject;
 			const member = await findMemberOn(caller, project.id, readText(input, 'accountId'));
 			if (member === null) return 'Nobody with that id is a member of the project.';
 			await removeProjectMember(caller.supabase, project.id, member.id);

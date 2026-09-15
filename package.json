@@ -30,11 +30,13 @@
 	"dependencies": {
 		"@supabase/ssr": "^0.12.0",
 		"@supabase/supabase-js": "^2.110.0",
+		"exceljs": "^4.4.0",
 		"fflate": "^0.8.2",
 		"leaflet": "^1.9.4",
 		"mammoth": "^1.12.0",
 		"marked": "^18.0.6",
 		"stripe": "^22.3.0",
-		"three": "^0.185.0"
+		"three": "^0.185.0",
+		"unpdf": "^1.8.1"
 	}
 }

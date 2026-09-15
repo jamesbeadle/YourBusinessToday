@@ -7,6 +7,7 @@ import { moveProject, type ProjectMoveDirection } from '$lib/server/projects/mov
 import { parseDropPlacement } from '$lib/server/projects/dropReorder';
 import { parseProjectStatus } from '$lib/data/projectStatus';
 import { placeProject } from '$lib/server/projects/placeProject';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
@@ -42,7 +43,7 @@ export const actions: Actions = {
 		if (projectId === '' || name === '') {
 			return fail(400, { message: 'A project and a name are required.' });
 		}
-		await requireProjectOwner(locals, projectId);
+		await requireProjectAccess(locals, projectId);
 		await updateProjectDetails(locals.supabase, projectId, {
 			name,
 			description: String(formData.get('description') ?? '').trim(),
@@ -76,7 +77,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const projectId = String(formData.get('projectId') ?? '');
 		if (projectId === '') return fail(400, { message: 'A project is required.' });
-		await requireProjectOwner(locals, projectId);
+		await requireProjectAccess(locals, projectId);
 		await deleteProject(locals.supabase, projectId);
 		return { message: 'Project deleted.' };
 	}

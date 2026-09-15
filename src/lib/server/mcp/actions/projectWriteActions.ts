@@ -1,7 +1,8 @@
-import { notTheOwner, ownedProject } from '../projectAccess';
 import { createProject } from '$lib/server/projects/createProject';
+import { noSuchProject } from './describeProject';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { projectStatusLabels, projectStatusOrder } from '$lib/data/projectStatus';
+import { reachableProject } from '../projectAccess';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { McpAction } from '../actionTypes';
 import type { Project } from '$lib/server/projects/projectRecord';
@@ -21,8 +22,8 @@ export const projectWriteActions: McpAction[] = [
 		isWrite: true,
 		summary: 'start a new project that you own',
 		guidance:
-			'You become the owner: you manage it, invite people to it and can hand it on. It lands at ' +
-			'the bottom of your board; call move_project or place_project to prioritise it.',
+			'You own it and can hand it on; everyone you bring on to it manages it with you. It lands ' +
+			'at the bottom of your board; call move_project or place_project to prioritise it.',
 		inputSchema: objectSchema(
 			{
 				name: textField('What the project is called'),
@@ -58,8 +59,8 @@ export const projectWriteActions: McpAction[] = [
 			['projectId']
 		),
 		run: async (caller, input) => {
-			const project = await ownedProject(caller, readText(input, 'projectId'));
-			if (project === null) return notTheOwner;
+			const project = await reachableProject(caller, readText(input, 'projectId'));
+			if (project === null) return noSuchProject;
 			const status = readStatus(input, project);
 			if (status === null) return wrongStatus;
 			const name = readOptionalText(input, 'name') ?? project.name;

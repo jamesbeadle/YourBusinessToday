@@ -2,13 +2,14 @@ import { describeAction, listActions } from './browseActions';
 import { describeContext } from './describeContext';
 import { runAction } from './runAction';
 import type { McpCaller } from './resolveMcpCaller';
+import type { McpToolAnswer } from './mcpContent';
 
 export type McpTool = {
 	name: string;
 	title: string;
 	description: string;
 	inputSchema: Record<string, unknown>;
-	run: (caller: McpCaller, argumentValues: Record<string, unknown>) => Promise<string>;
+	run: (caller: McpCaller, argumentValues: Record<string, unknown>) => Promise<McpToolAnswer>;
 };
 
 const areaField = {

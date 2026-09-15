@@ -25,6 +25,10 @@ export const taskWriteActions: McpAction[] = [
 		audience: 'everyone',
 		isWrite: true,
 		summary: 'add a task to a project, at the end of the backlog',
+		guidance:
+			'Search first: call find_tasks for the matter and work on the task you find. Raise one only ' +
+			'when nothing matches — a bug titled "FIX: <what is wrong>", a feature by its user story. ' +
+			'Tasks titled "REFACTOR: round N" are raised by the deploy count, never by hand.',
 		inputSchema: objectSchema(
 			{
 				projectId: textField('The project the task belongs to'),

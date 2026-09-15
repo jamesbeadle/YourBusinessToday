@@ -1,5 +1,8 @@
 import { parseProjectStatus, type ProjectStatus } from '$lib/data/projectStatus';
 
+export const defaultBranchWhenUnset = 'main';
+export const refactorEveryDeploysWhenUnset = 10;
+
 export type Project = {
 	id: string;
 	ownerId: string;
@@ -10,6 +13,9 @@ export type Project = {
 	clientId: string | null;
 	repositoryUrl: string;
 	environmentUrl: string;
+	defaultBranch: string;
+	refactorEveryDeploys: number;
+	lastRefactorRaisedAt: string | null;
 	createdAt: string;
 };
 
@@ -24,6 +30,16 @@ export function parseProjectRecord(row: Record<string, unknown>): Project {
 		clientId: (row.client_id as string) ?? null,
 		repositoryUrl: (row.repository_url as string) ?? '',
 		environmentUrl: (row.environment_url as string) ?? '',
+		defaultBranch: (row.default_branch as string) || defaultBranchWhenUnset,
+		refactorEveryDeploys: parseRefactorEveryDeploys(row.refactor_every_deploys),
+		lastRefactorRaisedAt: (row.last_refactor_raised_at as string) ?? null,
 		createdAt: row.created_at as string
 	};
+}
+
+export function parseRefactorEveryDeploys(value: unknown): number {
+	if (value === null || value === undefined || value === '') return refactorEveryDeploysWhenUnset;
+	const every = Math.trunc(Number(value));
+	if (Number.isNaN(every) || every < 0) return refactorEveryDeploysWhenUnset;
+	return every;
 }

@@ -16,10 +16,16 @@ export function describeProjectLine(project: ProjectSummary): string {
 	return `${project.name} — ${status}, ${project.openTaskCount} open (id: ${project.id})`;
 }
 
-export function describeProject(project: Project, goals: Goal[], backlog: TaskTreeNode[]): string {
+export function describeProject(
+	project: Project,
+	goals: Goal[],
+	backlog: TaskTreeNode[],
+	cadenceLine: string
+): string {
 	return [
 		`${project.name} — ${projectStatusLabels[project.status]} (id: ${project.id})`,
 		project.description === '' ? 'No description yet.' : project.description,
+		codeLine(project, cadenceLine),
 		'',
 		'Goals:',
 		...goalLines(goals),
@@ -27,6 +33,11 @@ export function describeProject(project: Project, goals: Goal[], backlog: TaskTr
 		'Backlog:',
 		...backlogLines(backlog, goals)
 	].join('\n');
+}
+
+function codeLine(project: Project, cadenceLine: string): string {
+	if (project.repositoryUrl === '') return 'No repository recorded, so nothing is built or refactored by itself.';
+	return `Code: ${project.repositoryUrl} (deploys from ${project.defaultBranch}). ${cadenceLine}`;
 }
 
 function goalLines(goals: Goal[]): string[] {

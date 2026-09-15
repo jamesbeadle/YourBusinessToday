@@ -4,7 +4,11 @@
 	import ProjectStatusBadge from './ProjectStatusBadge.svelte';
 	import type { Project } from '$lib/server/projects/projectRecord';
 
-	let { project, onAddTask }: { project: Project; onAddTask: () => void } = $props();
+	let {
+		project,
+		cadenceLine,
+		onAddTask
+	}: { project: Project; cadenceLine: string; onAddTask: () => void } = $props();
 
 	let isEditModalOpen = $state(false);
 </script>
@@ -39,6 +43,9 @@
 	</div>
 	{#if project.description !== ''}
 		<p class="text-chalk/70">{project.description}</p>
+	{/if}
+	{#if project.repositoryUrl !== ''}
+		<p class="text-sm text-chalk/50">{cadenceLine}</p>
 	{/if}
 </div>
 

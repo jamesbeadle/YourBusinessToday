@@ -1,4 +1,6 @@
 import { buildTaskTree } from '$lib/server/projects/buildTaskTree';
+import { countDeploysSinceRefactor } from '$lib/server/deploys/countDeploysSinceRefactor';
+import { describeRefactorCadence } from '$lib/server/refactor/isRefactorRoundDue';
 import { getGoalSummaries } from '$lib/server/goals/getGoalSummaries';
 import { getProjectGoals } from '$lib/server/goals/getProjectGoals';
 import { getProjectPeople } from '$lib/server/members/getProjectPeople';
@@ -17,9 +19,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const goals = await getProjectGoals(locals.supabase, project.id);
 	const taskIds = tasks.map((task) => task.id);
 	const assigneeIdsByTask = await getTaskAssigneeMap(locals.supabase, taskIds);
+	const deploysSinceRefactor = await countDeploysSinceRefactor(locals.supabase, project);
 	return {
 		project,
 		isOwner,
+		cadenceLine: describeRefactorCadence({
+			refactorEveryDeploys: project.refactorEveryDeploys,
+			deploysSinceRefactor
+		}),
 		taskTree: buildTaskTree(tasks),
 		goalSummaries: getGoalSummaries(goals, tasks),
 		goals,

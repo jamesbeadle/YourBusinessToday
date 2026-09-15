@@ -1,3 +1,27 @@
+<!-- project-process:begin -->
+<!-- project-process kit v1.1.0 — refreshed by bootstrap.sh; edit the kit, not this block -->
+
+# How We Work
+
+This block is installed by the project-process kit and refreshed by re-running its bootstrap; edit the kit, not this copy. Everything below the block is this repository's own working notes.
+
+## The work is logged in Your Business Today
+
+Every piece of work on this repository is done on a task in Your Business Today (YBT), reached through the YBT connector. YBT's `get_current_context` carries the working doctrine and is read first in every session; `describe_action` carries the doctrine of each action. In short:
+
+1. **Start by reading what is new.** Call `read_latest_messages`. Anything addressed to the person you are working with, bring to them; post their answer on the same goal or task.
+2. **Find the task before touching anything.** Call `find_tasks` on the project for the matter at hand and work on the task you find. Raise one only when nothing matches: a bug as `FIX: <what is wrong>`, a feature by its user story. Mark it in progress when the work starts.
+3. **Leave a work log when the work stops.** One message on the task's conversation: what changed, which files or records, decisions taken and why, what is left. Then mark it done if it is done, or leave it in progress and say what is next.
+4. **A question for another member goes on the task or goal,** naming them. Their Claude brings it to them through `read_latest_messages` and posts the answer back. Never relay through chat apps.
+
+## The code stays at the standard through Claude scripts, not CI
+
+The repository carries `tools/refactor/` — an audit that measures the code against the rules below and a gate that fails when a ratcheted figure is worse than the committed baseline. Nothing runs on GitHub: the gate is run by the Claude scripts in `.claude/skills/` — `refactor-round` (one measured round: baseline first, worst files first, behaviour unchanged, baseline last) and `end-of-day` (the day's close: the round if one is due, the connector check, the plain-English summary on the day's tasks). A round is due when `tools/refactor/deploys_since_baseline.sh` says so: the commits on the default branch since the baseline was last committed, ten or more unless the project says otherwise. Your Business Today can also raise `REFACTOR: round N` on the project as the reminder when its own deploy count reaches N. Either way a person's Claude runs the round in the working tree and the person commits — the scripts never commit, push or open pull requests, and refactor rounds never add behaviour or change the schema.
+
+## The rules travel with the repository
+
+The coding rules that follow are the whole standard. They live here, in the repository, because a machine-level `~/.claude/CLAUDE.md` does not reach cloud sessions or anyone else's machine. Repository-specific conventions belong below the block, in this file's own notes; decisions worth keeping belong in `docs/`.
+
 # How I Write Code
 
 Read this first. Everything below is how I think, not just what I want. If you understand the principle, the rules follow naturally. If you only follow the rules without the principle, you'll satisfy the letter and miss the point.
@@ -107,7 +131,9 @@ If you're about to exceed 100 lines, default to splitting. Justify keeping it lo
 
 ## Function Size and Shape
 
-- **Functions should be short.** If a function is long, it's doing too much. Extract until each function does one thing and its name says exactly what that thing is.
+**A long function is a contradiction in terms.** The entire point of a function is to break long content into small, named, understandable pieces — so a massive function is a function refusing to do its own job. There is no real reason for one to exist. **Soft limit: ~30 lines.** As with files, when a function approaches the limit the question is never "how do I make this fit" — it's "what have I failed to extract?" Almost always there's a smaller function, a utility, or a separately named step hiding inside. Extract until each function does one thing and its name says exactly what that thing is — then the parent function becomes a short sequence of named steps that reads like prose, which is the whole goal.
+
+- **Functions should be short.** If a function is long, it's doing too much. The extracted pieces don't need to be reused anywhere else to justify existing — a function whose only purpose is to give a name to one step of its caller has already earned its place.
 - **One dot per line (Law of Demeter, informally).** If you find yourself writing `order.customer.address.postcode.format()`, the structure is wrong. Either the data is poorly modelled or the operation belongs somewhere closer to the data.
 - **No arrow code.** Deep indentation is a visual smell — if the code is marching right across the page, the function is doing too much branching. Extract, invert conditions, return early.
 - **Idempotent where possible.** A function called twice with the same input should behave the same way. Side effects should be obvious from the name (`saveUser`, not `processUser`).
@@ -175,7 +201,7 @@ Run through this checklist mentally:
 
 1. Does every name say exactly what the thing is?
 2. Could a reader understand this file without running it?
-3. Is every file under 100 lines?
+3. Is every file under 100 lines, and every function around 30 or fewer?
 4. Are there any `else` blocks I could remove with early returns?
 5. Are there any inline literals that should be named constants?
 6. Did I add any comments? If so, can I rename or restructure instead?
@@ -190,3 +216,5 @@ If any answer is "no" or "I'm not sure", fix it before saying you're done.
 - **Don't add things I didn't ask for** — extra config, extra abstraction, extra files. Minimal change that solves the problem.
 - **If you think a rule above is wrong for a specific case, say so explicitly** rather than quietly breaking it. I'd rather have the conversation.
 - **When in doubt, choose the boring, readable option** over the clever one.
+
+<!-- project-process:end -->

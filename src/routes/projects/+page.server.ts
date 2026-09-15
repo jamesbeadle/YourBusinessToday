@@ -5,12 +5,11 @@ import { getProjectList } from '$lib/server/projects/getProjectList';
 import { getTeamProjects } from '$lib/server/members/getTeamProjects';
 import { moveProject, type ProjectMoveDirection } from '$lib/server/projects/moveProject';
 import { parseDropPlacement } from '$lib/server/projects/dropReorder';
-import { parseProjectStatus } from '$lib/data/projectStatus';
 import { placeProject } from '$lib/server/projects/placeProject';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
 import { requireUser } from '$lib/server/auth/requireUser';
-import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
+import { readProjectDetailsForm, updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -39,17 +38,13 @@ export const actions: Actions = {
 	updateProject: async ({ locals, request }) => {
 		const formData = await request.formData();
 		const projectId = String(formData.get('projectId') ?? '');
-		const name = String(formData.get('name') ?? '').trim();
-		if (projectId === '' || name === '') {
+		const edit = readProjectDetailsForm(formData);
+		if (projectId === '' || edit === null) {
 			return fail(400, { message: 'A project and a name are required.' });
 		}
 		await requireProjectAccess(locals, projectId);
-		await updateProjectDetails(locals.supabase, projectId, {
-			name,
-			description: String(formData.get('description') ?? '').trim(),
-			status: parseProjectStatus(formData.get('status'))
-		});
-		return { message: `Project "${name}" saved.` };
+		await updateProjectDetails(locals.supabase, projectId, edit);
+		return { message: `Project "${edit.name}" saved.` };
 	},
 	moveProject: async ({ locals, request }) => {
 		const formData = await request.formData();

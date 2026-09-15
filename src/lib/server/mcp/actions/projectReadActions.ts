@@ -1,5 +1,7 @@
 import { buildTaskTree } from '$lib/server/projects/buildTaskTree';
+import { countDeploysSinceRefactor } from '$lib/server/deploys/countDeploysSinceRefactor';
 import { describeProject, describeProjectLine, noSuchProject } from './describeProject';
+import { describeRefactorCadence } from '$lib/server/refactor/isRefactorRoundDue';
 import { getProjectGoals } from '$lib/server/goals/getProjectGoals';
 import { getProjectList } from '$lib/server/projects/getProjectList';
 import { getProjectTasks } from '$lib/server/projects/getProjectTasks';
@@ -8,6 +10,8 @@ import { objectSchema, readText, textField } from '../actionTypes';
 import { projectStatusLabels } from '$lib/data/projectStatus';
 import { reachableProject } from '../projectAccess';
 import type { McpAction } from '../actionTypes';
+import type { Project } from '$lib/server/projects/projectRecord';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const projectReadActions: McpAction[] = [
 	{
@@ -38,17 +42,23 @@ export const projectReadActions: McpAction[] = [
 		area: 'projects',
 		audience: 'everyone',
 		isWrite: false,
-		summary: 'read one project with its goals and its whole backlog',
+		summary: 'read one project with its goals, its whole backlog and its refactor cadence',
 		inputSchema: objectSchema({ projectId: textField('The project id') }, ['projectId']),
 		run: async (caller, input) => {
 			const project = await reachableProject(caller, readText(input, 'projectId'));
 			if (project === null) return noSuchProject;
 			const tasks = await getProjectTasks(caller.supabase, project.id);
 			const goals = await getProjectGoals(caller.supabase, project.id);
-			return describeProject(project, goals, buildTaskTree(tasks));
+			const cadenceLine = await cadenceLineFor(caller.supabase, project);
+			return describeProject(project, goals, buildTaskTree(tasks), cadenceLine);
 		}
 	}
 ];
+
+async function cadenceLineFor(supabase: SupabaseClient, project: Project): Promise<string> {
+	const deploysSinceRefactor = await countDeploysSinceRefactor(supabase, project);
+	return describeRefactorCadence({ refactorEveryDeploys: project.refactorEveryDeploys, deploysSinceRefactor });
+}
 
 function teamProjectLine(project: TeamProject): string {
 	const status = projectStatusLabels[project.status];

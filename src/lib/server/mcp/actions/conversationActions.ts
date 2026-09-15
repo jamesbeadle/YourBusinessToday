@@ -17,7 +17,9 @@ export const conversationActions: McpAction[] = [
 		guidance:
 			'Whatever you post is read by the person on the other side and by their Claude, so write ' +
 			'to them: what you found, what you need, what happens next. Everyone on the project ' +
-			'reads it.',
+			'reads it. A question for one person names them; their Claude brings it to them through ' +
+			'read_latest_messages and posts the answer here. When work on a task stops, the work log ' +
+			'goes here too: what changed, which files or records, the decisions and why, what is left.',
 		inputSchema: objectSchema(
 			{
 				goalId: textField('The goal to post on — give this or taskId'),
@@ -47,7 +49,9 @@ export const conversationActions: McpAction[] = [
 		guidance:
 			'Call this at the start of a session and whenever the person asks what is new. Each call ' +
 			'returns only what arrived since the last one and then moves the marker, so read it all ' +
-			'before moving on; a message may be the resolution of something they raised.',
+			'before moving on; a message may be the resolution of something they raised. A message ' +
+			'that asks the person you are with a question is theirs to answer: put it to them, then ' +
+			'post_message the answer on the same goal or task.',
 		inputSchema: objectSchema({}),
 		run: async (caller) => {
 			const inbox = await readInbox(caller.supabase, {

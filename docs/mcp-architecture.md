@@ -20,6 +20,14 @@ It adds no domain. Every action here is a second face on a command or query the 
 already runs. If an action needs something the site does not define, the domain is wrong —
 fix it there, not here.
 
+> **15 September 2026, the working doctrine.** `get_current_context` now ends with the working
+> doctrine every connected Claude follows (`src/lib/server/mcp/workingDoctrine.ts`): read the
+> inbox first, find the task before touching anything, leave a work-log message when the work
+> stops, put questions for other members on the task, never raise a refactor round by hand. The
+> same doctrine is in the `guidance` of the actions it names, and `workingDoctrine.test.ts` fails
+> the build if either names an action that does not exist. See
+> [refactor-cadence-architecture.md](./refactor-cadence-architecture.md).
+
 ## The stories it serves
 
 | As | I want | So that |

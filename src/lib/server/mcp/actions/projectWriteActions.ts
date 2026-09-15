@@ -3,16 +3,13 @@ import { noSuchProject } from './describeProject';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { projectStatusLabels, projectStatusOrder } from '$lib/data/projectStatus';
 import { reachableProject } from '../projectAccess';
+import { readProjectDetailsEdit, wrongStatus } from './projectDetailsEdit';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { McpAction } from '../actionTypes';
-import type { Project } from '$lib/server/projects/projectRecord';
-import type { ProjectStatus } from '$lib/data/projectStatus';
 
-const everyStatus = projectStatusOrder.join(', ');
+const statusField = textField(`One of ${projectStatusOrder.join(', ')}`);
 
-const statusField = textField(`One of ${everyStatus}`);
-
-const wrongStatus = `A project is ${everyStatus}. Pick one of those.`;
+const keepText = ' — leave out to keep what is there';
 
 export const projectWriteActions: McpAction[] = [
 	{
@@ -48,35 +45,36 @@ export const projectWriteActions: McpAction[] = [
 		area: 'projects',
 		audience: 'everyone',
 		isWrite: true,
-		summary: 'rename a project, rewrite its description or change its status',
+		summary:
+			'rename a project, rewrite its description, change its status, or say where its code lives and how often it is refactored',
+		guidance:
+			'The repository and the default branch are what the deploy count reads: every push to that ' +
+			'branch of that repository is a deploy, and at refactorEveryDeploys of them a REFACTOR round ' +
+			'is raised on the project as the reminder to run the repository’s refactor-round skill. ' +
+			'0 turns the cadence off.',
 		inputSchema: objectSchema(
 			{
 				projectId: textField('The project id'),
-				name: textField('A new name — leave out to keep the current one'),
-				description: textField('A new description — leave out to keep the current one'),
-				status: statusField
+				name: textField(`A new name${keepText}`),
+				description: textField(`A new description${keepText}`),
+				status: statusField,
+				repositoryUrl: textField(`Where the code lives${keepText}`),
+				environmentUrl: textField(`Where the live site is${keepText}`),
+				defaultBranch: textField(`The branch that deploys${keepText}`),
+				refactorEveryDeploys: {
+					type: 'number',
+					description: `Deploys between refactor rounds, 0 for none${keepText}`
+				}
 			},
 			['projectId']
 		),
 		run: async (caller, input) => {
 			const project = await reachableProject(caller, readText(input, 'projectId'));
 			if (project === null) return noSuchProject;
-			const status = readStatus(input, project);
-			if (status === null) return wrongStatus;
-			const name = readOptionalText(input, 'name') ?? project.name;
-			await updateProjectDetails(caller.supabase, project.id, {
-				name,
-				description: readOptionalText(input, 'description') ?? project.description,
-				status
-			});
-			return `${name} saved — ${projectStatusLabels[status]}.`;
+			const edit = readProjectDetailsEdit(input, project);
+			if (edit === null) return wrongStatus;
+			await updateProjectDetails(caller.supabase, project.id, edit);
+			return `${edit.name} saved — ${projectStatusLabels[edit.status]}.`;
 		}
 	}
 ];
-
-function readStatus(input: Record<string, unknown>, project: Project): ProjectStatus | null {
-	const status = readOptionalText(input, 'status');
-	if (status === null) return project.status;
-	if (projectStatusOrder.includes(status as ProjectStatus)) return status as ProjectStatus;
-	return null;
-}

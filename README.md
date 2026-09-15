@@ -34,6 +34,13 @@ The books live in their own house, Your Books Today.
   a pull request and reports back; merged builds mark the task live and say so in its
   conversation. Schema changes wait for a person;
   [docs/builder-architecture.md](./docs/builder-architecture.md) is the design.
+- Every push to a project's default branch is a deploy YBT counts, and every N of them (set on
+  the project, 10 by default) it raises `REFACTOR: round N` on the project as the reminder to run
+  the repository's refactor-round skill from the project-process kit — a person's Claude runs it
+  in the working tree and the person commits;
+  [docs/refactor-cadence-architecture.md](./docs/refactor-cadence-architecture.md) is the design.
+  The kit itself — the coding rules, the audit and gate, the bootstrap — lives in
+  [project-process](https://github.com/jamesbeadle/project-process).
 - The MCP server at `/api/mcp` is the same product as the site: OAuth sign-in from the
   Connect button, every action gated by the caller's standing on each project;
   [docs/mcp-architecture.md](./docs/mcp-architecture.md) is the design.

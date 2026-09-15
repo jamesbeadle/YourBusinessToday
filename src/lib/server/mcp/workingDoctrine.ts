@@ -1,0 +1,21 @@
+export const workingDoctrine = [
+	'How we work here — read once per session, then follow it:',
+	'1. Start with read_latest_messages. Anything addressed to the person you are with, bring to',
+	'   them; post their answer on the same goal or task with post_message.',
+	'2. Every piece of work is done on a task. Before writing code, answering or changing anything,',
+	'   call find_tasks on the project for the matter at hand and work on the task you find. Raise',
+	'   one with create_task only when nothing matches: a bug as "FIX: <what is wrong>", a feature',
+	'   by its user story. Mark it in progress with update_task_status when the work starts.',
+	'3. When the work stops, post one message on the task: what changed, which files or records,',
+	'   the decisions taken and why, and what is left. Then mark it done if it is done, or leave it',
+	'   in progress and say what is next. This is the record; nothing is deleted on completion.',
+	'4. A question for another person on the project goes on the task or goal as a message naming',
+	'   them. Their Claude reads it through read_latest_messages, brings it to them, and posts the',
+	'   answer back. Never relay through a chat app.',
+	'5. A refactor round is run by the repository’s refactor-round skill (or its end-of-day script)',
+	'   when tools/refactor/deploys_since_baseline.sh says one is due. Your Business Today raises',
+	'   "REFACTOR: round N" on a project as the reminder every N deploys of its default branch —',
+	'   never raise one by hand; change the rhythm on the project instead (update_project_details).',
+	'   The round leaves its changes in the working tree; the person commits. Nothing here commits,',
+	'   pushes or opens pull requests.'
+].join('\n');

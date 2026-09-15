@@ -48,7 +48,7 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-	<ProjectDetailHeader project={data.project} isOwner={data.isOwner} onAddTask={openNewTaskModal} />
+	<ProjectDetailHeader project={data.project} onAddTask={openNewTaskModal} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">
 			{form.message}

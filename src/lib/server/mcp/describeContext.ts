@@ -16,7 +16,7 @@ export function describeContext(caller: McpCaller): string {
 function projectsLine(caller: McpCaller): string {
 	const owned = countOf(caller.ownedProjectIds.length, 'project');
 	const joined = countOf(caller.memberProjectIds.length, 'project');
-	return `You own ${owned} and are on the team of ${joined}. Owners manage a project and its people; everyone on it works its goals and tasks.`;
+	return `You own ${owned} and are on the team of ${joined}. Everyone on a project works and manages it; only its owner can hand it on.`;
 }
 
 function staffLine(caller: McpCaller): string | null {

@@ -1,4 +1,5 @@
 import type { McpCaller } from './resolveMcpCaller';
+import type { McpToolAnswer } from './mcpContent';
 
 export type ActionArea =
 	'account' | 'clients' | 'projects' | 'goals' | 'support' | 'conversations' | 'tasks';
@@ -13,7 +14,7 @@ export type McpAction = {
 	summary: string;
 	guidance?: string;
 	inputSchema: Record<string, unknown>;
-	run: (caller: McpCaller, input: Record<string, unknown>) => Promise<string>;
+	run: (caller: McpCaller, input: Record<string, unknown>) => Promise<McpToolAnswer>;
 };
 
 export function readText(input: Record<string, unknown>, field: string): string {

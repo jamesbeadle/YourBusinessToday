@@ -1,3 +1,4 @@
+import { contentBlocksOf, type McpToolAnswer } from './mcpContent';
 import { McpErrorCode, jsonRpcVersion, mcpFailure } from './mcpErrors';
 import { describeMcpTools, findMcpTool } from './mcpTools';
 import { toolFailureSentence } from './toolFailureSentence';
@@ -59,6 +60,6 @@ async function callTool(caller: McpCaller, request: McpRequest): Promise<McpAnsw
 	}
 }
 
-function toolAnswer(text: string, isError: boolean): McpAnswer {
-	return { content: [{ type: 'text', text }], isError };
+function toolAnswer(answer: McpToolAnswer, isError: boolean): McpAnswer {
+	return { content: contentBlocksOf(answer), isError };
 }

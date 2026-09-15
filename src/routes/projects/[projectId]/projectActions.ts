@@ -1,12 +1,12 @@
 import { fail } from '@sveltejs/kit';
 import { parseProjectStatus } from '$lib/data/projectStatus';
-import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
 import type { Actions } from './$types';
 
 export const projectActions = {
 	updateProject: async ({ locals, params, request }) => {
-		await requireProjectOwner(locals, params.projectId);
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const name = String(formData.get('name') ?? '').trim();
 		if (name === '') return fail(400, { message: 'A project name is required.' });

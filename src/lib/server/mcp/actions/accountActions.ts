@@ -10,12 +10,17 @@ export const accountActions: McpAction[] = [
 		isWrite: false,
 		summary: 'Your email address, your standing here, and what that lets you do',
 		inputSchema: objectSchema({}),
-		run: async (caller) => [`Email: ${caller.email}`, `Standing: ${standingOf(caller)}`].join('\n')
+		run: async (caller) =>
+			[
+				`Email: ${caller.email}`,
+				`Standing: ${standingOf(caller)}`,
+				`Projects: ${caller.ownedProjectIds.length} owned, ${caller.memberProjectIds.length} as a team member`
+			].join('\n')
 	}
 ];
 
 function standingOf(caller: McpCaller): string {
 	if (caller.isAdmin) return 'administrator';
-	if (caller.role === 'staff') return 'staff';
-	return `project member (${caller.memberProjectIds.length} project(s))`;
+	if (caller.isStaff) return 'staff';
+	return 'account holder';
 }

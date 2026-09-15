@@ -1,7 +1,5 @@
+import { notTheOwner, ownedProject } from '../projectAccess';
 import { createProject } from '$lib/server/projects/createProject';
-import { deleteProject } from '$lib/server/projects/deleteProject';
-import { getProject } from '$lib/server/projects/getProject';
-import { noSuchProject } from './describeProject';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { projectStatusLabels, projectStatusOrder } from '$lib/data/projectStatus';
 import { updateProjectDetails } from '$lib/server/projects/updateProjectDetails';
@@ -19,14 +17,16 @@ export const projectWriteActions: McpAction[] = [
 	{
 		name: 'create_project',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
-		summary: 'start a new project on a staff board',
+		summary: 'start a new project that you own',
+		guidance:
+			'You become the owner: you manage it, invite people to it and can hand it on. It lands at ' +
+			'the bottom of your board; call move_project or place_project to prioritise it.',
 		inputSchema: objectSchema(
 			{
 				name: textField('What the project is called'),
-				description: textField('What the project is for'),
-				ownerStaffMemberId: textField('Whose board it belongs on — defaults to your own')
+				description: textField('What the project is for')
 			},
 			['name']
 		),
@@ -36,7 +36,7 @@ export const projectWriteActions: McpAction[] = [
 			await createProject(caller.supabase, {
 				name,
 				description: readText(input, 'description'),
-				ownerId: readOptionalText(input, 'ownerStaffMemberId') ?? caller.accountId,
+				ownerId: caller.accountId,
 				createdBy: caller.accountId
 			});
 			return `Project "${name}" created. Call list_projects for its id.`;
@@ -45,7 +45,7 @@ export const projectWriteActions: McpAction[] = [
 	{
 		name: 'update_project_details',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'rename a project, rewrite its description or change its status',
 		inputSchema: objectSchema(
@@ -58,8 +58,8 @@ export const projectWriteActions: McpAction[] = [
 			['projectId']
 		),
 		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
-			if (project === null) return noSuchProject;
+			const project = await ownedProject(caller, readText(input, 'projectId'));
+			if (project === null) return notTheOwner;
 			const status = readStatus(input, project);
 			if (status === null) return wrongStatus;
 			const name = readOptionalText(input, 'name') ?? project.name;
@@ -69,24 +69,6 @@ export const projectWriteActions: McpAction[] = [
 				status
 			});
 			return `${name} saved — ${projectStatusLabels[status]}.`;
-		}
-	},
-	{
-		name: 'delete_project',
-		area: 'projects',
-		audience: 'staff',
-		isWrite: true,
-		summary: 'delete a project and everything inside it',
-		guidance:
-			'This permanently deletes every task and subtask in the project and all their ' +
-			'comments, and it cannot be undone. A project that has simply finished should be ' +
-			'set to complete instead.',
-		inputSchema: objectSchema({ projectId: textField('The project id') }, ['projectId']),
-		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
-			if (project === null) return noSuchProject;
-			await deleteProject(caller.supabase, project.id);
-			return `${project.name} and everything in it is deleted.`;
 		}
 	}
 ];

@@ -23,7 +23,7 @@ export async function resolveSupportTask(
 		})
 		.eq('id', task.id);
 	if (error) throw error;
-	await postMessage(supabase, { taskId: task.id }, resolvedBy, resolutionSentence(resolution), false);
+	await postMessage(supabase, { taskId: task.id }, resolvedBy, resolutionSentence(resolution));
 	await recordResolution(supabase, project, task, resolvedBy);
 }
 

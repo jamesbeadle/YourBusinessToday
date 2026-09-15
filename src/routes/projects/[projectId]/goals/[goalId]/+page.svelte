@@ -31,7 +31,7 @@
 	{/if}
 	<GoalOverviewPanel goal={data.goal} onEdit={() => (isEditModalOpen = true)} />
 	<GoalTaskList tasks={data.tasks} />
-	<ConversationThread messages={data.messages} canMarkInternal />
+	<ConversationThread messages={data.messages} />
 	<button
 		type="button"
 		onclick={() => (isDeleteModalOpen = true)}

@@ -3,7 +3,7 @@
 	import Modal from '$lib/components/site/Modal.svelte';
 	import NewTaskForm from '$lib/components/projects/NewTaskForm.svelte';
 	import ProjectDetailHeader from '$lib/components/projects/ProjectDetailHeader.svelte';
-	import ProjectMembersPanel from '$lib/components/members/ProjectMembersPanel.svelte';
+	import ProjectPeoplePanel from '$lib/components/members/ProjectPeoplePanel.svelte';
 	import TaskGoalModal from '$lib/components/projects/TaskGoalModal.svelte';
 	import TaskStatusModal from '$lib/components/projects/TaskStatusModal.svelte';
 	import TaskTreePanel from '$lib/components/projects/TaskTreePanel.svelte';
@@ -48,21 +48,19 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-	<ProjectDetailHeader project={data.project} onAddTask={openNewTaskModal} />
+	<ProjectDetailHeader project={data.project} isOwner={data.isOwner} onAddTask={openNewTaskModal} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">
 			{form.message}
 		</p>
 	{/if}
 	<GoalListPanel goalSummaries={data.goalSummaries} />
-	{#if data.members !== null}
-		<ProjectMembersPanel members={data.members} />
-	{/if}
+	<ProjectPeoplePanel people={data.people} isOwner={data.isOwner} />
 	<TaskTreePanel
 		taskTree={data.taskTree}
 		projectId={data.project.id}
 		goals={data.goals}
-		staffMembers={data.staffMembers}
+		people={data.people}
 		assigneeIdsByTask={data.assigneeIdsByTask}
 		onAddSubtask={openSubtaskModal}
 		onChangeStatus={openStatusModal}

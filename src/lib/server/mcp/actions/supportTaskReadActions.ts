@@ -1,11 +1,14 @@
-import { describeOpenSupportTasks, describeTaskConversation, noReachableTask } from './describeSupportTask';
+import {
+	describeOpenSupportTasks,
+	describeTaskConversation,
+	noReachableTask
+} from './describeSupportTask';
 import { findTasks } from '$lib/server/support/findTasks';
 import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { getOpenSupportTasks } from '$lib/server/support/getOpenSupportTasks';
 import { getProject } from '$lib/server/projects/getProject';
-import { getTask } from '$lib/server/projects/getTask';
 import { getThread } from '$lib/server/conversations/getThread';
-import { noReachableProject, reachableProject } from '../projectAccess';
+import { noReachableProject, ownsProject, reachableProject, reachableTask } from '../projectAccess';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { taskLine } from './describeGoal';
 import { withProjectAccess } from './withProjectAccess';
@@ -41,7 +44,8 @@ export const supportTaskReadActions: McpAction[] = [
 				goalId: readOptionalText(input, 'goalId'),
 				phrase: readText(input, 'words')
 			});
-			if (tasks.length === 0) return `No task on ${project.name} matches. Widen the words, or offer to raise one.`;
+			if (tasks.length === 0)
+				return `No task on ${project.name} matches. Widen the words, or offer to raise one.`;
 			return tasks.map(taskLine).join('\n');
 		}
 	},
@@ -50,10 +54,11 @@ export const supportTaskReadActions: McpAction[] = [
 		area: 'support',
 		audience: 'everyone',
 		isWrite: false,
-		summary: 'one task as the people on it see it: the ask, where it stands, its resolution, and every message',
+		summary:
+			'one task as the people on it see it: the ask, where it stands, its resolution, and every message',
 		inputSchema: objectSchema({ taskId: supportTaskIdField }, ['taskId']),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			return withProjectAccess(caller, task, noReachableTask, (reachableTask) =>
 				readConversation(caller, reachableTask)
 			);
@@ -62,17 +67,23 @@ export const supportTaskReadActions: McpAction[] = [
 	{
 		name: 'list_open_support_tasks',
 		area: 'support',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: false,
-		summary: 'every support task still waiting on an answer from us, across every project, newest first',
+		summary:
+			'every support task still waiting on an answer across the projects you own, newest first',
 		inputSchema: objectSchema({}),
-		run: async (caller) => describeOpenSupportTasks(await getOpenSupportTasks(caller.supabase))
+		run: async (caller) =>
+			describeOpenSupportTasks(await getOpenSupportTasks(caller.supabase, caller.accountId))
 	}
 ];
 
 async function readConversation(caller: McpCaller, task: ProjectTask): Promise<string> {
 	const project = await getProject(caller.supabase, task.projectId);
-	const messages = await getThread(caller.supabase, { taskId: task.id }, caller.role === 'staff');
+	const messages = await getThread(
+		caller.supabase,
+		{ taskId: task.id },
+		ownsProject(caller, task.projectId)
+	);
 	const authorIds = [task.createdBy, ...messages.map((message) => message.authorAccountId)];
 	const accounts = await getAccountDirectory(caller.supabase, authorIds);
 	return describeTaskConversation(task, project?.name ?? '', messages, accounts);

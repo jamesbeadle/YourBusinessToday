@@ -5,13 +5,13 @@
 	import TaskEditForm from './TaskEditForm.svelte';
 	import type { Goal } from '$lib/server/goals/goalRecord';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
-	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
 	let {
 		task,
 		parentTask,
 		siblingTasks,
-		staffMembers,
+		people,
 		goals,
 		assigneeIds,
 		roles,
@@ -22,7 +22,7 @@
 		task: ProjectTask;
 		parentTask: ProjectTask | null;
 		siblingTasks: ProjectTask[];
-		staffMembers: StaffMember[];
+		people: ProjectPerson[];
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
@@ -37,7 +37,7 @@
 		{task}
 		{parentTask}
 		{siblingTasks}
-		{staffMembers}
+		{people}
 		{goals}
 		{assigneeIds}
 		{roles}

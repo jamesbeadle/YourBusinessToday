@@ -1,6 +1,5 @@
-import { getProject } from '$lib/server/projects/getProject';
+import { notTheOwner, ownedProject } from '../projectAccess';
 import { moveProject } from '$lib/server/projects/moveProject';
-import { noSuchProject } from './describeProject';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { placeProject } from '$lib/server/projects/placeProject';
 import {
@@ -19,7 +18,7 @@ export const projectOrderActions: McpAction[] = [
 	{
 		name: 'move_project',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'move a project one place up or down its board',
 		guidance: 'The board is in priority order: the top project matters most right now.',
@@ -28,8 +27,8 @@ export const projectOrderActions: McpAction[] = [
 			'direction'
 		]),
 		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
-			if (project === null) return noSuchProject;
+			const project = await ownedProject(caller, readText(input, 'projectId'));
+			if (project === null) return notTheOwner;
 			const direction = readMoveDirection(input);
 			if (direction === null) return sayWhichDirection;
 			await moveProject(caller.supabase, project.id, direction);
@@ -39,7 +38,7 @@ export const projectOrderActions: McpAction[] = [
 	{
 		name: 'place_project',
 		area: 'projects',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'place a project directly before or after another on the same board',
 		inputSchema: objectSchema(
@@ -51,9 +50,9 @@ export const projectOrderActions: McpAction[] = [
 			['projectId', 'targetProjectId', 'placement']
 		),
 		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
-			const targetProject = await getProject(caller.supabase, readText(input, 'targetProjectId'));
-			if (project === null || targetProject === null) return noSuchProject;
+			const project = await ownedProject(caller, readText(input, 'projectId'));
+			const targetProject = await ownedProject(caller, readText(input, 'targetProjectId'));
+			if (project === null || targetProject === null) return notTheOwner;
 			if (project.ownerId !== targetProject.ownerId) return 'Both projects must be on one board.';
 			const placement = readBesidePlacement(input);
 			if (placement === null) return sayWhichPlacement;

@@ -1,7 +1,7 @@
+import { reachableTask } from '../projectAccess';
 import { createChecklist } from '$lib/server/projects/createChecklist';
 import { deleteChecklist } from '$lib/server/projects/deleteChecklist';
 import { findChecklistOnTask, checklistIdField, taskIdField } from './findChecklistOnTask';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { renameChecklist } from '$lib/server/projects/renameChecklist';
@@ -13,7 +13,7 @@ export const checklistActions: McpAction[] = [
 	{
 		name: 'add_checklist',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'add a named checklist to a task, ready for items',
 		guidance:
@@ -21,7 +21,7 @@ export const checklistActions: McpAction[] = [
 			'criteria say when the task is done; a checklist says how it gets there.',
 		inputSchema: objectSchema({ taskId: taskIdField, title: titleField }, ['taskId', 'title']),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const title = readOptionalText(input, 'title');
 			if (title === null) return 'A checklist needs a title.';
@@ -32,7 +32,7 @@ export const checklistActions: McpAction[] = [
 	{
 		name: 'rename_checklist',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'give a checklist on a task a new title',
 		inputSchema: objectSchema(
@@ -51,7 +51,7 @@ export const checklistActions: McpAction[] = [
 	{
 		name: 'delete_checklist',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'remove a checklist and all its items from a task',
 		inputSchema: objectSchema({ taskId: taskIdField, checklistId: checklistIdField }, [

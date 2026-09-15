@@ -1,4 +1,4 @@
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { setTaskUserStory } from '$lib/server/projects/setTaskUserStory';
@@ -8,7 +8,7 @@ export const taskStoryActions: McpAction[] = [
 	{
 		name: 'set_task_user_story',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'write the user story a task delivers, and mark the task as one',
 		guidance:
@@ -25,7 +25,7 @@ export const taskStoryActions: McpAction[] = [
 			['taskId', 'role', 'want', 'benefit']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const story = {
 				role: readText(input, 'role'),

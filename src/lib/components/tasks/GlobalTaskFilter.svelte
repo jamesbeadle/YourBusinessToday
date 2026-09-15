@@ -1,39 +1,25 @@
 <script lang="ts">
-	let {
-		shouldIncludeDone,
-		isWaitingOnMe,
-		viewedUserId
-	}: { shouldIncludeDone: boolean; isWaitingOnMe: boolean; viewedUserId: string | null } =
-		$props();
+	import {
+		taskListFilterLabels,
+		taskListFilterOrder,
+		taskListHref,
+		type TaskListFilter
+	} from '$lib/data/taskListFilter';
 
-	function filterHref(status: string | null): string {
-		const parameters = new URLSearchParams();
-		if (status !== null) parameters.set('status', status);
-		if (viewedUserId !== null) parameters.set('user', viewedUserId);
-		const query = parameters.toString();
-		if (query === '') return '/tasks';
-		return `/tasks?${query}`;
-	}
-
-	const isOpenList = $derived(!shouldIncludeDone && !isWaitingOnMe);
-	const filterOptions = $derived([
-		{ label: 'Open', href: filterHref(null), isActive: isOpenList },
-		{ label: 'All', href: filterHref('all'), isActive: shouldIncludeDone },
-		{ label: 'Waiting on me', href: filterHref('waiting'), isActive: isWaitingOnMe }
-	]);
+	let { filter }: { filter: TaskListFilter } = $props();
 </script>
 
 <div class="flex flex-wrap items-center gap-2">
-	{#each filterOptions as filterOption (filterOption.label)}
+	{#each taskListFilterOrder as option (option)}
 		<a
-			href={filterOption.href}
+			href={taskListHref(option)}
 			class={`rounded-full border px-4 py-1.5 font-display text-sm transition ${
-				filterOption.isActive
+				option === filter
 					? 'border-go bg-go/10 text-go'
 					: 'border-hairline text-chalk/60 hover:border-chalk/40 hover:text-chalk'
 			}`}
 		>
-			{filterOption.label}
+			{taskListFilterLabels[option]}
 		</a>
 	{/each}
 </div>

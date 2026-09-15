@@ -1,15 +1,9 @@
 import type { McpCaller } from './resolveMcpCaller';
 
 export type ActionArea =
-	| 'account'
-	| 'clients'
-	| 'projects'
-	| 'goals'
-	| 'support'
-	| 'conversations'
-	| 'tasks';
+	'account' | 'clients' | 'projects' | 'goals' | 'support' | 'conversations' | 'tasks';
 
-export type ActionAudience = 'staff' | 'admin' | 'member' | 'everyone';
+export type ActionAudience = 'everyone' | 'staff' | 'admin';
 
 export type McpAction = {
 	name: string;

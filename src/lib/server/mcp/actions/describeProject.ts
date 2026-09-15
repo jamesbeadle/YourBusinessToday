@@ -6,7 +6,8 @@ import type { Project } from '$lib/server/projects/projectRecord';
 import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
 
-export const noSuchProject = 'No project has that id. Call list_projects to see the board.';
+export const noSuchProject =
+	'No project you are on has that id. Call list_projects for the ones you own and the ones you are on.';
 
 const subtaskIndent = '  ';
 

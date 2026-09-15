@@ -23,7 +23,7 @@ export function describeTask(workspace: TaskWorkspace): string {
 		task.details === '' ? 'No details written yet.' : `Details: ${task.details}`,
 		...criterionLines(workspace.criteria),
 		...checklistLines(workspace.checklists),
-		...attachmentLines(workspace.attachments, workspace.staffMembers),
+		...attachmentLines(workspace.attachments, workspace.people),
 		...threadLines(workspace.messages, workspace.accounts)
 	]
 		.filter((line) => line !== null)
@@ -51,9 +51,9 @@ function raisedByLine(workspace: TaskWorkspace): string | null {
 }
 
 function teamLine(workspace: TaskWorkspace): string {
-	const names = workspace.staffMembers
-		.filter((staffMember) => workspace.assigneeIds.includes(staffMember.id))
-		.map((staffMember) => staffMember.name);
+	const names = workspace.people
+		.filter((person) => workspace.assigneeIds.includes(person.id))
+		.map((person) => person.name);
 	const assignees = names.length === 0 ? 'nobody' : names.join(', ');
 	const roles = workspace.roles.length === 0 ? 'none named' : workspace.roles.join(', ');
 	return `Assigned to ${assignees}. Roles: ${roles}.`;

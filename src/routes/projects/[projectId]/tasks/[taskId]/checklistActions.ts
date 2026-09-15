@@ -4,21 +4,21 @@ import { createChecklist } from '$lib/server/projects/createChecklist';
 import { deleteChecklist } from '$lib/server/projects/deleteChecklist';
 import { deleteChecklistItem } from '$lib/server/projects/deleteChecklistItem';
 import { renameChecklist } from '$lib/server/projects/renameChecklist';
-import { requireStaff } from '$lib/server/auth/requireStaff';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { setChecklistItemDone } from '$lib/server/projects/setChecklistItemDone';
 import type { Actions } from './$types';
 
 export const checklistActions: Actions = {
 	addChecklist: async ({ locals, params, request }) => {
-		await requireStaff(locals);
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const title = String(formData.get('title') ?? '').trim();
 		if (title === '') return fail(400, { message: 'A list needs a title.' });
 		await createChecklist(locals.supabase, params.taskId, title);
 		return {};
 	},
-	renameChecklist: async ({ locals, request }) => {
-		await requireStaff(locals);
+	renameChecklist: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const checklistId = String(formData.get('checklistId') ?? '');
 		const title = String(formData.get('title') ?? '').trim();
@@ -27,16 +27,16 @@ export const checklistActions: Actions = {
 		await renameChecklist(locals.supabase, checklistId, title);
 		return {};
 	},
-	deleteChecklist: async ({ locals, request }) => {
-		await requireStaff(locals);
+	deleteChecklist: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const checklistId = String(formData.get('checklistId') ?? '');
 		if (checklistId === '') return fail(400, { message: 'A list is required.' });
 		await deleteChecklist(locals.supabase, checklistId);
 		return {};
 	},
-	addChecklistItem: async ({ locals, request }) => {
-		await requireStaff(locals);
+	addChecklistItem: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const checklistId = String(formData.get('checklistId') ?? '');
 		const description = String(formData.get('description') ?? '').trim();
@@ -45,16 +45,16 @@ export const checklistActions: Actions = {
 		await addChecklistItem(locals.supabase, checklistId, description);
 		return {};
 	},
-	setChecklistItemDone: async ({ locals, request }) => {
-		await requireStaff(locals);
+	setChecklistItemDone: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const itemId = String(formData.get('itemId') ?? '');
 		if (itemId === '') return fail(400, { message: 'An item is required.' });
 		await setChecklistItemDone(locals.supabase, itemId, formData.get('isDone') === 'true');
 		return {};
 	},
-	deleteChecklistItem: async ({ locals, request }) => {
-		await requireStaff(locals);
+	deleteChecklistItem: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const itemId = String(formData.get('itemId') ?? '');
 		if (itemId === '') return fail(400, { message: 'An item is required.' });

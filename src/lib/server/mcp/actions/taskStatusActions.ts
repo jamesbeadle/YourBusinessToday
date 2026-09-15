@@ -1,4 +1,4 @@
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { statusChangeRefusal } from '$lib/server/support/statusChangeRefusal';
@@ -11,7 +11,7 @@ export const taskStatusActions: McpAction[] = [
 	{
 		name: 'update_task_status',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'move a task between backlog, in progress and done',
 		guidance:
@@ -22,7 +22,7 @@ export const taskStatusActions: McpAction[] = [
 			['taskId', 'status']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const status = readStatus(input);
 			if (status === null) return `A task is ${taskStatusOrder.join(', ')}. Pick one of those.`;

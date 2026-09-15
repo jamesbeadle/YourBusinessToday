@@ -1,9 +1,8 @@
 import { createGoal } from '$lib/server/goals/createGoal';
-import { getGoal } from '$lib/server/goals/getGoal';
 import { goalIdField, projectIdField } from './goalReadActions';
 import { goalStatusOrder, parseGoalStatus } from '$lib/data/goalStatus';
 import { noSuchGoal } from './describeGoal';
-import { noReachableProject, reachableProject } from '../projectAccess';
+import { noReachableProject, reachableGoal, reachableProject } from '../projectAccess';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { updateGoalStatus } from '$lib/server/goals/updateGoal';
 import type { McpAction } from '../actionTypes';
@@ -40,7 +39,7 @@ export const goalWriteActions: McpAction[] = [
 	{
 		name: 'set_goal_status',
 		area: 'goals',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'mark a goal open, met or dropped',
 		inputSchema: objectSchema(
@@ -48,7 +47,7 @@ export const goalWriteActions: McpAction[] = [
 			['goalId', 'status']
 		),
 		run: async (caller, input) => {
-			const goal = await getGoal(caller.supabase, readText(input, 'goalId'));
+			const goal = await reachableGoal(caller, readText(input, 'goalId'));
 			if (goal === null) return noSuchGoal;
 			const status = parseGoalStatus(readText(input, 'status'));
 			await updateGoalStatus(caller.supabase, goal.id, status);

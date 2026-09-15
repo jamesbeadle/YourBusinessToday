@@ -7,14 +7,12 @@ export async function postMessage(
 	supabase: SupabaseClient,
 	subject: ConversationSubject,
 	authorAccountId: string,
-	body: string,
-	isInternal: boolean
+	body: string
 ): Promise<void> {
 	const { error } = await supabase.from('conversation_messages').insert({
 		...subjectColumns(subject),
 		author_account_id: authorAccountId,
-		body,
-		is_internal: isInternal
+		body
 	});
 	if (error) throw error;
 }

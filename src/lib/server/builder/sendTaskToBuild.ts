@@ -10,8 +10,7 @@ import type { ProjectTask } from '$lib/server/projects/taskRecord';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type SendOutcome =
-	| { kind: 'sent'; sessionUrl: string }
-	| { kind: 'refused'; sentence: string };
+	{ kind: 'sent'; sessionUrl: string } | { kind: 'refused'; sentence: string };
 
 export async function sendTaskToBuild(
 	supabase: SupabaseClient,
@@ -73,8 +72,7 @@ async function recordFireFailure(
 		supabase,
 		{ taskId: task.id },
 		actorAccountId,
-		`Could not send to build: ${reason}`,
-		true
+		`Could not send to build: ${reason}`
 	);
 	return { kind: 'refused', sentence: `Not sent. ${reason}` };
 }

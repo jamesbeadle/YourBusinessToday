@@ -25,7 +25,7 @@ export async function reportBuild(
 		pullRequestUrl: report.pullRequestUrl,
 		hasMigration: report.hasMigration
 	});
-	await postMessage(supabase, { taskId: task.id }, authorAccountId, commentFor(report), true);
+	await postMessage(supabase, { taskId: task.id }, authorAccountId, commentFor(report));
 	return 'recorded';
 }
 

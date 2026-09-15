@@ -1,7 +1,6 @@
 import { getProject } from '$lib/server/projects/getProject';
-import { getTask } from '$lib/server/projects/getTask';
 import { longestMessageBody } from '$lib/server/conversations/postMessage';
-import { noReachableProject } from '../projectAccess';
+import { noReachableProject, reachableTask } from '../projectAccess';
 import { noReachableTask } from './describeSupportTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import { raiseSupportTask } from './raiseSupportTask';
@@ -37,7 +36,7 @@ export const supportTaskWriteActions: McpAction[] = [
 	{
 		name: 'resolve_support_task',
 		area: 'support',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'close a support task with the resolution the person who raised it will read',
 		guidance:
@@ -48,11 +47,12 @@ export const supportTaskWriteActions: McpAction[] = [
 			['taskId', 'resolution']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null || task.kind !== 'support') return noReachableTask;
 			const resolution = readOptionalText(input, 'resolution');
 			if (resolution === null) return 'Give the resolution as well; it is what they read.';
-			if (resolution.length > longestMessageBody) return `Keep it under ${longestMessageBody} characters.`;
+			if (resolution.length > longestMessageBody)
+				return `Keep it under ${longestMessageBody} characters.`;
 			const project = await getProject(caller.supabase, task.projectId);
 			if (project === null) return noReachableProject;
 			await resolveSupportTask(caller.supabase, task, project, resolution, caller.accountId);

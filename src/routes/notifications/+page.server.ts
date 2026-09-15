@@ -3,11 +3,11 @@ import { getNotificationList } from '$lib/server/notifications/getNotificationLi
 import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { markAllNotificationsRead } from '$lib/server/notifications/markAllNotificationsRead';
 import { markNotificationRead } from '$lib/server/notifications/markNotificationRead';
-import { requireStaff } from '$lib/server/auth/requireStaff';
+import { requireUser } from '$lib/server/auth/requireUser';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const user = await requireStaff(locals);
+	const user = await requireUser(locals);
 	const notifications = await getNotificationList(locals.supabase, user.id);
 	const authorIds = notifications.map((notification) => notification.messageAuthorId);
 	return { notifications, authors: await getAccountDirectory(locals.supabase, authorIds) };
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	openNotification: async ({ locals, request }) => {
-		await requireStaff(locals);
+		await requireUser(locals);
 		const formData = await request.formData();
 		const notificationId = String(formData.get('notificationId') ?? '');
 		const projectId = String(formData.get('projectId') ?? '');
@@ -27,7 +27,7 @@ export const actions: Actions = {
 		redirect(303, `/projects/${projectId}/tasks/${taskId}`);
 	},
 	markAllRead: async ({ locals }) => {
-		const user = await requireStaff(locals);
+		const user = await requireUser(locals);
 		await markAllNotificationsRead(locals.supabase, user.id);
 		return {};
 	}

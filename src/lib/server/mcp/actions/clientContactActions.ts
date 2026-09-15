@@ -1,3 +1,4 @@
+import { companyDetails } from '$lib/data/companyDetails';
 import { addClientContact } from '$lib/server/clients/addClientContact';
 import { getClient } from '$lib/server/clients/getClient';
 import { getClientContact } from '$lib/server/clients/getClientContacts';
@@ -9,7 +10,6 @@ import { objectSchema, readOptionalText, readText, textField } from '../actionTy
 import type { McpAction } from '../actionTypes';
 import type { McpCaller } from '../resolveMcpCaller';
 
-const liveOrigin = 'https://yourbusiness.today';
 const isPrimaryField = { type: 'boolean', description: 'Make this the client main contact' };
 const noSuchContact = 'No contact has that id. Call read_client to see who is listed.';
 
@@ -45,7 +45,9 @@ export const clientContactActions: McpAction[] = [
 		inputSchema: objectSchema(
 			{
 				contactId: textField('The contact id, as given by read_client'),
-				origin: textField(`Where the invitation link should point, defaulting to ${liveOrigin}`)
+				origin: textField(
+					`Where the invitation link should point, defaulting to ${companyDetails.websiteUrl}`
+				)
 			},
 			['contactId']
 		),
@@ -74,11 +76,13 @@ async function listContact(caller: McpCaller, input: Record<string, unknown>): P
 async function inviteContact(caller: McpCaller, input: Record<string, unknown>): Promise<string> {
 	const contact = await getClientContact(caller.supabase, readText(input, 'contactId'));
 	if (contact === null) return noSuchContact;
-	const origin = readOptionalText(input, 'origin') ?? liveOrigin;
+	const origin = readOptionalText(input, 'origin') ?? companyDetails.websiteUrl;
 	const outcome = await inviteClientContact(caller.supabase, contact, origin, caller.accountId);
-	if (outcome === 'already_invited') return `${contact.name} already has a sign-in, so nothing was sent.`;
+	if (outcome === 'already_invited')
+		return `${contact.name} already has a sign-in, so nothing was sent.`;
 	if (outcome === 'too_many_invites') return tooManyInvitesMessage;
 	const undelivered = undeliveredInviteNotice(outcome);
-	if (undelivered !== null) return `${undelivered} ${contact.name} now has a sign-in but no link to it.`;
+	if (undelivered !== null)
+		return `${undelivered} ${contact.name} now has a sign-in but no link to it.`;
 	return `Invitation sent to ${contact.email}. It takes ${contact.name} to a page to set a password.`;
 }

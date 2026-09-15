@@ -1,3 +1,4 @@
+import { reachableTask } from '../projectAccess';
 import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
@@ -10,7 +11,7 @@ export const taskParentActions: McpAction[] = [
 	{
 		name: 'set_task_parent',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'make a task a subtask of another, or bring it up to the top level of the project',
 		guidance:
@@ -25,7 +26,7 @@ export const taskParentActions: McpAction[] = [
 			['taskId']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const parentTaskId = readOptionalText(input, 'parentTaskId');
 			if (parentTaskId === null) return bringToTopLevel(caller.supabase, task);

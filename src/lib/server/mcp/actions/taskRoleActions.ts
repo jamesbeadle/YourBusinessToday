@@ -1,5 +1,5 @@
+import { reachableTask } from '../projectAccess';
 import { assignableTaskRoles, parseTaskRoles } from '$lib/data/taskRoles';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { setTaskRoles } from '$lib/server/projects/setTaskRoles';
@@ -11,7 +11,7 @@ export const taskRoleActions: McpAction[] = [
 	{
 		name: 'set_task_roles',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'say which kinds of work a task needs — the roles, not the people',
 		guidance:
@@ -30,7 +30,7 @@ export const taskRoleActions: McpAction[] = [
 			['taskId', 'roles']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const requestedRoles = readRequestedRoles(input);
 			if (requestedRoles === null) return `Pass roles as a list. ${rolesOnOffer}`;

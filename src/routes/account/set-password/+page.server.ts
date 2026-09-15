@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { destinationAfterPasswordSet } from '$lib/server/auth/destinationAfterPasswordSet';
+import { homeDestinationFor } from '$lib/server/auth/localDestination';
 import { problemWithNewPassword } from '$lib/server/auth/passwordRules';
 import { requireUser } from '$lib/server/auth/requireUser';
 import { setAccountPassword } from '$lib/server/auth/setAccountPassword';
@@ -22,6 +22,6 @@ export const actions: Actions = {
 		if (inputProblem !== null) return fail(badRequestStatus, { message: inputProblem });
 		const savingProblem = await setAccountPassword(locals.supabase, password);
 		if (savingProblem !== null) return fail(badRequestStatus, { message: savingProblem });
-		redirect(303, await destinationAfterPasswordSet(locals.supabase, user.id));
+		redirect(303, await homeDestinationFor(locals.supabase, user.id));
 	}
 };

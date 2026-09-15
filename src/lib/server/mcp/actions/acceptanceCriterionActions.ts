@@ -1,6 +1,6 @@
+import { reachableTask } from '../projectAccess';
 import { addAcceptanceCriterion } from '$lib/server/projects/addAcceptanceCriterion';
 import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptanceCriterion';
-import { getTask } from '$lib/server/projects/getTask';
 import { getTaskAcceptanceCriteria } from '$lib/server/projects/getTaskAcceptanceCriteria';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
@@ -16,7 +16,7 @@ export const acceptanceCriterionActions: McpAction[] = [
 	{
 		name: 'add_acceptance_criterion',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'add one thing that must be true before a task counts as done',
 		inputSchema: objectSchema(
@@ -24,7 +24,7 @@ export const acceptanceCriterionActions: McpAction[] = [
 			['taskId', 'description']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const description = readOptionalText(input, 'description');
 			if (description === null) return 'A criterion needs a description of what must be true.';
@@ -35,7 +35,7 @@ export const acceptanceCriterionActions: McpAction[] = [
 	{
 		name: 'set_acceptance_criterion_met',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'tick or untick one acceptance criterion on a task',
 		inputSchema: objectSchema(
@@ -59,7 +59,7 @@ export const acceptanceCriterionActions: McpAction[] = [
 	{
 		name: 'delete_acceptance_criterion',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'drop one acceptance criterion from a task',
 		inputSchema: objectSchema({ taskId: taskIdField, criterionId: criterionIdField }, [

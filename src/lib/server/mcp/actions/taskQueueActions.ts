@@ -1,4 +1,4 @@
-import { getTask } from '$lib/server/projects/getTask';
+import { reachableTask } from '../projectAccess';
 import { moveGlobalTask } from '$lib/server/projects/moveGlobalTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
@@ -22,7 +22,7 @@ export const taskQueueActions: McpAction[] = [
 	{
 		name: 'move_queued_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'move a task one place up or down the queue of work across every project',
 		guidance:
@@ -40,7 +40,7 @@ export const taskQueueActions: McpAction[] = [
 			['taskId', 'direction']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			if (!isQueued(task)) return onlyTopLevelTasksQueue;
 			const direction = readMoveDirection(input);
@@ -52,7 +52,7 @@ export const taskQueueActions: McpAction[] = [
 	{
 		name: 'place_queued_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'place a task directly before or after another in the queue across every project',
 		guidance:
@@ -67,8 +67,8 @@ export const taskQueueActions: McpAction[] = [
 			['taskId', 'targetTaskId', 'placement']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
-			const targetTask = await getTask(caller.supabase, readText(input, 'targetTaskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
+			const targetTask = await reachableTask(caller, readText(input, 'targetTaskId'));
 			if (task === null || targetTask === null) return noSuchTask;
 			if (!isQueued(task) || !isQueued(targetTask)) return onlyTopLevelTasksQueue;
 			const placement = readBesidePlacement(input);

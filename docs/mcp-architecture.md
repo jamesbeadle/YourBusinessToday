@@ -6,6 +6,16 @@ they are decides what that is: staff work on the business; a project member reac
 the projects an administrator has added them to — their goals, tasks and conversations
 (see [support-conversations-architecture.md](./support-conversations-architecture.md)).
 
+> **15 September 2026.** The caller model below describes the staff-and-client shape. Since
+> the owner-and-team change (`migrations/0052_owner_and_team.sql`), a caller is an account
+> holder resolved from an OAuth token only: they own some projects and are a member of
+> others, and every project, goal, task and conversation action is gated by that standing
+> on the project in question — owners manage, everyone on the project works. `is_staff`
+> still gates the clients register and the Builder. Client access tokens and `/portal`
+> are gone; a client contact is an ordinary member. The stories and shape below still hold;
+> read "project member" as "anyone on the project" and "staff" as "the owner" where the
+> action manages the project.
+
 It adds no domain. Every action here is a second face on a command or query the site
 already runs. If an action needs something the site does not define, the domain is wrong —
 fix it there, not here.

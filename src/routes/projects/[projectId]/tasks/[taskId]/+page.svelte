@@ -23,9 +23,9 @@
 		data.task.kind === 'support' && data.task.status !== 'done'
 	);
 	const assigneeNames = $derived(
-		data.staffMembers
-			.filter((staffMember) => data.assigneeIds.includes(staffMember.id))
-			.map((staffMember) => staffMember.name)
+		data.people
+			.filter((person) => data.assigneeIds.includes(person.id))
+			.map((person) => person.name)
 	);
 </script>
 
@@ -49,7 +49,7 @@
 		<ResolveSupportTaskForm />
 	{/if}
 	<AcceptanceCriteriaSection criteria={data.criteria} />
-	{#if data.project.repositoryUrl !== ''}
+	{#if data.canSendToBuild && data.project.repositoryUrl !== ''}
 		<BuildPanel task={data.task} project={data.project} />
 	{/if}
 	<SubtaskList subtasks={data.subtasks} onAddSubtask={() => (isSubtaskModalOpen = true)} />
@@ -59,7 +59,7 @@
 		projectId={data.project.id}
 		taskId={data.task.id}
 	/>
-	<ConversationThread messages={data.messages} canMarkInternal />
+	<ConversationThread messages={data.messages} />
 	<button
 		type="button"
 		onclick={() => (isDeleteModalOpen = true)}
@@ -74,7 +74,7 @@
 	task={data.task}
 	parentTask={data.parentTask}
 	siblingTasks={data.siblingTasks}
-	staffMembers={data.staffMembers}
+	people={data.people}
 	goals={data.goals}
 	assigneeIds={data.assigneeIds}
 	roles={data.roles}

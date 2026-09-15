@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { assignableTaskRoles } from '$lib/data/taskRoles';
-	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
 	let {
-		staffMembers,
+		people,
 		assigneeIds,
 		roles
-	}: { staffMembers: StaffMember[]; assigneeIds: string[]; roles: string[] } = $props();
+	}: { people: ProjectPerson[]; assigneeIds: string[]; roles: string[] } = $props();
 </script>
 
 <div class="grid gap-4 sm:grid-cols-2">
@@ -14,16 +14,16 @@
 		<legend class="px-1 font-display text-sm tracking-widest text-chalk/50 uppercase">
 			Assignees
 		</legend>
-		{#each staffMembers as staffMember (staffMember.id)}
+		{#each people as person (person.id)}
 			<label class="flex items-center gap-3 text-sm">
 				<input
 					type="checkbox"
 					name="assigneeIds"
-					value={staffMember.id}
-					checked={assigneeIds.includes(staffMember.id)}
+					value={person.id}
+					checked={assigneeIds.includes(person.id)}
 					class="accent-go"
 				/>
-				{staffMember.name}
+				{person.name}
 			</label>
 		{/each}
 	</fieldset>

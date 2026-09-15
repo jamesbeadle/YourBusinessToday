@@ -1,6 +1,6 @@
+import { reachableTask } from '../projectAccess';
 import { deleteTask } from '$lib/server/projects/deleteTask';
 import { getSubtasks } from '$lib/server/projects/getSubtasks';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import type { McpAction } from '../actionTypes';
@@ -9,7 +9,7 @@ export const taskRemovalActions: McpAction[] = [
 	{
 		name: 'delete_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'delete a task and every subtask, criterion, checklist, attachment and message on it',
 		guidance:
@@ -17,7 +17,7 @@ export const taskRemovalActions: McpAction[] = [
 			'with the person before calling it. Finished work is marked done, not deleted.',
 		inputSchema: objectSchema({ taskId: textField('The task id') }, ['taskId']),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const subtasks = await getSubtasks(caller.supabase, task.id);
 			await deleteTask(caller.supabase, task.id);

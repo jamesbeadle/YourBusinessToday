@@ -28,13 +28,19 @@
 		isStatusModalOpen = true;
 	}
 
-	const isOwnList = $derived(data.viewedStaffMember.id === data.currentUserId);
-	const viewedUserId = $derived(isOwnList ? null : data.viewedStaffMember.id);
+	const shouldIncludeDone = $derived(data.filter === 'all');
+	const canReorder = $derived(data.filter === 'open' || data.filter === 'all');
 	const taskCountLabel = $derived(
-		`${data.taskPage.taskCount} ${data.shouldIncludeDone ? 'task' : 'open task'}${
+		`${data.taskPage.taskCount} ${shouldIncludeDone ? 'task' : 'open task'}${
 			data.taskPage.taskCount === 1 ? '' : 's'
 		}`
 	);
+	const emptyMessages: Record<typeof data.filter, string> = {
+		open: 'No tasks here — add one from a project.',
+		all: 'No tasks here — add one from a project.',
+		waiting: 'Nothing is waiting on you. No build has a migration to review.',
+		team: 'Nothing is assigned to you on anyone else’s project.'
+	};
 </script>
 
 <svelte:head>
@@ -42,25 +48,14 @@
 </svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-16">
-	<TasksPageHeader
-		staffMembers={data.staffMembers}
-		viewedStaffMember={data.viewedStaffMember}
-		currentUserId={data.currentUserId}
-		shouldIncludeDone={data.shouldIncludeDone}
-	/>
+	<TasksPageHeader filter={data.filter} />
 	<div class="flex flex-wrap items-center justify-between gap-4">
-		<GlobalTaskFilter
-			shouldIncludeDone={data.shouldIncludeDone}
-			isWaitingOnMe={data.isWaitingOnMe}
-			{viewedUserId}
-		/>
+		<GlobalTaskFilter filter={data.filter} />
 		<p class="font-display text-sm text-chalk/50">{taskCountLabel}</p>
 	</div>
 	{#if data.taskPage.tasks.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			{data.isWaitingOnMe
-				? 'Nothing is waiting on you. No build has a migration to review.'
-				: 'No tasks here — add one from a project, or switch the filter to All.'}
+			{emptyMessages[data.filter]}
 		</p>
 	{:else}
 		<ol class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">
@@ -71,7 +66,8 @@
 					positionNumber={data.taskPage.firstTaskNumber + taskIndex}
 					isFirst={data.taskPage.firstTaskNumber + taskIndex === 1}
 					isLast={data.taskPage.firstTaskNumber + taskIndex === data.taskPage.taskCount}
-					shouldIncludeDone={data.shouldIncludeDone}
+					{shouldIncludeDone}
+					{canReorder}
 					onChangeStatus={openStatusModal}
 					isExpanded={expandedTaskId === task.id}
 					onToggleDetail={toggleDetail}
@@ -84,8 +80,7 @@
 		<GlobalTaskPagination
 			pageNumber={data.taskPage.pageNumber}
 			pageCount={data.taskPage.pageCount}
-			shouldIncludeDone={data.shouldIncludeDone}
-			{viewedUserId}
+			filter={data.filter}
 		/>
 	{/if}
 </div>

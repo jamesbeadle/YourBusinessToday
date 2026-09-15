@@ -4,19 +4,31 @@ import type { McpCaller } from './resolveMcpCaller';
 export function describeContext(caller: McpCaller): string {
 	return [
 		`Signed in as ${caller.email}.`,
-		caller.role === 'staff' ? staffLine(caller) : memberLine(caller),
+		projectsLine(caller),
+		staffLine(caller),
 		`Areas you can reach: ${areasFor(caller).join(', ')}.`,
 		`${actionsFor(caller, null).length} actions are available to you — call list_actions to see them.`
-	].join('\n');
+	]
+		.filter((line) => line !== null)
+		.join('\n');
 }
 
-function staffLine(caller: McpCaller): string {
-	const standing = caller.isAdmin ? 'an administrator' : 'a member of staff';
-	return `You are ${standing} at Your Business Today, so you are working on the business, not as a client.`;
+function projectsLine(caller: McpCaller): string {
+	const owned = countOf(caller.ownedProjectIds.length, 'project');
+	const joined = countOf(caller.memberProjectIds.length, 'project');
+	return `You own ${owned} and are on the team of ${joined}. Owners manage a project and its people; everyone on it works its goals and tasks.`;
 }
 
-function memberLine(caller: McpCaller): string {
-	const count = caller.memberProjectIds.length;
-	const projects = count === 1 ? 'one project' : `${count} projects`;
-	return `You are a member of ${projects} here, and can reach only those: their goals, their tasks and the conversations on them.`;
+function staffLine(caller: McpCaller): string | null {
+	if (caller.isAdmin)
+		return 'You are an administrator at Your Business Today, with the clients register and admin as well.';
+	if (caller.isStaff)
+		return 'You are staff at Your Business Today, with the clients register as well.';
+	return null;
+}
+
+function countOf(count: number, noun: string): string {
+	if (count === 0) return `no ${noun}s`;
+	if (count === 1) return `one ${noun}`;
+	return `${count} ${noun}s`;
 }

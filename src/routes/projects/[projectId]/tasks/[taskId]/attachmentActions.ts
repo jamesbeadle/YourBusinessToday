@@ -8,12 +8,12 @@ import {
 	parseAttachmentUploadForm
 } from '$lib/server/projects/parseAttachmentUploadForm';
 import { recordTaskAttachment } from '$lib/server/projects/recordTaskAttachment';
-import { requireStaff } from '$lib/server/auth/requireStaff';
+import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import type { Actions } from './$types';
 
 export const attachmentActions: Actions = {
 	grantAttachment: async ({ locals, params, request }) => {
-		await requireStaff(locals);
+		await requireProjectAccess(locals, params.projectId);
 		const upload = parseAttachmentUploadForm(await request.formData());
 		if (upload === null) return fail(400, { message: 'A file name, type, and size are required.' });
 		if (!isWithinAttachmentLimit(upload.byteCount)) {
@@ -22,7 +22,7 @@ export const attachmentActions: Actions = {
 		return grantAttachmentUpload(locals.supabase, params.taskId, upload);
 	},
 	recordAttachment: async ({ locals, params, request }) => {
-		const user = await requireStaff(locals);
+		const { user } = await requireProjectAccess(locals, params.projectId);
 		const formData = await request.formData();
 		const upload = parseAttachmentUploadForm(formData);
 		const attachmentId = parseAttachmentId(formData);
@@ -42,7 +42,7 @@ export const attachmentActions: Actions = {
 		return {};
 	},
 	deleteAttachment: async ({ locals, params, request }) => {
-		await requireStaff(locals);
+		await requireProjectAccess(locals, params.projectId);
 		const attachmentId = parseAttachmentId(await request.formData());
 		if (attachmentId === null) return fail(400, { message: 'An attachment is required.' });
 		const attachment = await findTaskAttachment(locals.supabase, params.taskId, attachmentId);

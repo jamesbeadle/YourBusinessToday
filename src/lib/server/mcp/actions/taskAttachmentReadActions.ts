@@ -1,7 +1,7 @@
+import { reachableTask } from '../projectAccess';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { contentKindFor, describeByteCount } from '$lib/data/taskAttachmentRules';
 import { findTaskAttachment } from '$lib/server/projects/findTaskAttachment';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchAttachment } from './describeAttachments';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
@@ -22,7 +22,7 @@ export const taskAttachmentReadActions: McpAction[] = [
 	{
 		name: 'read_task_attachment',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: false,
 		summary: 'open one attachment on a task — its text, or a link to fetch the file',
 		guidance:
@@ -37,7 +37,7 @@ export const taskAttachmentReadActions: McpAction[] = [
 			['taskId', 'attachmentId']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const attachment = await findTaskAttachment(
 				caller.supabase,

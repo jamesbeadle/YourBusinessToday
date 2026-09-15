@@ -1,6 +1,5 @@
+import { minimumPasswordLength } from '$lib/data/passwordRules';
 import type { EmailAndPassword } from './emailAndPassword';
-
-export const minimumPasswordLength = 8;
 
 const missingEmailAddress = 'Enter your email address.';
 const passwordTooShort = `Passwords need at least ${minimumPasswordLength} characters.`;
@@ -17,13 +16,19 @@ export function problemWithCredentials(credentials: EmailAndPassword): string | 
 	const { emailAddress, password } = credentials;
 	const emailProblem = problemWithEmailAddress(emailAddress);
 	if (emailProblem !== null) return emailProblem;
+	return problemWithPassword(password);
+}
+
+/** A sentence for the person when the password is too weak to use, or null when it will do. */
+export function problemWithPassword(password: string): string | null {
 	if (password.length < minimumPasswordLength) return passwordTooShort;
 	return null;
 }
 
 /** A sentence for the person when the chosen password cannot be used, or null when it can. */
 export function problemWithNewPassword(password: string, confirmation: string): string | null {
-	if (password.length < minimumPasswordLength) return passwordTooShort;
+	const passwordProblem = problemWithPassword(password);
+	if (passwordProblem !== null) return passwordProblem;
 	if (password !== confirmation) return passwordsDoNotMatch;
 	return null;
 }

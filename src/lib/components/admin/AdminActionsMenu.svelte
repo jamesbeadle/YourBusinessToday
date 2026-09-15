@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AdminMenuAction from '$lib/components/admin/AdminMenuAction.svelte';
+	import AdminSetPasswordAction from '$lib/components/admin/AdminSetPasswordAction.svelte';
 	import type { AdminUserSummary } from '$lib/server/admin/getAdminUserList';
 
 	let { user }: { user: AdminUserSummary } = $props();
@@ -39,6 +40,13 @@
 			class="absolute right-0 top-full z-10 mt-2 flex w-52 flex-col rounded-2xl border
 				border-hairline bg-night p-2 shadow-xl"
 		>
+			<AdminMenuAction
+				action="?/sendPasswordReset"
+				fields={{ targetEmail: user.email }}
+				label="Send password reset"
+				onDone={close}
+			/>
+			<AdminSetPasswordAction targetEmail={user.email} onDone={close} />
 			<AdminMenuAction
 				action="?/setStaff"
 				fields={{ targetEmail: user.email, shouldBeStaff: user.isStaff ? 'false' : 'true' }}

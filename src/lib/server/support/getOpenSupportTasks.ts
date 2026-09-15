@@ -3,11 +3,16 @@ import { parseTaskRecord, type ProjectTask } from '$lib/server/projects/taskReco
 
 export type SupportTaskListing = ProjectTask & { projectName: string };
 
-export async function getOpenSupportTasks(supabase: SupabaseClient): Promise<SupportTaskListing[]> {
+/** The support tasks waiting on an answer across the projects one person owns. */
+export async function getOpenSupportTasks(
+	supabase: SupabaseClient,
+	ownerId: string
+): Promise<SupportTaskListing[]> {
 	const { data, error } = await supabase
 		.from('tasks')
-		.select('*, projects!inner(name)')
+		.select('*, projects!inner(name, owner_id)')
 		.eq('kind', 'support')
+		.eq('projects.owner_id', ownerId)
 		.neq('status', 'done')
 		.order('created_at', { ascending: false });
 	if (error) throw error;

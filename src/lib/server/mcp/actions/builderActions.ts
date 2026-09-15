@@ -1,6 +1,6 @@
+import { reachableTask } from '../projectAccess';
 import { claimBuild } from '$lib/server/builder/claimBuild';
 import { describeBuildPack } from '$lib/server/builder/describeBuildPack';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
 import { reportBuild, type BuildReport } from '$lib/server/builder/reportBuild';
@@ -46,12 +46,13 @@ export const builderActions: McpAction[] = [
 			['taskId', 'outcome', 'note']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const report = readReport(input);
 			if (report === null) return 'Outcome is in_review or failed. Say which.';
 			const recorded = await reportBuild(caller.supabase, task, report, caller.accountId);
-			if (recorded === 'not_building') return `"${task.title}" is not being built. Nothing recorded.`;
+			if (recorded === 'not_building')
+				return `"${task.title}" is not being built. Nothing recorded.`;
 			return `Recorded on "${task.title}": ${report.outcome}.`;
 		}
 	}

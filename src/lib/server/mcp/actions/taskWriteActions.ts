@@ -1,7 +1,6 @@
+import { reachableProject, reachableTask } from '../projectAccess';
 import { createTask } from '$lib/server/projects/createTask';
 import { fibonacciStoryPoints } from '$lib/data/storyPoints';
-import { getProject } from '$lib/server/projects/getProject';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchProject } from './describeProject';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
@@ -23,7 +22,7 @@ export const taskWriteActions: McpAction[] = [
 	{
 		name: 'create_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'add a task to a project, at the end of the backlog',
 		inputSchema: objectSchema(
@@ -34,12 +33,14 @@ export const taskWriteActions: McpAction[] = [
 				dueDate: textField('When it is due, as YYYY-MM-DD'),
 				goalId: textField('The goal it serves, as given by find_goals'),
 				parentTaskId: textField('The task it is a subtask of'),
-				kind: textField(`${taskKindOrder.join(' or ')} — work unless somebody is waiting on an answer`)
+				kind: textField(
+					`${taskKindOrder.join(' or ')} — work unless somebody is waiting on an answer`
+				)
 			},
 			['projectId', 'title']
 		),
 		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
+			const project = await reachableProject(caller, readText(input, 'projectId'));
 			if (project === null) return noSuchProject;
 			const title = readOptionalText(input, 'title');
 			if (title === null) return 'A task needs a title. Say what to call it and try again.';
@@ -62,7 +63,7 @@ export const taskWriteActions: McpAction[] = [
 	{
 		name: 'update_task_details',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'change a task title, details, due date, goal, kind, story points or percent done',
 		guidance:
@@ -83,7 +84,7 @@ export const taskWriteActions: McpAction[] = [
 			['taskId']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const edit = readTaskDetailsEdit(input, task);
 			if (edit === null) return wrongStoryPoints;

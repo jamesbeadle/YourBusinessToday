@@ -1,15 +1,11 @@
 <script lang="ts">
+	import type { TaskListFilter } from '$lib/data/taskListFilter';
+
 	let {
 		pageNumber,
 		pageCount,
-		shouldIncludeDone,
-		viewedUserId
-	}: {
-		pageNumber: number;
-		pageCount: number;
-		shouldIncludeDone: boolean;
-		viewedUserId: string | null;
-	} = $props();
+		filter
+	}: { pageNumber: number; pageCount: number; filter: TaskListFilter } = $props();
 
 	const hasPreviousPage = $derived(pageNumber > 1);
 	const hasNextPage = $derived(pageNumber < pageCount);
@@ -17,8 +13,7 @@
 	function pageHref(targetPageNumber: number): string {
 		const parameters = new URLSearchParams();
 		if (targetPageNumber > 1) parameters.set('page', String(targetPageNumber));
-		if (shouldIncludeDone) parameters.set('status', 'all');
-		if (viewedUserId !== null) parameters.set('user', viewedUserId);
+		if (filter !== 'open') parameters.set('status', filter);
 		const query = parameters.toString();
 		if (query === '') return '/tasks';
 		return `/tasks?${query}`;

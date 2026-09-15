@@ -8,7 +8,10 @@ import {
 	readAuthorizationRequest,
 	type AuthorizationRequest
 } from '$lib/server/oauth/authorizationRequest';
-import { resolveAccountStanding, type AccountStanding } from '$lib/server/mcp/resolveAccountStanding';
+import {
+	resolveAccountStanding,
+	type AccountStanding
+} from '$lib/server/mcp/resolveAccountStanding';
 import { supabaseServiceClient } from '$lib/server/payments/supabaseServiceClient';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -19,7 +22,7 @@ const seeOther = 303;
 const invalidConnectionRequest =
 	'That connection request is not valid. Start again from the app you are connecting.';
 const accountCannotConnect =
-	'This account is not set up to connect. Staff and client contacts can connect; ask Your Business Today if you should be one of them.';
+	'This account cannot connect. Ask Your Business Today if that is unexpected.';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const authorizationRequest = await requireAuthorizationRequest(url);
@@ -27,7 +30,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return {
 		clientName: authorizationRequest.clientName,
 		email: standing.email,
-		role: standing.role,
+		isStaff: standing.isStaff,
+		ownedProjectCount: standing.ownedProjectIds.length,
+		memberProjectCount: standing.memberProjectIds.length,
 		isAdmin: standing.isAdmin,
 		approvePath: pathForNamedAction(url, 'approve'),
 		refusePath: pathForNamedAction(url, 'refuse')
@@ -60,7 +65,7 @@ async function requireStandingThatMayConnect(
 	const { user } = await locals.safeGetSession();
 	if (user === null) redirect(seeOther, signInThenReturn(url));
 	const standing = await resolveAccountStanding(supabaseServiceClient(), user.id);
-	if (standing.role === 'none') error(forbidden, accountCannotConnect);
+	if (standing === null) error(forbidden, accountCannotConnect);
 	return standing;
 }
 

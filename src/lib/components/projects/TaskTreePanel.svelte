@@ -6,14 +6,14 @@
 	import { groupTasksByGoal } from './taskTreeGroups';
 	import { withoutDoneTasks } from './taskTreeFilters';
 	import type { Goal } from '$lib/server/goals/goalRecord';
-	import type { StaffMember } from '$lib/server/projects/getStaffDirectory';
+	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
 
 	let {
 		taskTree,
 		projectId,
 		goals,
-		staffMembers,
+		people,
 		assigneeIdsByTask,
 		onAddSubtask,
 		onChangeStatus,
@@ -22,7 +22,7 @@
 		taskTree: TaskTreeNode[];
 		projectId: string;
 		goals: Goal[];
-		staffMembers: StaffMember[];
+		people: ProjectPerson[];
 		assigneeIdsByTask: Record<string, string[]>;
 		onAddSubtask: (parentTask: TaskTreeNode) => void;
 		onChangeStatus: (task: TaskTreeNode) => void;
@@ -51,9 +51,9 @@
 
 	function assigneeNamesFor(taskId: string): string[] {
 		const assigneeIds = assigneeIdsByTask[taskId] ?? [];
-		return staffMembers
-			.filter((staffMember) => assigneeIds.includes(staffMember.id))
-			.map((staffMember) => staffMember.name);
+		return people
+			.filter((person) => assigneeIds.includes(person.id))
+			.map((person) => person.name);
 	}
 
 </script>

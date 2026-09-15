@@ -1,6 +1,6 @@
+import { notTheOwner, ownedProject } from '../projectAccess';
 import { assignProjectToClient } from '$lib/server/projects/assignProjectToClient';
 import { getClient } from '$lib/server/clients/getClient';
-import { getProject } from '$lib/server/projects/getProject';
 import { getUnassignedProjects } from '$lib/server/projects/getUnassignedProjects';
 import { objectSchema, readOptionalText, readText, textField } from '../actionTypes';
 import type { Client } from '$lib/server/clients/clientRecord';
@@ -28,7 +28,7 @@ export const projectOwnershipActions: McpAction[] = [
 			['projectId']
 		),
 		run: async (caller, input) => {
-			const project = await getProject(caller.supabase, readText(input, 'projectId'));
+			const project = await ownedProject(caller, readText(input, 'projectId'));
 			if (project === null) return await offerUnassignedProjects(caller.supabase);
 			const clientId = readOptionalText(input, 'clientId');
 			const client = clientId === null ? null : await getClient(caller.supabase, clientId);

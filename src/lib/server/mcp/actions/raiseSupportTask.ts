@@ -1,4 +1,4 @@
-import { noReachableProject, reachableProject } from '../projectAccess';
+import { noReachableProject, ownsProject, reachableProject } from '../projectAccess';
 import { countSupportTasksRaisedToday, dailyRaiseCeiling } from '$lib/server/support/raiseCeiling';
 import { createSupportTask } from '$lib/server/support/createSupportTask';
 import { getGoal } from '$lib/server/goals/getGoal';
@@ -7,7 +7,7 @@ import { longestMessageBody } from '$lib/server/conversations/postMessage';
 import { readOptionalText, readText } from '../actionTypes';
 import type { McpCaller } from '../resolveMcpCaller';
 
-const staffRole = 'member of staff at Your Business Today';
+const ownerRole = 'owner of the project';
 const memberRole = 'member of the project';
 
 export async function raiseSupportTask(
@@ -18,7 +18,8 @@ export async function raiseSupportTask(
 	if (project === null) return noReachableProject;
 	const title = readOptionalText(input, 'title');
 	const want = readOptionalText(input, 'want');
-	if (title === null || want === null) return 'Say what the matter is in a sentence, then in your own words.';
+	if (title === null || want === null)
+		return 'Say what the matter is in a sentence, then in your own words.';
 	if (want.length > longestMessageBody) {
 		return `That is too long — keep it under ${longestMessageBody} characters and link to the detail instead.`;
 	}
@@ -27,11 +28,18 @@ export async function raiseSupportTask(
 		return `You have raised ${raisedToday} today, which is the daily limit. Add to an open task instead, or try again tomorrow.`;
 	}
 	const placement = await placementWithin(caller, project.id, input);
-	if (placement === null) return 'That goal or parent task is not on this project. Call find_goals or find_tasks first.';
+	if (placement === null)
+		return 'That goal or parent task is not on this project. Call find_goals or find_tasks first.';
 	const taskId = await createSupportTask(
 		caller.supabase,
 		project,
-		{ ...placement, title, want, benefit: readText(input, 'benefit'), raiserRole: roleOf(caller) },
+		{
+			...placement,
+			title,
+			want,
+			benefit: readText(input, 'benefit'),
+			raiserRole: roleOf(caller, project.id)
+		},
 		caller.accountId
 	);
 	return `Raised "${title}" on ${project.name} (task id: ${taskId}). Someone will answer in its conversation.`;
@@ -61,7 +69,7 @@ async function isTaskOn(caller: McpCaller, taskId: string, projectId: string): P
 	return task !== null && task.projectId === projectId;
 }
 
-function roleOf(caller: McpCaller): string {
-	if (caller.role === 'staff') return staffRole;
+function roleOf(caller: McpCaller, projectId: string): string {
+	if (ownsProject(caller, projectId)) return ownerRole;
 	return memberRole;
 }

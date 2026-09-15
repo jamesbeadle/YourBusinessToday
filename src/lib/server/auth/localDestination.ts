@@ -1,8 +1,9 @@
 import { getMemberProjectIds } from '$lib/server/members/getMemberProjectIds';
+import { getOwnedProjectIds } from '$lib/server/projects/getOwnedProjectIds';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const defaultDestination = '/';
-export const clientPortalDestination = '/portal';
+export const projectsDestination = '/projects';
 
 /** Only a same-site path is safe to send someone to; anything else lands on the default. */
 export function localDestinationOrDefault(destination: string | null): string {
@@ -21,10 +22,16 @@ export async function destinationAfterSignIn(
 	return homeDestinationFor(locals.supabase, user.id);
 }
 
-/** The portal for a client's person; the front page for everyone else. */
-export async function homeDestinationFor(supabase: SupabaseClient, userId: string): Promise<string> {
-	const memberProjectIds = await getMemberProjectIds(supabase, userId);
-	if (memberProjectIds.length > 0) return clientPortalDestination;
+/** The projects page for anyone with a project to go to; the front page for everyone else. */
+export async function homeDestinationFor(
+	supabase: SupabaseClient,
+	userId: string
+): Promise<string> {
+	const [ownedProjectIds, memberProjectIds] = await Promise.all([
+		getOwnedProjectIds(supabase, userId),
+		getMemberProjectIds(supabase, userId)
+	]);
+	if (ownedProjectIds.length + memberProjectIds.length > 0) return projectsDestination;
 	return defaultDestination;
 }
 

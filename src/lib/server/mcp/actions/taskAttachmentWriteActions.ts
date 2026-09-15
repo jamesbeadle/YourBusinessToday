@@ -1,7 +1,7 @@
+import { reachableTask } from '../projectAccess';
 import { deleteTaskAttachment } from '$lib/server/projects/deleteTaskAttachment';
 import { describeByteCount } from '$lib/data/taskAttachmentRules';
 import { findTaskAttachment } from '$lib/server/projects/findTaskAttachment';
-import { getTask } from '$lib/server/projects/getTask';
 import { noSuchAttachment } from './describeAttachments';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
@@ -15,7 +15,7 @@ export const taskAttachmentWriteActions: McpAction[] = [
 	{
 		name: 'attach_file_to_task',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'attach a file to a task, from a web address or from base64 content',
 		guidance:
@@ -35,7 +35,7 @@ export const taskAttachmentWriteActions: McpAction[] = [
 			['taskId']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const file = await readAttachmentFileInput(input);
 			if (typeof file === 'string') return file;
@@ -52,7 +52,7 @@ export const taskAttachmentWriteActions: McpAction[] = [
 	{
 		name: 'remove_task_attachment',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'remove a file from a task',
 		guidance: 'This permanently deletes the file. It cannot be undone.',
@@ -61,7 +61,7 @@ export const taskAttachmentWriteActions: McpAction[] = [
 			['taskId', 'attachmentId']
 		),
 		run: async (caller, input) => {
-			const task = await getTask(caller.supabase, readText(input, 'taskId'));
+			const task = await reachableTask(caller, readText(input, 'taskId'));
 			if (task === null) return noSuchTask;
 			const attachment = await findTaskAttachment(
 				caller.supabase,

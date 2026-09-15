@@ -1,3 +1,4 @@
+import {} from '../projectAccess';
 import { addChecklistItem } from '$lib/server/projects/addChecklistItem';
 import { deleteChecklistItem } from '$lib/server/projects/deleteChecklistItem';
 import {
@@ -22,7 +23,7 @@ export const checklistItemActions: McpAction[] = [
 	{
 		name: 'add_checklist_item',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'add one step to a checklist on a task',
 		inputSchema: objectSchema(
@@ -45,7 +46,7 @@ export const checklistItemActions: McpAction[] = [
 	{
 		name: 'set_checklist_item_done',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'tick or untick one step on a checklist',
 		inputSchema: objectSchema(
@@ -66,7 +67,7 @@ export const checklistItemActions: McpAction[] = [
 	{
 		name: 'delete_checklist_item',
 		area: 'tasks',
-		audience: 'staff',
+		audience: 'everyone',
 		isWrite: true,
 		summary: 'remove one step from a checklist',
 		inputSchema: objectSchema(itemFields, itemFieldNames),

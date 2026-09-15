@@ -12,7 +12,7 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Support</h1>
 		<p class="text-chalk/70">
-			Every support task still waiting on us, across every project, newest first. Each closes
+			Every support task still waiting on an answer, across the projects you own, newest first. Each closes
 			with a resolution the person who raised it reads.
 		</p>
 	</div>

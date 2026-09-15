@@ -14,6 +14,7 @@
 		isFirst,
 		isLast,
 		shouldIncludeDone,
+		canReorder,
 		onChangeStatus,
 		isExpanded,
 		onToggleDetail
@@ -24,6 +25,7 @@
 		isFirst: boolean;
 		isLast: boolean;
 		shouldIncludeDone: boolean;
+		canReorder: boolean;
 		onChangeStatus: (task: GlobalTask) => void;
 		isExpanded: boolean;
 		onToggleDetail: (task: GlobalTask) => void;
@@ -40,15 +42,17 @@
 		: ''}"
 >
 	{#snippet children(dragHandle)}
-		{@render dragHandle()}
-		<PriorityControls
-			moveAction="?/moveTask"
-			fieldName="taskId"
-			id={task.id}
-			extraFields={{ includeDone: String(shouldIncludeDone) }}
-			{isFirst}
-			{isLast}
-		/>
+		{#if canReorder}
+			{@render dragHandle()}
+			<PriorityControls
+				moveAction="?/moveTask"
+				fieldName="taskId"
+				id={task.id}
+				extraFields={{ includeDone: String(shouldIncludeDone) }}
+				{isFirst}
+				{isLast}
+			/>
+		{/if}
 		<span class="min-w-8 text-right font-display text-sm text-chalk/40">{positionNumber}</span>
 		<div class="min-w-0 flex-1 basis-40">
 			<button

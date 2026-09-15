@@ -44,7 +44,7 @@ async function tellTheRaiser(
 ): Promise<void> {
 	const sentence = liveSentence(environmentUrl);
 	if (task.kind === 'support') await recordResolution(supabase, task.id, sentence);
-	await postMessage(supabase, { taskId: task.id }, ownerAccountId, sentence, false);
+	await postMessage(supabase, { taskId: task.id }, ownerAccountId, sentence);
 }
 
 async function recordResolution(

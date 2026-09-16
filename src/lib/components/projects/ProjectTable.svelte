@@ -30,7 +30,7 @@
 			<ProjectMobileCard
 				{project}
 				{listReorder}
-				positionNumber={firstPositionNumber + projectIndex}
+				positionNumber={project.priority}
 				isFirst={firstPositionNumber + projectIndex === 1}
 				isLast={firstPositionNumber + projectIndex === projectCount}
 				{onEdit}
@@ -38,10 +38,10 @@
 			/>
 		{/each}
 	</ul>
-	<table class="hidden w-full text-left sm:table">
+	<table class="hidden w-full table-fixed text-left sm:table">
 		<thead class="border-b border-hairline bg-carriage">
 			<tr class="font-display text-xs tracking-widest text-chalk/50 uppercase">
-				<th class="w-16 rounded-tl-2xl px-4 py-3">Order</th>
+				<th class="w-16 rounded-tl-2xl px-4 py-3">Priority</th>
 				<th class="px-4 py-3">Project</th>
 				<th class="w-28 px-4 py-3">Status</th>
 				<th class="w-28 px-4 py-3 text-right whitespace-nowrap">Open tasks</th>
@@ -53,7 +53,7 @@
 				<ProjectTableRow
 					{project}
 					{listReorder}
-					positionNumber={firstPositionNumber + projectIndex}
+					positionNumber={project.priority}
 					isFirst={firstPositionNumber + projectIndex === 1}
 					isLast={firstPositionNumber + projectIndex === projectCount}
 					isLastOnPage={projectIndex === projects.length - 1}

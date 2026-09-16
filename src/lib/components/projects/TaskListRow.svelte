@@ -82,7 +82,7 @@
 				{#each task.subtasks as subtask, subtaskIndex (subtask.id)}
 					<TaskListRow
 						task={subtask}
-						numberPath={`${numberPath}.${subtaskIndex + 1}`}
+						numberPath={`${numberPath}.${subtask.priority}`}
 						isFirst={subtaskIndex === 0}
 						isLast={subtaskIndex === task.subtasks.length - 1}
 						{listReorder}

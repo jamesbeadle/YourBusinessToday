@@ -1,73 +1,43 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { parseTaskRecord, type ProjectTask } from '$lib/server/projects/taskRecord';
-import type { TaskMoveDirection } from '$lib/server/projects/moveTask';
+import { findQueuedTask, taskQueue } from '$lib/server/projects/taskQueue';
+import { placeBeside } from '$lib/server/ordering/rankedScope';
+import { orderByRank } from '$lib/server/ordering/rankedSet';
+import type { MoveDirection } from '$lib/server/ordering/rankedSet';
+import type { ProjectTask } from '$lib/server/projects/taskRecord';
 
+/**
+ * One step up or down the queue. Done tasks keep their positions but are
+ * skipped over as neighbours unless asked for, so a step past a done task
+ * lands beside the next task still to do.
+ */
 export async function moveGlobalTask(
 	supabase: SupabaseClient,
 	taskId: string,
-	direction: TaskMoveDirection,
+	direction: MoveDirection,
 	shouldIncludeDone: boolean
 ): Promise<void> {
-	const { data, error } = await supabase
-		.from('tasks')
-		.select('*, projects!inner(owner_id)')
-		.eq('id', taskId)
-		.maybeSingle();
-	if (error) throw error;
-	if (data === null) return;
-	const task = parseTaskRecord(data);
-	if (task.globalPriority === null) return;
-	const listOwnerId = readProjectOwnerId(data);
-	const neighbour = await findGlobalNeighbour(
-		supabase,
-		task,
-		listOwnerId,
-		direction,
-		shouldIncludeDone
-	);
-	if (neighbour === null || neighbour.globalPriority === null) return;
-	await updateTask(supabase, task.id, { global_priority: neighbour.globalPriority });
-	await updateTask(supabase, neighbour.id, { global_priority: task.globalPriority });
-	if (task.projectId !== neighbour.projectId) return;
-	await updateTask(supabase, task.id, { priority: neighbour.priority });
-	await updateTask(supabase, neighbour.id, { priority: task.priority });
+	const queued = await findQueuedTask(supabase, taskId);
+	if (queued === null) return;
+	const queue = taskQueue(supabase, queued.ownerId);
+	const tasksInOrder = orderByRank(await queue.load(), queue.readRank);
+	const neighbour = neighbourOf(tasksInOrder, queued.task.id, direction, shouldIncludeDone);
+	if (neighbour === null) return;
+	const placement = direction === 'up' ? 'before' : 'after';
+	await placeBeside(queue, queued.task.id, neighbour.id, placement);
 }
 
-function readProjectOwnerId(row: Record<string, unknown>): string {
-	const project = row.projects as { owner_id: string };
-	return project.owner_id;
-}
-
-async function findGlobalNeighbour(
-	supabase: SupabaseClient,
-	task: ProjectTask,
-	listOwnerId: string,
-	direction: TaskMoveDirection,
-	shouldIncludeDone: boolean
-): Promise<ProjectTask | null> {
-	const isMovingUp = direction === 'up';
-	const topLevelTasks = supabase
-		.from('tasks')
-		.select('*, projects!inner(owner_id)')
-		.eq('projects.owner_id', listOwnerId)
-		.is('parent_task_id', null);
-	const scopedTasks = shouldIncludeDone ? topLevelTasks : topLevelTasks.neq('status', 'done');
-	const { data, error } = await scopedTasks
-		.not('global_priority', 'is', null)
-		.filter('global_priority', isMovingUp ? 'lt' : 'gt', task.globalPriority)
-		.order('global_priority', { ascending: !isMovingUp })
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	if (data === null) return null;
-	return parseTaskRecord(data);
-}
-
-async function updateTask(
-	supabase: SupabaseClient,
+function neighbourOf(
+	tasksInOrder: ProjectTask[],
 	taskId: string,
-	update: Record<string, number>
-): Promise<void> {
-	const { error } = await supabase.from('tasks').update(update).eq('id', taskId);
-	if (error) throw error;
+	direction: MoveDirection,
+	shouldIncludeDone: boolean
+): ProjectTask | null {
+	const currentIndex = tasksInOrder.findIndex((task) => task.id === taskId);
+	if (currentIndex === -1) return null;
+	const step = direction === 'up' ? -1 : 1;
+	for (let index = currentIndex + step; index >= 0 && index < tasksInOrder.length; index += step) {
+		const candidate = tasksInOrder[index];
+		if (shouldIncludeDone || candidate.status !== 'done') return candidate;
+	}
+	return null;
 }

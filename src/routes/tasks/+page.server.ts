@@ -3,7 +3,7 @@ import { getBuildsWaitingOnMe, singlePageOf } from '$lib/server/builder/getBuild
 import { getGlobalTaskPage } from '$lib/server/projects/getGlobalTaskPage';
 import { getTeamTasks } from '$lib/server/projects/getTeamTasks';
 import { moveGlobalTask } from '$lib/server/projects/moveGlobalTask';
-import { parseDropPlacement } from '$lib/server/projects/dropReorder';
+import { parseDropPlacement } from '$lib/server/ordering/rankInput';
 import { parseTaskStatus } from '$lib/data/taskStatus';
 import { placeGlobalTask } from '$lib/server/projects/placeGlobalTask';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';

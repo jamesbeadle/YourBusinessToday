@@ -1,4 +1,5 @@
 import { reachableTask } from '../projectAccess';
+import { isQueued } from '$lib/server/projects/taskQueue';
 import { moveGlobalTask } from '$lib/server/projects/moveGlobalTask';
 import { noSuchTask } from './describeTask';
 import { objectSchema, readText, textField } from '../actionTypes';
@@ -11,14 +12,12 @@ import {
 	sayWhichDirection,
 	sayWhichPlacement
 } from './orderingFields';
+import { onlyTopLevelTasksQueue, queuedTaskIdField } from './queueFields';
+import { taskQueuePriorityActions } from './taskQueuePriorityActions';
 import type { McpAction } from '../actionTypes';
-import type { ProjectTask } from '$lib/server/projects/taskRecord';
-
-const taskIdField = textField('The task id, as read_task_queue gives it');
-const onlyTopLevelTasksQueue =
-	'Only top level tasks sit in the queue. A subtask takes its order from its parent.';
 
 export const taskQueueActions: McpAction[] = [
+	...taskQueuePriorityActions,
 	{
 		name: 'move_queued_task',
 		area: 'tasks',
@@ -26,16 +25,13 @@ export const taskQueueActions: McpAction[] = [
 		isWrite: true,
 		summary: 'move a task one place up or down the queue of work across every project',
 		guidance:
-			'The queue is what read_task_queue shows: top level tasks across all projects, in the ' +
-			'order they will be worked. Done tasks are skipped over unless shouldIncludeDone is true.',
+			'Done tasks are skipped over unless shouldIncludeDone is true. To give it a particular ' +
+			'position in one call, use set_task_queue_priority.',
 		inputSchema: objectSchema(
 			{
-				taskId: taskIdField,
+				taskId: queuedTaskIdField,
 				direction: directionField,
-				shouldIncludeDone: {
-					type: 'boolean',
-					description: 'Count done tasks as neighbours'
-				}
+				shouldIncludeDone: { type: 'boolean', description: 'Count done tasks as neighbours' }
 			},
 			['taskId', 'direction']
 		),
@@ -60,7 +56,7 @@ export const taskQueueActions: McpAction[] = [
 			'the order they are worked in, not where they live.',
 		inputSchema: objectSchema(
 			{
-				taskId: taskIdField,
+				taskId: queuedTaskIdField,
 				targetTaskId: textField('The queued task to place it beside'),
 				placement: besidePlacementField
 			},
@@ -78,7 +74,3 @@ export const taskQueueActions: McpAction[] = [
 		}
 	}
 ];
-
-function isQueued(task: ProjectTask): boolean {
-	return task.parentTaskId === null && task.globalPriority !== null;
-}

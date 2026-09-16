@@ -1,9 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseTaskKind, type TaskKind } from '$lib/data/taskKind';
-import {
-	getNextGlobalPriority,
-	getNextSiblingPriority
-} from '$lib/server/projects/nextTaskPriorities';
+import { nextQueueRank, nextSiblingRank } from '$lib/server/projects/nextRanks';
 
 export type NewTaskSeed = {
 	title: string;
@@ -34,7 +31,7 @@ export async function createTask(
 	createdBy: string
 ): Promise<string> {
 	const globalPriority =
-		seed.parentTaskId === null ? await getNextGlobalPriority(supabase, projectId) : null;
+		seed.parentTaskId === null ? await nextQueueRank(supabase, projectId) : null;
 	const { data, error } = await supabase
 		.from('tasks')
 		.insert({
@@ -45,7 +42,7 @@ export async function createTask(
 			title: seed.title,
 			details: seed.details,
 			due_date: seed.dueDate,
-			priority: await getNextSiblingPriority(supabase, projectId, seed.parentTaskId),
+			priority: await nextSiblingRank(supabase, projectId, seed.parentTaskId),
 			global_priority: globalPriority,
 			created_by: createdBy
 		})

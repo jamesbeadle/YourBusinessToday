@@ -16,6 +16,7 @@ export function describeTask(workspace: TaskWorkspace): string {
 	return [
 		headline(task),
 		`Project: ${workspace.project.name} (id: ${workspace.project.id})`,
+		priorityLine(task),
 		`Goal: ${goalTitle(workspace)}. Due: ${task.dueDate ?? 'no date set'}.`,
 		raisedByLine(workspace),
 		teamLine(workspace),
@@ -34,6 +35,12 @@ function headline(task: ProjectTask): string {
 	const status = taskStatusLabelFor(task.kind, task.status);
 	const progress = `${task.storyPoints} points, ${task.completionPercent}% done`;
 	return `${task.title} — ${taskKindLabels[task.kind]} task, ${status}, ${progress} (id: ${task.id})`;
+}
+
+function priorityLine(task: ProjectTask): string {
+	if (task.parentTaskId !== null) return `Priority ${task.priority} among the subtasks of its parent.`;
+	const queuePosition = task.globalPriority === null ? '' : `; position ${task.globalPriority} in the owner\u2019s queue`;
+	return `Priority ${task.priority} among the project\u2019s top level tasks${queuePosition}.`;
 }
 
 function goalTitle(workspace: TaskWorkspace): string {

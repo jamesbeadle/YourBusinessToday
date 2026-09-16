@@ -34,7 +34,7 @@
 					{project.name}
 				</span>
 				{#if project.description !== ''}
-					<span class="text-sm text-chalk/50">{project.description}</span>
+					<span class="truncate text-sm text-chalk/50" title={project.description}>{project.description}</span>
 				{/if}
 			</a>
 			<ProjectStatusBadge status={project.status} />

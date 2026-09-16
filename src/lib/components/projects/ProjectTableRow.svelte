@@ -45,11 +45,11 @@
 				<span class="font-display text-sm text-chalk/40">{positionNumber}</span>
 			</div>
 		</td>
-		<td class="px-4 py-3 transition group-hover/row:bg-carriage/60">
-			<a href={`/projects/${project.id}`} class="group flex flex-col gap-0.5">
-				<span class="font-display font-medium transition group-hover:text-go">{project.name}</span>
+		<td class="min-w-0 px-4 py-3 transition group-hover/row:bg-carriage/60">
+			<a href={`/projects/${project.id}`} class="group flex min-w-0 flex-col gap-0.5">
+				<span class="truncate font-display font-medium transition group-hover:text-go">{project.name}</span>
 				{#if project.description !== ''}
-					<span class="text-sm text-chalk/50">{project.description}</span>
+					<span class="truncate text-sm text-chalk/50" title={project.description}>{project.description}</span>
 				{/if}
 			</a>
 		</td>

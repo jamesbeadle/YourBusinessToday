@@ -7,7 +7,9 @@ import { getProject } from '$lib/server/projects/getProject';
 import { getThread } from '$lib/server/conversations/getThread';
 import { messageFormRefusal, readMessageForm } from '$lib/server/conversations/readMessageForm';
 import { postMessage } from '$lib/server/conversations/postMessage';
+import { parseRank } from '$lib/server/ordering/rankInput';
 import { readGoalUpdate, updateGoal } from '$lib/server/goals/updateGoal';
+import { setGoalPriority } from '$lib/server/goals/setGoalPriority';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { withAuthorNames } from '$lib/server/conversations/withAuthorNames';
 import type { Actions, PageServerLoad } from './$types';
@@ -32,9 +34,12 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	saveGoal: async ({ locals, params, request }) => {
 		await requireProjectAccess(locals, params.projectId);
-		const update = readGoalUpdate(await request.formData());
+		const formData = await request.formData();
+		const update = readGoalUpdate(formData);
 		if (update === null) return fail(400, { message: 'A goal needs a title.' });
 		await updateGoal(locals.supabase, params.goalId, update);
+		const priority = parseRank(formData.get('priority'));
+		if (priority !== null) await setGoalPriority(locals.supabase, params.goalId, priority);
 		return { message: 'Goal saved.' };
 	},
 	postMessage: async ({ locals, params, request }) => {

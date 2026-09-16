@@ -47,7 +47,7 @@
 		{#each group.tasks as task, taskIndex (task.id)}
 			<TaskListRow
 				{task}
-				numberPath={`${taskIndex + 1}`}
+				numberPath={`${task.priority}`}
 				isFirst={taskIndex === 0}
 				isLast={taskIndex === group.tasks.length - 1}
 				{listReorder}

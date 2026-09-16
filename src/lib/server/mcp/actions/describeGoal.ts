@@ -10,7 +10,8 @@ export const noSuchGoal = 'No goal you can reach has that id. Call find_goals on
 
 export function goalLine(goal: Goal): string {
 	const measure = goal.measure === '' ? 'no measure written yet' : `measured by: ${goal.measure}`;
-	return `${goal.title} — ${goalStatusLabels[goal.status]}, ${measure} (id: ${goal.id})`;
+	const place = `priority ${goal.priority}, id: ${goal.id}`;
+	return `${goal.title} — ${goalStatusLabels[goal.status]}, ${measure} (${place})`;
 }
 
 export function describeGoal(
@@ -30,5 +31,5 @@ function taskLines(tasks: ProjectTask[]): string[] {
 export function taskLine(task: ProjectTask): string {
 	const kind = taskKindLabels[task.kind];
 	const status = taskStatusLabelFor(task.kind, task.status);
-	return `- ${task.title} — ${kind} task, ${status} (id: ${task.id})`;
+	return `- ${task.title} — ${kind} task, ${status} (priority ${task.priority}, id: ${task.id})`;
 }

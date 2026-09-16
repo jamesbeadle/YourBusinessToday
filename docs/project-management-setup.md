@@ -59,14 +59,22 @@ Run these in the Supabase SQL editor, in order (each is run-once):
 
 ## The models
 
-- **Priority** is a per-project integer; the backlog is always ordered by it. Moving a
-  task swaps its priority with its neighbour, so reordering never renumbers the backlog.
-- **Global priority** is one integer sequence per staff member, across every top-level
-  task in that person's projects — the order of `/tasks`. The two orderings stay in step: swapping neighbours in
-  a project backlog swaps their global priorities too, and a move in the global queue
-  past a task from the same project swaps their backlog priorities. New top-level tasks
-  join the bottom of the queue; subtasks stay out of it. Requires a one-time run of
-  [`migrations/0007_global_task_priority.sql`](../migrations/0007_global_task_priority.sql).
+- **Priority** is a rank. Every ordered layer — projects on an owner's board, goals on
+  a project, tasks under one parent (top level or subtasks), and the queue across every
+  project — is a *ranked set*: within its scope the numbers are always exactly 1..n, 1 at
+  the top. Setting a number puts the row there and shifts the others; up/down and
+  before/after are the same operation. Deleting, reparenting or moving a project between
+  owners closes the gap it leaves. The engine is `src/lib/server/ordering/`; each layer
+  has a scope file (`projectBoard`, `goalOrder`, `taskSiblings`, `taskQueue`) and a
+  `set…Priority` command. Migration
+  [`0056_dense_priority_ranks.sql`](../migrations/0056_dense_priority_ranks.sql)
+  compacted the existing values once and taught `transfer_project_ownership` to re-rank.
+- **Queue position** (`global_priority`) is the rank across every top-level task on the
+  projects one person owns — the order of `/tasks`. The two orderings never contradict:
+  reordering siblings deals their queue positions out again in the new order, and a queue
+  move re-deals the moved task's project backlog to match. New top-level tasks join the
+  bottom of the queue; subtasks stay out of it. Done tasks keep their position, so the
+  numbers on `/tasks` may skip when done tasks are hidden.
 - **Completion** is a manual 0–100 % on each task. Phase and sprint percentages are
   derived, weighted by story points, so a 5-point task moves the bar more than a
   1-point one. Marking a task done sets it to 100 %.

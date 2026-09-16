@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
+	import PriorityField from '$lib/components/site/PriorityField.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { projectStatusLabels, projectStatusOrder } from '$lib/data/projectStatus';
 	import type { Project } from '$lib/server/projects/projectRecord';
@@ -30,14 +31,17 @@
 		<span class={labelClasses}>Description</span>
 		<textarea name="description" rows="3" class={fieldClasses}>{project.description}</textarea>
 	</label>
-	<label class="flex max-w-48 flex-col gap-1">
-		<span class={labelClasses}>Status</span>
-		<select name="status" value={project.status} class={fieldClasses}>
-			{#each projectStatusOrder as statusValue (statusValue)}
-				<option value={statusValue}>{projectStatusLabels[statusValue]}</option>
-			{/each}
-		</select>
-	</label>
+	<div class="flex flex-wrap gap-4">
+		<label class="flex max-w-48 flex-col gap-1">
+			<span class={labelClasses}>Status</span>
+			<select name="status" value={project.status} class={fieldClasses}>
+				{#each projectStatusOrder as statusValue (statusValue)}
+					<option value={statusValue}>{projectStatusLabels[statusValue]}</option>
+				{/each}
+			</select>
+		</label>
+		<PriorityField priority={project.priority} among="of your board" />
+	</div>
 	<label class="flex flex-col gap-1">
 		<span class={labelClasses}>Repository</span>
 		<input name="repositoryUrl" value={project.repositoryUrl} placeholder="https://github.com/..." class={fieldClasses} />

@@ -48,6 +48,12 @@
 				{/if}
 			</div>
 			<div class={factClasses}>
+				<span class={factLabelClasses}>Priority</span>
+				<span class="font-display text-sm">
+					{task.priority}{task.globalPriority === null ? '' : ` · queue ${task.globalPriority}`}
+				</span>
+			</div>
+			<div class={factClasses}>
 				<span class={factLabelClasses}>Points</span>
 				<span class="font-display text-sm">{task.storyPoints}</span>
 			</div>

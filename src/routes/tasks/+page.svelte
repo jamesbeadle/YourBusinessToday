@@ -63,7 +63,7 @@
 				<GlobalTaskRow
 					{task}
 					{listReorder}
-					positionNumber={data.taskPage.firstTaskNumber + taskIndex}
+					positionNumber={task.globalPriority ?? data.taskPage.firstTaskNumber + taskIndex}
 					isFirst={data.taskPage.firstTaskNumber + taskIndex === 1}
 					isLast={data.taskPage.firstTaskNumber + taskIndex === data.taskPage.taskCount}
 					{shouldIncludeDone}

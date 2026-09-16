@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import PriorityField from '$lib/components/site/PriorityField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import TaskGoalAndKindFields from './TaskGoalAndKindFields.svelte';
 	import TaskMoveField from './TaskMoveField.svelte';
@@ -73,6 +74,7 @@
 		</label>
 	</div>
 	<TaskPlanningFields {task} />
+	<PriorityField priority={task.priority} among={parentTask === null ? 'of the project’s tasks' : 'of the subtasks'} />
 	<TaskGoalAndKindFields {goals} goalId={task.goalId} kind={task.kind} />
 	<TaskMoveField {parentTask} {siblingTasks} />
 	<UserStoryFields {task} />

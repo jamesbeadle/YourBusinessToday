@@ -4,8 +4,9 @@ import { deleteProject } from '$lib/server/projects/deleteProject';
 import { getProjectList } from '$lib/server/projects/getProjectList';
 import { getTeamProjects } from '$lib/server/members/getTeamProjects';
 import { moveProject, type ProjectMoveDirection } from '$lib/server/projects/moveProject';
-import { parseDropPlacement } from '$lib/server/projects/dropReorder';
+import { parseDropPlacement, parseRank } from '$lib/server/ordering/rankInput';
 import { placeProject } from '$lib/server/projects/placeProject';
+import { setProjectPriority } from '$lib/server/projects/setProjectPriority';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { requireProjectOwner } from '$lib/server/auth/requireProjectOwner';
 import { requireUser } from '$lib/server/auth/requireUser';
@@ -42,8 +43,12 @@ export const actions: Actions = {
 		if (projectId === '' || edit === null) {
 			return fail(400, { message: 'A project and a name are required.' });
 		}
-		await requireProjectAccess(locals, projectId);
+		const access = await requireProjectAccess(locals, projectId);
 		await updateProjectDetails(locals.supabase, projectId, edit);
+		const priority = parseRank(formData.get('priority'));
+		if (priority !== null && access.isOwner) {
+			await setProjectPriority(locals.supabase, projectId, priority);
+		}
 		return { message: `Project "${edit.name}" saved.` };
 	},
 	moveProject: async ({ locals, request }) => {

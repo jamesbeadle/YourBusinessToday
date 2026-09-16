@@ -66,9 +66,9 @@ export const taskReadActions: McpAction[] = [
 
 function describeQueue(taskPage: GlobalTaskPage): string {
 	const place = `page ${taskPage.pageNumber} of ${taskPage.pageCount}`;
-	const heading = `Your queue — ${place}, ${taskPage.taskCount} tasks`;
+	const heading = `Your queue — ${place}, ${taskPage.taskCount} tasks. Numbers are queue positions (done tasks keep theirs, so they may skip); set_task_queue_priority takes them.`;
 	const lines = taskPage.tasks.map((task, index) =>
-		queueLine(task, taskPage.firstTaskNumber + index)
+		queueLine(task, task.globalPriority ?? taskPage.firstTaskNumber + index)
 	);
 	return [heading, ...lines].join('\n');
 }

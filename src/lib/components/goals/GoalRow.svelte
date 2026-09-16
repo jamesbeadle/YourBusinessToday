@@ -11,6 +11,7 @@
 </script>
 
 <li class="flex flex-wrap items-center gap-x-4 gap-y-2">
+	<span class="min-w-6 text-right font-display text-sm text-chalk/40">{goalSummary.priority}</span>
 	<a
 		href={`/projects/${goalSummary.projectId}/goals/${goalSummary.id}`}
 		class="w-full truncate font-display text-sm transition hover:text-go sm:w-64"

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { nextGoalRank } from '$lib/server/projects/nextRanks';
 
 export type NewGoalSeed = {
 	title: string;
@@ -23,23 +24,11 @@ export async function createGoal(
 			project_id: projectId,
 			title: seed.title,
 			measure: seed.measure,
-			priority: (await getHighestPriority(supabase, projectId)) + 1,
+			priority: await nextGoalRank(supabase, projectId),
 			created_by: createdBy
 		})
 		.select('id')
 		.single();
 	if (error) throw error;
 	return data.id;
-}
-
-async function getHighestPriority(supabase: SupabaseClient, projectId: string): Promise<number> {
-	const { data, error } = await supabase
-		.from('goals')
-		.select('priority')
-		.eq('project_id', projectId)
-		.order('priority', { ascending: false })
-		.limit(1)
-		.maybeSingle();
-	if (error) throw error;
-	return data?.priority ?? 0;
 }

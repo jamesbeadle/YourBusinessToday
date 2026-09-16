@@ -13,7 +13,8 @@ const subtaskIndent = '  ';
 
 export function describeProjectLine(project: ProjectSummary): string {
 	const status = projectStatusLabels[project.status];
-	return `${project.name} — ${status}, ${project.openTaskCount} open (id: ${project.id})`;
+	const place = `priority ${project.priority}, id: ${project.id}`;
+	return `${project.name} — ${status}, ${project.openTaskCount} open (${place})`;
 }
 
 export function describeProject(
@@ -27,10 +28,10 @@ export function describeProject(
 		project.description === '' ? 'No description yet.' : project.description,
 		codeLine(project, cadenceLine),
 		'',
-		'Goals:',
+		'Goals, in priority order:',
 		...goalLines(goals),
 		'',
-		'Backlog:',
+		'Backlog, in priority order (a subtask\u2019s priority is its place under its parent):',
 		...backlogLines(backlog, goals)
 	].join('\n');
 }
@@ -61,5 +62,5 @@ function taskLine(task: TaskTreeNode, indent: string, goals: Goal[]): string {
 	const status = taskStatusLabelFor(task.kind, task.status);
 	const goal = goals.find((candidate) => candidate.id === task.goalId);
 	const underGoal = goal === undefined ? '' : `, under "${goal.title}"`;
-	return `${indent}${task.title} — ${taskKindLabels[task.kind]} task, ${status}, ${task.storyPoints} points${underGoal} (id: ${task.id})`;
+	return `${indent}${task.title} — ${taskKindLabels[task.kind]} task, ${status}, ${task.storyPoints} points${underGoal} (priority ${task.priority}, id: ${task.id})`;
 }

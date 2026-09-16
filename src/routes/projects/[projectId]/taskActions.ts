@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { createTask, readNewTaskSeed } from '$lib/server/projects/createTask';
 import { getTask } from '$lib/server/projects/getTask';
 import { moveTask, type TaskMoveDirection } from '$lib/server/projects/moveTask';
-import { parseDropPlacement } from '$lib/server/projects/dropReorder';
+import { parseDropPlacement } from '$lib/server/ordering/rankInput';
 import { parseTaskStatus } from '$lib/data/taskStatus';
 import { placeTask } from '$lib/server/projects/placeTask';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';

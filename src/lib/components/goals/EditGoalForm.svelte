@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FormErrorNote from '$lib/components/site/FormErrorNote.svelte';
+	import PriorityField from '$lib/components/site/PriorityField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { goalStatusLabels, goalStatusOrder } from '$lib/data/goalStatus';
@@ -23,14 +24,17 @@
 		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Measure</span>
 		<textarea name="measure" rows="3" class={fieldClasses}>{goal.measure}</textarea>
 	</label>
-	<label class="flex flex-col gap-1">
-		<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Status</span>
-		<select name="status" value={goal.status} class={fieldClasses}>
-			{#each goalStatusOrder as statusOption (statusOption)}
-				<option value={statusOption}>{goalStatusLabels[statusOption]}</option>
-			{/each}
-		</select>
-	</label>
+	<div class="flex flex-wrap gap-4">
+		<label class="flex flex-col gap-1">
+			<span class="font-display text-sm tracking-widest text-chalk/50 uppercase">Status</span>
+			<select name="status" value={goal.status} class={fieldClasses}>
+				{#each goalStatusOrder as statusOption (statusOption)}
+					<option value={statusOption}>{goalStatusLabels[statusOption]}</option>
+				{/each}
+			</select>
+		</label>
+		<PriorityField priority={goal.priority} among="of the project’s goals" />
+	</div>
 	<FormErrorNote message={tracker.errorMessage} />
 	<SubmitButton
 		isSaving={tracker.isSaving}

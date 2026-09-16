@@ -7,9 +7,15 @@
 
 <section class="flex flex-col gap-4 rounded-2xl border border-hairline bg-carriage p-6">
 	<div class="flex flex-wrap items-center justify-between gap-4">
-		<div class="flex flex-col gap-1">
-			<span class="font-display text-xs tracking-widest text-chalk/50 uppercase">Status</span>
-			<GoalStatusPill status={goal.status} />
+		<div class="flex flex-wrap gap-6">
+			<div class="flex flex-col gap-1">
+				<span class="font-display text-xs tracking-widest text-chalk/50 uppercase">Status</span>
+				<GoalStatusPill status={goal.status} />
+			</div>
+			<div class="flex flex-col gap-1">
+				<span class="font-display text-xs tracking-widest text-chalk/50 uppercase">Priority</span>
+				<span class="font-display text-sm">{goal.priority}</span>
+			</div>
 		</div>
 		<button
 			type="button"

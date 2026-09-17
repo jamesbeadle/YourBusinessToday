@@ -1,22 +1,19 @@
 <script lang="ts">
-	import { projectStatusLabels, projectStatusOrder, type ProjectStatus } from '$lib/data/projectStatus';
+	import {
+		projectStatusFilterLabel,
+		projectStatusFilterOrder,
+		type ProjectStatusFilter
+	} from '$lib/data/projectStatusFilter';
 
 	let {
 		searchText = $bindable(),
 		selectedStatus = $bindable()
-	}: { searchText: string; selectedStatus: ProjectStatus | 'all' } = $props();
-
-	const statusFilters: (ProjectStatus | 'all')[] = ['all', ...projectStatusOrder];
-
-	function filterLabel(statusFilter: ProjectStatus | 'all'): string {
-		if (statusFilter === 'all') return 'All';
-		return projectStatusLabels[statusFilter];
-	}
+	}: { searchText: string; selectedStatus: ProjectStatusFilter } = $props();
 </script>
 
 <div class="flex flex-wrap items-center justify-between gap-4">
 	<div class="flex flex-wrap items-center gap-2">
-		{#each statusFilters as statusFilter (statusFilter)}
+		{#each projectStatusFilterOrder as statusFilter (statusFilter)}
 			<button
 				type="button"
 				onclick={() => (selectedStatus = statusFilter)}
@@ -26,7 +23,7 @@
 						: 'border-hairline text-chalk/60 hover:border-chalk/40 hover:text-chalk'
 				}`}
 			>
-				{filterLabel(statusFilter)}
+				{projectStatusFilterLabel(statusFilter)}
 			</button>
 		{/each}
 	</div>

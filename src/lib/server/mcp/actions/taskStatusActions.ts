@@ -13,7 +13,7 @@ export const taskStatusActions: McpAction[] = [
 		area: 'tasks',
 		audience: 'everyone',
 		isWrite: true,
-		summary: 'move a task between backlog, in progress and done',
+		summary: 'move a task between backlog, in progress, on hold and done',
 		guidance:
 			'Marking a task done takes it to 100 per cent, whatever it was before. A support task ' +
 			'closes through resolve_support_task instead, so its raiser gets an answer.',

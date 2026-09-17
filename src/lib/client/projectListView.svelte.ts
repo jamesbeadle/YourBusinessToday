@@ -1,4 +1,8 @@
-import type { ProjectStatus } from '$lib/data/projectStatus';
+import {
+	filterWhenProjectsOpen,
+	matchesProjectStatusFilter,
+	type ProjectStatusFilter
+} from '$lib/data/projectStatusFilter';
 import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
 const projectsPerPage = 12;
@@ -10,7 +14,7 @@ const projectsPerPage = 12;
  */
 export class ProjectListView {
 	#searchText = $state('');
-	#selectedStatus = $state<ProjectStatus | 'all'>('all');
+	#selectedStatus = $state<ProjectStatusFilter>(filterWhenProjectsOpen);
 	#pageNumber = $state(1);
 	#allProjects: () => ProjectSummary[];
 
@@ -27,11 +31,11 @@ export class ProjectListView {
 		this.#pageNumber = 1;
 	}
 
-	get selectedStatus(): ProjectStatus | 'all' {
+	get selectedStatus(): ProjectStatusFilter {
 		return this.#selectedStatus;
 	}
 
-	set selectedStatus(value: ProjectStatus | 'all') {
+	set selectedStatus(value: ProjectStatusFilter) {
 		this.#selectedStatus = value;
 		this.#pageNumber = 1;
 	}
@@ -70,8 +74,7 @@ export class ProjectListView {
 	}
 
 	#matchesFilters(project: ProjectSummary): boolean {
-		const matchesStatus =
-			this.#selectedStatus === 'all' || project.status === this.#selectedStatus;
+		const matchesStatus = matchesProjectStatusFilter(project.status, this.#selectedStatus);
 		const matchesSearch = project.name
 			.toLowerCase()
 			.includes(this.#searchText.trim().toLowerCase());

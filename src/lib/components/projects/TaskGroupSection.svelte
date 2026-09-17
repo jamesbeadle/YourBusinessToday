@@ -1,5 +1,7 @@
 <script lang="ts">
+	import TaskGroupHeader from './TaskGroupHeader.svelte';
 	import TaskListRow from './TaskListRow.svelte';
+	import { countTasksInTree } from './taskTreeCounts';
 	import type { ListReorder } from '$lib/client/listReorder.svelte';
 	import type { TaskGroup } from './taskTreeGroups';
 	import type { TaskRowActions } from './taskRowActions';
@@ -16,29 +18,13 @@
 		actions: TaskRowActions;
 	} = $props();
 
-	const taskCountLabel = $derived(
-		group.tasks.length === 1 ? '1 task' : `${group.tasks.length} tasks`
-	);
+	const taskCount = $derived(countTasksInTree(group.tasks));
+	const taskCountLabel = $derived(taskCount === 1 ? '1 task' : `${taskCount} tasks`);
 </script>
 
-<section class="flex flex-col gap-2">
-	<div class="flex items-baseline justify-between gap-4 px-1">
-		{#if group.goal === null}
-			<h3 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Other tasks</h3>
-		{:else}
-			<a
-				href={`/projects/${projectId}/goals/${group.goal.id}`}
-				class="truncate font-display text-sm tracking-widest text-go uppercase transition hover:brightness-125"
-			>
-				{group.goal.title}
-			</a>
-		{/if}
-		<span class="shrink-0 text-xs text-chalk/40">{taskCountLabel}</span>
-	</div>
-	<ol
-		class="flex flex-col divide-y divide-hairline overflow-hidden rounded-2xl border
-			border-hairline bg-carriage/30"
-	>
+<section class="overflow-hidden rounded-2xl border border-hairline bg-carriage/40">
+	<TaskGroupHeader goal={group.goal} {projectId} {taskCountLabel} />
+	<ol class="flex flex-col divide-y divide-hairline">
 		{#each group.tasks as task, taskIndex (task.id)}
 			<TaskListRow
 				{task}

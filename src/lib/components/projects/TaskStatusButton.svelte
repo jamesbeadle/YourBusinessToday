@@ -11,6 +11,7 @@
 	const statusStyles: Record<TaskStatus, string> = {
 		backlog: 'border-hairline text-chalk/70 hover:border-chalk/50',
 		in_progress: 'border-caution/60 text-caution hover:border-caution',
+		on_hold: 'border-signal/50 text-signal/90 hover:border-signal',
 		done: 'border-go/60 text-go hover:border-go'
 	};
 </script>

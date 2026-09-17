@@ -4,36 +4,64 @@
 	let {
 		goal,
 		projectId,
-		taskCountLabel
-	}: { goal: Goal | null; projectId: string; taskCountLabel: string } = $props();
+		taskCountLabel,
+		isOpen,
+		panelId,
+		onToggle
+	}: {
+		goal: Goal | null;
+		projectId: string;
+		taskCountLabel: string;
+		isOpen: boolean;
+		panelId: string;
+		onToggle: () => void;
+	} = $props();
 
 	const badgeClasses = $derived(
 		goal === null ? 'border-hairline text-chalk/50' : 'border-go/40 bg-go/10 text-go'
 	);
+	const groupTitle = $derived(goal?.title ?? 'Other tasks');
 </script>
 
 <header
-	class="flex items-center justify-between gap-4 border-b border-hairline bg-night/50 px-4 py-3"
+	class="flex items-center gap-2 border-hairline bg-night/50 px-2 py-2 sm:px-3"
+	class:border-b={isOpen}
 >
-	<div class="flex min-w-0 items-center gap-3">
+	<button
+		type="button"
+		onclick={onToggle}
+		aria-expanded={isOpen}
+		aria-controls={panelId}
+		class="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-1.5 text-left transition
+			hover:bg-carriage/60"
+	>
+		<span
+			aria-hidden="true"
+			class="inline-block shrink-0 font-display text-xs text-chalk/40 transition-transform"
+			class:rotate-90={isOpen}
+		>
+			▶
+		</span>
 		<span
 			class={`shrink-0 rounded-full border px-2.5 py-0.5 font-display text-xs whitespace-nowrap
 				${badgeClasses}`}
 		>
 			{goal === null ? 'No goal' : 'Goal'}
 		</span>
-		{#if goal === null}
-			<h3 class="truncate font-display font-medium text-chalk/70">Other tasks</h3>
-		{:else}
-			<a
-				href={`/projects/${projectId}/goals/${goal.id}`}
-				class="truncate font-display font-medium transition hover:text-go"
-			>
-				{goal.title}
-			</a>
-		{/if}
-	</div>
-	<span class="shrink-0 font-display text-xs whitespace-nowrap text-chalk/50">
-		{taskCountLabel}
-	</span>
+		<span class="truncate font-display font-medium">{groupTitle}</span>
+		<span class="ml-auto shrink-0 font-display text-xs whitespace-nowrap text-chalk/50">
+			{taskCountLabel}
+		</span>
+	</button>
+	{#if goal !== null}
+		<a
+			href={`/projects/${projectId}/goals/${goal.id}`}
+			title="Open the goal"
+			aria-label={`Open the goal ${goal.title}`}
+			class="shrink-0 rounded-full border border-hairline px-2.5 py-1 font-display text-xs
+				text-chalk/50 transition hover:border-go hover:text-go"
+		>
+			→
+		</a>
+	{/if}
 </header>

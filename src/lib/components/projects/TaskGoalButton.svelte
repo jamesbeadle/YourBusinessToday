@@ -13,7 +13,7 @@
 	type="button"
 	onclick={onOpenPicker}
 	title="Change goal"
-	class={`max-w-36 truncate rounded-full border px-3 py-1.5 font-display text-xs transition ${goalClasses}`}
+	class={`max-w-40 truncate rounded-full border px-2.5 py-0.5 font-display text-xs transition ${goalClasses}`}
 >
 	{goalTitle ?? 'No goal'}
 </button>

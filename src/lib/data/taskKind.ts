@@ -13,6 +13,7 @@ export const taskKindLabels: Record<TaskKind, string> = {
 const supportTaskStatusLabels: Record<TaskStatus, string> = {
 	backlog: 'Awaiting answer',
 	in_progress: 'Being looked at',
+	on_hold: 'On hold',
 	done: 'Resolved'
 };
 

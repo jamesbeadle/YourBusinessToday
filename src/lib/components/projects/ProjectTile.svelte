@@ -2,14 +2,15 @@
 	import PriorityControls from './PriorityControls.svelte';
 	import ProjectActionsMenu from './ProjectActionsMenu.svelte';
 	import ProjectStatusBadge from './ProjectStatusBadge.svelte';
+	import ProjectTileProgress from './ProjectTileProgress.svelte';
 	import ReorderableRow from '$lib/components/site/ReorderableRow.svelte';
+	import { projectTileClasses, projectTilePriorityClasses } from './projectTileStyles';
 	import type { ListReorder } from '$lib/client/listReorder.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
 	let {
 		project,
 		listReorder,
-		positionNumber,
 		isFirst,
 		isLast,
 		onEdit,
@@ -17,7 +18,6 @@
 	}: {
 		project: ProjectSummary;
 		listReorder: ListReorder;
-		positionNumber: number;
 		isFirst: boolean;
 		isLast: boolean;
 		onEdit: (project: ProjectSummary) => void;
@@ -25,22 +25,30 @@
 	} = $props();
 </script>
 
-<ReorderableRow {listReorder} rowId={project.id} class="flex flex-col gap-3 p-4">
+<ReorderableRow {listReorder} rowId={project.id} class={projectTileClasses}>
 	{#snippet children(dragHandle)}
-		<div class="flex items-start justify-between gap-3">
-			<a href={`/projects/${project.id}`} class="group flex min-w-0 flex-col gap-0.5">
-				<span class="font-display font-medium transition group-hover:text-go">
-					<span class="text-chalk/40">{positionNumber}.</span>
-					{project.name}
-				</span>
-				{#if project.description !== ''}
-					<span class="truncate text-sm text-chalk/50" title={project.description}>{project.description}</span>
-				{/if}
-			</a>
+		<a href={`/projects/${project.id}`} class="absolute inset-0 rounded-2xl">
+			<span class="sr-only">Open {project.name}</span>
+		</a>
+		<div class="flex items-center justify-between gap-3">
+			<span title="Priority" class={projectTilePriorityClasses}>{project.priority}</span>
 			<ProjectStatusBadge status={project.status} />
 		</div>
-		<div class="flex items-center justify-between gap-3">
-			<div class="flex items-center gap-3">
+		<div class="flex flex-col gap-1">
+			<h3 class="font-display text-lg leading-snug font-medium transition group-hover/tile:text-go">
+				{project.name}
+			</h3>
+			{#if project.description !== ''}
+				<p class="line-clamp-2 text-sm text-chalk/60">{project.description}</p>
+			{/if}
+		</div>
+		<ProjectTileProgress
+			openTaskCount={project.openTaskCount}
+			taskCount={project.taskCount}
+			completionPercent={project.completionPercent}
+		/>
+		<div class="relative flex items-center justify-between gap-2 border-t border-hairline pt-3">
+			<div class="flex items-center gap-1">
 				{@render dragHandle()}
 				<PriorityControls
 					moveAction="?/moveProject"
@@ -49,9 +57,6 @@
 					{isFirst}
 					{isLast}
 				/>
-				<span class="font-display text-sm text-chalk/60">
-					{project.openTaskCount} open {project.openTaskCount === 1 ? 'task' : 'tasks'}
-				</span>
 			</div>
 			<ProjectActionsMenu
 				projectName={project.name}

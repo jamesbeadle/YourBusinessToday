@@ -7,6 +7,7 @@
 	import { withoutDoneTasks } from './taskTreeFilters';
 	import type { Goal } from '$lib/server/goals/goalRecord';
 	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
+	import type { TaskRowActions } from './taskRowActions';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
 
 	let {
@@ -45,21 +46,27 @@
 			: 'No tasks yet — add one.'
 	);
 
+	const actions = $derived<TaskRowActions>({
+		assigneeNamesFor,
+		goalTitleFor,
+		onAddSubtask,
+		onChangeStatus,
+		onChangeGoal
+	});
+
 	function goalTitleFor(goalId: string | null): string | null {
 		return goals.find((goal) => goal.id === goalId)?.title ?? null;
 	}
 
 	function assigneeNamesFor(taskId: string): string[] {
 		const assigneeIds = assigneeIdsByTask[taskId] ?? [];
-		return people
-			.filter((person) => assigneeIds.includes(person.id))
-			.map((person) => person.name);
+		return people.filter((person) => assigneeIds.includes(person.id)).map((person) => person.name);
 	}
-
 </script>
 
 <div class="flex flex-col gap-4">
-	<div class="flex justify-end">
+	<div class="flex flex-wrap items-center justify-between gap-3">
+		<h2 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Backlog</h2>
 		<DoneTaskFilter bind:shouldIncludeDone />
 	</div>
 	{#if visibleTasks.length === 0}
@@ -69,16 +76,7 @@
 	{:else}
 		<div class="flex flex-col gap-6">
 			{#each taskGroups as group (group.goal?.id ?? 'other')}
-				<TaskGroupSection
-					{group}
-					{projectId}
-					{listReorder}
-					{assigneeNamesFor}
-					{goalTitleFor}
-					{onAddSubtask}
-					{onChangeStatus}
-					{onChangeGoal}
-				/>
+				<TaskGroupSection {group} {projectId} {listReorder} {actions} />
 			{/each}
 		</div>
 	{/if}

@@ -6,7 +6,7 @@
 	<div class="flex flex-col gap-2">
 		<h1 class="font-display text-3xl font-medium">Projects</h1>
 		<p class="max-w-prose text-chalk/70">
-			Your projects, ordered by priority — the top row is the next thing to spend time on.
+			Your projects, ordered by priority — the first tile is the next thing to spend time on.
 		</p>
 	</div>
 	<div class="flex flex-wrap items-center gap-3">

@@ -18,22 +18,34 @@
 		actions: TaskRowActions;
 	} = $props();
 
+	let isOpen = $state(false);
+
 	const taskCount = $derived(countTasksInTree(group.tasks));
 	const taskCountLabel = $derived(taskCount === 1 ? '1 task' : `${taskCount} tasks`);
+	const panelId = $derived(`task-group-${group.goal?.id ?? 'other'}`);
 </script>
 
 <section class="overflow-hidden rounded-2xl border border-hairline bg-carriage/40">
-	<TaskGroupHeader goal={group.goal} {projectId} {taskCountLabel} />
-	<ol class="flex flex-col divide-y divide-hairline">
-		{#each group.tasks as task, taskIndex (task.id)}
-			<TaskListRow
-				{task}
-				numberPath={`${task.priority}`}
-				isFirst={taskIndex === 0}
-				isLast={taskIndex === group.tasks.length - 1}
-				{listReorder}
-				{actions}
-			/>
-		{/each}
-	</ol>
+	<TaskGroupHeader
+		goal={group.goal}
+		{projectId}
+		{taskCountLabel}
+		{isOpen}
+		{panelId}
+		onToggle={() => (isOpen = !isOpen)}
+	/>
+	{#if isOpen}
+		<ol id={panelId} class="flex flex-col divide-y divide-hairline">
+			{#each group.tasks as task, taskIndex (task.id)}
+				<TaskListRow
+					{task}
+					numberPath={`${task.priority}`}
+					isFirst={taskIndex === 0}
+					isLast={taskIndex === group.tasks.length - 1}
+					{listReorder}
+					{actions}
+				/>
+			{/each}
+		</ol>
+	{/if}
 </section>

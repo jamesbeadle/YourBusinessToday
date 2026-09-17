@@ -1,7 +1,7 @@
 import type { ProjectStatus } from '$lib/data/projectStatus';
 import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
-const projectsPerPage = 10;
+const projectsPerPage = 12;
 
 /**
  * Client-side view state for the projects list: search and status filtering

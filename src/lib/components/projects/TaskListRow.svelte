@@ -4,6 +4,7 @@
 	import TaskListRow from './TaskListRow.svelte';
 	import TaskRowControls from './TaskRowControls.svelte';
 	import TaskRowMeta from './TaskRowMeta.svelte';
+	import { isTaskDone } from '$lib/data/taskStatus';
 	import type { ListReorder } from '$lib/client/listReorder.svelte';
 	import type { TaskRowActions } from './taskRowActions';
 	import type { TaskTreeNode } from '$lib/server/projects/buildTaskTree';
@@ -24,14 +25,14 @@
 		actions: TaskRowActions;
 	} = $props();
 
-	const isDone = $derived(task.status === 'done');
+	const isDone = $derived(isTaskDone(task.status));
 	const titleWeight = $derived(task.parentTaskId === null ? 'font-medium' : 'text-sm');
 </script>
 
 <ReorderableRow {listReorder} rowId={task.id} groupId={task.parentTaskId}>
 	{#snippet children(dragHandle)}
 		<div
-			class="group/task flex items-start gap-2 px-3 py-3 transition hover:bg-carriage/60 sm:px-4"
+			class="group/task flex items-start gap-2 px-3 py-3 transition hover:bg-carriage sm:px-4"
 			class:opacity-50={isDone}
 		>
 			<div class="flex shrink-0 items-center gap-0.5 pt-0.5">

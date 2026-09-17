@@ -6,8 +6,8 @@
 	import ProjectFilterBar from '$lib/components/projects/ProjectFilterBar.svelte';
 	import ProjectPagination from '$lib/components/projects/ProjectPagination.svelte';
 	import ProjectsPageHeader from '$lib/components/projects/ProjectsPageHeader.svelte';
-	import ProjectTable from '$lib/components/projects/ProjectTable.svelte';
-	import TeamProjectTable from '$lib/components/projects/TeamProjectTable.svelte';
+	import ProjectTileGrid from '$lib/components/projects/ProjectTileGrid.svelte';
+	import TeamProjectGrid from '$lib/components/projects/TeamProjectGrid.svelte';
 	import { ProjectListView } from '$lib/client/projectListView.svelte';
 	import type { ProjectSummary } from '$lib/server/projects/getProjectList';
 
@@ -35,7 +35,7 @@
 	<title>Projects — Your Business Today</title>
 </svelte:head>
 
-<div class="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-16">
+<div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16">
 	<ProjectsPageHeader onNewProject={() => (isNewProjectModalOpen = true)} />
 	{#if form?.message}
 		<p class="rounded-2xl border border-go/50 bg-go/10 px-5 py-4 text-go">{form.message}</p>
@@ -52,7 +52,7 @@
 			No projects match — adjust the filters or create one.
 		</p>
 	{:else}
-		<ProjectTable
+		<ProjectTileGrid
 			projects={listView.pagedProjects}
 			firstPositionNumber={listView.firstPositionNumber}
 			projectCount={listView.filteredProjects.length}
@@ -67,7 +67,7 @@
 				<h2 class="font-display text-2xl font-medium">Team projects</h2>
 				<p class="text-chalk/70">Projects other people own and have brought you on to.</p>
 			</div>
-			<TeamProjectTable projects={data.teamProjects} />
+			<TeamProjectGrid projects={data.teamProjects} />
 		</section>
 	{/if}
 </div>

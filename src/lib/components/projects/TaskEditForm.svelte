@@ -4,13 +4,14 @@
 	import PriorityField from '$lib/components/site/PriorityField.svelte';
 	import SubmitButton from '$lib/components/site/SubmitButton.svelte';
 	import TaskGoalAndKindFields from './TaskGoalAndKindFields.svelte';
-	import TaskMoveField from './TaskMoveField.svelte';
+	import TaskMoveFields from './TaskMoveFields.svelte';
 	import TaskPlanningFields from './TaskPlanningFields.svelte';
 	import TeamPickerFieldset from './TeamPickerFieldset.svelte';
 	import UserStoryFields from './UserStoryFields.svelte';
 	import { FormTracker } from '$lib/client/formTracker.svelte';
 	import { taskStatusLabels, type TaskStatus } from '$lib/data/taskStatus';
 	import type { Goal } from '$lib/server/goals/goalRecord';
+	import type { ProjectChoice } from '$lib/server/projects/getOtherProjects';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
@@ -22,6 +23,7 @@
 		goals,
 		assigneeIds,
 		roles,
+		otherProjects,
 		onSaved
 	}: {
 		task: ProjectTask;
@@ -31,6 +33,7 @@
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
+		otherProjects: ProjectChoice[];
 		onSaved: () => void;
 	} = $props();
 
@@ -76,7 +79,7 @@
 	<TaskPlanningFields {task} />
 	<PriorityField priority={task.priority} among={parentTask === null ? 'of the project’s tasks' : 'of the subtasks'} />
 	<TaskGoalAndKindFields {goals} goalId={task.goalId} kind={task.kind} />
-	<TaskMoveField {parentTask} {siblingTasks} />
+	<TaskMoveFields {parentTask} {siblingTasks} {otherProjects} />
 	<UserStoryFields {task} />
 	<TeamPickerFieldset {people} {assigneeIds} {roles} />
 	<FormErrorNote message={tracker.errorMessage} />

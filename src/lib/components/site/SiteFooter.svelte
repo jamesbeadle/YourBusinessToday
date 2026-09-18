@@ -21,7 +21,7 @@
 		</div>
 		<div class="flex flex-wrap items-center gap-6">
 			<a href="/vision" class="text-sm text-chalk/60 transition hover:text-chalk">
-				What we're building
+				What we build
 			</a>
 			<a href="/contact" class="text-sm text-chalk/60 transition hover:text-chalk">Contact</a>
 			<a href="/terms" class="text-sm text-chalk/60 transition hover:text-chalk">

@@ -4,9 +4,10 @@
 			<h2 class="font-display text-2xl font-medium">What it costs</h2>
 			<p class="max-w-prose text-chalk/70">
 				Discovery is a fixed price. Each build stage is agreed before it starts. Running it is
-				a monthly fee you can cancel on a month’s notice, with cloud and AI itemised on top.
-				We will send you the written offer with the figures on it — there is nothing to
-				negotiate your way into.
+				one monthly fee you can cancel on a month’s notice — hosting, the platform it runs on,
+				monitoring, backups, updates and support, all of it inside that one figure and nothing
+				added on top. We will send you the written offer with the figures on it — there is
+				nothing to negotiate your way into.
 			</p>
 			<a
 				href="/contact"

@@ -37,10 +37,10 @@ export const consultancyOfferSteps: OfferStep[] = [
 	{
 		id: 'run',
 		name: 'Run it',
-		terms: 'Monthly · cancel on a month’s notice',
+		terms: 'One monthly fee · cancel on a month’s notice',
 		description:
 			'Most businesses want us to stay, because the work never stops changing. From day one you have your own portal: every project and every request at the stage it is really at, with a standing day of change work each month.',
 		deliverable:
-			'The thing kept running and kept current, a portal your people can raise a request in, and a connection that lets your own Claude read a job without opening the site.'
+			'The thing kept running and kept current — hosting, the platform it runs on, monitoring, backups, updates and support inside the one monthly figure — a portal your people can raise a request in, and a connection that lets your own Claude read a job without opening the site.'
 	}
 ];

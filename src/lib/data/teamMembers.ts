@@ -3,7 +3,7 @@ export type TeamMember = {
 	name: string;
 	initials: string;
 	role: string;
-	contribution: string;
+	biography: string;
 };
 
 export const teamMembers: TeamMember[] = [
@@ -12,22 +12,23 @@ export const teamMembers: TeamMember[] = [
 		name: 'Nigel Reilly',
 		initials: 'NR',
 		role: 'Managing Partner',
-		contribution:
-			'Business acumen, connections and a range of industry experience.'
+		biography:
+			'Sets the direction of the practice. Commercial judgement earned across a range of industries, and the connections that come with a career spent in them.'
 	},
 	{
 		id: 'jeremy-ferendinos',
 		name: 'Jeremy Ferendinos',
 		initials: 'JF',
 		role: 'Founding Partner',
-		contribution: 'Financial knowledge, business knowledge and client connections.'
+		biography:
+			'Covers the financial and commercial side. He reads a business on paper as well as he reads it on the floor, and brings client relationships of his own.'
 	},
 	{
 		id: 'james-beadle',
 		name: 'James Beadle',
 		initials: 'JB',
 		role: 'Founding Partner',
-		contribution:
-			'Technical and business knowledge, built on systems for large multinational clients and for small and medium enterprises.'
+		biography:
+			'Builds the systems. He has worked on them for large multinational clients and for small and medium businesses, and knows how differently the two have to be handled.'
 	}
 ];

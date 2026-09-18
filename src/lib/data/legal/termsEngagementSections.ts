@@ -12,7 +12,7 @@ export const termsEngagementSections: LegalSection[] = [
 		heading: 'What we build for you',
 		paragraphs: [
 			'When we build something for your business, it is built for you and it is yours. Once the fees for that work are paid, you own what we deliver and the written record of how your business works that we produce alongside it. We keep the right to reuse the general know-how, techniques and non-specific components behind it, which is what lets us begin the next engagement from something rather than nothing.',
-			'You are not locked in. You can take a copy of what we hold for you and end the engagement on the notice your agreement sets out. Where we host something for you, we will keep it running through a reasonable handover period and give you what you need to move it elsewhere, on terms agreed at the time.'
+			'You are not locked in. You can take a copy of what we hold for you and end the engagement on the notice your agreement sets out. Where we run what we built for you, we run it as a managed service under that agreement: we contract for the infrastructure and platform services underneath it in our own name, and what you buy from us is the running service itself, not a licence to, or a resale of, anything from the suppliers behind it. We keep it running through a reasonable handover period and give you what you need to move it elsewhere, on terms agreed at the time.'
 		]
 	},
 	{

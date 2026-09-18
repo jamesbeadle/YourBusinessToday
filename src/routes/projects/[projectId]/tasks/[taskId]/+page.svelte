@@ -14,7 +14,6 @@
 
 	let isEditModalOpen = $state(false);
 	let isSubtaskModalOpen = $state(false);
-	let isMoveModalOpen = $state(false);
 	let isDeleteModalOpen = $state(false);
 
 	const goalTitle = $derived(
@@ -45,7 +44,6 @@
 		{assigneeNames}
 		raisedByName={data.raisedByName}
 		onEdit={() => (isEditModalOpen = true)}
-		onMoveToProject={() => (isMoveModalOpen = true)}
 	/>
 	{#if isAwaitingResolution}
 		<ResolveSupportTaskForm />
@@ -83,6 +81,5 @@
 	otherProjects={data.otherProjects}
 	bind:isEditModalOpen
 	bind:isSubtaskModalOpen
-	bind:isMoveModalOpen
 	bind:isDeleteModalOpen
 />

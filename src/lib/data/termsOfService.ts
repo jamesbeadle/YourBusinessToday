@@ -1,12 +1,12 @@
 import { termsAccountSections } from './legal/termsAccountSections';
+import { termsEngagementSections } from './legal/termsEngagementSections';
 import { termsGeneralSections } from './legal/termsGeneralSections';
-import { termsProductSections } from './legal/termsProductSections';
 import type { LegalDocument } from './legalDocument';
 
 export const termsOfService: LegalDocument = {
 	title: 'Terms of service',
 	metaDescription:
-		'The terms that govern your use of Your Business Today — the consultancy, accounts and credits, knowledge bases, chatbots, the client portal, and the API and MCP server.',
-	lastUpdatedOn: '5 September 2026',
-	sections: [...termsAccountSections, ...termsProductSections, ...termsGeneralSections]
+		'The terms that govern this website and the Your Business Today client portal — who it is for, how it sits under your written agreement, what we build for you, confidentiality, and the rest of the small print.',
+	lastUpdatedOn: '18 September 2026',
+	sections: [...termsAccountSections, ...termsEngagementSections, ...termsGeneralSections]
 };

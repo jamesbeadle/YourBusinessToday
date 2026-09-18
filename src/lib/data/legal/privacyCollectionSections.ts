@@ -5,35 +5,35 @@ export const privacyCollectionSections: LegalSection[] = [
 	{
 		heading: 'Who we are',
 		paragraphs: [
-			`${companyDetails.legalName}, a company registered in England and Wales under number ${companyDetails.registrationNumber} with its registered office at ${companyDetails.registeredAddress}, is the data controller for the personal information handled by yourbusiness.today and by our consultancy. For anything in this statement, contact ${companyDetails.consultingEmail}.`,
-			'The short version of our promise, stated once here and repeated wherever it matters: your knowledge powers your tools and nothing else. It is never sold, never pooled, never used to train anything for anyone else, and it leaves when you do.'
+			`${companyDetails.legalName}, a company registered in England and Wales under number ${companyDetails.registrationNumber} with its registered office at ${companyDetails.registeredAddress}, is the data controller for the personal information handled by yourbusiness.today and by our consultancy. For anything in this statement, write to ${companyDetails.consultingEmail}.`,
+			'The promise, stated once here and meant everywhere: what we learn about your business is used to do your work and nothing else. It is never sold, never pooled with another client’s, never used to train anything for anybody else, and it leaves with you when you go.'
 		]
 	},
 	{
-		heading: 'What we collect',
+		heading: 'What we hold',
 		paragraphs: ['We hold these kinds of information:'],
 		listItems: [
-			'Account details — your email address, display name, and which sign-in method you use (Google, or email and password).',
-			'Knowledge base content — the documents you upload, the answers you give the interviewer, and the expertise, experience and process brains built from them.',
-			'Chatbot conversations — the questions members ask, the answers given, which questions went unanswered, and how much of the pool each member has spent.',
-			'Client register records — for the businesses we work for: the company, the people named as contacts, the requests they raise, and the threads and builds that follow.',
-			'Enquiries — the name, email address, company, website and message you send through the contact page, which create a lead in the client register.',
-			'Activity records — credit purchases and spends, shares you create, API tokens and OAuth authorisations you grant, notifications, and the log of what happened in each knowledge base. Card details go directly to Stripe; we never see or store them.',
-			'Technical records — server logs with your IP address and browser details, kept briefly for security.'
+			'Account details — the email address we invited, a display name, and the password you set.',
+			'Client register records — the businesses we work with or hope to, the people named as contacts, their role and contact details, and the history of our dealings with them.',
+			'Enquiries — the name, email address, company, website and message sent through the contact page, which becomes a lead in that register.',
+			'Portal content — the projects, goals and tasks we run for your business, the requests your people raise, the messages on each thread, and the files attached to them.',
+			'What you give us during an engagement — the documents, exports and working material you hand over so that we can understand how the business runs.',
+			'Activity records — notifications, the API tokens and authorisations you grant, and a log of what changed and who changed it. We take no card payments on this site, so we hold no card details at all.',
+			'Technical records — server logs carrying an IP address and browser details, kept briefly for security.'
 		]
 	},
 	{
 		heading: 'Why we use it, and the lawful basis',
 		paragraphs: [
-			'We use your information to run the service you asked for: signing you in, interviewing you and reading your documents, answering questions from your own records, running the chatbots you set up, fulfilling credit purchases, delivering shares and connected-tool access, running the client portal, and sending service emails such as invitations. The lawful basis for this is performing our contract with you.',
-			'We rely on our legitimate interests to keep the service secure, to improve it, to reply to enquiries and keep the client register, and to send the emails a business relationship needs. We rely on legal obligation to keep purchase records for tax and accounting law. Where we ask for consent — for anything beyond the above — we will say so at the time and you can withdraw it.',
-			'We do not use your information for advertising, we do not profile you, and we do not sell it to anyone.'
+			'We use it to do the work you have engaged us for and to run the portal around it: signing you in, carrying your requests, keeping the record of a project, and sending the service emails a piece of work needs. The lawful basis for that is performing our contract with you or with your business.',
+			'We rely on our legitimate interests to keep the service secure, to reply to enquiries and maintain the client register, and to correspond as any business relationship requires. We rely on legal obligation to keep the records that tax and accounting law demands. Where we need consent for anything else we will ask at the time, and you can withdraw it.',
+			'We do not advertise to you, we do not profile you, and we do not sell your information to anybody.'
 		]
 	},
 	{
 		heading: 'AI processing',
 		paragraphs: [
-			'When the service generates something for you — an interview reply, a reading of a document, an answer from a brain, a chatbot answer — the content needed to do it is sent to Anthropic’s Claude API. That is your message or question and the relevant parts of the knowledge base, and for a chatbot it is the member’s question together with the relevant parts of the manager’s knowledge base. Anthropic processes it to produce the answer; it is not used to train models for anyone else.'
+			'Parts of the portal are generated by AI. When that happens, the material needed to produce the output — your message or request and the relevant part of the project record — is sent to Anthropic’s Claude API, which processes it to produce the reply and does not use it to train models for anybody else.'
 		]
 	}
 ];

@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 const publicPagePaths = [
 	'/',
 	'/about',
+	'/offer',
 	'/case-studies/jewel',
 	'/vision',
 	'/contact',

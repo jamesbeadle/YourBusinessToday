@@ -1,33 +1,47 @@
 <script lang="ts">
 	import AddGoalForm from './AddGoalForm.svelte';
 	import GoalRow from './GoalRow.svelte';
+	import GoalStatusFilter from './GoalStatusFilter.svelte';
+	import { openGoalsOnly } from './goalStatusFilters';
 	import Modal from '$lib/components/site/Modal.svelte';
 	import type { GoalSummary } from '$lib/server/goals/getGoalSummaries';
 
 	let { goalSummaries }: { goalSummaries: GoalSummary[] } = $props();
 
 	let isAddGoalModalOpen = $state(false);
+	let shouldIncludeClosed = $state(false);
+
+	const shownGoalSummaries = $derived(
+		shouldIncludeClosed ? goalSummaries : openGoalsOnly(goalSummaries)
+	);
 </script>
 
 <section class="flex flex-col gap-3 rounded-2xl border border-hairline bg-carriage p-6">
-	<div class="flex items-center justify-between">
+	<div class="flex flex-wrap items-center justify-between gap-3">
 		<h2 class="font-display text-sm tracking-widest text-chalk/50 uppercase">Goals</h2>
-		<button
-			type="button"
-			onclick={() => (isAddGoalModalOpen = true)}
-			class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/70
-				transition hover:border-go hover:text-go"
-		>
-			Add goal
-		</button>
+		<div class="flex flex-wrap items-center gap-2">
+			<GoalStatusFilter bind:shouldIncludeClosed />
+			<button
+				type="button"
+				onclick={() => (isAddGoalModalOpen = true)}
+				class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/70
+					transition hover:border-go hover:text-go"
+			>
+				Add goal
+			</button>
+		</div>
 	</div>
 	{#if goalSummaries.length === 0}
 		<p class="text-sm text-chalk/60">
 			No goals yet — a goal is what the project must achieve, with a measure both sides can check.
 		</p>
+	{:else if shownGoalSummaries.length === 0}
+		<p class="text-sm text-chalk/60">
+			No open goals — press All to see the goals that are met or dropped.
+		</p>
 	{:else}
 		<ul class="flex flex-col gap-3">
-			{#each goalSummaries as goalSummary (goalSummary.id)}
+			{#each shownGoalSummaries as goalSummary (goalSummary.id)}
 				<GoalRow {goalSummary} />
 			{/each}
 		</ul>

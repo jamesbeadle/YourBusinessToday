@@ -9,6 +9,6 @@
 		class="self-start rounded-full border border-hairline px-6 py-2.5 font-display text-sm
 			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
 	>
-		Read what we're building while you wait
+		Read what we build while you wait
 	</a>
 </div>

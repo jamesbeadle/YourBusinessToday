@@ -28,7 +28,7 @@
 				class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
 					transition hover:border-chalk/40 hover:text-chalk"
 			>
-				What we're building
+				What we build
 			</a>
 		</div>
 	</div>

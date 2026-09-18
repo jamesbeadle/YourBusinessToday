@@ -5,6 +5,7 @@ import { checklistActions } from './checklistActions';
 import { checklistItemActions } from './checklistItemActions';
 import { taskOrderActions } from './taskOrderActions';
 import { taskParentActions } from './taskParentActions';
+import { taskProjectActions } from './taskProjectActions';
 import { taskQueueActions } from './taskQueueActions';
 import { taskRemovalActions } from './taskRemovalActions';
 import { taskRoleActions } from './taskRoleActions';
@@ -27,6 +28,7 @@ export const taskActions: McpAction[] = [
 	...taskOrderActions,
 	...taskQueueActions,
 	...taskParentActions,
+	...taskProjectActions,
 	...taskRemovalActions,
 	...acceptanceCriterionActions,
 	...checklistActions,

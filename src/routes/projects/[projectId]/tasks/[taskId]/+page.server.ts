@@ -11,6 +11,8 @@ import { deleteAcceptanceCriterion } from '$lib/server/projects/deleteAcceptance
 import { deleteTask } from '$lib/server/projects/deleteTask';
 import { getTask } from '$lib/server/projects/getTask';
 import { getTaskFamily } from '$lib/server/projects/getTaskFamily';
+import { moveTaskActions } from './moveTaskActions';
+import { getOtherProjects } from '$lib/server/projects/getOtherProjects';
 import { loadTaskWorkspace } from '$lib/server/projects/loadTaskWorkspace';
 import { getProfileFlags } from '$lib/server/auth/getProfileFlags';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
@@ -27,6 +29,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	return {
 		...workspace,
 		canSendToBuild: profileFlags.isStaff || profileFlags.isAdmin,
+		otherProjects: await getOtherProjects(locals.supabase, params.projectId),
 		...(await getTaskFamily(locals.supabase, workspace.task)),
 		messages: withAuthorNames(workspace.messages, workspace.accounts),
 		raisedByName: accountNameLookup(workspace.accounts)(workspace.task.createdBy),
@@ -40,6 +43,7 @@ export const actions: Actions = {
 	...buildActions,
 	...attachmentActions,
 	...conversationActions,
+	...moveTaskActions,
 	addSubtask: async ({ locals, params, request }) => {
 		const { user } = await requireProjectAccess(locals, params.projectId);
 		const seed = readNewTaskSeed(await request.formData());

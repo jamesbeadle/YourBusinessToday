@@ -16,6 +16,8 @@ export type NavigationAccess = {
 
 export const primaryNavigationLinks: NavigationLink[] = [
 	{ href: '/', label: 'Home' },
+	{ href: '/about', label: 'About us' },
+	{ href: '/case-studies/jewel', label: 'Case study' },
 	{ href: '/vision', label: 'What we build' },
 	{ href: '/contact', label: 'Contact' }
 ];

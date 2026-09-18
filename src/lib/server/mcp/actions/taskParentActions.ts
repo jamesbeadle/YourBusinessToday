@@ -16,8 +16,9 @@ export const taskParentActions: McpAction[] = [
 		summary: 'make a task a subtask of another, or bring it up to the top level of the project',
 		guidance:
 			'Leave parentTaskId out to bring the task to the top level, where it joins the queue of ' +
-			'work. A task cannot go under itself or under one of its own subtasks, and it cannot ' +
-			'move to another project. The task lands at the end of its new siblings.',
+			'work. A task cannot go under itself or under one of its own subtasks, and both tasks ' +
+			'must be on one project — move_task_to_project takes a task to another. The task lands ' +
+			'at the end of its new siblings.',
 		inputSchema: objectSchema(
 			{
 				taskId: textField('The task id'),

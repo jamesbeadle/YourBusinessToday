@@ -1,9 +1,11 @@
 <script lang="ts">
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import Modal from '$lib/components/site/Modal.svelte';
+	import MoveTaskToProjectForm from './MoveTaskToProjectForm.svelte';
 	import NewTaskForm from './NewTaskForm.svelte';
 	import TaskEditForm from './TaskEditForm.svelte';
 	import type { Goal } from '$lib/server/goals/goalRecord';
+	import type { ProjectChoice } from '$lib/server/projects/getOtherProjects';
 	import type { ProjectTask } from '$lib/server/projects/taskRecord';
 	import type { ProjectPerson } from '$lib/server/members/projectPersonRecord';
 
@@ -15,8 +17,10 @@
 		goals,
 		assigneeIds,
 		roles,
+		otherProjects,
 		isEditModalOpen = $bindable(),
 		isSubtaskModalOpen = $bindable(),
+		isMoveModalOpen = $bindable(),
 		isDeleteModalOpen = $bindable()
 	}: {
 		task: ProjectTask;
@@ -26,8 +30,10 @@
 		goals: Goal[];
 		assigneeIds: string[];
 		roles: string[];
+		otherProjects: ProjectChoice[];
 		isEditModalOpen: boolean;
 		isSubtaskModalOpen: boolean;
+		isMoveModalOpen: boolean;
 		isDeleteModalOpen: boolean;
 	} = $props();
 </script>
@@ -53,6 +59,10 @@
 		goalId={task.goalId}
 		onCreated={() => (isSubtaskModalOpen = false)}
 	/>
+</Modal>
+
+<Modal title={`Move “${task.title}” to another project`} bind:isOpen={isMoveModalOpen}>
+	<MoveTaskToProjectForm {otherProjects} onMoved={() => (isMoveModalOpen = false)} />
 </Modal>
 
 <DangerConfirmModal

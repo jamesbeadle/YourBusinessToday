@@ -36,7 +36,7 @@
 	</div>
 	{#if data.notifications.length === 0}
 		<p class="rounded-2xl border border-dashed border-hairline p-8 text-center text-chalk/60">
-			Nothing yet — you'll be notified when someone posts on a task assigned to you.
+			Nothing yet — you'll be told when someone posts on a task or goal whose conversation you are in.
 		</p>
 	{:else}
 		<ul class="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline">

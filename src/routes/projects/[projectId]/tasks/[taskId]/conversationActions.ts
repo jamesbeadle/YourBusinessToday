@@ -3,6 +3,10 @@ import { getProject } from '$lib/server/projects/getProject';
 import { getTask } from '$lib/server/projects/getTask';
 import { longestMessageBody, postMessage } from '$lib/server/conversations/postMessage';
 import { messageFormRefusal, readMessageForm } from '$lib/server/conversations/readMessageForm';
+import {
+	addParticipantFromForm,
+	removeParticipantFromForm
+} from '$lib/server/conversations/participantFormActions';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
 import { resolveSupportTask } from '$lib/server/support/resolveSupportTask';
 import type { Actions } from './$types';
@@ -14,6 +18,21 @@ export const conversationActions = {
 		if (submission === null) return fail(400, { message: messageFormRefusal });
 		await postMessage(locals.supabase, { taskId: params.taskId }, user.id, submission.body);
 		return {};
+	},
+	addParticipant: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
+		const subject = { taskId: params.taskId };
+		return addParticipantFromForm(
+			locals.supabase,
+			params.projectId,
+			subject,
+			await request.formData()
+		);
+	},
+	removeParticipant: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
+		const subject = { taskId: params.taskId };
+		return removeParticipantFromForm(locals.supabase, subject, await request.formData());
 	},
 	resolve: async ({ locals, params, request }) => {
 		const { user } = await requireProjectAccess(locals, params.projectId);
@@ -28,7 +47,9 @@ export const conversationActions = {
 			getProject(locals.supabase, params.projectId)
 		]);
 		if (task === null || project === null || task.kind !== 'support') {
-			return fail(400, { message: 'Only a support task is resolved this way.' });
+			return fail(400, {
+				message: 'Only a support task is resolved this way.'
+			});
 		}
 		await resolveSupportTask(locals.supabase, task, project, resolution, user.id);
 		return { message: 'Resolved, with your answer posted for them to read.' };

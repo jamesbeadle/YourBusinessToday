@@ -9,6 +9,7 @@ import { getTaskAttachments } from '$lib/server/projects/getTaskAttachments';
 import { getTaskAssigneeMap } from '$lib/server/projects/getTaskAssigneeMap';
 import { getTaskChecklists } from '$lib/server/projects/getTaskChecklists';
 import { getTaskRoles } from '$lib/server/projects/getTaskRoles';
+import { getConversationParticipantIds } from '$lib/server/conversations/getConversationParticipantIds';
 import { getThread } from '$lib/server/conversations/getThread';
 
 export async function loadTaskWorkspace(
@@ -21,17 +22,27 @@ export async function loadTaskWorkspace(
 		getProject(supabase, projectId)
 	]);
 	if (task === null || project === null) return null;
-	const [people, goals, messages, criteria, checklists, attachments, assigneeIdsByTask, roles] =
-		await Promise.all([
-			getProjectPeople(supabase, projectId),
-			getProjectGoals(supabase, projectId),
-			getThread(supabase, { taskId }, true),
-			getTaskAcceptanceCriteria(supabase, taskId),
-			getTaskChecklists(supabase, taskId),
-			getTaskAttachments(supabase, taskId),
-			getTaskAssigneeMap(supabase, [taskId]),
-			getTaskRoles(supabase, taskId)
-		]);
+	const [
+		people,
+		goals,
+		messages,
+		participantIds,
+		criteria,
+		checklists,
+		attachments,
+		assigneeIdsByTask,
+		roles
+	] = await Promise.all([
+		getProjectPeople(supabase, projectId),
+		getProjectGoals(supabase, projectId),
+		getThread(supabase, { taskId }, true),
+		getConversationParticipantIds(supabase, { taskId }),
+		getTaskAcceptanceCriteria(supabase, taskId),
+		getTaskChecklists(supabase, taskId),
+		getTaskAttachments(supabase, taskId),
+		getTaskAssigneeMap(supabase, [taskId]),
+		getTaskRoles(supabase, taskId)
+	]);
 	const authorIds = [task.createdBy, ...messages.map((message) => message.authorAccountId)];
 	return {
 		task,
@@ -39,6 +50,7 @@ export async function loadTaskWorkspace(
 		people,
 		goals,
 		messages,
+		participantIds,
 		accounts: await getAccountDirectory(supabase, authorIds),
 		criteria,
 		checklists,

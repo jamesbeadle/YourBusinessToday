@@ -2,12 +2,18 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { deleteGoal } from '$lib/server/goals/deleteGoal';
 import { findTasks } from '$lib/server/support/findTasks';
 import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
+import { getConversationParticipantIds } from '$lib/server/conversations/getConversationParticipantIds';
 import { getGoal } from '$lib/server/goals/getGoal';
 import { getProject } from '$lib/server/projects/getProject';
+import { getProjectPeople } from '$lib/server/members/getProjectPeople';
 import { getThread } from '$lib/server/conversations/getThread';
 import { messageFormRefusal, readMessageForm } from '$lib/server/conversations/readMessageForm';
 import { postMessage } from '$lib/server/conversations/postMessage';
 import { parseRank } from '$lib/server/ordering/rankInput';
+import {
+	addParticipantFromForm,
+	removeParticipantFromForm
+} from '$lib/server/conversations/participantFormActions';
 import { readGoalUpdate, updateGoal } from '$lib/server/goals/updateGoal';
 import { setGoalPriority } from '$lib/server/goals/setGoalPriority';
 import { requireProjectAccess } from '$lib/server/auth/requireProjectAccess';
@@ -22,13 +28,26 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	]);
 	if (goal === null || project === null || goal.projectId !== project.id)
 		error(404, 'Goal not found');
-	const [tasks, messages] = await Promise.all([
-		findTasks(locals.supabase, { projectId: project.id, goalId: goal.id, phrase: '' }),
-		getThread(locals.supabase, { goalId: goal.id }, true)
+	const [tasks, messages, people, participantIds] = await Promise.all([
+		findTasks(locals.supabase, {
+			projectId: project.id,
+			goalId: goal.id,
+			phrase: ''
+		}),
+		getThread(locals.supabase, { goalId: goal.id }, true),
+		getProjectPeople(locals.supabase, project.id),
+		getConversationParticipantIds(locals.supabase, { goalId: goal.id })
 	]);
 	const authorIds = messages.map((message) => message.authorAccountId);
 	const accounts = await getAccountDirectory(locals.supabase, authorIds);
-	return { goal, project, tasks, messages: withAuthorNames(messages, accounts) };
+	return {
+		goal,
+		project,
+		tasks,
+		people,
+		participantIds,
+		messages: withAuthorNames(messages, accounts)
+	};
 };
 
 export const actions: Actions = {
@@ -48,6 +67,21 @@ export const actions: Actions = {
 		if (submission === null) return fail(400, { message: messageFormRefusal });
 		await postMessage(locals.supabase, { goalId: params.goalId }, user.id, submission.body);
 		return {};
+	},
+	addParticipant: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
+		const subject = { goalId: params.goalId };
+		return addParticipantFromForm(
+			locals.supabase,
+			params.projectId,
+			subject,
+			await request.formData()
+		);
+	},
+	removeParticipant: async ({ locals, params, request }) => {
+		await requireProjectAccess(locals, params.projectId);
+		const subject = { goalId: params.goalId };
+		return removeParticipantFromForm(locals.supabase, subject, await request.formData());
 	},
 	deleteGoal: async ({ locals, params }) => {
 		await requireProjectAccess(locals, params.projectId);

@@ -30,8 +30,8 @@
 	<div class="min-w-0 flex-1">
 		<p class="text-sm">
 			<span class="font-display text-chalk/90">{authorName}</span>
-			<span class="text-chalk/60"> commented on </span>
-			<span class="font-display text-chalk/90">{notification.taskTitle}</span>
+			<span class="text-chalk/60"> said on the {notification.subjectKind} </span>
+			<span class="font-display text-chalk/90">{notification.subjectTitle}</span>
 		</p>
 		<p class="truncate text-sm text-chalk/60">{notification.messageBody}</p>
 		<p class="text-xs text-chalk/40">{formattedDate}</p>
@@ -39,14 +39,15 @@
 	<form method="POST" action="?/openNotification" use:enhance={tracker.submit()}>
 		<input type="hidden" name="notificationId" value={notification.id} />
 		<input type="hidden" name="projectId" value={notification.projectId} />
-		<input type="hidden" name="taskId" value={notification.taskId} />
+		<input type="hidden" name="subjectKind" value={notification.subjectKind} />
+		<input type="hidden" name="subjectId" value={notification.subjectId} />
 		<SubmitButton
 			isSaving={tracker.isSaving}
 			savingLabel="Opening…"
 			class="rounded-full border border-hairline px-4 py-1.5 font-display text-xs text-chalk/70
 				transition hover:border-go hover:text-go"
 		>
-			Open task
+			Open {notification.subjectKind}
 		</SubmitButton>
 	</form>
 </li>

@@ -17,7 +17,8 @@ export const conversationActions: McpAction[] = [
 		guidance:
 			'Whatever you post is read by the person on the other side and by their Claude, so write ' +
 			'to them: what you found, what you need, what happens next. Everyone on the project ' +
-			'reads it. A question for one person names them; their Claude brings it to them through ' +
+			'can read it; everyone in its conversation is told of it, and posting joins you. A ' +
+			'question for one person names them; their Claude brings it to them through ' +
 			'read_latest_messages and posts the answer here. When work on a task stops, the work log ' +
 			'goes here too: what changed, which files or records, the decisions and why, what is left.',
 		inputSchema: objectSchema(

@@ -5,6 +5,8 @@ import {
 } from '$lib/server/notifications/notificationListItem';
 
 const notificationPageSize = 50;
+const notificationColumns =
+	'*, tasks(title, project_id), goals(title, project_id), task_comments(body, author_id), conversation_messages(body, author_account_id)';
 
 export async function getNotificationList(
 	supabase: SupabaseClient,
@@ -12,9 +14,7 @@ export async function getNotificationList(
 ): Promise<NotificationListItem[]> {
 	const { data, error } = await supabase
 		.from('notifications')
-		.select(
-			'*, tasks(title, project_id), task_comments(body, author_id), conversation_messages(body, author_account_id)'
-		)
+		.select(notificationColumns)
 		.eq('recipient_id', recipientId)
 		.order('created_at', { ascending: false })
 		.limit(notificationPageSize);

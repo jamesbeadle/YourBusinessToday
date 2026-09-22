@@ -3,6 +3,10 @@ import { getNotificationList } from '$lib/server/notifications/getNotificationLi
 import { getAccountDirectory } from '$lib/server/accounts/getAccountDirectory';
 import { markAllNotificationsRead } from '$lib/server/notifications/markAllNotificationsRead';
 import { markNotificationRead } from '$lib/server/notifications/markNotificationRead';
+import {
+	conversationPath,
+	type NotificationSubjectKind
+} from '$lib/server/notifications/notificationListItem';
 import { requireUser } from '$lib/server/auth/requireUser';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -10,7 +14,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const user = await requireUser(locals);
 	const notifications = await getNotificationList(locals.supabase, user.id);
 	const authorIds = notifications.map((notification) => notification.messageAuthorId);
-	return { notifications, authors: await getAccountDirectory(locals.supabase, authorIds) };
+	return {
+		notifications,
+		authors: await getAccountDirectory(locals.supabase, authorIds)
+	};
 };
 
 export const actions: Actions = {
@@ -19,12 +26,13 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const notificationId = String(formData.get('notificationId') ?? '');
 		const projectId = String(formData.get('projectId') ?? '');
-		const taskId = String(formData.get('taskId') ?? '');
-		if (notificationId === '' || projectId === '' || taskId === '') {
+		const subjectId = String(formData.get('subjectId') ?? '');
+		const subjectKind = readSubjectKind(formData.get('subjectKind'));
+		if (notificationId === '' || projectId === '' || subjectId === '' || subjectKind === null) {
 			return fail(400, { message: 'A notification is required.' });
 		}
 		await markNotificationRead(locals.supabase, notificationId);
-		redirect(303, `/projects/${projectId}/tasks/${taskId}`);
+		redirect(303, conversationPath(subjectKind, projectId, subjectId));
 	},
 	markAllRead: async ({ locals }) => {
 		const user = await requireUser(locals);
@@ -32,3 +40,8 @@ export const actions: Actions = {
 		return {};
 	}
 };
+
+function readSubjectKind(value: FormDataEntryValue | null): NotificationSubjectKind | null {
+	if (value === 'task' || value === 'goal') return value;
+	return null;
+}

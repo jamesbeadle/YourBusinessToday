@@ -2,6 +2,7 @@
 	import AcceptanceCriteriaSection from '$lib/components/projects/AcceptanceCriteriaSection.svelte';
 	import BuildPanel from '$lib/components/projects/BuildPanel.svelte';
 	import ChecklistSection from '$lib/components/projects/ChecklistSection.svelte';
+	import ConversationParticipantsPanel from '$lib/components/conversations/ConversationParticipantsPanel.svelte';
 	import ConversationThread from '$lib/components/conversations/ConversationThread.svelte';
 	import ResolveSupportTaskForm from '$lib/components/support/ResolveSupportTaskForm.svelte';
 	import SubtaskList from '$lib/components/projects/SubtaskList.svelte';
@@ -59,6 +60,7 @@
 		projectId={data.project.id}
 		taskId={data.task.id}
 	/>
+	<ConversationParticipantsPanel people={data.people} participantIds={data.participantIds} />
 	<ConversationThread messages={data.messages} />
 	<button
 		type="button"

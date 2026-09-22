@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ConversationParticipantsPanel from '$lib/components/conversations/ConversationParticipantsPanel.svelte';
 	import ConversationThread from '$lib/components/conversations/ConversationThread.svelte';
 	import DangerConfirmModal from '$lib/components/site/DangerConfirmModal.svelte';
 	import EditGoalForm from '$lib/components/goals/EditGoalForm.svelte';
@@ -31,6 +32,7 @@
 	{/if}
 	<GoalOverviewPanel goal={data.goal} onEdit={() => (isEditModalOpen = true)} />
 	<GoalTaskList tasks={data.tasks} />
+	<ConversationParticipantsPanel people={data.people} participantIds={data.participantIds} />
 	<ConversationThread messages={data.messages} />
 	<button
 		type="button"

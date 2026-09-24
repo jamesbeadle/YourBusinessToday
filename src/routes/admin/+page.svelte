@@ -13,12 +13,20 @@
 	<div class="flex flex-col gap-2">
 		<div class="flex items-baseline justify-between gap-3">
 			<h1 class="font-display text-3xl font-medium">Admin</h1>
-			<a
-				href="/admin/usage"
-				class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
-			>
-				Usage and margin
-			</a>
+			<div class="flex items-baseline gap-4">
+				<a
+					href="/admin/documents"
+					class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
+				>
+					Client documents
+				</a>
+				<a
+					href="/admin/usage"
+					class="font-display text-xs text-chalk/50 underline transition hover:text-chalk"
+				>
+					Usage and margin
+				</a>
+			</div>
 		</div>
 		<p class="text-chalk/70">
 			The model the site runs on, every account, its credit balance, the controls to adjust

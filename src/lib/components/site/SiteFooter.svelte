@@ -30,6 +30,13 @@
 			<a href="/privacy" class="text-sm text-chalk/60 transition hover:text-chalk">
 				Privacy statement
 			</a>
+			<a href="/company" class="text-sm text-chalk/60 transition hover:text-chalk">
+				Company information
+			</a>
 		</div>
+		<p class="w-full text-xs text-chalk/40">
+			{companyDetails.legalName} · Registered in {companyDetails.registeredIn}, company number
+			{companyDetails.registrationNumber} · Registered office: {companyDetails.registeredAddress}
+		</p>
 	</div>
 </footer>

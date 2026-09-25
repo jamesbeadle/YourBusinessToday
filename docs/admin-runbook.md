@@ -120,6 +120,24 @@ of preference:
 
 All three are idempotent on the session id.
 
+## Backups and recovery
+
+The general playbook — the three layers, what each costs and how to recover from each —
+is `docs/backup-and-recovery.md`. For this project (`YourBusinessToday`, ref
+`oortdjuletpansoztdpu`, eu-west-2, Pro plan):
+
+- **Daily backups (layer 1):** on, 7 days, Dashboard → Database → Backups → Scheduled.
+- **Nightly off-site copy (layer 2):** `.github/workflows/backup.yml` at 02:17 UTC runs
+  `scripts/backup-supabase.sh` — the whole database plus both Storage buckets
+  (`task-attachments`, `brain-sources`), encrypted, kept 35 days as a GitHub artifact.
+  In September 2026 that was 23 MB of database and 52 files (20 MB). It needs the secrets
+  and variables listed in the playbook; until they are set, the nightly run fails.
+- **Point-in-time recovery (layer 3):** off. The brains, the customer asset this was first
+  wanted for, have moved to Your Brain Today; this project holds the business, project and
+  task records for a handful of accounts. Turn it on here when paying customers are
+  writing to it daily.
+- **Restore drills:** none yet. Record each one here — date, which layer, how long it took.
+
 ## Migrations
 
 ### Apply a migration by hand

@@ -1,0 +1,39 @@
+name: backup
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      BACKUP_NAME: yourbusinesstoday
+      SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+      SUPABASE_REGION: ${{ vars.SUPABASE_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.SUPABASE_S3_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the Postgres 17 client
+        run: |
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+      - run: ./scripts/backup-supabase.sh backup-output
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yourbusinesstoday-backup-${{ github.run_id }}
+          path: backup-output/*.tar.gpg
+          retention-days: 35
+          if-no-files-found: error
+          compression-level: 0

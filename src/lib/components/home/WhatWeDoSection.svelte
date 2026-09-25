@@ -11,15 +11,15 @@
 	<div class="mt-8 grid gap-8 md:grid-cols-2 md:gap-12">
 		<p class="text-lg text-chalk/70">
 			We are brought in when a business has outgrown the way it has always been run: when the
-			quote lives in one spreadsheet and the invoice in another, when the report is typed out
-			from photographs every Friday, and when the few people holding it together can never
-			take a week off.
+			same job is typed into three places, when nobody can say what state a project is really
+			at, and when the few people holding it together can never take a week off.
 		</p>
 		<p class="text-lg text-chalk/70">
-			We start by finding every file that creates something in your business. Then we build the
-			harness that holds what those files hold, teach an AI agent the processes that run around
-			it, and give you two doors on to it: dashboards for the screen, and an MCP server for the
-			agent. Each piece goes live and starts earning before the next is built.
+			We start by mapping your data sources: wherever the business creates a record, a document
+			or an asset today. We build the harness that holds that data, equip an AI agent with the
+			skills to run the processes around it, and give you two doors on to it: dashboards for
+			the screen and an MCP server for the agent. Each piece goes live and starts earning before
+			the next is built.
 		</p>
 	</div>
 	<div class="mt-14 border-t border-hairline md:mt-16">
@@ -28,10 +28,10 @@
 		{/each}
 	</div>
 	<a
-		href="/offer"
+		href="/vision"
 		class="mt-10 inline-block rounded-full border border-hairline px-6 py-2.5 font-display text-sm
 			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
 	>
-		How an engagement works
+		Why we build it this way
 	</a>
 </section>

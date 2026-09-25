@@ -11,14 +11,14 @@
 		<p class="text-lg text-chalk/70">
 			This is for a business that already works. You have customers, a reputation and people
 			who know their trade. What you do not have is one place where the business is: the quote
-			is in a spreadsheet, the job is in an email, the report is typed from photographs, and
-			two or three people carry the rest in their heads.
+			is in one system, the job is in another, the report is typed up by hand, and two or three
+			people carry the rest in their heads.
 		</p>
 		<p class="text-lg text-chalk/70">
-			We come in, find every file that creates something, build the harness that holds it, and
-			teach an AI agent the processes that run around it. You reach it all through dashboards
-			and through an MCP server that your own Claude or ChatGPT uses with the same permissions.
-			Each step is agreed before it starts, and you own what each one leaves behind.
+			We map your data sources, build the harness that holds them, and equip an AI agent with
+			the skills to run the processes around it. You reach it all through dashboards and
+			through an MCP server that your own Claude or ChatGPT uses. Each step is agreed before it
+			starts, and you own what each one leaves behind.
 		</p>
 	</div>
 	<a

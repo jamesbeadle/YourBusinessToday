@@ -19,4 +19,11 @@
 	<div class="mt-12">
 		<CaseStudyFigures figures={jewelBuildFigures} />
 	</div>
+	<a
+		href="/offer"
+		class="mt-10 inline-block rounded-full border border-hairline px-6 py-2.5 font-display text-sm
+			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
+	>
+		How an engagement works
+	</a>
 </section>

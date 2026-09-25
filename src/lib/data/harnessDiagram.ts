@@ -9,7 +9,7 @@ export type HarnessDoor = {
 	description: string;
 };
 
-export const creationFileExamples: string[] = [
+export const dataSourceExamples: string[] = [
 	'Quote spreadsheet',
 	'Job sheet in Word',
 	'Site photographs',

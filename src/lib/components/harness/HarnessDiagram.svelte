@@ -5,7 +5,7 @@
 	import HarnessListCard from './HarnessListCard.svelte';
 	import {
 		agentSkillExamples,
-		creationFileExamples,
+		dataSourceExamples,
 		harnessDoors,
 		harnessTables,
 		roleBasedAccessLine
@@ -15,9 +15,9 @@
 <figure class="flex flex-col gap-4" aria-label="How the harness fits together">
 	<div class="grid items-stretch gap-4 md:grid-cols-[1fr_auto_1.3fr_auto_1fr]">
 		<HarnessListCard
-			label="Creation files today"
+			label="Data sources today"
 			title="What makes your data now"
-			items={creationFileExamples}
+			items={dataSourceExamples}
 		/>
 		<HarnessFlowArrow direction="into" caption="retired into" />
 		<div class="flex flex-col gap-3 rounded-2xl border border-signal/50 bg-carriage p-5">

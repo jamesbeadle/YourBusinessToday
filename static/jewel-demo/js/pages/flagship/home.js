@@ -54,8 +54,8 @@
     return ui.panel('Open RFIs', ui.table({
       columns: ['Reference', 'Subject', 'Project', 'Raised', { label: 'Due', num: true }],
       rows: [
-        [ui.mono('RFI-049'), 'Steel lintel size over kitchen opening', project.name, '18 Sep', ui.pill('Overdue', 'negative')],
-        [ui.mono('RFI-051'), 'Confirm ridge tile profile', project.name, '21 Sep', '29 Sep'],
+        [ui.mono('RFI-049'), 'Steel lintel size over kitchen opening', project.name, '09 Sep', ui.pill('Needs variation', 'warning')],
+        [ui.mono('RFI-051'), 'Confirm ridge tile profile', project.name, '11 Sep', ui.pill('Overdue', 'negative')],
         [ui.mono('RFI-052'), 'Stair balustrade finish', 'The Old Coach House', '22 Sep', '02 Oct'],
         [ui.mono('RFI-053'), 'Underfloor heating zones — ground floor', project.name, '24 Sep', '06 Oct']
       ],

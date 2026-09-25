@@ -4,7 +4,7 @@
 
 	const pageTitle = 'What we build — Your Business Today';
 	const pageDescription =
-		'Generic AI has never met your business. We put your data into a harness it can read, teach it the processes around that harness, and let it act through an MCP server on the same permissions as your screens.';
+		'Generic AI has never met your business. We put your data into a harness it can read, teach it the processes around that harness, and let it act through an MCP server under the same roles as your screens.';
 </script>
 
 <svelte:head>

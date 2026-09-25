@@ -11,9 +11,9 @@
 	</p>
 	<h2 class="font-display text-2xl font-medium">First, the harness</h2>
 	<p class="text-chalk/80">
-		So the first thing we build is a place the agent can read. We find every file that creates
-		something in your business, the creation files, and we build a harness that holds what they
-		hold: almost always a SQL database, with a table for each thing you make, a column for each
+		So the first thing we build is a place the agent can read. We map your data sources, wherever
+		the business creates a record, a document or an asset, and we build a harness that holds
+		all of it: almost always a SQL database, with a table for each thing you make, a column for each
 		fact about it, and every value checked at the door. Your data stops being scattered and
 		becomes one thing the business, and the agent, can see.
 	</p>

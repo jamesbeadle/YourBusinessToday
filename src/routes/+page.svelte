@@ -8,9 +8,9 @@
 	import WhatWeDoSection from '$lib/components/home/WhatWeDoSection.svelte';
 	import { companyDetails } from '$lib/data/companyDetails';
 
-	const pageTitle = 'Your Business Today — we come in and automate your business';
+	const pageTitle = 'Your Business Today — put AI to work in your business';
 	const pageDescription =
-		'A consultancy that finds the files your business is run from, builds the harness that holds their data, teaches an AI agent the processes around it, and gives you dashboards and an MCP server on the same permissions.';
+		'A consultancy that automates businesses with AI: we map your data sources, build the harness that holds them, equip an AI agent with the skills to run the processes around it, and give you dashboards and an MCP server on to it.';
 	const shareImageUrl = `${companyDetails.websiteUrl}/favicon.svg`;
 </script>
 

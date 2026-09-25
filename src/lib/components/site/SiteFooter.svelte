@@ -9,7 +9,7 @@
 			<div class="flex items-center gap-3">
 				<BrandWordmark fontSize={18} />
 				<p class="text-sm text-chalk/60">
-					Your Business Today — we come in and automate your business.
+					Your Business Today — put AI to work in your business.
 				</p>
 			</div>
 			<a
@@ -22,6 +22,10 @@
 		<div class="flex flex-wrap items-center gap-6">
 			<a href="/vision" class="text-sm text-chalk/60 transition hover:text-chalk">
 				What we build
+			</a>
+			<a href="/offer" class="text-sm text-chalk/60 transition hover:text-chalk">The offer</a>
+			<a href="/case-studies/jewel" class="text-sm text-chalk/60 transition hover:text-chalk">
+				Case study
 			</a>
 			<a href="/contact" class="text-sm text-chalk/60 transition hover:text-chalk">Contact</a>
 			<a href="/terms" class="text-sm text-chalk/60 transition hover:text-chalk">

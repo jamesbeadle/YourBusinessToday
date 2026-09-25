@@ -1,0 +1,12 @@
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400 600;
+	src: url('fonts/Inter.woff2') format('woff2');
+}
+@font-face {
+	font-family: 'Space Grotesk';
+	font-style: normal;
+	font-weight: 400 700;
+	src: url('fonts/SpaceGrotesk.woff2') format('woff2');
+}

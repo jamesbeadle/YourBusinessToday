@@ -5,7 +5,7 @@
   const contacts = [
     ['Marcus Hale', 'Claire Hale', 'Wife', '07700 900 114', 'claire.hale@mail.example', '03 Mar 2026', true],
     ['Daniel Price', 'Anita Price', 'Wife', '07700 900 267', '', '03 Mar 2026', true],
-    ['Sophie Turner', 'James Turner', 'Father', '07700 900 381', 'j.turner@mail.example', '11 Mar 2026', true],
+    ['Sophie Turner', 'Peter Turner', 'Father', '07700 900 381', 'p.turner@mail.example', '11 Mar 2026', true],
     ['Ravi Patel', 'Meera Patel', 'Sister', '07700 900 455', 'meera.p@mail.example', '11 Mar 2026', true],
     ['Liam Carter', 'Hayley Carter', 'Partner', '07700 900 522', '', '17 Mar 2026', true],
     ['Emma Walsh', 'Peter Walsh', 'Husband', '07700 900 639', 'peter.walsh@mail.example', '24 Mar 2026', true],

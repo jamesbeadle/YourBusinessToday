@@ -32,7 +32,7 @@
   const conversation = [
     { who: 'Ravi Patel', role: 'Quantity Surveyor', when: '18 Sep 2026, 14:20', text: 'Priced at £17,440 across six lines. Steel from Ashlar at £5,940 installed; Timbercraft re-set-out at £2,480. Ready to issue.', isInternal: true },
     { who: 'Sophie Turner', role: 'Project Manager', when: '19 Sep 2026, 09:02', text: 'Issued V14 to Mr & Mrs Whitfield and copied Ashdown Rowe for the instruction.' },
-    { who: 'James Whitfield', role: 'Client', when: '21 Sep 2026, 19:48', text: 'Thanks — the wider opening is exactly what we wanted. Happy to go ahead at £17,440.' },
+    { who: 'Richard Whitfield', role: 'Client', when: '21 Sep 2026, 19:48', text: 'Thanks — the wider opening is exactly what we wanted. Happy to go ahead at £17,440.' },
     { who: 'Helen Rowe', role: 'Ashdown Rowe Architects', when: '24 Sep 2026, 11:30', text: 'Instruction AI-031 attached, covering the widened opening and the steel. Filed as AI-012 on your side, I understand.', isReply: true },
     { who: 'Daniel Price', role: 'Finance Director', when: '24 Sep 2026, 12:10', text: 'Once approved this lands on the October valuation — I’ve pencilled £17,440 into the cashflow for w/c 26 Oct.', isInternal: true }
   ];

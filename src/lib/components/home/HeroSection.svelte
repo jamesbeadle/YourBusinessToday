@@ -8,12 +8,13 @@
 			Welcome to Your Business Today
 		</p>
 		<h1 class="font-display text-4xl leading-tight font-medium md:text-6xl">
-			Consultants who<br />know your business.
+			We come in and<br />automate your business.
 		</h1>
 		<p class="max-w-prose text-lg text-chalk/70">
-			We automate businesses. It starts with learning how yours really runs — the rules of your
-			trade, the jobs you have done, the way work moves from enquiry to invoice — and ends with
-			the repetitive parts running themselves. The tools we build stay yours.
+			We find the spreadsheets, documents and emails your business is really run from, put what
+			they hold into one database we call the harness, and teach an AI agent the processes that
+			run around it. You see it all on dashboards, and your own Claude or ChatGPT works it through
+			an MCP server with the same permissions as the screens. What we build stays yours.
 		</p>
 		<div class="flex flex-wrap items-center gap-4">
 			<a
@@ -24,11 +25,11 @@
 				Talk to us
 			</a>
 			<a
-				href="/vision"
+				href="/offer"
 				class="rounded-full border border-hairline px-7 py-3 font-display text-sm text-chalk/80
 					transition hover:border-chalk/40 hover:text-chalk"
 			>
-				What we build
+				How the process works
 			</a>
 		</div>
 	</div>

@@ -1,15 +1,16 @@
 <script lang="ts">
 	import CaseStudySection from '$lib/components/home/CaseStudySection.svelte';
 	import EnquirySection from '$lib/components/home/EnquirySection.svelte';
+	import HarnessSection from '$lib/components/home/HarnessSection.svelte';
 	import HeroSection from '$lib/components/home/HeroSection.svelte';
-	import HowTheWorkRunsSection from '$lib/components/home/HowTheWorkRunsSection.svelte';
 	import TeamSection from '$lib/components/home/TeamSection.svelte';
+	import TwoDoorsSection from '$lib/components/home/TwoDoorsSection.svelte';
 	import WhatWeDoSection from '$lib/components/home/WhatWeDoSection.svelte';
 	import { companyDetails } from '$lib/data/companyDetails';
 
-	const pageTitle = 'Your Business Today — consultants who know your business';
+	const pageTitle = 'Your Business Today — we come in and automate your business';
 	const pageDescription =
-		'A consultancy that learns how your business really runs, then maps the process, builds the software and automates the work that repeats — and manages what it builds. Every client gets a portal and a connection to Claude.';
+		'A consultancy that finds the files your business is run from, builds the harness that holds their data, teaches an AI agent the processes around it, and gives you dashboards and an MCP server on the same permissions.';
 	const shareImageUrl = `${companyDetails.websiteUrl}/favicon.svg`;
 </script>
 
@@ -25,7 +26,8 @@
 
 <HeroSection />
 <WhatWeDoSection />
-<HowTheWorkRunsSection />
+<HarnessSection />
+<TwoDoorsSection />
 <CaseStudySection />
 <TeamSection />
 <EnquirySection />

@@ -7,32 +7,37 @@ export type ConsultancyDiscipline = {
 export const consultancyDisciplines: ConsultancyDiscipline[] = [
 	{
 		id: 'discovery',
-		name: 'Discovery and process mapping',
+		name: 'Finding the creation files',
 		description:
-			'We find out how the business really runs and write it down in your own language.'
+			'The spreadsheets, documents, emails and photographs that create your data today, found and written down.'
 	},
 	{
-		id: 'software',
-		name: 'Bespoke software',
+		id: 'harness',
+		name: 'The harness',
 		description:
-			'Built around the work you already do, rather than a product you have to adopt first.'
+			'One database that holds what those files held, every value typed and checked. Usually SQL, always yours.'
 	},
 	{
-		id: 'automation',
-		name: 'AI and automation',
+		id: 'skills',
+		name: 'Skills for the agent',
 		description:
-			'Applied where it takes real work off real people, and nowhere that it does not.'
+			'The complex processes around the harness, written so a Claude or a ChatGPT can run them: harness data in, outputs back into the harness.'
 	},
 	{
-		id: 'record',
-		name: 'The record of your business',
+		id: 'dashboards',
+		name: 'Dashboards',
+		description: 'Views over the harness, so you can see the business the way any software would show it.'
+	},
+	{
+		id: 'mcp',
+		name: 'The MCP server',
 		description:
-			'Your expertise, your jobs and your process, kept so they outlive the people holding them.'
+			'The same actions the website performs, reached from inside the agent, with role-based access deciding who may do what.'
 	},
 	{
 		id: 'management',
 		name: 'Ongoing management',
 		description:
-			'We stay on the tools we build and the work they touch. Not a handover and a goodbye.'
+			'We stay on the harness, the skills and the doors we build. Not a handover and a goodbye.'
 	}
 ];

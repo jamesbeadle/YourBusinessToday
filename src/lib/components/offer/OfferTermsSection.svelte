@@ -3,11 +3,11 @@
 		<div class="flex flex-col gap-4">
 			<h2 class="font-display text-2xl font-medium">What it costs</h2>
 			<p class="max-w-prose text-chalk/70">
-				Discovery is a fixed price. Each build stage is agreed before it starts. Running it is
-				one monthly fee you can cancel on a month’s notice — hosting, the platform it runs on,
-				monitoring, backups, updates and support, all of it inside that one figure and nothing
-				added on top. We will send you the written offer with the figures on it — there is
-				nothing to negotiate your way into.
+				Finding the creation files is a fixed price. The harness and each skill are agreed
+				before they start. Running it is one monthly fee you can cancel on a month’s notice:
+				hosting, the platform it runs on, monitoring, backups, updates and support, all of it
+				inside that one figure and nothing added on top. We will send you the written offer
+				with the figures on it; there is nothing to negotiate your way into.
 			</p>
 			<a
 				href="/contact"
@@ -21,8 +21,8 @@
 			<h2 class="font-display text-2xl font-medium">What we ask of you</h2>
 			<ul class="flex max-w-prose flex-col gap-3 text-chalk/70">
 				<li>
-					<span class="font-display text-chalk">Two weeks of access</span> to the people who do
-					the work, rather than their managers’ account of it.
+					<span class="font-display text-chalk">Two weeks of access</span> to the people who
+					make the files, rather than their managers’ account of them.
 				</li>
 				<li>
 					<span class="font-display text-chalk">One person who can decide.</span> Not a

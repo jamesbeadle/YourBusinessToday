@@ -1,0 +1,1 @@
+JPMS.include('project-records', ['shell.js', 'world.js', 'requests.js', 'request-detail.js', 'variations.js', 'variation-detail.js', 'architect-instructions.js', 'documents.js', 'programme.js', 'calendar.js', 'todos.js', 'progress.js']);

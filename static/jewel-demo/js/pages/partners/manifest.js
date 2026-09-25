@@ -1,0 +1,1 @@
+JPMS.include('partners', ['shared.js', 'bid-packages.js', 'work-order-data.js', 'work-orders.js', 'po-sheet.js', 'work-order-po.js', 'communication-emails.js', 'communications.js', 'todo-data.js', 'todos.js', 'todo-detail.js', 'directory-data.js', 'directory.js', 'registers.js', 'policies.js', 'forms.js', 'emergency-contacts.js']);

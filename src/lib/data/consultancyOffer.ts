@@ -11,21 +11,21 @@ export const offerDocumentPath = '/documents/your-business-today-offer.pdf';
 export const consultancyOfferSteps: OfferStep[] = [
 	{
 		id: 'discovery',
-		name: 'Find the creation files',
+		name: 'Map your data sources',
 		terms: 'Two weeks · fixed price · no commitment to go further',
 		description:
-			'Every business runs on files that create something: the spreadsheet a quote is worked out in, the Word document a report is typed into, the email a job is agreed on, the photograph that proves the work was done. We spend two weeks with the people who make them, and we find every one.',
+			'Every business creates its data somewhere: the sheet a quote is worked out in, the document a report is typed into, the message a job is agreed on, the photograph that proves the work was done. We spend two weeks with the people who make them, and we map every source.',
 		deliverable:
-			'A written map of your creation files: what each one makes, who makes it, what it is made from, and where it goes next. With it, the order the harness should take them in and a fixed price for building it. Yours to keep whether or not you take it further.'
+			'A written map of your data sources: what each one creates, who creates it, what it is made from, and where it goes next. With it, the order the harness should take them in and a fixed price for building it. Yours to keep whether or not you take it further.'
 	},
 	{
 		id: 'harness',
 		name: 'Build the harness',
 		terms: 'The first build stage · six to eight weeks · agreed before it starts',
 		description:
-			'The harness is one place that holds what those files held. It is almost always a SQL database: a table for each thing your business makes, a column for each fact about it, every value checked at the door so nothing goes in that does not fit. Your people keep working the way they work; the harness is where the result now lives.',
+			'The harness is one place that holds what those sources hold. It is almost always a SQL database: a table for each thing your business makes, a column for each fact about it, every value checked at the door so nothing goes in that does not fit. Your people keep working the way they work; the harness is where the result now lives.',
 		deliverable:
-			'Your data in one typed, checked store you can see and query, with the first creation files retired into it. From this stage on you have dashboards over the harness and an MCP server on it, both live from the first week.'
+			'Your data in one typed, checked store you can see and query, with the first sources retired into it. From this stage on you have dashboards over the harness and an MCP server on it, both live from the first week.'
 	},
 	{
 		id: 'skills',

@@ -7,15 +7,15 @@ export type ConsultancyDiscipline = {
 export const consultancyDisciplines: ConsultancyDiscipline[] = [
 	{
 		id: 'discovery',
-		name: 'Finding the creation files',
+		name: 'Mapping your data sources',
 		description:
-			'The spreadsheets, documents, emails and photographs that create your data today, found and written down.'
+			'Wherever your business creates a record, a document or an asset today, found and written down.'
 	},
 	{
 		id: 'harness',
 		name: 'The harness',
 		description:
-			'One database that holds what those files held, every value typed and checked. Usually SQL, always yours.'
+			'One database that holds all of it, every value typed and checked. Usually SQL, always yours.'
 	},
 	{
 		id: 'skills',
@@ -26,7 +26,8 @@ export const consultancyDisciplines: ConsultancyDiscipline[] = [
 	{
 		id: 'dashboards',
 		name: 'Dashboards',
-		description: 'Views over the harness, so you can see the business the way any software would show it.'
+		description:
+			'Views over the harness, so you can see the business the way any software would show it.'
 	},
 	{
 		id: 'mcp',

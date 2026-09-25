@@ -10,4 +10,11 @@
 	<div class="mt-10">
 		<HarnessDiagram />
 	</div>
+	<a
+		href="/case-studies/jewel"
+		class="mt-10 inline-block rounded-full border border-hairline px-6 py-2.5 font-display text-sm
+			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
+	>
+		See it running in a real business
+	</a>
 </section>

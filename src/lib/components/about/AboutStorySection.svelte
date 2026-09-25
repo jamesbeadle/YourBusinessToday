@@ -9,12 +9,12 @@
 		three people who can never be away for a week.
 	</p>
 	<p class="mt-6 max-w-3xl text-chalk/80">
-		What we do about it is unusual only in that we do not stop at the recommendation. We find
-		the files your business creates its data in, the spreadsheets, documents and emails, and we
-		build the harness that holds what they hold: one database, typed and checked. Then we teach
+		What we do about it is unusual only in that we do not stop at the recommendation. We map
+		your data sources, wherever the business creates a record, a document or an asset, and we
+		build the harness that holds all of it: one database, typed and checked. Then we teach
 		an AI agent the complex processes that run around it, so that a Claude or a ChatGPT reads the
 		harness for its inputs and writes its outputs back. You see it all on dashboards, and the
-		agent works it through an MCP server on the same permissions as the screens.
+		agent works it through an MCP server, under the same roles as the screens.
 	</p>
 	<p class="mt-6 max-w-3xl text-chalk/80">
 		Everything we learn is written down in your own language and it belongs to you — your
@@ -27,4 +27,11 @@
 		request at the stage it is really at, and you can connect your own Claude to it and ask.
 		Work goes live a piece at a time, so the first part is earning before the second is built.
 	</p>
+	<a
+		href="/offer"
+		class="mt-10 inline-block rounded-full border border-hairline px-6 py-2.5 font-display text-sm
+			text-chalk/80 transition hover:border-chalk/40 hover:text-chalk"
+	>
+		How an engagement works
+	</a>
 </section>

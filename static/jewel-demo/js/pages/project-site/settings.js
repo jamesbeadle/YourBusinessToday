@@ -26,7 +26,7 @@
   }
 
   function detailsPane(project) {
-    const tiles = [['Stage', project.stage], ['Entity', 'JBB'], ['Project Manager', 'sophie.turner@jewel-demo.example'], ['Client', project.client], ['Site address', `Hollow Lane, ${project.town}, GU5 9QX`], ['Xero site', `${project.ref} ${project.name}`], ['Xero contact', project.client]];
+    const tiles = [['Stage', project.stage], ['Entity', 'JBB'], ['Project Manager', 'sophie.turner@jewel-demo.example'], ['Client', project.client], ['Site address', `Hollow Lane, ${project.town}, GU5 9ZZ`], ['Xero site', `${project.ref} ${project.name}`], ['Xero contact', project.client]];
     return [
       `<div class="row" style="justify-content:flex-end;margin-bottom:12px">${ui.btn('Edit details')}</div>`,
       `<div class="grid grid-3 grid-gap-sm" style="margin-bottom:12px">${tiles.map(([label, value]) => statTile(label, value)).join('')}</div>`,

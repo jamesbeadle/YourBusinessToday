@@ -23,7 +23,7 @@ before anything reaches an inbox from `yourbusiness.today`:
    | TXT | `resend._domainkey` | DKIM — signs every message as genuinely ours |
    | MX | `send` | Return path for bounces (points at Resend's Amazon SES relay) |
    | TXT | `send` | SPF for that return path (`v=spf1 include:amazonses.com ~all`) |
-   | TXT | `_dmarc` | Optional but recommended: `v=DMARC1; p=none;` to start |
+   | TXT | `_dmarc` | DMARC — required by Gmail and Yahoo: `v=DMARC1; p=none; rua=mailto:<an inbox you read>` to start |
 
 3. Click **Verify**. Propagation takes minutes to an hour; the domain shows **Verified**
    when all records resolve.
@@ -42,11 +42,44 @@ Environment Variables), for every environment that should send mail:
 | `ENQUIRY_NOTIFICATION_EMAIL` | The inbox that should receive website enquiries | The contact-form notification, once it lands |
 
 `EMAIL_FROM` must use the domain verified in step 1 — Resend rejects any other sender.
-`.env.example` still shows an old `yourbusinesstoday.uk` address; the live domain is
-`yourbusiness.today`.
+The live domain is `yourbusiness.today`; no other domain is ever used as a sender.
 
 Redeploy after changing them. The app reads these through `$env/dynamic/private`, so a
 running Vercel function picks them up on its next cold start, not before.
+
+## Checking mail stays out of spam
+
+Gmail, Yahoo and Outlook now file mail as spam, or refuse it, unless it passes SPF or
+DKIM *aligned with the From domain* and the domain publishes a DMARC record. With the
+records in step 1 in place Resend passes all three: DKIM signs as `yourbusiness.today`,
+and SPF passes on `send.yourbusiness.today`, which aligns with it. The usual reasons mail
+still lands in spam, most likely first:
+
+1. **The domain is not verified in Resend**, or one record failed. Resend → Domains
+   must show every record green, not just **Verified**.
+2. **`EMAIL_FROM` is on another domain** (an old `yourbusinesstoday.uk` value, or a
+   Gmail address). Check the value in Vercel, not in `.env.example`.
+3. **No DMARC record.** `_dmarc` is required, not optional: publish
+   `v=DMARC1; p=none; rua=mailto:<an inbox you read>` and leave it there.
+4. **Auth emails still come from Supabase** (`noreply@mail.app.supabase.io`) — section 3.
+5. **A new domain with no reputation.** Early mail is treated with suspicion; the fix
+   is to keep sending low volumes of mail people open, and to ask the first recipients
+   to mark it *Not spam*.
+
+To test, send one of each email (a project invite, a password reset from the admin
+page, a sign-up confirmation) to a Gmail and an Outlook address, then:
+
+- **Gmail:** open the message → ⋮ → **Show original**. SPF, DKIM and DMARC must each
+  read **PASS**, with DKIM `d=yourbusiness.today`.
+- **Outlook:** open the message → ⋯ → **View** → **View message source**, and find
+  `Authentication-Results`: `spf=pass`, `dkim=pass`, `dmarc=pass`.
+- **Score:** send one to the address [mail-tester.com](https://www.mail-tester.com)
+  gives you. 9/10 or better is the aim; it names anything that costs points.
+
+Once every test passes and the DMARC reports show nothing but Resend sending as
+`yourbusiness.today` for a couple of weeks, tighten the record to `p=quarantine`. If
+the root domain also sends mail from elsewhere (a mailbox provider), that provider
+needs its own SPF `include:` on the root and its own DKIM before tightening.
 
 ## 3. Supabase Auth through Resend's SMTP relay
 
@@ -141,6 +174,8 @@ itself, which is Stripe's hosted page and cannot be rebranded.
 | Done by hand in a dashboard | Where |
 | --- | --- |
 | Verify `yourbusiness.today` and create an API key | Resend |
+| Publish the `_dmarc` record | DNS provider |
+| Test in Gmail, Outlook and mail-tester — see *Checking mail stays out of spam* | Inboxes |
 | Set `RESEND_API_KEY`, `EMAIL_FROM`, `ENQUIRY_NOTIFICATION_EMAIL` | Vercel environment variables |
 | Enable custom SMTP through `smtp.resend.com:465` | Supabase → Authentication → Emails → SMTP Settings |
 | Raise the email rate limit | Supabase → Authentication → Rate Limits |

@@ -1,0 +1,1 @@
+JPMS.include('oversight', ['shared.js', 'recon-audit.js', 'audit-trail.js', 'agent-activity.js', 'ai-connections.js', 'sales-data.js', 'leads.js', 'lead-detail.js', 'inbox.js', 'strategies.js', 'users.js', 'system.js', 'integrations.js', 'trades.js', 'kpis.js', 'data-protection.js', 'skills-data.js', 'skills.js', 'ai-actions.js']);

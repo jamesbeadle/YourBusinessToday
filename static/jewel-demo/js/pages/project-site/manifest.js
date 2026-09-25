@@ -1,0 +1,1 @@
+JPMS.include('project-site', ['shell.js', 'site-photos.js', 'defects.js', 'inventory.js', 'site-instructions.js', 'building-control.js', 'hs.js', 'communications.js', 'useful-information.js', 'settings.js']);
